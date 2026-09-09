@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch — Chest opener turn away (side)">
+  <title>DeskBreak Stretch — Chest opener turn away (side)</title>
+  <rect width="512" height="512" fill="none"/>
+  <ellipse cx="256" cy="470" rx="120" ry="10" fill="#E7E2DA" opacity="0.5"/>
+  <g id="doorway">
+    <rect x="116" y="70" width="28" height="390" rx="4" fill="#E7E2DA" stroke="#1C1917" stroke-width="3.0"/>
+    <rect x="116" y="70" width="90" height="18" rx="4" fill="#E7E2DA" stroke="#1C1917" stroke-width="3.0"/>
+  </g>
+  <g id="leg">
+    <path d="M250,315 L255,455" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+    <path d="M250,315 L255,455" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="255" cy="459" rx="22" ry="8" fill="#1C1917"/>
+  </g>
+<path d="M240,315 L220,455" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" opacity="0.32"/>
+  <g id="torso" transform="rotate(14 255 245.0)">
+    <rect x="229.0" y="190" width="52" height="110" rx="18" fill="#FFFFFF" stroke="#1C1917" stroke-width="3.0"/>
+  </g>
+  <g class="arm">
+    <path d="M240,215 L180,200 L145,185" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M240,215 L180,200 L145,185" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="145" cy="185" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+  <g class="arm">
+    <path d="M265,230 L295,290 L305,350" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M265,230 L295,290 L305,350" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="305" cy="350" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+<path d="M200,175 Q230,160 260,170" fill="none" stroke="#FF5A36" stroke-width="2" opacity="0.5" stroke-dasharray="4 4"/>
+<path d="M290,210 L330,230" stroke="#FF5A36" stroke-width="2" opacity="0.6" stroke-linecap="round"/>
+<path d="M318,220 L332,232 L318,238" fill="none" stroke="#FF5A36" stroke-width="2" opacity="0.6"/>
+  <g id="head">
+    <circle cx="275" cy="140" r="34" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <path d="M245,134 Q265,100 297,112 Q285,132 255,144 Z" fill="#1C1917"/>
+    <path d="M309,142 L323,148 L309,154 Z" fill="#F3E6D8" stroke="#1C1917" stroke-width="2"/>
+    <circle cx="283" cy="140" r="3" fill="#1C1917"/>
+    <path d="M281,154 Q289,158 297,152" fill="none" stroke="#1C1917" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</svg>

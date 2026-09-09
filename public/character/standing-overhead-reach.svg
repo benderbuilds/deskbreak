@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch — Standing overhead reach (side)">
+  <title>DeskBreak Stretch — Standing overhead reach (side)</title>
+  <rect width="512" height="512" fill="none"/>
+  <ellipse cx="256" cy="470" rx="120" ry="10" fill="#E7E2DA" opacity="0.5"/>
+  <line x1="256" y1="90" x2="256" y2="460" stroke="#FF5A36" stroke-width="2" stroke-dasharray="5 5" opacity="0.75"/>
+  <g id="leg">
+    <path d="M256,315 L256,455" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+    <path d="M256,315 L256,455" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="256" cy="459" rx="22" ry="8" fill="#1C1917"/>
+  </g>
+<path d="M248,315 L238,455" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" opacity="0.3"/>
+  <g id="torso" transform="rotate(0 256 242.5)">
+    <rect x="231.0" y="185" width="50" height="115" rx="18" fill="#FFFFFF" stroke="#1C1917" stroke-width="3.0"/>
+  </g>
+  <g class="arm">
+    <path d="M260,205 L270,130 L275,75" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M260,205 L270,130 L275,75" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="275" cy="75" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+<path d="M250,210 L245,135 L248,80" fill="none" stroke="#1C1917" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+  <ellipse cx="268" cy="250" rx="18" ry="28" fill="none" stroke="#FF5A36" stroke-width="2" opacity="0.4" stroke-dasharray="4 4"/>
+<path d="M290,100 L290,70" stroke="#FF5A36" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+<path d="M285,80 L290,68 L295,80" fill="none" stroke="#FF5A36" stroke-width="2" opacity="0.5"/>
+  <g id="head">
+    <circle cx="256" cy="138" r="34" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <path d="M226,132 Q246,98 278,110 Q266,130 236,142 Z" fill="#1C1917"/>
+    <path d="M284,142 L294,147 L284,152 Z" fill="#F3E6D8" stroke="#1C1917" stroke-width="2"/>
+    <circle cx="260" cy="138" r="3" fill="#1C1917"/>
+    <path d="M262,152 Q270,156 278,150" fill="none" stroke="#1C1917" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</svg>

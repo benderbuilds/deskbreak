@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch — Wall angels arms up (side)">
+  <title>DeskBreak Stretch — Wall angels arms up (side)</title>
+  <rect width="512" height="512" fill="none"/>
+  <ellipse cx="256" cy="470" rx="120" ry="10" fill="#E7E2DA" opacity="0.5"/>
+  <line x1="150" y1="70" x2="150" y2="455" stroke="#1C1917" stroke-width="3" opacity="0.55"/>
+  <line x1="150" y1="70" x2="150" y2="455" stroke="#E7E2DA" stroke-width="10" opacity="0.35"/>
+  <path d="M158,300 L158,340" stroke="#FF5A36" stroke-width="2.5" opacity="0.55" stroke-dasharray="3 4"/>
+  <g id="leg">
+    <path d="M190,320 L200,455" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+    <path d="M190,320 L200,455" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="200" cy="459" rx="22" ry="8" fill="#1C1917"/>
+  </g>
+<path d="M184,320 L174,455" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" opacity="0.3"/>
+  <g id="torso" transform="rotate(0 190 252.5)">
+    <rect x="165.0" y="195" width="50" height="115" rx="18" fill="#FFFFFF" stroke="#1C1917" stroke-width="3.0"/>
+  </g>
+  <g class="arm">
+    <path d="M198,220 L220,140 L210,85" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M198,220 L220,140 L210,85" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="210" cy="85" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+<path d="M185,230 L170,150 L180,90" fill="none" stroke="#1C1917" stroke-width="8" stroke-linecap="round" opacity="0.28"/>
+<circle cx="210" cy="85" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+<path d="M235,200 L235,110" stroke="#FF5A36" stroke-width="2" opacity="0.55" stroke-linecap="round"/>
+<path d="M230,120 L235,108 L240,120" fill="none" stroke="#FF5A36" stroke-width="2" opacity="0.55"/>
+  <g id="head">
+    <circle cx="198" cy="145" r="34" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <path d="M168,139 Q188,105 220,117 Q208,137 178,149 Z" fill="#1C1917"/>
+    <path d="M232,147 L246,153 L232,159 Z" fill="#F3E6D8" stroke="#1C1917" stroke-width="2"/>
+    <circle cx="206" cy="145" r="3" fill="#1C1917"/>
+    <path d="M204,159 Q212,163 220,157" fill="none" stroke="#1C1917" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</svg>

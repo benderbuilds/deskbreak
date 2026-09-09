@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch — Foot tripod + toe spread (front)">
+  <title>DeskBreak Stretch — Foot tripod + toe spread (front)</title>
+  <rect width="512" height="512" fill="none"/>
+  <ellipse cx="256" cy="470" rx="120" ry="10" fill="#E7E2DA" opacity="0.5"/>
+  <g id="foot">
+    <!-- sole oval -->
+    <ellipse cx="256" cy="300" rx="70" ry="130" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <!-- heel pad -->
+    <ellipse cx="256" cy="390" rx="42" ry="28" fill="#E7E2DA" stroke="#1C1917" stroke-width="2" opacity="0.85"/>
+    <!-- ball of foot -->
+    <ellipse cx="256" cy="220" rx="55" ry="32" fill="#E7E2DA" stroke="#1C1917" stroke-width="2" opacity="0.7"/>
+    <!-- toes spread -->
+    <ellipse cx="200" cy="155" rx="14" ry="28" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0" transform="rotate(-18 200 155)"/>
+    <ellipse cx="228" cy="140" rx="13" ry="30" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0" transform="rotate(-8 228 140)"/>
+    <ellipse cx="256" cy="135" rx="13" ry="32" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <ellipse cx="284" cy="140" rx="13" ry="30" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0" transform="rotate(8 284 140)"/>
+    <ellipse cx="312" cy="155" rx="14" ry="28" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0" transform="rotate(18 312 155)"/>
+    <!-- tripod dots: big toe MTP, little toe MTP, heel -->
+    <circle cx="218" cy="210" r="10" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+    <circle cx="300" cy="215" r="10" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+    <circle cx="256" cy="395" r="10" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+    <!-- labels as tiny ticks -->
+    <path d="M218,195 L218,175" stroke="#FF5A36" stroke-width="2" opacity="0.5"/>
+    <path d="M300,200 L300,180" stroke="#FF5A36" stroke-width="2" opacity="0.5"/>
+    <path d="M256,410 L256,430" stroke="#FF5A36" stroke-width="2" opacity="0.5"/>
+    <!-- spread arrows between toes -->
+    <path d="M210,150 L222,145" stroke="#2DD4A8" stroke-width="2" opacity="0.7"/>
+    <path d="M240,138 L250,136" stroke="#2DD4A8" stroke-width="2" opacity="0.7"/>
+    <path d="M262,136 L272,138" stroke="#2DD4A8" stroke-width="2" opacity="0.7"/>
+    <path d="M290,145 L302,150" stroke="#2DD4A8" stroke-width="2" opacity="0.7"/>
+  </g>
+</svg>

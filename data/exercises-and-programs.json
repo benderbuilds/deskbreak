@@ -1,455 +1,1403 @@
 {
+  "version": 4,
+  "product": "DeskBreak",
   "exercises": [
     {
-      "id": "chin-tucks",
-      "access": "free",
-      "name": "Chin tucks",
-      "cue": "Glide your chin straight back, as if making a double chin, then ease forward.",
+      "id": "chin-tuck",
+      "name": "Chin tuck",
+      "cue": "Gently pull chin straight back like making a double chin.",
       "bodyArea": "neck",
-      "defaultDose": { "reps": 8 },
-      "commonMistake": "Tipping the head down instead of sliding it back.",
-      "skipIf": ["neck-irritation", "dizziness"],
-      "saferSwapId": "neck-nods",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 8
+      },
+      "commonMistake": "Tipping the head up or down instead of sliding straight back.",
+      "skipIf": [
+        "acute_neck_injury",
+        "dizziness"
+      ],
+      "saferSwapId": null,
+      "access": "free",
       "stretchView": "side",
       "stretchAsset": "chin-tuck.svg",
       "stretchAssetB": "chin-tuck-b.svg",
       "stretchAssetFrontArchive": "chin-tuck-front.svg"
     },
     {
-      "id": "neck-nods",
-      "access": "free",
-      "name": "Easy neck nods",
-      "cue": "Tiny yes-nods from the crown — think 2 centimeters, not a big look-down.",
-      "bodyArea": "neck",
-      "defaultDose": { "reps": 8 },
-      "commonMistake": "Crunching through the whole neck.",
-      "skipIf": ["dizziness"],
-      "saferSwapId": null
-    },
-    {
       "id": "neck-side-stretch",
-      "access": "pro",
       "name": "Neck side stretch",
-      "cue": "Ear toward shoulder, opposite hand resting in your lap. Breathe into the long side.",
+      "cue": "Ear toward shoulder; opposite hand rests lightly on the head.",
       "bodyArea": "neck",
-      "defaultDose": { "holdSec": 15, "perSide": true },
-      "commonMistake": "Hiking the opposite shoulder up toward the ear.",
-      "skipIf": ["neck-irritation"],
-      "saferSwapId": "chin-tucks"
-    },
-    {
-      "id": "neck-turns",
-      "access": "pro",
-      "name": "Slow neck turns",
-      "cue": "Look over one shoulder as if checking a coworker, pause, then the other side.",
-      "bodyArea": "neck",
-      "defaultDose": { "reps": 6, "perSide": true },
-      "commonMistake": "Jerking or cranking to the end range.",
-      "skipIf": ["dizziness", "neck-irritation"],
-      "saferSwapId": "neck-nods"
-    },
-    {
-      "id": "shoulder-rolls",
+      "defaultDose": {
+        "type": "holdSec",
+        "seconds": 25
+      },
+      "commonMistake": "Yanking or twisting the neck.",
+      "skipIf": [
+        "sharp_neck_pain",
+        "recent_neck_surgery"
+      ],
+      "saferSwapId": "chin-tuck",
       "access": "free",
-      "name": "Shoulder rolls",
-      "cue": "Roll shoulders up, back, and down like you’re sliding off a too-tight jacket.",
-      "bodyArea": "shoulders",
-      "defaultDose": { "reps": 10 },
-      "commonMistake": "Only shrugging up, never finishing the down-and-back.",
-      "skipIf": [],
-      "saferSwapId": null
+      "stretchView": "front",
+      "stretchAsset": "neck-side-stretch.svg",
+      "stretchAssetB": "neck-side-stretch-b.svg",
+      "stretchAssetFrontArchive": "neck-side-stretch-front.svg"
     },
     {
-      "id": "scapular-squeezes",
+      "id": "neck-rotation",
+      "name": "Neck rotation",
+      "cue": "Slowly turn left, pause, then right.",
+      "bodyArea": "neck",
+      "defaultDose": {
+        "type": "repsEachSide",
+        "reps": 5
+      },
+      "commonMistake": "Forcing past a comfortable range.",
+      "skipIf": [
+        "vertigo",
+        "cervical_disc_flare"
+      ],
+      "saferSwapId": "chin-tuck",
       "access": "pro",
-      "name": "Shoulder blade squeezes",
-      "cue": "Draw the blades toward each other and slightly down. Soften the ribs.",
-      "bodyArea": "shoulders",
-      "defaultDose": { "reps": 8, "holdSec": 3 },
-      "commonMistake": "Flaring the ribs or puffing the chest.",
-      "skipIf": [],
+      "stretchView": "front",
+      "stretchAsset": "neck-rotation.svg",
+      "stretchAssetB": "neck-rotation-b.svg",
+      "stretchAssetFrontArchive": "neck-rotation-front.svg"
+    },
+    {
+      "id": "upper-trap-release",
+      "name": "Upper trap release",
+      "cue": "Sit tall, drop one ear toward the shoulder, look slightly down.",
+      "bodyArea": "neck",
+      "defaultDose": {
+        "type": "holdSecEachSide",
+        "seconds": 25
+      },
+      "commonMistake": "Shrugging the stretching shoulder up.",
+      "skipIf": [
+        "migraine_aura",
+        "severe_neck_spasm"
+      ],
+      "saferSwapId": "neck-side-stretch",
+      "access": "pro",
+      "stretchView": "front",
+      "stretchAsset": "upper-trap-release.svg",
+      "stretchAssetB": "upper-trap-release-b.svg",
+      "stretchAssetFrontArchive": "upper-trap-release-front.svg"
+    },
+    {
+      "id": "seated-scap-squeeze",
+      "name": "Seated scap squeeze",
+      "cue": "Squeeze shoulder blades together and down.",
+      "bodyArea": "upper_back",
+      "defaultDose": {
+        "type": "repsHold",
+        "reps": 10,
+        "holdSec": 3
+      },
+      "commonMistake": "Shrugging shoulders up toward the ears.",
+      "skipIf": [
+        "acute_shoulder_impingement"
+      ],
       "saferSwapId": "shoulder-rolls",
+      "access": "free",
+      "stretchView": "front",
       "stretchAsset": "seated-scap-squeeze.svg",
-      "stretchAssetB": "seated-scap-squeeze-b.svg"
+      "stretchAssetB": "seated-scap-squeeze-b.svg",
+      "stretchAssetFrontArchive": "seated-scap-squeeze-front.svg"
     },
     {
-      "id": "overhead-reach",
+      "id": "thoracic-extension",
+      "name": "Thoracic extension over chair",
+      "cue": "Hands behind head; gently lean upper back over the chair back.",
+      "bodyArea": "upper_back",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 8
+      },
+      "commonMistake": "Hyperextending the low back.",
+      "skipIf": [
+        "mid_back_injury",
+        "osteoporosis"
+      ],
+      "saferSwapId": "seated-cat-cow",
       "access": "pro",
-      "name": "Overhead reach",
-      "cue": "Interlace fingers, turn palms up, and reach toward the ceiling without shrugging.",
-      "bodyArea": "shoulders",
-      "defaultDose": { "holdSec": 20 },
-      "commonMistake": "Cranking the low back instead of reaching long.",
-      "skipIf": ["shoulder-irritation"],
-      "saferSwapId": "desk-push-away"
-    },
-    {
-      "id": "desk-push-away",
-      "access": "pro",
-      "name": "Desk push-away",
-      "cue": "Hands on the desk, round the upper back as you push the desk away, then let the chest melt forward.",
-      "bodyArea": "shoulders",
-      "defaultDose": { "reps": 8 },
-      "commonMistake": "Locking the elbows hard or collapsing the neck.",
-      "skipIf": [],
-      "saferSwapId": "scapular-squeezes"
-    },
-    {
-      "id": "upper-trap-drop",
-      "access": "pro",
-      "name": "Upper trap drop",
-      "cue": "Hold the chair seat with one hand, gently tilt head the other way, and let that shoulder hang.",
-      "bodyArea": "shoulders",
-      "defaultDose": { "holdSec": 15, "perSide": true },
-      "commonMistake": "Yanking the head with the free hand.",
-      "skipIf": ["neck-irritation"],
-      "saferSwapId": "shoulder-rolls"
-    },
-    {
-      "id": "shoulder-blade-slides",
-      "access": "pro",
-      "name": "Blade slides",
-      "cue": "Arms by your sides, slide the shoulder blades down toward your back pockets, then release.",
-      "bodyArea": "shoulders",
-      "defaultDose": { "reps": 8 },
-      "commonMistake": "Pinching the neck instead of sliding the blades down.",
-      "skipIf": [],
-      "saferSwapId": "scapular-squeezes"
-    },
-    {
-      "id": "chest-opener",
-      "access": "pro",
-      "name": "Chest opener",
-      "cue": "Clasp hands behind you (or grab the chair back) and open the collarbones to the room.",
-      "bodyArea": "upperBack",
-      "defaultDose": { "holdSec": 20 },
-      "commonMistake": "Craning the chin up or pinching the low back.",
-      "skipIf": ["shoulder-irritation"],
-      "saferSwapId": "seated-cat-cow"
+      "stretchView": "side",
+      "stretchAsset": "thoracic-extension.svg",
+      "stretchAssetB": "thoracic-extension-b.svg",
+      "stretchAssetFrontArchive": "thoracic-extension-front.svg"
     },
     {
       "id": "seated-cat-cow",
-      "access": "free",
       "name": "Seated cat-cow",
-      "cue": "Hands on thighs: round the spine and look toward the belt, then lift the chest and gaze softly ahead.",
-      "bodyArea": "upperBack",
-      "defaultDose": { "reps": 8 },
-      "commonMistake": "Only moving the neck, not the ribcage.",
-      "skipIf": [],
-      "saferSwapId": null
-    },
-    {
-      "id": "thoracic-rotation",
+      "cue": "Round the spine, then open the chest \u2014 slow and smooth.",
+      "bodyArea": "upper_back",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 8
+      },
+      "commonMistake": "Rushing or forcing end range.",
+      "skipIf": [
+        "recent_spinal_surgery"
+      ],
+      "saferSwapId": "seated-scap-squeeze",
       "access": "pro",
-      "name": "Chair twists",
-      "cue": "Sit tall, hand on the opposite chair back, and rotate from the ribs — not the neck.",
-      "bodyArea": "upperBack",
-      "defaultDose": { "reps": 6, "perSide": true },
-      "commonMistake": "Yanking with the arms or twisting through a slumped spine.",
-      "skipIf": ["low-back-irritation"],
-      "saferSwapId": "seated-cat-cow"
-    },
-    {
-      "id": "standing-extension",
-      "access": "pro",
-      "name": "Stand-and-open",
-      "cue": "Stand, hands on the low back or desk, and gently lift the chest as if looking over a fence.",
-      "bodyArea": "upperBack",
-      "defaultDose": { "reps": 8 },
-      "commonMistake": "Hinging only in the low back or throwing the head back.",
-      "skipIf": ["cannot-stand", "dizziness"],
-      "saferSwapId": "seated-cat-cow",
       "stretchView": "side",
-      "stretchAsset": "standing-posture-reset.svg",
-      "stretchAssetB": "standing-posture-reset-b.svg"
+      "stretchAsset": "seated-cat-cow.svg",
+      "stretchAssetB": "seated-cat-cow-b.svg",
+      "stretchAssetFrontArchive": "seated-cat-cow-front.svg"
     },
     {
-      "id": "pec-stretch-desk",
+      "id": "chest-opener",
+      "name": "Doorway or wall chest opener",
+      "cue": "Forearm on frame or wall; gently turn the body away.",
+      "bodyArea": "shoulders",
+      "defaultDose": {
+        "type": "holdSecEachSide",
+        "seconds": 25
+      },
+      "commonMistake": "Leaning so hard the front of the shoulder hurts.",
+      "skipIf": [
+        "recent_shoulder_dislocation"
+      ],
+      "saferSwapId": "shoulder-rolls",
       "access": "pro",
-      "name": "Desk pec stretch",
-      "cue": "Forearm along the desk edge, step the same-side foot back, and rotate the chest open.",
-      "bodyArea": "upperBack",
-      "defaultDose": { "holdSec": 20, "perSide": true },
-      "commonMistake": "Shrugging the stretching shoulder up by the ear.",
-      "skipIf": ["cannot-stand", "shoulder-irritation"],
-      "saferSwapId": "chest-opener"
+      "stretchView": "side",
+      "stretchAsset": "chest-opener.svg",
+      "stretchAssetB": "chest-opener-b.svg",
+      "stretchAssetFrontArchive": "chest-opener-front.svg"
     },
     {
-      "id": "side-body-reach",
-      "access": "pro",
-      "name": "Side body reach",
-      "cue": "Sit tall, reach one arm overhead, and crescent over without collapsing the opposite hip.",
-      "bodyArea": "upperBack",
-      "defaultDose": { "holdSec": 15, "perSide": true },
-      "commonMistake": "Leaning forward instead of stacking long over the hip.",
+      "id": "shoulder-rolls",
+      "name": "Shoulder rolls",
+      "cue": "Slow circles backward, then forward.",
+      "bodyArea": "shoulders",
+      "defaultDose": {
+        "type": "repsEachWay",
+        "reps": 8
+      },
+      "commonMistake": "Rushing or crunching the neck.",
       "skipIf": [],
-      "saferSwapId": "seated-cat-cow"
+      "saferSwapId": null,
+      "access": "free",
+      "stretchView": "front",
+      "stretchAsset": "shoulder-rolls.svg",
+      "stretchAssetB": "shoulder-rolls-b.svg",
+      "stretchAssetFrontArchive": "shoulder-rolls-front.svg"
     },
     {
-      "id": "wrist-circles",
-      "access": "free",
-      "name": "Wrist circles",
-      "cue": "Elbows by your ribs, make slow circles with both fists, then switch directions.",
-      "bodyArea": "wrists",
-      "defaultDose": { "reps": 8 },
-      "commonMistake": "Rushing or locking the shoulders up.",
-      "skipIf": ["wrist-pain"],
-      "saferSwapId": "finger-fans"
+      "id": "wall-angels",
+      "name": "Wall angels",
+      "cue": "Back to wall or chair; slide arms up like a slow snow angel.",
+      "bodyArea": "upper_back",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 8
+      },
+      "commonMistake": "Arching the low back off the wall.",
+      "skipIf": [
+        "frozen_shoulder"
+      ],
+      "saferSwapId": "seated-scap-squeeze",
+      "access": "pro",
+      "stretchView": "side",
+      "stretchAsset": "wall-angels.svg",
+      "stretchAssetB": "wall-angels-b.svg",
+      "stretchAssetFrontArchive": "wall-angels-front.svg"
     },
     {
       "id": "wrist-flexor-stretch",
-      "access": "pro",
-      "name": "Palm-up stretch",
-      "cue": "Arm forward, palm up; with the other hand, ease fingers toward the floor.",
+      "name": "Wrist flexor stretch",
+      "cue": "Arm out, palm up; gently pull fingers down.",
       "bodyArea": "wrists",
-      "defaultDose": { "holdSec": 15, "perSide": true },
-      "commonMistake": "Bending the elbow or forcing a sharp angle.",
-      "skipIf": ["wrist-pain"],
+      "defaultDose": {
+        "type": "holdSecEachSide",
+        "seconds": 25
+      },
+      "commonMistake": "Locking the elbow hard.",
+      "skipIf": [
+        "carpal_tunnel_flare",
+        "recent_wrist_sprain"
+      ],
       "saferSwapId": "wrist-circles",
+      "access": "free",
       "stretchView": "side",
       "stretchAsset": "wrist-flexor-stretch.svg",
+      "stretchAssetB": "wrist-flexor-stretch-b.svg",
       "stretchAssetFrontArchive": "wrist-flexor-stretch-front.svg"
     },
     {
       "id": "wrist-extensor-stretch",
-      "access": "pro",
-      "name": "Palm-down stretch",
-      "cue": "Arm forward, palm down; gently draw the hand toward you until the top of the forearm wakes up.",
+      "name": "Wrist extensor stretch",
+      "cue": "Arm out, palm down; gently pull fingers toward you.",
       "bodyArea": "wrists",
-      "defaultDose": { "holdSec": 15, "perSide": true },
-      "commonMistake": "Pressing into a painful pinch at the wrist crease.",
-      "skipIf": ["wrist-pain"],
+      "defaultDose": {
+        "type": "holdSecEachSide",
+        "seconds": 25
+      },
+      "commonMistake": "Bouncing into the stretch.",
+      "skipIf": [
+        "wrist_tendinitis_flare"
+      ],
       "saferSwapId": "wrist-circles",
+      "access": "free",
       "stretchView": "side",
       "stretchAsset": "wrist-extensor-stretch.svg",
+      "stretchAssetB": "wrist-extensor-stretch-b.svg",
       "stretchAssetFrontArchive": "wrist-extensor-stretch-front.svg"
     },
     {
-      "id": "finger-fans",
-      "access": "free",
-      "name": "Finger fans",
-      "cue": "Spread the fingers wide, then make a soft fist. Repeat like a slow blink.",
+      "id": "wrist-circles",
+      "name": "Wrist circles",
+      "cue": "Slow circles in both directions.",
       "bodyArea": "wrists",
-      "defaultDose": { "reps": 10 },
-      "commonMistake": "Clenching so hard the forearms cramp.",
-      "skipIf": [],
-      "saferSwapId": null
-    },
-    {
-      "id": "prayer-stretch",
+      "defaultDose": {
+        "type": "repsEachWay",
+        "reps": 8
+      },
+      "commonMistake": "Forcing through sharp pain.",
+      "skipIf": [
+        "acute_wrist_injury"
+      ],
+      "saferSwapId": "finger-fans",
       "access": "pro",
-      "name": "Prayer stretch",
-      "cue": "Palms together at the chest, slowly lower the heels of the hands toward the navel.",
-      "bodyArea": "wrists",
-      "defaultDose": { "holdSec": 15 },
-      "commonMistake": "Letting the heels of the hands peel apart.",
-      "skipIf": ["wrist-pain"],
-      "saferSwapId": "finger-fans"
+      "stretchView": "front",
+      "stretchAsset": "wrist-circles.svg",
+      "stretchAssetB": "wrist-circles-b.svg",
+      "stretchAssetFrontArchive": "wrist-circles-front.svg"
     },
     {
-      "id": "seated-figure-four",
-      "access": "free",
-      "name": "Seated figure-four",
-      "cue": "Ankle on the opposite knee, sit tall, and hinge a little forward from the hips.",
+      "id": "finger-fans",
+      "name": "Finger fans",
+      "cue": "Spread fingers wide, then make a soft fist.",
+      "bodyArea": "wrists",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 10
+      },
+      "commonMistake": "Clenching hard if hands are sore.",
+      "skipIf": [
+        "severe_hand_arthritis"
+      ],
+      "saferSwapId": null,
+      "access": "pro",
+      "stretchView": "front",
+      "stretchAsset": "finger-fans.svg",
+      "stretchAssetB": "finger-fans-b.svg",
+      "stretchAssetFrontArchive": "finger-fans-front.svg"
+    },
+    {
+      "id": "seated-figure-4",
+      "name": "Seated figure-4",
+      "cue": "Ankle on opposite knee; hinge forward slightly.",
       "bodyArea": "hips",
-      "defaultDose": { "holdSec": 20, "perSide": true },
-      "commonMistake": "Rounding the back instead of hinging, or forcing the knee down.",
-      "skipIf": ["knee-irritation"],
-      "saferSwapId": "glute-squeezes",
+      "defaultDose": {
+        "type": "holdSecEachSide",
+        "seconds": 25
+      },
+      "commonMistake": "Pressing down on the bent knee.",
+      "skipIf": [
+        "hip_replacement_restrictions",
+        "knee_pain_in_position"
+      ],
+      "saferSwapId": "seated-march",
+      "access": "free",
       "stretchView": "side",
       "stretchAsset": "seated-figure-4.svg",
+      "stretchAssetB": "seated-figure-4-b.svg",
       "stretchAssetFrontArchive": "seated-figure-4-front.svg"
     },
     {
-      "id": "seated-hip-flexor",
-      "access": "pro",
-      "name": "Chair-edge hip flexor",
-      "cue": "Perch on the front of the chair, one foot back, tuck the tail slightly, and breathe.",
+      "id": "seated-hip-opener",
+      "name": "Seated hip opener",
+      "cue": "Sit tall; open knees outward with feet planted.",
       "bodyArea": "hips",
-      "defaultDose": { "holdSec": 15, "perSide": true },
-      "commonMistake": "Arching the low back instead of tucking gently.",
-      "skipIf": ["low-back-irritation"],
-      "saferSwapId": "glute-squeezes"
+      "defaultDose": {
+        "type": "reps",
+        "reps": 8
+      },
+      "commonMistake": "Collapsing the low back.",
+      "skipIf": [
+        "groin_pain"
+      ],
+      "saferSwapId": "seated-march",
+      "access": "pro",
+      "stretchView": "front",
+      "stretchAsset": "seated-hip-opener.svg",
+      "stretchAssetB": "seated-hip-opener-b.svg",
+      "stretchAssetFrontArchive": "seated-hip-opener-front.svg"
     },
     {
-      "id": "seated-twist",
-      "access": "pro",
-      "name": "Easy seated twist",
-      "cue": "Inhale tall, exhale and rotate toward the chair back. Keep both sit bones heavy.",
+      "id": "standing-hip-flexor",
+      "name": "Standing hip flexor stretch",
+      "cue": "Step one foot back; gently tuck the pelvis.",
       "bodyArea": "hips",
-      "defaultDose": { "breaths": 4, "perSide": true },
-      "commonMistake": "Twisting from a slumped seat or yanking the neck.",
-      "skipIf": ["low-back-irritation"],
-      "saferSwapId": "seated-cat-cow"
+      "defaultDose": {
+        "type": "holdSecEachSide",
+        "seconds": 25
+      },
+      "commonMistake": "Arching the low back.",
+      "skipIf": [
+        "balance_issues_without_support"
+      ],
+      "saferSwapId": "seated-hip-opener",
+      "notes": "Hold desk for balance if needed.",
+      "access": "pro",
+      "stretchView": "side",
+      "stretchAsset": "standing-hip-flexor.svg",
+      "stretchAssetB": "standing-hip-flexor-b.svg",
+      "stretchAssetFrontArchive": "standing-hip-flexor-front.svg"
     },
     {
-      "id": "glute-squeezes",
-      "access": "pro",
-      "name": "Seated glute squeezes",
-      "cue": "Press the sit bones into the chair, squeeze, hold a beat, then fully let go.",
+      "id": "glute-bridge",
+      "name": "Glute bridge",
+      "cue": "Lie down, squeeze glutes, lift hips.",
       "bodyArea": "hips",
-      "defaultDose": { "reps": 10, "holdSec": 3 },
-      "commonMistake": "Holding the breath or clenching the jaw.",
-      "skipIf": [],
-      "saferSwapId": null
+      "defaultDose": {
+        "type": "reps",
+        "reps": 10
+      },
+      "commonMistake": "Pushing through low-back pain.",
+      "skipIf": [
+        "cannot_get_to_floor_safely"
+      ],
+      "saferSwapId": "standing-glute-squeeze",
+      "access": "pro",
+      "stretchView": "side",
+      "stretchAsset": "glute-bridge.svg",
+      "stretchAssetB": "glute-bridge-b.svg",
+      "stretchAssetFrontArchive": "glute-bridge-front.svg"
     },
     {
-      "id": "standing-hip-hinge",
-      "access": "pro",
-      "name": "Desk hip hinge",
-      "cue": "Hands on the desk, send hips back, long spine, then stand by squeezing the glutes.",
+      "id": "standing-glute-squeeze",
+      "name": "Standing glute squeeze",
+      "cue": "Soft knees; squeeze glutes for 3 seconds.",
       "bodyArea": "hips",
-      "defaultDose": { "reps": 8 },
-      "commonMistake": "Rounding the back or locking the knees.",
-      "skipIf": ["cannot-stand"],
-      "saferSwapId": "glute-squeezes"
-    },
-    {
-      "id": "seated-marches",
-      "access": "free",
-      "name": "Seated marches",
-      "cue": "Lift one knee, tap it down, switch. Keep the chest quiet and the belly soft.",
-      "bodyArea": "legs",
-      "defaultDose": { "reps": 20 },
-      "commonMistake": "Leaning back or gripping the chair for dear life.",
+      "defaultDose": {
+        "type": "repsHold",
+        "reps": 10,
+        "holdSec": 3
+      },
+      "commonMistake": "Locking the knees.",
       "skipIf": [],
       "saferSwapId": null,
-      "stretchAsset": "seated-marches.svg"
+      "access": "pro",
+      "stretchView": "front",
+      "stretchAsset": "standing-glute-squeeze.svg",
+      "stretchAssetB": "standing-glute-squeeze-b.svg",
+      "stretchAssetFrontArchive": "standing-glute-squeeze-front.svg"
     },
     {
-      "id": "sit-to-stand",
-      "access": "pro",
-      "name": "Sit-to-stand",
-      "cue": "Feet under knees, stand without using your hands if you can, then sit slowly.",
+      "id": "calf-raise",
+      "name": "Calf raise",
+      "cue": "Rise onto toes, then lower slowly.",
       "bodyArea": "legs",
-      "defaultDose": { "reps": 8 },
-      "commonMistake": "Shooting the knees forward or collapsing the chest.",
-      "skipIf": ["cannot-stand", "knee-irritation"],
-      "saferSwapId": "seated-marches"
-    },
-    {
-      "id": "calf-raises",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 12
+      },
+      "commonMistake": "Bouncing at the top.",
+      "skipIf": [
+        "achilles_pain_flare"
+      ],
+      "saferSwapId": "ankle-circles",
+      "notes": "Hold desk for balance if needed.",
       "access": "pro",
-      "name": "Desk calf raises",
-      "cue": "Hold the desk lightly, rise onto the balls of the feet, then lower with control.",
-      "bodyArea": "legs",
-      "defaultDose": { "reps": 12 },
-      "commonMistake": "Bouncing or rolling onto the outer edges of the feet.",
-      "skipIf": ["cannot-stand"],
-      "saferSwapId": "ankle-circles"
+      "stretchView": "front",
+      "stretchAsset": "calf-raise.svg",
+      "stretchAssetB": "calf-raise-b.svg",
+      "stretchAssetFrontArchive": "calf-raise-front.svg"
     },
     {
       "id": "ankle-circles",
-      "access": "pro",
       "name": "Ankle circles",
-      "cue": "Hover one foot and draw slow circles. Switch direction, then switch feet.",
+      "cue": "Lift one foot; circle slowly both ways.",
       "bodyArea": "legs",
-      "defaultDose": { "reps": 8, "perSide": true },
-      "commonMistake": "Moving the whole leg instead of the ankle.",
+      "defaultDose": {
+        "type": "repsEachWayEachSide",
+        "reps": 8
+      },
+      "commonMistake": "Rushing the circles.",
+      "skipIf": [
+        "acute_ankle_sprain"
+      ],
+      "saferSwapId": "seated-march",
+      "access": "pro",
+      "stretchView": "front",
+      "stretchAsset": "ankle-circles.svg",
+      "stretchAssetB": "ankle-circles-b.svg",
+      "stretchAssetFrontArchive": "ankle-circles-front.svg"
+    },
+    {
+      "id": "seated-march",
+      "name": "Seated march",
+      "cue": "Lift knees alternately while seated.",
+      "bodyArea": "legs",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 20
+      },
+      "commonMistake": "Leaning hard on the chair arms.",
+      "skipIf": [
+        "severe_hip_or_knee_pain"
+      ],
+      "saferSwapId": "ankle-circles",
+      "access": "free",
+      "stretchView": "front",
+      "stretchAsset": "seated-march.svg",
+      "stretchAssetB": "seated-march-b.svg",
+      "stretchAssetFrontArchive": "seated-march-front.svg"
+    },
+    {
+      "id": "standing-quad-stretch",
+      "name": "Standing quad stretch",
+      "cue": "Hold ankle behind you; keep knees close; hold the desk.",
+      "bodyArea": "legs",
+      "defaultDose": {
+        "type": "holdSecEachSide",
+        "seconds": 25
+      },
+      "commonMistake": "Twisting the knee outward.",
+      "skipIf": [
+        "balance_risk",
+        "knee_injury"
+      ],
+      "saferSwapId": "seated-march",
+      "access": "pro",
+      "stretchView": "front",
+      "stretchAsset": "standing-quad-stretch.svg",
+      "stretchAssetB": "standing-quad-stretch-b.svg",
+      "stretchAssetFrontArchive": "standing-quad-stretch-front.svg"
+    },
+    {
+      "id": "hamstring-hinge",
+      "name": "Hamstring hinge (desk-assisted)",
+      "cue": "Soft knees; hinge at hips with hands on the desk.",
+      "bodyArea": "legs",
+      "defaultDose": {
+        "type": "holdSec",
+        "seconds": 25
+      },
+      "commonMistake": "Rounding hard through the low back.",
+      "skipIf": [
+        "acute_disc_pain"
+      ],
+      "saferSwapId": "seated-march",
+      "access": "pro",
+      "stretchView": "side",
+      "stretchAsset": "hamstring-hinge.svg",
+      "stretchAssetB": "hamstring-hinge-b.svg",
+      "stretchAssetFrontArchive": "hamstring-hinge-front.svg"
+    },
+    {
+      "id": "seated-pelvic-tilts",
+      "name": "Seated pelvic tilts",
+      "cue": "Gently rock pelvis to flatten then arch the low back.",
+      "bodyArea": "core",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 8
+      },
+      "commonMistake": "Forcing a big range of motion.",
+      "skipIf": [
+        "acute_lumbar_spasm"
+      ],
+      "saferSwapId": "standing-posture-reset",
+      "access": "pro",
+      "stretchView": "side",
+      "stretchAsset": "seated-pelvic-tilts.svg",
+      "stretchAssetB": "seated-pelvic-tilts-b.svg",
+      "stretchAssetFrontArchive": "seated-pelvic-tilts-front.svg"
+    },
+    {
+      "id": "seated-side-bend",
+      "name": "Seated side bend",
+      "cue": "Reach one arm overhead and lean gently to the side.",
+      "bodyArea": "core",
+      "defaultDose": {
+        "type": "repsEachSide",
+        "reps": 5
+      },
+      "commonMistake": "Collapsing forward instead of lengthening.",
+      "skipIf": [
+        "rib_or_side_strain"
+      ],
+      "saferSwapId": "standing-posture-reset",
+      "access": "pro",
+      "stretchView": "front",
+      "stretchAsset": "seated-side-bend.svg",
+      "stretchAssetB": "seated-side-bend-b.svg",
+      "stretchAssetFrontArchive": "seated-side-bend-front.svg"
+    },
+    {
+      "id": "desk-plank-lean",
+      "name": "Desk plank lean",
+      "cue": "Hands on desk, body in a straight line; hold.",
+      "bodyArea": "core",
+      "defaultDose": {
+        "type": "holdSec",
+        "seconds": 30
+      },
+      "commonMistake": "Sagging hips or shrugging shoulders.",
+      "skipIf": [
+        "wrist_pain"
+      ],
+      "saferSwapId": "standing-posture-reset",
+      "notes": "Use forearms on desk if wrists complain.",
+      "access": "pro",
+      "stretchView": "side",
+      "stretchAsset": "desk-plank-lean.svg",
+      "stretchAssetB": "desk-plank-lean-b.svg",
+      "stretchAssetFrontArchive": "desk-plank-lean-front.svg"
+    },
+    {
+      "id": "standing-posture-reset",
+      "name": "Standing posture reset",
+      "cue": "Feet under hips, soft knees, tall through the crown of the head.",
+      "bodyArea": "posture",
+      "defaultDose": {
+        "type": "holdSec",
+        "seconds": 45
+      },
+      "commonMistake": "Locking knees or puffing the chest.",
       "skipIf": [],
-      "saferSwapId": null
+      "saferSwapId": null,
+      "access": "free",
+      "stretchView": "side",
+      "stretchAsset": "standing-posture-reset.svg",
+      "stretchAssetB": "standing-posture-reset-b.svg",
+      "stretchAssetFrontArchive": "standing-posture-reset-front.svg"
     },
     {
       "id": "box-breathing",
-      "access": "free",
       "name": "Box breathing",
-      "cue": "Inhale 4, hold 4, exhale 4, hold 4. Soft belly, quiet shoulders.",
+      "cue": "In 4, hold 4, out 4, hold 4.",
       "bodyArea": "breathing",
-      "defaultDose": { "breaths": 4 },
-      "commonMistake": "Forcing a huge inhale or tensing the neck.",
-      "skipIf": ["dizziness"],
-      "saferSwapId": "physiological-sigh",
+      "defaultDose": {
+        "type": "rounds",
+        "rounds": 4
+      },
+      "commonMistake": "Straining or forcing the breath.",
+      "skipIf": [
+        "breathing_increases_anxiety"
+      ],
+      "saferSwapId": "long-exhale-reset",
+      "access": "pro",
+      "stretchView": "side",
+      "stretchAsset": "box-breathing.svg",
+      "stretchAssetB": "box-breathing-b.svg",
+      "stretchAssetFrontArchive": "box-breathing-front.svg"
+    },
+    {
+      "id": "long-exhale-reset",
+      "name": "Long exhale reset",
+      "cue": "In through the nose; longer sigh out through the mouth.",
+      "bodyArea": "breathing",
+      "defaultDose": {
+        "type": "breaths",
+        "breaths": 5
+      },
+      "commonMistake": "Breathing too fast (hyperventilating).",
+      "skipIf": [],
+      "saferSwapId": null,
+      "notes": "Stop if lightheaded.",
+      "access": "free",
       "stretchView": "side",
       "stretchAsset": "long-exhale-reset.svg",
       "stretchAssetB": "long-exhale-reset-b.svg",
       "stretchAssetFrontArchive": "long-exhale-reset-front.svg"
     },
     {
-      "id": "physiological-sigh",
+      "id": "sit-bones-find",
+      "name": "Sit bones find",
+      "cue": "Rock gently on the chair until you feel both sit bones, then sit tall on them.",
+      "bodyArea": "posture",
+      "defaultDose": {
+        "type": "holdSec",
+        "seconds": 25
+      },
+      "commonMistake": "Perching on the tailbone or slumping off the sit bones.",
+      "skipIf": [
+        "acute_sit_bone_pain"
+      ],
+      "saferSwapId": "standing-posture-reset",
       "access": "free",
-      "name": "Double inhale",
-      "cue": "Two sips of air in through the nose, then a long easy exhale through the mouth.",
-      "bodyArea": "breathing",
-      "defaultDose": { "breaths": 5 },
-      "commonMistake": "Rushing the exhale or lifting the shoulders on the sips.",
+      "stretchView": "side",
+      "status": "stub_v1_1",
+      "notes": "v1.1 candidate. Teaching plane: side.",
+      "stretchAsset": "sit-bones-find.svg",
+      "stretchAssetB": "sit-bones-find-b.svg",
+      "stretchAssetFrontArchive": "sit-bones-find-front.svg"
+    },
+    {
+      "id": "suboccipital-nod",
+      "name": "Suboccipital nod",
+      "cue": "Fingertips at the base of the skull; make a tiny yes-nod, soft and slow.",
+      "bodyArea": "neck",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 8
+      },
+      "commonMistake": "Big chin-to-chest nods or pressing hard with the hands.",
+      "skipIf": [
+        "headache_spike",
+        "dizziness"
+      ],
+      "saferSwapId": "chin-tuck",
+      "access": "pro",
+      "stretchView": "side",
+      "status": "stub_v1_1",
+      "stretchAsset": "suboccipital-nod.svg",
+      "stretchAssetB": "suboccipital-nod-b.svg",
+      "stretchAssetFrontArchive": "suboccipital-nod-front.svg"
+    },
+    {
+      "id": "chin-tuck-hold",
+      "name": "Chin tuck hold",
+      "cue": "Slide chin straight back into a gentle double chin and hold.",
+      "bodyArea": "neck",
+      "defaultDose": {
+        "type": "repsHold",
+        "reps": 6,
+        "holdSec": 5
+      },
+      "commonMistake": "Nodding the nose down instead of gliding straight back.",
+      "skipIf": [
+        "acute_neck_injury",
+        "dizziness"
+      ],
+      "saferSwapId": "chin-tuck",
+      "access": "free",
+      "stretchView": "side",
+      "status": "stub_v1_1",
+      "stretchAsset": "chin-tuck-hold.svg",
+      "stretchAssetB": "chin-tuck-hold-b.svg",
+      "stretchAssetFrontArchive": "chin-tuck-hold-front.svg"
+    },
+    {
+      "id": "chair-open-chest",
+      "name": "Chair open chest",
+      "cue": "Hands behind head, elbows wide; tiny lift through the breastbone without jamming the low back.",
+      "bodyArea": "upper_back",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 8
+      },
+      "commonMistake": "Flaring the ribs and overarching the low back.",
+      "skipIf": [
+        "shoulder_impingement"
+      ],
+      "saferSwapId": "seated-scap-squeeze",
+      "access": "pro",
+      "stretchView": "side",
+      "status": "stub_v1_1",
+      "stretchAsset": "chair-open-chest.svg",
+      "stretchAssetB": "chair-open-chest-b.svg",
+      "stretchAssetFrontArchive": "chair-open-chest-front.svg"
+    },
+    {
+      "id": "unshrug",
+      "name": "Unshrug",
+      "cue": "Slide shoulders down away from the ears, like putting shoulder blades in back pockets.",
+      "bodyArea": "shoulders",
+      "defaultDose": {
+        "type": "repsHold",
+        "reps": 8,
+        "holdSec": 3
+      },
+      "commonMistake": "Pinching the neck or forcing the chest forward.",
       "skipIf": [],
-      "saferSwapId": null,
-      "stretchAsset": "physiological-sigh.svg"
+      "saferSwapId": "shoulder-rolls",
+      "access": "free",
+      "stretchView": "front",
+      "status": "stub_v1_1",
+      "stretchAsset": "unshrug.svg",
+      "stretchAssetB": "unshrug-b.svg"
+    },
+    {
+      "id": "short-foot-grip",
+      "name": "Short foot grip",
+      "cue": "Gently grip the floor with the midfoot; keep toes soft.",
+      "bodyArea": "legs",
+      "defaultDose": {
+        "type": "repsHold",
+        "reps": 8,
+        "holdSec": 3
+      },
+      "commonMistake": "Clawing hard with the toes or holding the breath.",
+      "skipIf": [
+        "foot_cramp",
+        "plantar_flare"
+      ],
+      "saferSwapId": "ankle-circles",
+      "access": "pro",
+      "stretchView": "front",
+      "status": "stub_v1_1",
+      "notes": "Works seated or standing at the desk.",
+      "stretchAsset": "short-foot-grip.svg",
+      "stretchAssetB": "short-foot-grip-b.svg",
+      "stretchAssetFrontArchive": "short-foot-grip-front.svg"
+    },
+    {
+      "id": "standing-hip-hinge-desk",
+      "name": "Standing hip hinge (desk)",
+      "cue": "Soft knees; hinge at the hips with hands light on the desk; spine long.",
+      "bodyArea": "hips",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 6
+      },
+      "commonMistake": "Rounding the low back instead of hinging at the hips.",
+      "skipIf": [
+        "acute_disc_pain",
+        "balance_issues_without_support"
+      ],
+      "saferSwapId": "seated-march",
+      "access": "pro",
+      "stretchView": "side",
+      "status": "stub_v1_1",
+      "stretchAsset": "standing-hip-hinge-desk.svg",
+      "stretchAssetB": "standing-hip-hinge-desk-b.svg",
+      "stretchAssetFrontArchive": "standing-hip-hinge-desk-front.svg"
+    },
+    {
+      "id": "scap-pack-hold",
+      "name": "Scap pack hold",
+      "cue": "Draw shoulder blades slightly together and down; hold without shrugging.",
+      "bodyArea": "upper_back",
+      "defaultDose": {
+        "type": "repsHold",
+        "reps": 5,
+        "holdSec": 5
+      },
+      "commonMistake": "Shrugging up or over-pinching the shoulder blades.",
+      "skipIf": [
+        "acute_shoulder_impingement"
+      ],
+      "saferSwapId": "seated-scap-squeeze",
+      "access": "pro",
+      "stretchView": "threeQuarter",
+      "status": "stub_v1_1",
+      "stretchAsset": "scap-pack-hold.svg",
+      "stretchAssetB": "scap-pack-hold-b.svg"
+    },
+    {
+      "id": "seated-lumbar-support-reset",
+      "name": "Seated lumbar support reset",
+      "cue": "Sit tall on sit bones; allow a gentle natural low-back curve (towel roll optional).",
+      "bodyArea": "core",
+      "defaultDose": {
+        "type": "holdSec",
+        "seconds": 30
+      },
+      "commonMistake": "Forcing a big arch or thrusting the ribs out.",
+      "skipIf": [
+        "acute_lumbar_spasm"
+      ],
+      "saferSwapId": "sit-bones-find",
+      "access": "pro",
+      "stretchView": "side",
+      "status": "stub_v1_1",
+      "stretchAsset": "seated-lumbar-support-reset.svg",
+      "stretchAssetB": "seated-lumbar-support-reset-b.svg",
+      "stretchAssetFrontArchive": "seated-lumbar-support-reset-front.svg"
+    },
+    {
+      "id": "walk-to-water-march",
+      "name": "Walk-to-water march",
+      "cue": "Easy march in place or a short walk to get water \u2014 keep it quiet and easy.",
+      "bodyArea": "legs",
+      "defaultDose": {
+        "type": "holdSec",
+        "seconds": 40
+      },
+      "commonMistake": "Turning it into a workout or stomping.",
+      "skipIf": [
+        "severe_hip_or_knee_pain"
+      ],
+      "saferSwapId": "seated-march",
+      "access": "pro",
+      "stretchView": "front",
+      "status": "stub_v1_1",
+      "notes": "Challenge/micro-move; SVG optional.",
+      "stretchAsset": "walk-to-water-march.svg",
+      "stretchAssetB": "walk-to-water-march-b.svg"
+    },
+    {
+      "id": "elbows-pinned-er-scap",
+      "name": "Elbows-pinned external rotation + scap squeeze",
+      "cue": "Elbows glued to your sides; rotate palms out, then lightly squeeze shoulder blades down and together.",
+      "bodyArea": "shoulders",
+      "defaultDose": {
+        "type": "repsHold",
+        "reps": 8,
+        "holdSec": 2
+      },
+      "commonMistake": "Letting elbows flare or shrugging toward the ears.",
+      "skipIf": [
+        "acute_shoulder_impingement"
+      ],
+      "saferSwapId": "seated-scap-squeeze",
+      "access": "pro",
+      "stretchView": "front",
+      "status": "stub_v1_1",
+      "sourceTheme": "posture_desk_shortlist",
+      "notes": "Desk-adapted ER + scap pack. Inspired by desk/posture catalogs; original DeskBreak cueing.",
+      "stretchAsset": "elbows-pinned-er-scap.svg",
+      "stretchAssetB": "elbows-pinned-er-scap-b.svg"
+    },
+    {
+      "id": "seated-thoracic-rotation",
+      "name": "Seated thoracic rotation",
+      "cue": "Sit tall; rotate mid-back left and right with hips quiet and breath easy.",
+      "bodyArea": "upper_back",
+      "defaultDose": {
+        "type": "repsEachSide",
+        "reps": 6
+      },
+      "commonMistake": "Twisting from the low back or yanking with the arms.",
+      "skipIf": [
+        "acute_disc_pain",
+        "recent_spinal_surgery"
+      ],
+      "saferSwapId": "seated-cat-cow",
+      "access": "pro",
+      "stretchView": "front",
+      "status": "stub_v1_1",
+      "sourceTheme": "posture_desk_shortlist",
+      "stretchAsset": "seated-thoracic-rotation.svg",
+      "stretchAssetB": "seated-thoracic-rotation-b.svg"
+    },
+    {
+      "id": "standing-overhead-reach",
+      "name": "Standing overhead reach",
+      "cue": "Stand tall; reach both arms up slow, lengthen the sides, soft ribs, easy breath.",
+      "bodyArea": "posture",
+      "defaultDose": {
+        "type": "holdSec",
+        "seconds": 25
+      },
+      "commonMistake": "Flared ribs, shrugged shoulders, or locking the knees.",
+      "skipIf": [
+        "shoulder_impingement"
+      ],
+      "saferSwapId": "standing-posture-reset",
+      "access": "pro",
+      "stretchView": "side",
+      "status": "stub_v1_1",
+      "sourceTheme": "posture_desk_shortlist",
+      "stretchAsset": "standing-overhead-reach.svg",
+      "stretchAssetB": "standing-overhead-reach-b.svg",
+      "stretchAssetFrontArchive": "standing-overhead-reach-front.svg"
+    },
+    {
+      "id": "seated-hip-windshield-wipers",
+      "name": "Seated hip windshield wipers",
+      "cue": "Feet planted; slowly sweep knees left and right like windshield wipers (hip IR/ER).",
+      "bodyArea": "hips",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 10
+      },
+      "commonMistake": "Collapsing the low back or forcing end range.",
+      "skipIf": [
+        "hip_replacement_restrictions",
+        "groin_pain"
+      ],
+      "saferSwapId": "seated-hip-opener",
+      "access": "pro",
+      "stretchView": "front",
+      "status": "stub_v1_1",
+      "sourceTheme": "posture_desk_shortlist",
+      "notes": "More specific than seated-hip-opener; keep both.",
+      "stretchAsset": "seated-hip-windshield-wipers.svg",
+      "stretchAssetB": "seated-hip-windshield-wipers-b.svg"
+    },
+    {
+      "id": "sit-to-stand-glute",
+      "name": "Sit-to-stand + glute squeeze",
+      "cue": "Stand up from the chair without using hands if you can; squeeze glutes at the top, then sit slow.",
+      "bodyArea": "hips",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 6
+      },
+      "commonMistake": "Knee cave, rushing, or pushing off with momentum only.",
+      "skipIf": [
+        "severe_hip_or_knee_pain",
+        "balance_risk"
+      ],
+      "saferSwapId": "standing-glute-squeeze",
+      "access": "pro",
+      "stretchView": "side",
+      "status": "stub_v1_1",
+      "sourceTheme": "posture_desk_shortlist",
+      "notes": "Hold desk for balance if needed.",
+      "stretchAsset": "sit-to-stand-glute.svg",
+      "stretchAssetB": "sit-to-stand-glute-b.svg",
+      "stretchAssetFrontArchive": "sit-to-stand-glute-front.svg"
+    },
+    {
+      "id": "foot-tripod-toe-spread",
+      "name": "Foot tripod + toe spread",
+      "cue": "Feel big toe, little toe, and heel on the floor; spread toes wide, then soft grip.",
+      "bodyArea": "legs",
+      "defaultDose": {
+        "type": "repsHold",
+        "reps": 6,
+        "holdSec": 5
+      },
+      "commonMistake": "Clawing toes hard or rolling to the outer edge only.",
+      "skipIf": [
+        "foot_cramp",
+        "plantar_flare"
+      ],
+      "saferSwapId": "short-foot-grip",
+      "access": "pro",
+      "stretchView": "front",
+      "status": "stub_v1_1",
+      "sourceTheme": "posture_desk_shortlist",
+      "notes": "Pairs with short-foot-grip; feet\u2192hips chain start.",
+      "stretchAsset": "foot-tripod-toe-spread.svg",
+      "stretchAssetB": "foot-tripod-toe-spread-b.svg"
     }
   ],
   "programs": [
     {
       "id": "desk-reset-2min",
-      "access": "free",
-      "name": "2 min Desk Reset",
-      "shortLabel": "Desk Reset",
-      "durationMin": 2,
-      "tagline": "A tiny unstick. Still at your chair.",
+      "name": "2-min Desk Reset",
+      "durationTargetSec": 120,
+      "seoHook": "desk exercises while working",
+      "goal": "Posture + neck/wrist relief between meetings.",
       "steps": [
-        { "exerciseId": "chin-tucks", "durationSec": 18 },
-        { "exerciseId": "shoulder-rolls", "durationSec": 20 },
-        { "exerciseId": "seated-cat-cow", "durationSec": 20 },
-        { "exerciseId": "wrist-circles", "durationSec": 16 },
-        { "exerciseId": "seated-figure-four", "durationSec": 22 },
-        { "exerciseId": "box-breathing", "durationSec": 24 }
-      ]
+        {
+          "exerciseId": "chin-tuck",
+          "dose": {
+            "type": "reps",
+            "reps": 8
+          }
+        },
+        {
+          "exerciseId": "shoulder-rolls",
+          "dose": {
+            "type": "repsEachWay",
+            "reps": 8,
+            "directions": [
+              "back"
+            ]
+          }
+        },
+        {
+          "exerciseId": "seated-scap-squeeze",
+          "dose": {
+            "type": "reps",
+            "reps": 8
+          }
+        },
+        {
+          "exerciseId": "wrist-flexor-stretch",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 15
+          }
+        },
+        {
+          "exerciseId": "wrist-extensor-stretch",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 15
+          }
+        },
+        {
+          "exerciseId": "seated-figure-4",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 20
+          },
+          "alternateExerciseId": "seated-march"
+        },
+        {
+          "exerciseId": "long-exhale-reset",
+          "dose": {
+            "type": "breaths",
+            "breaths": 3
+          }
+        }
+      ],
+      "access": "free"
     },
     {
       "id": "lunch-reset-5min",
-      "access": "pro",
-      "name": "5 min Lunch Reset",
-      "shortLabel": "Lunch Reset",
-      "durationMin": 5,
-      "tagline": "Shoulders, hips, and a real unstick.",
+      "name": "5-min Lunch Reset",
+      "durationTargetSec": 300,
+      "seoHook": "office workout exercises for workers",
+      "goal": "Hips + chest open, energy up, office-appropriate.",
       "steps": [
-        { "exerciseId": "neck-side-stretch", "durationSec": 24 },
-        { "exerciseId": "chin-tucks", "durationSec": 16 },
-        { "exerciseId": "shoulder-rolls", "durationSec": 20 },
-        { "exerciseId": "chest-opener", "durationSec": 24 },
-        { "exerciseId": "scapular-squeezes", "durationSec": 20 },
-        { "exerciseId": "seated-cat-cow", "durationSec": 24 },
-        { "exerciseId": "thoracic-rotation", "durationSec": 24 },
-        { "exerciseId": "wrist-flexor-stretch", "durationSec": 20 },
-        { "exerciseId": "wrist-extensor-stretch", "durationSec": 20 },
-        { "exerciseId": "seated-figure-four", "durationSec": 28 },
-        { "exerciseId": "seated-marches", "durationSec": 24 },
-        { "exerciseId": "ankle-circles", "durationSec": 16 },
-        { "exerciseId": "physiological-sigh", "durationSec": 20 },
-        { "exerciseId": "box-breathing", "durationSec": 20 }
-      ]
+        {
+          "exerciseId": "standing-posture-reset",
+          "dose": {
+            "type": "holdSec",
+            "seconds": 30
+          }
+        },
+        {
+          "exerciseId": "neck-side-stretch",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 20
+          }
+        },
+        {
+          "exerciseId": "chest-opener",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 20
+          }
+        },
+        {
+          "exerciseId": "standing-hip-flexor",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 20
+          }
+        },
+        {
+          "exerciseId": "calf-raise",
+          "dose": {
+            "type": "reps",
+            "reps": 12
+          }
+        },
+        {
+          "exerciseId": "seated-cat-cow",
+          "dose": {
+            "type": "reps",
+            "reps": 8
+          }
+        },
+        {
+          "exerciseId": "box-breathing",
+          "dose": {
+            "type": "rounds",
+            "rounds": 3
+          }
+        }
+      ],
+      "access": "pro"
     },
     {
-      "id": "busy-day-10min",
-      "access": "pro",
-      "name": "10 min Busy-Day Circuit",
-      "shortLabel": "Busy-Day Circuit",
-      "durationMin": 10,
-      "tagline": "Stand, sit, breathe — then back to it.",
+      "id": "busy-day-circuit-10min",
+      "name": "10-min Busy-Day Circuit",
+      "durationTargetSec": 600,
+      "seoHook": "home workout routine for busy days",
+      "goal": "Full-body undo after a heavy sit day.",
       "steps": [
-        { "exerciseId": "box-breathing", "durationSec": 30 },
-        { "exerciseId": "chin-tucks", "durationSec": 20 },
-        { "exerciseId": "neck-side-stretch", "durationSec": 30 },
-        { "exerciseId": "shoulder-rolls", "durationSec": 25 },
-        { "exerciseId": "overhead-reach", "durationSec": 25 },
-        { "exerciseId": "chest-opener", "durationSec": 30 },
-        { "exerciseId": "desk-push-away", "durationSec": 25 },
-        { "exerciseId": "seated-cat-cow", "durationSec": 30 },
-        { "exerciseId": "thoracic-rotation", "durationSec": 30 },
-        { "exerciseId": "standing-extension", "durationSec": 25 },
-        { "exerciseId": "wrist-circles", "durationSec": 20 },
-        { "exerciseId": "wrist-flexor-stretch", "durationSec": 20 },
-        { "exerciseId": "finger-fans", "durationSec": 20 },
-        { "exerciseId": "seated-hip-flexor", "durationSec": 30 },
-        { "exerciseId": "seated-figure-four", "durationSec": 30 },
-        { "exerciseId": "sit-to-stand", "durationSec": 30 },
-        { "exerciseId": "calf-raises", "durationSec": 25 },
-        { "exerciseId": "standing-hip-hinge", "durationSec": 25 },
-        { "exerciseId": "seated-marches", "durationSec": 25 },
-        { "exerciseId": "glute-squeezes", "durationSec": 20 },
-        { "exerciseId": "side-body-reach", "durationSec": 25 },
-        { "exerciseId": "physiological-sigh", "durationSec": 20 },
-        { "exerciseId": "box-breathing", "durationSec": 40 }
-      ]
+        {
+          "exerciseId": "chin-tuck",
+          "dose": {
+            "type": "reps",
+            "reps": 10
+          }
+        },
+        {
+          "exerciseId": "thoracic-extension",
+          "dose": {
+            "type": "reps",
+            "reps": 8
+          }
+        },
+        {
+          "exerciseId": "wall-angels",
+          "dose": {
+            "type": "reps",
+            "reps": 8
+          }
+        },
+        {
+          "exerciseId": "wrist-flexor-stretch",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 20
+          }
+        },
+        {
+          "exerciseId": "wrist-extensor-stretch",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 20
+          }
+        },
+        {
+          "exerciseId": "wrist-circles",
+          "dose": {
+            "type": "repsEachWay",
+            "reps": 8
+          }
+        },
+        {
+          "exerciseId": "seated-figure-4",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 25
+          },
+          "alternateExerciseId": "seated-march"
+        },
+        {
+          "exerciseId": "standing-hip-flexor",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 25
+          }
+        },
+        {
+          "exerciseId": "calf-raise",
+          "dose": {
+            "type": "reps",
+            "reps": 15
+          }
+        },
+        {
+          "exerciseId": "desk-plank-lean",
+          "dose": {
+            "type": "holdSec",
+            "seconds": 30
+          }
+        },
+        {
+          "exerciseId": "seated-march",
+          "dose": {
+            "type": "reps",
+            "reps": 20
+          }
+        },
+        {
+          "exerciseId": "box-breathing",
+          "dose": {
+            "type": "rounds",
+            "rounds": 4
+          }
+        },
+        {
+          "exerciseId": "standing-posture-reset",
+          "dose": {
+            "type": "holdSec",
+            "seconds": 30
+          }
+        }
+      ],
+      "access": "pro"
     }
-  ]
+  ],
+  "bodyAreas": [
+    "neck",
+    "upper_back",
+    "shoulders",
+    "wrists",
+    "hips",
+    "legs",
+    "core",
+    "posture",
+    "breathing"
+  ],
+  "doseTypes": [
+    "reps",
+    "repsEachSide",
+    "repsEachWay",
+    "repsEachWayEachSide",
+    "repsHold",
+    "holdSec",
+    "holdSecEachSide",
+    "rounds",
+    "breaths"
+  ],
+  "engNotes": {
+    "swapRule": "If any skipIf flag matches the user profile, use saferSwapId or step.alternateExerciseId when present.",
+    "ui": "Timer + next only for v1. Show commonMistake and skipIf on the exercise card.",
+    "seoCategoryLabels": [
+      "office workout exercises for workers",
+      "home workout routine for busy days",
+      "office workouts and desk exercises",
+      "desk exercises while working"
+    ]
+  },
+  "monetization": {
+    "model": "free_vs_pro_annual",
+    "free": {
+      "programs": [
+        "desk-reset-2min"
+      ],
+      "exerciseCount": 13,
+      "exerciseIds": [
+        "chin-tuck",
+        "chin-tuck-hold",
+        "long-exhale-reset",
+        "neck-side-stretch",
+        "seated-figure-4",
+        "seated-march",
+        "seated-scap-squeeze",
+        "shoulder-rolls",
+        "sit-bones-find",
+        "standing-posture-reset",
+        "unshrug",
+        "wrist-extensor-stretch",
+        "wrist-flexor-stretch"
+      ],
+      "notes": "2-min Desk Reset + 10 core library moves (includes program alts)."
+    },
+    "pro": {
+      "programs": [
+        "lunch-reset-5min",
+        "busy-day-circuit-10min"
+      ],
+      "exercises": "full_library",
+      "notes": "5-min + 10-min programs and all remaining exercises."
+    },
+    "gateRule": "If item.access === 'pro' and user.plan !== 'pro', show upgrade CTA; do not start Pro programs. Free users may still see Pro titles in Library as locked."
+  },
+  "stretchAssets": {
+    "naming": {
+      "teachingMaster": "{exerciseId}.svg",
+      "variantB": "{exerciseId}-b.svg",
+      "frontArchive": "{exerciseId}-front.svg",
+      "notes": "Teaching master uses teaching plane (side replaces front when stretchView is side). -b stays same plane. No -side suffix."
+    },
+    "stretchViewEnum": [
+      "side",
+      "front",
+      "threeQuarter"
+    ],
+    "p0SidewaysPriority": [
+      "chin-tuck",
+      "seated-figure-4",
+      "wrist-flexor-stretch",
+      "wrist-extensor-stretch",
+      "long-exhale-reset",
+      "standing-posture-reset"
+    ],
+    "assetBase": "/character/",
+    "resolve": "public/character/{stretchAsset}",
+    "p0Landed": {
+      "masters": true,
+      "noBByDesign": {
+        "ids": [
+          "seated-figure-4",
+          "wrist-flexor-stretch",
+          "wrist-extensor-stretch"
+        ],
+        "reason": "Hold moves; L/R via CSS scaleX. Eng falls back to teaching master."
+      },
+      "noFrontArchiveByDesign": {
+        "ids": [
+          "standing-posture-reset"
+        ],
+        "reason": "New side-only teaching master; no front archive."
+      }
+    }
+  },
+  "v11Shortlist": {
+    "theme": "feet \u2192 hips \u2192 spine \u2192 shoulders \u2192 neck; slow, controlled, breathe",
+    "inspiredBy": "desk/posture creator catalogs (e.g. @postureguymike themes) \u2014 original DeskBreak moves, not clones; no floor/roller proprietary work",
+    "items": [
+      {
+        "n": 1,
+        "name": "wall angel/slide",
+        "stretchView": "side",
+        "exerciseId": "wall-angels",
+        "status": "exists_updated_view"
+      },
+      {
+        "n": 2,
+        "name": "chin tuck",
+        "stretchView": "side",
+        "exerciseId": "chin-tuck",
+        "also": "chin-tuck-hold",
+        "status": "exists_p0"
+      },
+      {
+        "n": 3,
+        "name": "seated cervical rotation",
+        "stretchView": "front",
+        "exerciseId": "neck-rotation",
+        "status": "exists"
+      },
+      {
+        "n": 4,
+        "name": "seated lateral neck flexion",
+        "stretchView": "front",
+        "exerciseId": "neck-side-stretch",
+        "status": "exists"
+      },
+      {
+        "n": 5,
+        "name": "elbows-pinned ER + scap squeeze",
+        "stretchView": "front",
+        "exerciseId": "elbows-pinned-er-scap",
+        "status": "added_stub"
+      },
+      {
+        "n": 6,
+        "name": "doorway/wall chest opener",
+        "stretchView": "side",
+        "exerciseId": "chest-opener",
+        "status": "exists_updated_view"
+      },
+      {
+        "n": 7,
+        "name": "seated thoracic rotation",
+        "stretchView": "front",
+        "exerciseId": "seated-thoracic-rotation",
+        "status": "added_stub"
+      },
+      {
+        "n": 8,
+        "name": "standing overhead reach",
+        "stretchView": "side",
+        "exerciseId": "standing-overhead-reach",
+        "status": "added_stub"
+      },
+      {
+        "n": 9,
+        "name": "standing hip-flexor + pelvic tuck",
+        "stretchView": "side",
+        "exerciseId": "standing-hip-flexor",
+        "status": "exists"
+      },
+      {
+        "n": 10,
+        "name": "seated hip IR/ER windshield wipers",
+        "stretchView": "front",
+        "exerciseId": "seated-hip-windshield-wipers",
+        "status": "added_stub",
+        "related": "seated-hip-opener"
+      },
+      {
+        "n": 11,
+        "name": "sit-to-stand + glute squeeze",
+        "stretchView": "side",
+        "exerciseId": "sit-to-stand-glute",
+        "status": "added_stub"
+      },
+      {
+        "n": 12,
+        "name": "foot tripod / toe-spread",
+        "stretchView": "front",
+        "exerciseId": "foot-tripod-toe-spread",
+        "status": "added_stub",
+        "related": "short-foot-grip"
+      }
+    ],
+    "keptPriorStubs": [
+      "sit-bones-find",
+      "suboccipital-nod",
+      "chin-tuck-hold",
+      "chair-open-chest",
+      "unshrug",
+      "short-foot-grip",
+      "standing-hip-hinge-desk",
+      "scap-pack-hold",
+      "seated-lumbar-support-reset",
+      "walk-to-water-march"
+    ]
+  }
 }

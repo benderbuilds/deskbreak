@@ -5,48 +5,86 @@ export type CharacterPose = "exercise" | "idle" | "done" | "locked" | "fallback"
 const FALLBACK_STEM = "stretch-fallback";
 
 /**
- * Catalog exercise ids → Fitness v3 teaching-plane stems.
+ * Catalog exercise ids → teaching-plane stems on disk.
  * Paths are always `/character/{stem}.svg` — never `-side`.
- * Prefer new stems when both old and new files exist.
+ * New P1 ids map to themselves; aliases cover renamed v3 ids and
+ * catalog assets that do not have a dedicated file yet.
  */
 const EXERCISE_STEMS: Record<string, string> = {
   "chin-tucks": "chin-tuck",
   "chin-tuck": "chin-tuck",
+  "chin-tuck-hold": "chin-tuck",
   "neck-nods": "neck-nods",
+  "neck-side-stretch": "neck-nods",
+  "neck-rotation": "neck-nods",
+  "suboccipital-nod": "chin-tuck",
   "shoulder-rolls": "shoulder-rolls",
+  unshrug: "shoulder-rolls",
+  "upper-trap-release": "shoulder-rolls",
   "seated-cat-cow": "seated-cat-cow",
   "wrist-circles": "wrist-circles",
   "finger-fans": "finger-fans",
   "seated-figure-four": "seated-figure-4",
   "seated-figure-4": "seated-figure-4",
-  "seated-marches": "seated-marches", // no seated-march.svg on disk
+  "seated-hip-opener": "seated-figure-4",
+  "sit-bones-find": "seated-figure-4",
+  "seated-marches": "seated-marches",
   "seated-march": "seated-marches",
-  "box-breathing": "long-exhale-reset",
+  "walk-to-water-march": "seated-marches",
+  "calf-raises": "seated-marches",
+  "calf-raise": "seated-marches",
+  "ankle-circles": "seated-marches",
+  "standing-quad-stretch": "seated-marches",
+  "box-breathing": "box-breathing",
   "physiological-sigh": "physiological-sigh",
   "long-exhale-reset": "long-exhale-reset",
   "scapular-squeezes": "seated-scap-squeeze",
   "seated-scap-squeeze": "seated-scap-squeeze",
+  "scap-pack-hold": "seated-scap-squeeze",
   "wrist-flexor-stretch": "wrist-flexor-stretch",
   "wrist-extensor-stretch": "wrist-extensor-stretch",
   "standing-extension": "standing-posture-reset",
   "standing-posture-reset": "standing-posture-reset",
-  "standing-hip-hinge": "seated-figure-4",
-  "calf-raises": "seated-marches",
-  "sit-to-stand": "seated-marches",
-  "pec-stretch-desk": "seated-cat-cow",
+  "thoracic-extension": "standing-posture-reset",
+  "desk-plank-lean": "standing-posture-reset",
+  "seated-pelvic-tilts": "seated-cat-cow",
+  "seated-side-bend": "seated-cat-cow",
+  "seated-lumbar-support-reset": "seated-cat-cow",
+  "standing-hip-hinge": "sit-to-stand-glute",
+  "standing-hip-hinge-desk": "sit-to-stand-glute",
+  "standing-hip-flexor": "sit-to-stand-glute",
+  "hamstring-hinge": "sit-to-stand-glute",
+  "glute-bridge": "sit-to-stand-glute",
+  "standing-glute-squeeze": "sit-to-stand-glute",
+  "sit-to-stand": "sit-to-stand-glute",
+  "sit-to-stand-glute": "sit-to-stand-glute",
+  "pec-stretch-desk": "chest-opener",
+  "chest-opener": "chest-opener",
+  "chair-open-chest": "chest-opener",
+  "overhead-reach": "standing-overhead-reach",
+  "standing-overhead-reach": "standing-overhead-reach",
+  "wall-angels": "wall-angels",
+  "thoracic-rotation": "seated-thoracic-rotation",
+  "seated-thoracic-rotation": "seated-thoracic-rotation",
+  "elbows-pinned-er-scap": "elbows-pinned-er-scap",
+  "seated-hip-windshield-wipers": "seated-hip-windshield-wipers",
+  "foot-tripod-toe-spread": "foot-tripod-toe-spread",
+  "short-foot-grip": "foot-tripod-toe-spread",
 };
 
 const BODY_AREA_STEMS: Record<BodyArea, string> = {
   neck: "chin-tuck",
   shoulders: "shoulder-rolls",
   upperBack: "seated-scap-squeeze",
-  wrists: "wrist-circles",
+  wrists: "wrist-flexor-stretch",
   hips: "seated-figure-4",
   legs: "seated-marches",
   breathing: "long-exhale-reset",
+  core: "seated-cat-cow",
+  posture: "standing-posture-reset",
 };
 
-/** Stems that ship a same-plane `-b` motion frame. Hold moves are omitted. */
+/** Stems that ship a same-plane `-b` motion frame. Hold-only / no-b masters omitted. */
 const MOTION_STEMS = new Set([
   "chin-tuck",
   "shoulder-rolls",
@@ -55,6 +93,13 @@ const MOTION_STEMS = new Set([
   "long-exhale-reset",
   "standing-posture-reset",
   "box-breathing",
+  "wall-angels",
+  "chest-opener",
+  "standing-overhead-reach",
+  "sit-to-stand-glute",
+  "elbows-pinned-er-scap",
+  "seated-thoracic-rotation",
+  "seated-hip-windshield-wipers",
 ]);
 
 function stripSideSuffix(file: string): string {
@@ -63,12 +108,19 @@ function stripSideSuffix(file: string): string {
     .replace(/-side(?=\.(svg|png)$)/i, "");
 }
 
-function characterPath(file: string): string {
-  return `/character/${stripSideSuffix(file)}`;
+function aliasedStem(stem: string): string {
+  return EXERCISE_STEMS[stem] ?? stem;
 }
 
 function stemFromAsset(file: string): string {
   return stripSideSuffix(file).replace(/\.(svg|png)$/i, "").replace(/-b$/, "");
+}
+
+function aliasedCharacterPath(file: string): string {
+  const cleaned = stripSideSuffix(file);
+  const isB = /-b\.(svg|png)$/i.test(cleaned);
+  const stem = aliasedStem(stemFromAsset(cleaned));
+  return `/character/${stem}${isB ? "-b" : ""}.svg`;
 }
 
 export function stemForExercise(exerciseId: string, bodyArea?: BodyArea): string {
@@ -92,8 +144,10 @@ export function hasMotionFrame({
   stretchAssetB?: string;
 }): boolean {
   if (pose !== "exercise") return false;
-  if (stretchAssetB) return true;
-  if (stretchAsset) return MOTION_STEMS.has(stemFromAsset(stretchAsset));
+  if (stretchAssetB) {
+    return MOTION_STEMS.has(aliasedStem(stemFromAsset(stretchAssetB)));
+  }
+  if (stretchAsset) return MOTION_STEMS.has(aliasedStem(stemFromAsset(stretchAsset)));
   if (!exerciseId) return false;
   return MOTION_STEMS.has(stemForExercise(exerciseId, bodyArea));
 }
@@ -121,15 +175,15 @@ export function characterSrc({
 
   if (stretchAsset) {
     if (frame === "b") {
-      if (stretchAssetB) return characterPath(stretchAssetB);
-      const stem = stemFromAsset(stretchAsset);
+      if (stretchAssetB) return aliasedCharacterPath(stretchAssetB);
+      const stem = aliasedStem(stemFromAsset(stretchAsset));
       if (MOTION_STEMS.has(stem)) return `/character/${stem}-b.svg`;
     }
-    return characterPath(stretchAsset);
+    return aliasedCharacterPath(stretchAsset);
   }
 
   if (exerciseId) {
-    const stem = EXERCISE_STEMS[exerciseId] ?? exerciseId;
+    const stem = stemForExercise(exerciseId, bodyArea);
     if (frame === "b" && MOTION_STEMS.has(stem)) {
       return `/character/${stem}-b.svg`;
     }

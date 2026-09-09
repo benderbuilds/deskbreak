@@ -5,14 +5,18 @@ export type BodyArea =
   | "wrists"
   | "hips"
   | "legs"
-  | "breathing";
+  | "breathing"
+  | "core"
+  | "posture";
 
 export type Dose = {
+  type?: string;
   reps?: number;
   holdSec?: number;
   breaths?: number;
   seconds?: number;
   perSide?: boolean;
+  rounds?: number;
 };
 
 export type Access = "free" | "pro";
