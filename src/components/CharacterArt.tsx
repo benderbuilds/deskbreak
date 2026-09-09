@@ -30,7 +30,7 @@ export function CharacterArt({
   size?: number;
 }) {
   const [frameB, setFrameB] = useState(false);
-  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const [useFallback, setUseFallback] = useState(false);
   const [motionDisabled, setMotionDisabled] = useState(false);
   const [fallbackFailed, setFallbackFailed] = useState(false);
   const [bounce, setBounce] = useState(false);
@@ -39,7 +39,7 @@ export function CharacterArt({
 
   useEffect(() => {
     setFrameB(false);
-    setFailedSrc(null);
+    setUseFallback(false);
     setMotionDisabled(false);
     setFallbackFailed(false);
   }, [exerciseId, pose, bodyArea]);
@@ -58,7 +58,7 @@ export function CharacterArt({
     bodyArea,
     frame: frameB && motion ? "b" : "a",
   });
-  const src = failedSrc === intended ? FALLBACK_SRC : intended;
+  const src = useFallback ? FALLBACK_SRC : intended;
 
   function tapBounce() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -67,6 +67,8 @@ export function CharacterArt({
   }
 
   function handleImageError() {
+    // Missing/bad master → stretch-fallback.svg. If that 404s too, mint blob
+    // (never loop the img src back onto a failing URL).
     if (src === FALLBACK_SRC) {
       setFallbackFailed(true);
       return;
@@ -76,7 +78,7 @@ export function CharacterArt({
       setMotionDisabled(true);
       return;
     }
-    setFailedSrc(intended);
+    setUseFallback(true);
   }
 
   const visualClass = [
