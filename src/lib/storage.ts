@@ -1,21 +1,55 @@
-import type { ProgressState, WorkoutSession } from "./types";
+import { REMINDER_HOURS } from "./constants";
+import type {
+  AppSettings,
+  AppState,
+  CelebrationTheme,
+  Entitlement,
+  OnboardingAnswers,
+  ProgressState,
+  ReminderPref,
+  WorkoutSession,
+} from "./types";
 
-const PROGRESS_KEY = "deskbreak.progress.v1";
-const ONBOARDING_KEY = "deskbreak.onboarding.v1";
+const KEY = "deskbreak.app.v2";
+const LEGACY_ONBOARDING = "deskbreak.onboarding.v1";
+const LEGACY_PROGRESS = "deskbreak.progress.v1";
 const SESSION_KEY = "deskbreak.lastSession.v1";
+const COOKIE = "deskbreak_onboarded";
 
-const emptyProgress = (): ProgressState => ({
+const listeners = new Set<() => void>();
+
+export const emptyProgress = (): ProgressState => ({
   streak: 0,
   lastWorkoutDate: null,
   lastWorkout: null,
   totalWorkouts: 0,
+  xp: 0,
 });
+
+export const defaultState = (): AppState => ({
+  onboardingComplete: false,
+  onboardingAnswers: { goal: null, setup: null, reminder: null },
+  firstWinComplete: false,
+  paywallSeen: false,
+  entitlement: { plan: "free", proExpiresAt: null, source: null },
+  progress: emptyProgress(),
+  settings: {
+    remindersEnabled: false,
+    reminderHour: null,
+    celebrationTheme: "classic",
+    lastReminderDate: null,
+  },
+});
+
+const SERVER_STATE = defaultState();
+
+let cache: { raw: string; state: AppState } | null = null;
 
 function canUseStorage(): boolean {
   return typeof window !== "undefined";
 }
 
-function todayKey(date = new Date()): string {
+export function todayKey(date = new Date()): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
@@ -29,57 +63,201 @@ function shiftDay(dateKey: string, delta: number): string {
   return todayKey(date);
 }
 
-export function isOnboardingComplete(): boolean {
-  if (!canUseStorage()) return true;
-  return window.localStorage.getItem(ONBOARDING_KEY) === "1";
+function migrateLegacy(): Partial<AppState> | null {
+  if (!canUseStorage()) return null;
+  const onboarded = window.localStorage.getItem(LEGACY_ONBOARDING) === "1";
+  const rawProgress = window.localStorage.getItem(LEGACY_PROGRESS);
+  if (!onboarded && !rawProgress) return null;
+  let progress = emptyProgress();
+  if (rawProgress) {
+    try {
+      progress = { ...progress, ...(JSON.parse(rawProgress) as ProgressState) };
+    } catch {
+      /* ignore */
+    }
+  }
+  return {
+    onboardingComplete: onboarded,
+    progress,
+  };
 }
 
-export function completeOnboarding(): void {
-  if (!canUseStorage()) return;
-  window.localStorage.setItem(ONBOARDING_KEY, "1");
-}
-
-export function getProgress(): ProgressState {
-  if (!canUseStorage()) return emptyProgress();
+function parseState(raw: string | null): AppState {
+  const base = defaultState();
+  if (!raw) {
+    const migrated = migrateLegacy();
+    return migrated ? { ...base, ...migrated, progress: { ...base.progress, ...migrated.progress } } : base;
+  }
   try {
-    const raw = window.localStorage.getItem(PROGRESS_KEY);
-    if (!raw) return emptyProgress();
-    const parsed = JSON.parse(raw) as ProgressState;
+    const parsed = JSON.parse(raw) as Partial<AppState>;
     return {
-      ...emptyProgress(),
+      ...base,
       ...parsed,
+      onboardingAnswers: { ...base.onboardingAnswers, ...parsed.onboardingAnswers },
+      entitlement: { ...base.entitlement, ...parsed.entitlement },
+      progress: { ...base.progress, ...parsed.progress },
+      settings: { ...base.settings, ...parsed.settings },
     };
   } catch {
-    return emptyProgress();
+    return base;
   }
 }
 
-export function saveProgress(state: ProgressState): void {
-  if (!canUseStorage()) return;
-  window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(state));
+export function getAppState(): AppState {
+  if (!canUseStorage()) return SERVER_STATE;
+  const raw = window.localStorage.getItem(KEY);
+  if (cache && cache.raw === (raw ?? "")) return cache.state;
+  const state = parseState(raw);
+  cache = { raw: raw ?? "", state };
+  return state;
+}
+
+function persist(next: AppState): AppState {
+  if (!canUseStorage()) return next;
+  const raw = JSON.stringify(next);
+  window.localStorage.setItem(KEY, raw);
+  cache = { raw, state: next };
+  if (next.onboardingComplete) {
+    document.cookie = `${COOKIE}=1; path=/; max-age=31536000; SameSite=Lax`;
+  } else {
+    document.cookie = `${COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+  }
+  listeners.forEach((listener) => listener());
+  return next;
+}
+
+export function patchAppState(patch: (current: AppState) => AppState): AppState {
+  return persist(patch(getAppState()));
+}
+
+export function subscribeAppState(listener: () => void): () => void {
+  listeners.add(listener);
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === KEY || event.key === null) {
+      cache = null;
+      listener();
+    }
+  };
+  if (canUseStorage()) {
+    window.addEventListener("storage", onStorage);
+  }
+  return () => {
+    listeners.delete(listener);
+    if (canUseStorage()) {
+      window.removeEventListener("storage", onStorage);
+    }
+  };
+}
+
+export function getServerAppState(): AppState {
+  return SERVER_STATE;
+}
+
+export function isOnboardingComplete(): boolean {
+  return getAppState().onboardingComplete;
+}
+
+export function completeOnboarding(): void {
+  patchAppState((state) => ({ ...state, onboardingComplete: true, paywallSeen: true }));
+}
+
+export function resetOnboarding(): void {
+  patchAppState((state) => ({
+    ...state,
+    onboardingComplete: false,
+    firstWinComplete: false,
+    paywallSeen: false,
+    onboardingAnswers: { goal: null, setup: null, reminder: null },
+  }));
+}
+
+export function saveOnboardingAnswers(answers: OnboardingAnswers): void {
+  const hour = answers.reminder ? REMINDER_HOURS[answers.reminder] : null;
+  patchAppState((state) => ({
+    ...state,
+    onboardingAnswers: answers,
+    settings: {
+      ...state.settings,
+      remindersEnabled: Boolean(hour),
+      reminderHour: hour,
+    },
+  }));
+}
+
+export function markFirstWinComplete(): void {
+  patchAppState((state) => ({ ...state, firstWinComplete: true }));
+}
+
+export function markPaywallSeen(): void {
+  patchAppState((state) => ({ ...state, paywallSeen: true, onboardingComplete: true }));
+}
+
+export function getProgress(): ProgressState {
+  return getAppState().progress;
+}
+
+export function getEntitlement(): Entitlement {
+  return getAppState().entitlement;
+}
+
+export function unlockPro(source: "stripe" | "demo", expiresAt?: string): void {
+  const expiry =
+    expiresAt ??
+    new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+  patchAppState((state) => ({
+    ...state,
+    onboardingComplete: true,
+    paywallSeen: true,
+    entitlement: { plan: "pro", proExpiresAt: expiry, source },
+  }));
+}
+
+export function setPlanFree(): void {
+  patchAppState((state) => ({
+    ...state,
+    entitlement: { plan: "free", proExpiresAt: null, source: null },
+  }));
+}
+
+export function saveSettings(patch: Partial<AppSettings>): void {
+  patchAppState((state) => ({
+    ...state,
+    settings: { ...state.settings, ...patch },
+  }));
+}
+
+export function setCelebrationTheme(theme: CelebrationTheme): void {
+  saveSettings({ celebrationTheme: theme });
 }
 
 export function recordCompletedWorkout(session: WorkoutSession): ProgressState {
-  const current = getProgress();
+  const current = getAppState();
   const today = todayKey();
-  let streak = current.streak;
+  let streak = current.progress.streak;
 
-  if (current.lastWorkoutDate === today) {
-    streak = Math.max(current.streak, 1);
-  } else if (current.lastWorkoutDate === shiftDay(today, -1)) {
-    streak = current.streak + 1;
+  if (current.progress.lastWorkoutDate === today) {
+    streak = Math.max(current.progress.streak, 1);
+  } else if (current.progress.lastWorkoutDate === shiftDay(today, -1)) {
+    streak = current.progress.streak + 1;
   } else {
     streak = 1;
   }
 
-  const next: ProgressState = {
+  const gained = 10 + session.completedExerciseIds.length * 2;
+  const progress: ProgressState = {
     streak,
     lastWorkoutDate: today,
     lastWorkout: session,
-    totalWorkouts: current.totalWorkouts + 1,
+    totalWorkouts: current.progress.totalWorkouts + 1,
+    xp: current.progress.xp + gained,
   };
-  saveProgress(next);
-  return next;
+  patchAppState((state) => ({
+    ...state,
+    firstWinComplete:
+      state.firstWinComplete || session.programId === "desk-reset-2min",
+    progress,
+  }));
+  return progress;
 }
 
 export function saveLastSession(session: WorkoutSession): void {
@@ -104,4 +282,16 @@ export function formatRelativeWorkoutDay(dateKey: string | null): string | null 
   if (dateKey === today) return "today";
   if (dateKey === shiftDay(today, -1)) return "yesterday";
   return dateKey;
+}
+
+export function applyReminderPref(pref: ReminderPref): void {
+  const hour = REMINDER_HOURS[pref];
+  saveSettings({
+    remindersEnabled: Boolean(hour),
+    reminderHour: hour,
+  });
+}
+
+export function markReminderShown(date = todayKey()): void {
+  saveSettings({ lastReminderDate: date });
 }

@@ -7,9 +7,12 @@ export function generateStaticParams() {
 
 export default async function WorkoutPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ programId: string }>;
+  searchParams: Promise<{ src?: string }>;
 }) {
   const { programId } = await params;
-  return <WorkoutView programId={programId} />;
+  const { src } = await searchParams;
+  return <WorkoutView programId={programId} firstWin={src === "firstWin"} />;
 }

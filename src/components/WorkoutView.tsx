@@ -1,27 +1,34 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
+import { ErrorState } from "@/components/StatusStates";
+import { UpgradeSheet } from "@/components/UpgradeSheet";
 import { getProgram } from "@/lib/content";
+import { canAccessProgram } from "@/lib/entitlements";
 import { formatClock, formatDose } from "@/lib/format";
 import {
   recordCompletedWorkout,
   saveLastSession,
 } from "@/lib/storage";
+import { useAppState } from "@/lib/use-app-state";
 import { useWorkoutEngine } from "@/lib/use-workout-engine";
 
-export function WorkoutView({ programId }: { programId: string }) {
+export function WorkoutView({
+  programId,
+  firstWin = false,
+}: {
+  programId: string;
+  firstWin?: boolean;
+}) {
   const router = useRouter();
   const program = getProgram(programId);
-  const engine = useWorkoutEngine(programId);
+  const state = useAppState();
+  const allowed = program ? canAccessProgram(program.id, state.entitlement) : false;
+  const engine = useWorkoutEngine(allowed && program ? programId : "");
   const recordedRef = useRef(false);
-
-  useEffect(() => {
-    if (!program) {
-      router.replace("/");
-    }
-  }, [program, router]);
+  const [upgrade, setUpgrade] = useState(false);
 
   useEffect(() => {
     if (engine.status !== "complete" || !program || recordedRef.current) return;
@@ -37,7 +44,8 @@ export function WorkoutView({ programId }: { programId: string }) {
     };
     saveLastSession(session);
     recordCompletedWorkout(session);
-    router.replace("/done");
+    const next = firstWin || !state.paywallSeen ? "/done?next=paywall" : "/done";
+    router.replace(next);
   }, [
     engine.status,
     engine.completedIds,
@@ -45,6 +53,8 @@ export function WorkoutView({ programId }: { programId: string }) {
     engine.elapsedSec,
     program,
     router,
+    firstWin,
+    state.paywallSeen,
   ]);
 
   const current = engine.current;
@@ -53,19 +63,64 @@ export function WorkoutView({ programId }: { programId: string }) {
     [current],
   );
 
-  if (!program || !current) {
-    return <div className="min-h-dvh bg-paper" />;
+  if (!program) {
+    return (
+      <div className="flex min-h-dvh flex-col justify-center px-5">
+        <ErrorState
+          title="That break isn’t here"
+          body="The program id is missing from the content file. Head home and pick a reset."
+          action={<ButtonLink href="/">Back home</ButtonLink>}
+        />
+      </div>
+    );
+  }
+
+  if (!allowed) {
+    return (
+      <div className="flex min-h-dvh flex-col justify-center px-5">
+        <ErrorState
+          title={`${program.shortLabel} is Pro`}
+          body="Stay unlimited on the 2-min Desk Reset, or unlock Lunch Reset and Busy-Day Circuit."
+          action={
+            <Button onClick={() => setUpgrade(true)}>See Pro</Button>
+          }
+        />
+        <div className="mt-3">
+          <ButtonLink href="/" variant="ghost">
+            Back home
+          </ButtonLink>
+        </div>
+        <UpgradeSheet
+          open={upgrade}
+          onClose={() => setUpgrade(false)}
+          reason={`${program.name} unlocks with an annual Pro subscription.`}
+        />
+      </div>
+    );
+  }
+
+  if (!current) {
+    return (
+      <div className="flex min-h-dvh flex-col justify-center px-5">
+        <ErrorState
+          title="Couldn’t start this break"
+          body="The workout engine didn’t load a first move. Try again from Home."
+          action={<ButtonLink href="/">Back home</ButtonLink>}
+        />
+      </div>
+    );
   }
 
   const seconds = formatClock(engine.remainingSec);
   const stepLabel = `${engine.stepIndex + 1} of ${engine.steps.length}`;
+  const leaveHref = firstWin ? "/paywall?from=skip" : "/";
 
   return (
     <div className="flex min-h-dvh flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(0.9rem,env(safe-area-inset-top))]">
       <header className="mb-4 flex items-center justify-between gap-3">
         <button
           type="button"
-          onClick={() => router.push("/")}
+          onClick={() => router.push(leaveHref)}
           className="grid h-12 w-12 place-items-center rounded-full bg-white text-ink shadow-[0_3px_0_rgba(28,25,23,0.06)] transition-transform duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)] active:scale-95"
           aria-label="Leave break"
         >
@@ -107,10 +162,7 @@ export function WorkoutView({ programId }: { programId: string }) {
           </div>
         )}
 
-        <p
-          key={current.exercise.id + "-time"}
-          className="font-display text-[6.5rem] font-semibold leading-none tracking-tight text-ink tabular-nums"
-        >
+        <p className="font-display text-[6.5rem] font-semibold leading-none tracking-tight text-ink tabular-nums">
           {seconds}
         </p>
         <p className="mt-2 text-sm font-semibold text-ink/45">{doseLabel}</p>

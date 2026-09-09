@@ -55,9 +55,46 @@ export type WorkoutSession = {
   finishedAt: string;
 };
 
+export type GoalId = "neck" | "energy" | "consistent";
+export type SetupId = "seated" | "standing";
+export type ReminderPref = "off" | "midday" | "afternoon";
+export type CelebrationTheme = "classic" | "confetti" | "spark";
+export type Plan = "free" | "pro";
+export type EntitlementSource = "stripe" | "demo" | null;
+
+export type OnboardingAnswers = {
+  goal: GoalId | null;
+  setup: SetupId | null;
+  reminder: ReminderPref | null;
+};
+
+export type Entitlement = {
+  plan: Plan;
+  proExpiresAt: string | null;
+  source: EntitlementSource;
+};
+
 export type ProgressState = {
   streak: number;
   lastWorkoutDate: string | null;
   lastWorkout: WorkoutSession | null;
   totalWorkouts: number;
+  xp: number;
+};
+
+export type AppSettings = {
+  remindersEnabled: boolean;
+  reminderHour: number | null;
+  celebrationTheme: CelebrationTheme;
+  lastReminderDate: string | null;
+};
+
+export type AppState = {
+  onboardingComplete: boolean;
+  onboardingAnswers: OnboardingAnswers;
+  firstWinComplete: boolean;
+  paywallSeen: boolean;
+  entitlement: Entitlement;
+  progress: ProgressState;
+  settings: AppSettings;
 };

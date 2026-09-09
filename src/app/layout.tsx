@@ -16,10 +16,11 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "DeskBreak — desk exercises while working",
+  title: "DeskBreak — 2-minute desk exercises while working",
   description:
-    "One-tap office workouts and desk exercises for workers. A home workout routine for busy days, no equipment required.",
+    "One-tap office workouts and desk exercises for workers. A 2-minute Desk Reset, plus a home workout routine for busy days. No equipment. Free forever for the 2-minute habit.",
   applicationName: "DeskBreak",
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     title: "DeskBreak",
@@ -31,6 +32,12 @@ export const metadata: Metadata = {
       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: { url: "/icons/apple-touch-icon.png", sizes: "180x180" },
+  },
+  openGraph: {
+    title: "DeskBreak — desk exercises while working",
+    description:
+      "Office workouts and desk exercises that fit between meetings. Two minutes. No equipment.",
+    type: "website",
   },
 };
 

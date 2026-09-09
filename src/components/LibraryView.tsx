@@ -2,14 +2,22 @@
 
 import { useMemo, useState } from "react";
 import { BottomNav } from "@/components/BottomNav";
+import { EmptyState } from "@/components/StatusStates";
+import { UpgradeSheet } from "@/components/UpgradeSheet";
 import { BODY_AREA_LABELS, BODY_AREAS } from "@/lib/body-areas";
+import { FREE_EXERCISE_IDS } from "@/lib/constants";
 import { getExercise, getExercises } from "@/lib/content";
+import { isExerciseLocked, isProEntitlement } from "@/lib/entitlements";
 import { formatDose } from "@/lib/format";
-import type { BodyArea } from "@/lib/types";
+import { useAppState } from "@/lib/use-app-state";
+import type { BodyArea, Exercise } from "@/lib/types";
 
 export function LibraryView() {
   const exercises = getExercises();
+  const state = useAppState();
+  const pro = isProEntitlement(state.entitlement);
   const [area, setArea] = useState<BodyArea | "all">("all");
+  const [upgrade, setUpgrade] = useState(false);
 
   const filtered = useMemo(() => {
     if (area === "all") return exercises;
@@ -26,67 +34,107 @@ export function LibraryView() {
           Move library
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-ink/60">
-          {exercises.length} desk-safe moves. Filter by the bit that feels
-          stuck.
+          {pro
+            ? `${exercises.length} desk-safe moves. Filter by the bit that feels stuck.`
+            : `${FREE_EXERCISE_IDS.length} free moves · ${exercises.length} with Pro.`}
         </p>
 
-        <div className="-mx-5 mt-5 overflow-x-auto px-5">
-          <div className="flex w-max gap-2 pb-1">
+        <div className="mt-5 flex flex-wrap gap-2">
+          <FilterChip label="All" active={area === "all"} onClick={() => setArea("all")} />
+          {BODY_AREAS.map((id) => (
             <FilterChip
-              label="All"
-              active={area === "all"}
-              onClick={() => setArea("all")}
+              key={id}
+              label={BODY_AREA_LABELS[id]}
+              active={area === id}
+              onClick={() => setArea(id)}
             />
-            {BODY_AREAS.map((id) => (
-              <FilterChip
-                key={id}
-                label={BODY_AREA_LABELS[id]}
-                active={area === id}
-                onClick={() => setArea(id)}
-              />
-            ))}
-          </div>
+          ))}
         </div>
 
-        <ul className="mt-5 flex flex-col gap-3">
-          {filtered.map((exercise) => {
-            const swap = exercise.saferSwapId
-              ? getExercise(exercise.saferSwapId)
-              : null;
-            return (
-              <li
+        {filtered.length === 0 ? (
+          <div className="mt-6">
+            <EmptyState
+              title="Nothing in this filter"
+              body="Try another body area — or All."
+            />
+          </div>
+        ) : (
+          <ul className="mt-5 flex flex-col gap-3">
+            {filtered.map((exercise) => (
+              <ExerciseCard
                 key={exercise.id}
-                className="rounded-[24px] bg-white p-4 shadow-[0_4px_0_rgba(28,25,23,0.06)]"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <h2 className="font-display text-xl font-semibold leading-tight text-ink">
-                    {exercise.name}
-                  </h2>
-                  <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-ink/55">
-                    {BODY_AREA_LABELS[exercise.bodyArea]}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm leading-relaxed text-ink/65">
-                  {exercise.cue}
-                </p>
-                <p className="mt-3 text-sm font-semibold text-coral">
-                  {formatDose(exercise.defaultDose)}
-                </p>
-                <p className="mt-1 text-xs text-ink/45">
-                  Watch for: {exercise.commonMistake}
-                </p>
-                {swap && (
-                  <p className="mt-2 text-xs text-ink/45">
-                    Gentler swap: {swap.name}
-                  </p>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                exercise={exercise}
+                locked={isExerciseLocked(exercise, state.entitlement)}
+                onLocked={() => setUpgrade(true)}
+              />
+            ))}
+          </ul>
+        )}
       </main>
       <BottomNav />
+      <UpgradeSheet
+        open={upgrade}
+        onClose={() => setUpgrade(false)}
+        reason="The full library — wrists, hips, standing desk work, breathing — unlocks with Pro."
+      />
     </div>
+  );
+}
+
+function ExerciseCard({
+  exercise,
+  locked,
+  onLocked,
+}: {
+  exercise: Exercise;
+  locked: boolean;
+  onLocked: () => void;
+}) {
+  const swap = exercise.saferSwapId ? getExercise(exercise.saferSwapId) : null;
+
+  return (
+    <li>
+      <article
+        className={[
+          "rounded-[24px] bg-white p-4 shadow-[0_4px_0_rgba(28,25,23,0.06)]",
+          locked ? "opacity-80" : "",
+        ].join(" ")}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="font-display text-xl font-semibold leading-tight text-ink">
+            {exercise.name}
+          </h2>
+          <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-ink/55">
+            {locked ? "Pro" : BODY_AREA_LABELS[exercise.bodyArea]}
+          </span>
+        </div>
+        {locked ? (
+          <div className="mt-3">
+            <p className="text-sm text-ink/55">
+              Locked on Free. Upgrade to see the cue and dose.
+            </p>
+            <button
+              type="button"
+              onClick={onLocked}
+              className="mt-3 min-h-11 text-sm font-semibold text-coral"
+            >
+              Unlock with Pro
+            </button>
+          </div>
+        ) : (
+          <>
+            <p className="mt-2 text-sm leading-relaxed text-ink/65">{exercise.cue}</p>
+            <p className="mt-3 text-sm font-semibold text-coral">
+              {formatDose(exercise.defaultDose)}
+            </p>
+            <p className="mt-1 text-xs text-ink/45">Watch for: {exercise.commonMistake}</p>
+            {swap ? (
+              <p className="mt-2 text-xs text-ink/45">Gentler swap: {swap.name}</p>
+            ) : null}
+          </>
+        )}
+      </article>
+    </li>
   );
 }
 
