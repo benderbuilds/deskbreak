@@ -106,7 +106,7 @@ function ExerciseCard({
             exerciseId={locked ? undefined : exercise.id}
             bodyArea={locked ? undefined : exercise.bodyArea}
             size={72}
-            alt={locked ? "Stretch — locked move" : `Stretch — ${exercise.name}`}
+            alt={locked ? "Reed — locked move" : `Reed — ${exercise.name}`}
             className="mt-0.5 shrink-0"
           />
           <div className="min-w-0 flex-1">

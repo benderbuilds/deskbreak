@@ -96,7 +96,7 @@ export function HomeView() {
         <InstallPrompt />
 
         <div className="mb-4 flex justify-center">
-          <CharacterArt pose="idle" size={148} tappable alt="Stretch ready for a desk break" />
+          <CharacterArt pose="idle" size={148} tappable alt="Reed ready for a desk break" />
         </div>
 
         <section className="mb-7">

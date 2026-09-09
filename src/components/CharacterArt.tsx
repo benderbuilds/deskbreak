@@ -8,7 +8,7 @@ import {
 } from "@/lib/character-art";
 import type { BodyArea } from "@/lib/types";
 
-const FALLBACK_SRC = "/character/stretch-fallback.svg";
+const FALLBACK_SRC = "/character/reed-fallback.svg";
 
 export function CharacterArt({
   pose = "idle",
@@ -16,7 +16,7 @@ export function CharacterArt({
   bodyArea,
   animate = false,
   tappable = false,
-  alt = "Stretch",
+  alt = "Reed",
   className,
   size = 220,
 }: {

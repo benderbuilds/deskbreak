@@ -73,7 +73,7 @@ export function PaywallView() {
           Soft paywall
         </p>
         <div className="mt-3 flex justify-center">
-          <CharacterArt pose="idle" size={140} alt="Stretch" />
+          <CharacterArt pose="idle" size={140} alt="Reed" />
         </div>
         <h1 className="mt-2 font-display text-[2.1rem] font-semibold leading-[1.1] text-ink">
           Keep the 2-minute habit. Unlock the workday when you’re ready.

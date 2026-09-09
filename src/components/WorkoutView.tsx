@@ -80,7 +80,7 @@ export function WorkoutView({
     return (
       <div className="flex min-h-dvh flex-col justify-center px-5">
         <div className="mb-4 flex justify-center">
-          <CharacterArt pose="locked" size={160} alt="Stretch — locked program" />
+          <CharacterArt pose="locked" size={160} alt="Reed — locked program" />
         </div>
         <ErrorState
           title={`${program.shortLabel} is Pro`}
@@ -178,7 +178,7 @@ export function WorkoutView({
             animate={engine.status === "running"}
             tappable
             size={200}
-            alt={`Stretch — ${current.exercise.name}`}
+            alt={`Reed — ${current.exercise.name}`}
           />
         </div>
 

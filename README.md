@@ -66,26 +66,26 @@ Shown when `NODE_ENV !== "production"` **or** `NEXT_PUBLIC_DEMO_UNLOCK=true`:
 - **Onboarding** — hook, pain, time, promise, optional reminder, then a forced-nudge 2-min Desk Reset before the paywall
 - **Paywall** — Free vs Pro, Subscribe annually, Continue on Free
 - **Home** — greeting, streak, one-tap 2-min reset, locked Pro circuits
-- **Active workout** — large timer, Stretch illustration (optional motion frames), cue, next / skip / pause
-- **Done** — Stretch celebration, streak, copyable summary
-- **Library** — Stretch thumbnails; filter by body area; Pro locks on gated moves
+- **Active workout** — large timer, Reed illustration (optional motion frames), cue, next / skip / pause
+- **Done** — Reed celebration, streak, copyable summary
+- **Library** — Reed thumbnails; filter by body area; Pro locks on gated moves
 - **Settings** — reminders, plan, replay onboarding
 - **PWA** — manifest, icons, install prompt when the browser offers it
-- **Stretch** — SVG coach in `public/character/` (see below)
+- **Reed** — SVG coach in `public/character/` (see below)
 
-## Character art (Stretch)
+## Character art (Reed)
 
-Flat 2D desk-coach poses. Name + cue stay primary; art is extra. Workout shows a large stage above the cue (tap the art for a bounce that never covers Next / Skip / Pause). Library uses a small thumbnail. Missing files fall back to `stretch-fallback.svg`, then to the nearest body-area pose.
+Slightly abstract adult office human, flat 2D, pose-first silhouette — not a baby mascot. Name + cue stay primary; art is extra. Workout shows a large stage above the cue (tap the art for a bounce that never covers Next / Skip / Pause). Library uses a small thumbnail. Missing files fall back to `reed-fallback.svg`, then to the nearest body-area pose.
 
 Drop replacements in `public/character/` using the **catalog exercise id**:
 
 ```
 public/character/{exerciseId}.svg
 public/character/{exerciseId}-b.svg   # optional second motion frame
-public/character/stretch-idle.svg
-public/character/stretch-done.svg
-public/character/stretch-locked.svg
-public/character/stretch-fallback.svg
+public/character/reed-idle.svg
+public/character/reed-done.svg
+public/character/reed-locked.svg
+public/character/reed-fallback.svg
 ```
 
 2-min Desk Reset ids: `chin-tucks`, `shoulder-rolls`, `seated-cat-cow`, `wrist-circles`, `seated-figure-four`, `box-breathing`. Other moves reuse the closest body-area file until a dedicated SVG exists. Mapping lives in `src/lib/character-art.ts`. Keep 512×512, brand colors (`#F7F4EF` paper, `#FF5A36` coral, `#2DD4A8` mint, `#1C1917` ink).

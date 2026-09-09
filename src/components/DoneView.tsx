@@ -81,7 +81,7 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
         <CharacterArt
           pose="done"
           size={180}
-          alt="Stretch — that's a break"
+          alt="Reed — that's a break"
           className="mt-2 animate-[popIn_320ms_cubic-bezier(0.34,1.45,0.64,1)]"
         />
 
