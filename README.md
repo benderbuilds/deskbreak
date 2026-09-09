@@ -66,11 +66,12 @@ Shown when `NODE_ENV !== "production"` **or** `NEXT_PUBLIC_DEMO_UNLOCK=true`:
 - **Onboarding** — hook, promise, goal / setup / reminder, honest social proof, then a forced-nudge 2-min Desk Reset before the paywall
 - **Paywall** — Free vs Pro, Subscribe annually, Continue on Free
 - **Home** — greeting, streak, one-tap 2-min reset, locked Pro circuits
-- **Active workout** — large timer, cue, next / skip / pause
-- **Done** — celebration (Pro themes), streak, copyable summary
-- **Library** — filter by body area; Pro locks on gated moves
+- **Active workout** — large timer, Stretch illustration (optional motion frames), cue, next / skip / pause
+- **Done** — Stretch celebration, streak, copyable summary
+- **Library** — Stretch thumbnails; filter by body area; Pro locks on gated moves
 - **Settings** — reminders, plan, replay onboarding
 - **PWA** — manifest, icons, install prompt when the browser offers it
+- **Stretch** — SVG masters in `public/character/` (idle, done, locked, fallback, plus per-move art)
 
 ## Content
 

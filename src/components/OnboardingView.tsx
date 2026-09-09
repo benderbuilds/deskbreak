@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
+import { CharacterArt } from "@/components/CharacterArt";
 import { LogoMark } from "@/components/LogoMark";
 import { GOAL_COPY, SETUP_COPY } from "@/lib/constants";
 import { saveOnboardingAnswers } from "@/lib/storage";
@@ -182,6 +183,9 @@ function CopyStep({
         {title}
       </h1>
       <p className="mt-4 text-[1.05rem] leading-relaxed text-ink/65">{body}</p>
+      <div className="mt-6 flex justify-center">
+        <CharacterArt pose="idle" size={168} alt="Stretch" />
+      </div>
     </div>
   );
 }

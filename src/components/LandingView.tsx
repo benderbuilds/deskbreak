@@ -1,6 +1,7 @@
 "use client";
 
 import { ButtonLink } from "@/components/Button";
+import { CharacterArt } from "@/components/CharacterArt";
 import { LogoMark } from "@/components/LogoMark";
 
 export function LandingView() {
@@ -23,6 +24,10 @@ export function LandingView() {
           Two minutes. No equipment — at the office or as a home workout routine
           for busy days.
         </p>
+
+        <div className="mt-6 flex justify-center">
+          <CharacterArt pose="idle" size={200} alt="Stretch, DeskBreak’s desk-break character" />
+        </div>
 
         <ul className="mt-8 space-y-3">
           {[

@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, ButtonLink } from "@/components/Button";
+import { CharacterArt } from "@/components/CharacterArt";
 import { ProBadge } from "@/components/ProBadge";
 import { ANNUAL_PER_MONTH, ANNUAL_PRICE_USD, MONTHLY_COMPARE_USD } from "@/lib/constants";
 
@@ -37,6 +38,9 @@ export function UpgradeSheet({
           >
             ✕
           </button>
+        </div>
+        <div className="mt-1 flex justify-center">
+          <CharacterArt pose="locked" size={120} alt="Stretch — Pro locked" />
         </div>
         <h2 id="upgrade-title" className="mt-3 font-display text-[1.7rem] font-semibold leading-tight text-ink">
           Unlock the rest of the workday

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ButtonLink } from "@/components/Button";
+import { CharacterArt } from "@/components/CharacterArt";
 import { LogoMark } from "@/components/LogoMark";
 import { ProBadge } from "@/components/ProBadge";
 import { ErrorState } from "@/components/StatusStates";
@@ -71,6 +72,9 @@ export function PaywallView() {
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-coral">
           Soft paywall
         </p>
+        <div className="mt-3 flex justify-center">
+          <CharacterArt pose="idle" size={140} alt="Stretch" />
+        </div>
         <h1 className="mt-2 font-display text-[2.1rem] font-semibold leading-[1.1] text-ink">
           Keep the 2-minute habit. Unlock the workday when you’re ready.
         </h1>

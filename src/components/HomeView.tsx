@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { BottomNav } from "@/components/BottomNav";
+import { CharacterArt } from "@/components/CharacterArt";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { LogoMark } from "@/components/LogoMark";
 import { ProBadge } from "@/components/ProBadge";
@@ -93,6 +94,10 @@ export function HomeView() {
         ) : null}
 
         <InstallPrompt />
+
+        <div className="mb-4 flex justify-center">
+          <CharacterArt pose="idle" size={148} alt="Stretch ready for a desk break" />
+        </div>
 
         <section className="mb-7">
           <h1 className="font-display text-[1.75rem] font-semibold leading-[1.15] tracking-tight text-ink">

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ButtonLink } from "@/components/Button";
+import { CharacterArt } from "@/components/CharacterArt";
 import { ErrorState } from "@/components/StatusStates";
 import { UpgradeSheet } from "@/components/UpgradeSheet";
 import { getProgram } from "@/lib/content";
@@ -78,6 +79,9 @@ export function WorkoutView({
   if (!allowed) {
     return (
       <div className="flex min-h-dvh flex-col justify-center px-5">
+        <div className="mb-4 flex justify-center">
+          <CharacterArt pose="locked" size={160} alt="Stretch — locked program" />
+        </div>
         <ErrorState
           title={`${program.shortLabel} is Pro`}
           body="Stay unlimited on the 2-min Desk Reset, or unlock Lunch Reset and Busy-Day Circuit."
@@ -162,14 +166,24 @@ export function WorkoutView({
           </div>
         )}
 
-        <p className="font-display text-[6.5rem] font-semibold leading-none tracking-tight text-ink tabular-nums">
+        <p className="font-display text-[5.5rem] font-semibold leading-none tracking-tight text-ink tabular-nums">
           {seconds}
         </p>
         <p className="mt-2 text-sm font-semibold text-ink/45">{doseLabel}</p>
 
+        <div className="mt-4">
+          <CharacterArt
+            pose="exercise"
+            exerciseId={current.exercise.id}
+            animate={engine.status === "running"}
+            size={200}
+            alt={`Stretch — ${current.exercise.name}`}
+          />
+        </div>
+
         <div
           key={current.exercise.id}
-          className="mt-8 w-full animate-[stepIn_260ms_cubic-bezier(0.34,1.2,0.64,1)]"
+          className="mt-4 w-full animate-[stepIn_260ms_cubic-bezier(0.34,1.2,0.64,1)]"
         >
           <h1 className="font-display text-[2rem] font-semibold leading-tight text-ink">
             {current.exercise.name}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ButtonLink } from "@/components/Button";
+import { CharacterArt } from "@/components/CharacterArt";
 import { LoadingShell, ErrorState } from "@/components/StatusStates";
 import { unlockPro } from "@/lib/storage";
 import { useIsClient } from "@/lib/use-client";
@@ -72,10 +73,13 @@ export function PaywallSuccessView({ sessionId }: { sessionId: string | null }) 
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center px-5 text-center">
-      <div className="grid h-20 w-20 place-items-center rounded-full bg-mint text-ink shadow-[0_6px_0_#1BAF8A] animate-[popIn_320ms_cubic-bezier(0.34,1.45,0.64,1)]">
-        ✓
-      </div>
-      <h1 className="mt-6 font-display text-3xl font-semibold text-ink">You’re on Pro.</h1>
+      <CharacterArt
+        pose="done"
+        size={160}
+        alt="Stretch — you’re on Pro"
+        className="animate-[popIn_320ms_cubic-bezier(0.34,1.45,0.64,1)]"
+      />
+      <h1 className="mt-4 font-display text-3xl font-semibold text-ink">You’re on Pro.</h1>
       <p className="mt-2 max-w-[18rem] text-sm text-ink/60">
         Lunch Reset, Busy-Day Circuit, and the full library are unlocked on this device.
       </p>

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ButtonLink } from "@/components/Button";
+import { CharacterArt } from "@/components/CharacterArt";
 import { getExercise } from "@/lib/content";
 import { isProEntitlement } from "@/lib/entitlements";
 import { buildSessionSummary } from "@/lib/format";
@@ -77,11 +78,14 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
       <Celebration theme={theme} />
 
       <main className="relative z-10 flex flex-1 flex-col items-center text-center">
-        <div className="mt-6 grid h-24 w-24 place-items-center rounded-full bg-mint text-ink shadow-[0_8px_0_#1BAF8A] animate-[popIn_320ms_cubic-bezier(0.34,1.45,0.64,1)]">
-          <CheckIcon />
-        </div>
+        <CharacterArt
+          pose="done"
+          size={180}
+          alt="Stretch — that's a break"
+          className="mt-2 animate-[popIn_320ms_cubic-bezier(0.34,1.45,0.64,1)]"
+        />
 
-        <h1 className="mt-8 font-display text-[2.35rem] font-semibold leading-none tracking-tight text-ink animate-[stepIn_280ms_cubic-bezier(0.34,1.2,0.64,1)]">
+        <h1 className="mt-4 font-display text-[2.35rem] font-semibold leading-none tracking-tight text-ink animate-[stepIn_280ms_cubic-bezier(0.34,1.2,0.64,1)]">
           That&apos;s a break.
         </h1>
         <p className="mt-3 max-w-[20rem] text-[1.05rem] leading-relaxed text-ink/65">
@@ -138,20 +142,6 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
         ) : null}
       </div>
     </div>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg width="42" height="42" viewBox="0 0 42 42" fill="none" aria-hidden>
-      <path
-        d="M10 22.5 18 30 32 13"
-        stroke="#1C1917"
-        strokeWidth="4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 

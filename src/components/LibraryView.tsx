@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { BottomNav } from "@/components/BottomNav";
+import { CharacterArt } from "@/components/CharacterArt";
 import { EmptyState } from "@/components/StatusStates";
 import { UpgradeSheet } from "@/components/UpgradeSheet";
 import { BODY_AREA_LABELS, BODY_AREAS } from "@/lib/body-areas";
@@ -100,39 +101,50 @@ function ExerciseCard({
           locked ? "opacity-80" : "",
         ].join(" ")}
       >
-        <div className="flex items-start justify-between gap-3">
-          <h2 className="font-display text-xl font-semibold leading-tight text-ink">
-            {exercise.name}
-          </h2>
-          <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-ink/55">
-            {locked ? "Pro" : BODY_AREA_LABELS[exercise.bodyArea]}
-          </span>
-        </div>
-        {locked ? (
-          <div className="mt-3">
-            <p className="text-sm text-ink/55">
-              Locked on Free. Upgrade to see the cue and dose.
-            </p>
-            <button
-              type="button"
-              onClick={onLocked}
-              className="mt-3 min-h-11 text-sm font-semibold text-coral"
-            >
-              Unlock with Pro
-            </button>
+        <div className="flex items-start gap-3">
+          <CharacterArt
+            pose={locked ? "locked" : "exercise"}
+            exerciseId={locked ? undefined : exercise.id}
+            size={72}
+            alt={locked ? "Stretch — locked move" : `Stretch — ${exercise.name}`}
+            className="mt-0.5 shrink-0"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="font-display text-xl font-semibold leading-tight text-ink">
+                {exercise.name}
+              </h2>
+              <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-ink/55">
+                {locked ? "Pro" : BODY_AREA_LABELS[exercise.bodyArea]}
+              </span>
+            </div>
+            {locked ? (
+              <div className="mt-2">
+                <p className="text-sm text-ink/55">
+                  Locked on Free. Upgrade to see the cue and dose.
+                </p>
+                <button
+                  type="button"
+                  onClick={onLocked}
+                  className="mt-2 min-h-11 text-sm font-semibold text-coral"
+                >
+                  Unlock with Pro
+                </button>
+              </div>
+            ) : (
+              <>
+                <p className="mt-2 text-sm leading-relaxed text-ink/65">{exercise.cue}</p>
+                <p className="mt-3 text-sm font-semibold text-coral">
+                  {formatDose(exercise.defaultDose)}
+                </p>
+                <p className="mt-1 text-xs text-ink/45">Watch for: {exercise.commonMistake}</p>
+                {swap ? (
+                  <p className="mt-2 text-xs text-ink/45">Gentler swap: {swap.name}</p>
+                ) : null}
+              </>
+            )}
           </div>
-        ) : (
-          <>
-            <p className="mt-2 text-sm leading-relaxed text-ink/65">{exercise.cue}</p>
-            <p className="mt-3 text-sm font-semibold text-coral">
-              {formatDose(exercise.defaultDose)}
-            </p>
-            <p className="mt-1 text-xs text-ink/45">Watch for: {exercise.commonMistake}</p>
-            {swap ? (
-              <p className="mt-2 text-xs text-ink/45">Gentler swap: {swap.name}</p>
-            ) : null}
-          </>
-        )}
+        </div>
       </article>
     </li>
   );
