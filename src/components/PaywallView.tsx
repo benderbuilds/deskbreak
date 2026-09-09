@@ -143,11 +143,11 @@ export function PaywallView() {
               <Button variant="mint" onClick={demoUnlock}>
                 Unlock Pro for demo
               </Button>
-              <Button variant="ghost" onClick={subscribe} disabled={busy}>
-                {busy ? "Opening Checkout…" : "Subscribe annually"}
+              <Button variant="ghost" disabled>
+                Subscribe annually
               </Button>
               <p className="text-center text-xs leading-relaxed text-ink/45">
-                Stripe isn’t configured on this build, so Subscribe would fail.
+                Stripe isn’t configured on this build, so Subscribe would 501.
                 Demo unlock is for local/morning use — no charges.
               </p>
             </>
@@ -160,6 +160,12 @@ export function PaywallView() {
                 <Button variant="mint" onClick={demoUnlock}>
                   Unlock Pro for demo
                 </Button>
+              ) : null}
+              {!stripeReady ? (
+                <p className="text-center text-xs leading-relaxed text-ink/45">
+                  Stripe isn’t configured, so Subscribe is unavailable. No charges
+                  are simulated.
+                </p>
               ) : null}
             </>
           )}

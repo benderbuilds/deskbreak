@@ -42,7 +42,6 @@ const MOTION_STEMS = new Set([
   "seated-scap-squeeze",
   "box-breathing",
   "long-exhale-reset",
-  "physiological-sigh",
 ]);
 
 export function stemForExercise(exerciseId: string, bodyArea?: BodyArea): string {

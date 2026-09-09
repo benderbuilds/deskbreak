@@ -64,6 +64,12 @@ export function WorkoutView({
     [current],
   );
 
+  function leaveBreak() {
+    // First-win Leave must not dump to the paywall. Paywall comes from Done
+    // (?next=paywall) after a completed reset, or “I’ll do it later” in onboarding.
+    router.push("/");
+  }
+
   if (!program) {
     return (
       <div className="flex min-h-dvh flex-col justify-center px-5">
@@ -123,8 +129,8 @@ export function WorkoutView({
       <header className="mb-4 flex items-center justify-between gap-3">
         <button
           type="button"
-          onClick={() => router.push("/")}
-          className="grid h-12 w-12 place-items-center rounded-full bg-white text-ink shadow-[0_3px_0_rgba(28,25,23,0.06)] transition-transform duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)] active:scale-95"
+          onClick={leaveBreak}
+          className="relative z-20 grid h-12 w-12 place-items-center rounded-full bg-white text-ink shadow-[0_3px_0_rgba(28,25,23,0.06)] transition-transform duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)] active:scale-95"
           aria-label="Leave break"
         >
           <CloseIcon />
@@ -138,7 +144,7 @@ export function WorkoutView({
         <button
           type="button"
           onClick={engine.status === "paused" ? engine.resume : engine.pause}
-          className="grid h-12 w-12 place-items-center rounded-full bg-white text-ink shadow-[0_3px_0_rgba(28,25,23,0.06)] transition-transform duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)] active:scale-95"
+          className="relative z-20 grid h-12 w-12 place-items-center rounded-full bg-white text-ink shadow-[0_3px_0_rgba(28,25,23,0.06)] transition-transform duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)] active:scale-95"
           aria-label={engine.status === "paused" ? "Resume" : "Pause"}
         >
           {engine.status === "paused" ? <PlayIcon /> : <PauseIcon />}
@@ -170,7 +176,7 @@ export function WorkoutView({
         </p>
         <p className="mt-2 text-sm font-semibold text-ink/45">{doseLabel}</p>
 
-        <div className="mt-4">
+        <div className="relative z-0 mt-4">
           <CharacterArt
             pose="exercise"
             exerciseId={current.exercise.id}
@@ -198,7 +204,7 @@ export function WorkoutView({
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-[1fr_1.4fr] gap-3">
+      <div className="relative z-20 mt-6 grid grid-cols-[1fr_1.4fr] gap-3">
         <Button variant="ghost" onClick={engine.skip}>
           Skip
         </Button>

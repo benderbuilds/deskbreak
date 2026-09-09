@@ -31,12 +31,17 @@ export function CharacterArt({
 }) {
   const [frameB, setFrameB] = useState(false);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const [motionDisabled, setMotionDisabled] = useState(false);
+  const [fallbackFailed, setFallbackFailed] = useState(false);
   const [bounce, setBounce] = useState(false);
-  const motion = animate && hasMotionFrame(pose, exerciseId, bodyArea);
+  const motion =
+    animate && !motionDisabled && hasMotionFrame(pose, exerciseId, bodyArea);
 
   useEffect(() => {
     setFrameB(false);
     setFailedSrc(null);
+    setMotionDisabled(false);
+    setFallbackFailed(false);
   }, [exerciseId, pose, bodyArea]);
 
   useEffect(() => {
@@ -61,7 +66,43 @@ export function CharacterArt({
     window.requestAnimationFrame(() => setBounce(true));
   }
 
-  const image = (
+  function handleImageError() {
+    if (src === FALLBACK_SRC) {
+      setFallbackFailed(true);
+      return;
+    }
+    if (frameB && motion) {
+      setFrameB(false);
+      setMotionDisabled(true);
+      return;
+    }
+    setFailedSrc(intended);
+  }
+
+  const visualClass = [
+    "pointer-events-none select-none",
+    bounce ? "animate-[tapBounce_420ms_cubic-bezier(0.34,1.4,0.64,1)]" : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const graphic = fallbackFailed ? (
+    <span
+      aria-hidden={tappable}
+      role={tappable ? undefined : "img"}
+      aria-label={tappable ? undefined : alt}
+      className={visualClass}
+      style={{
+        display: "inline-block",
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: "#2DD4A8",
+        opacity: 0.35,
+      }}
+    />
+  ) : (
     // Public SVG files — keep as <img> so masters stay untouched.
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -70,31 +111,22 @@ export function CharacterArt({
       width={size}
       height={size}
       draggable={false}
-      onError={() => {
-        if (src === FALLBACK_SRC) return;
-        setFailedSrc(intended);
-      }}
+      onError={handleImageError}
       onAnimationEnd={() => setBounce(false)}
-      className={[
-        "pointer-events-none select-none",
-        bounce ? "animate-[tapBounce_420ms_cubic-bezier(0.34,1.4,0.64,1)]" : "",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      className={visualClass}
     />
   );
 
-  if (!tappable) return image;
+  if (!tappable) return graphic;
 
   return (
     <button
       type="button"
       onClick={tapBounce}
       aria-label={alt}
-      className="rounded-[28px] outline-none focus-visible:ring-2 focus-visible:ring-coral"
+      className="relative z-0 rounded-[28px] outline-none focus-visible:ring-2 focus-visible:ring-coral"
     >
-      {image}
+      {graphic}
     </button>
   );
 }
