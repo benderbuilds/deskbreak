@@ -27,6 +27,7 @@ export type Exercise = {
   commonMistake: string;
   skipIf: string[];
   saferSwapId: string | null;
+  // TODO(catalog-v3): stretchView?: "side" | "front" — not in this JSON yet.
 };
 
 export type ProgramStep = {

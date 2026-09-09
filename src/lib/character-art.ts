@@ -3,42 +3,49 @@ import type { BodyArea } from "./types";
 export type CharacterPose = "exercise" | "idle" | "done" | "locked" | "fallback";
 
 /**
- * Catalog exercise ids → files in /public/character.
- * Prefer `{exerciseId}.svg`. Aliases keep designer stems (chin-tuck, seated-figure-4, …).
+ * Catalog exercise ids → teaching-plane files in /public/character.
+ * Prefer `{exerciseId}.svg` (no -side suffix). Designer stems (chin-tuck,
+ * seated-figure-4, long-exhale-reset, standing-posture-reset) are the v1.1
+ * sideways masters. `*-front.svg` archives are kept but not requested yet.
+ *
+ * TODO: If Fitness catalog v3 lands with `stretchView` (`side` | `front`),
+ * prefer `{id}.svg` for the teaching plane and `{id}-front.svg` when
+ * stretchView === "front". Do not invent exercise data until that field exists.
  */
 const EXERCISE_STEMS: Record<string, string> = {
-  "chin-tucks": "chin-tucks",
+  "chin-tucks": "chin-tuck",
+  "chin-tuck": "chin-tuck",
   "neck-nods": "neck-nods",
   "shoulder-rolls": "shoulder-rolls",
   "seated-cat-cow": "seated-cat-cow",
   "wrist-circles": "wrist-circles",
   "finger-fans": "finger-fans",
-  "seated-figure-four": "seated-figure-four",
+  "seated-figure-four": "seated-figure-4",
+  "seated-figure-4": "seated-figure-4",
   "seated-marches": "seated-marches",
-  "box-breathing": "box-breathing",
-  "physiological-sigh": "physiological-sigh",
+  "box-breathing": "long-exhale-reset",
+  "physiological-sigh": "long-exhale-reset",
+  "long-exhale-reset": "long-exhale-reset",
   "scapular-squeezes": "scapular-squeezes",
   "wrist-flexor-stretch": "wrist-flexor-stretch",
   "wrist-extensor-stretch": "wrist-extensor-stretch",
-  "standing-extension": "seated-cat-cow",
-  "standing-hip-hinge": "seated-figure-four",
+  "standing-extension": "standing-posture-reset",
+  "standing-posture-reset": "standing-posture-reset",
+  "standing-hip-hinge": "seated-figure-4",
   "calf-raises": "seated-marches",
   "sit-to-stand": "seated-marches",
   "pec-stretch-desk": "seated-cat-cow",
-  "chin-tuck": "chin-tuck",
-  "seated-figure-4": "seated-figure-4",
-  "long-exhale-reset": "long-exhale-reset",
   "seated-scap-squeeze": "seated-scap-squeeze",
 };
 
 const BODY_AREA_STEMS: Record<BodyArea, string> = {
-  neck: "chin-tucks",
+  neck: "chin-tuck",
   shoulders: "shoulder-rolls",
   upperBack: "seated-scap-squeeze",
   wrists: "wrist-circles",
-  hips: "seated-figure-four",
-  legs: "seated-figure-four",
-  breathing: "box-breathing",
+  hips: "seated-figure-4",
+  legs: "seated-marches",
+  breathing: "long-exhale-reset",
 };
 
 const MOTION_STEMS = new Set([
@@ -50,6 +57,7 @@ const MOTION_STEMS = new Set([
   "seated-scap-squeeze",
   "box-breathing",
   "long-exhale-reset",
+  "standing-posture-reset",
 ]);
 
 export function stemForExercise(exerciseId: string, bodyArea?: BodyArea): string {

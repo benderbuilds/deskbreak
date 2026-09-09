@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch — Posture slumped (side)">
+  <title>DeskBreak Stretch — Posture slumped (side)</title>
+  <rect width="512" height="512" fill="none"/>
+  <ellipse cx="256" cy="470" rx="120" ry="10" fill="#E7E2DA" opacity="0.5"/>
+  <line x1="256" y1="90" x2="256" y2="460" stroke="#FF5A36" stroke-width="2" stroke-dasharray="5 5" opacity="0.75"/>
+  <circle cx="280" cy="140" r="30" fill="none" stroke="#FF5A36" stroke-width="2" opacity="0.35" stroke-dasharray="4 4"/>
+  <g id="leg">
+    <path d="M256,310 L250,455" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+    <path d="M256,310 L250,455" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="250" cy="459" rx="22" ry="8" fill="#1C1917"/>
+  </g>
+<path d="M248,310 L232,455" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" opacity="0.35"/>
+  <g id="torso" transform="rotate(6 265 242.5)">
+    <rect x="240.0" y="185" width="50" height="115" rx="18" fill="#FFFFFF" stroke="#1C1917" stroke-width="3.0"/>
+  </g>
+  <g class="arm">
+    <path d="M275,220 L305,280 L310,340" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M275,220 L305,280 L310,340" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="310" cy="340" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+  <g id="head">
+    <circle cx="280" cy="140" r="34" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <path d="M250,134 Q270,100 302,112 Q290,132 260,144 Z" fill="#1C1917"/>
+    <path d="M314,142 L328,148 L314,154 Z" fill="#F3E6D8" stroke="#1C1917" stroke-width="2"/>
+    <circle cx="288" cy="140" r="3" fill="#1C1917"/>
+    <path d="M286,154 Q294,158 302,152" fill="none" stroke="#1C1917" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</svg>
