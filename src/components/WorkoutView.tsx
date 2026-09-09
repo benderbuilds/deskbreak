@@ -28,7 +28,8 @@ export function WorkoutView({
   const state = useAppState();
   const allowed = program ? canAccessProgram(program.id, state.entitlement) : false;
   const setup = state.onboardingAnswers.setup;
-  const engine = useWorkoutEngine(allowed && program ? programId : "", setup);
+  const goal = state.onboardingAnswers.goal;
+  const engine = useWorkoutEngine(allowed && program ? programId : "", setup, goal);
   const recordedRef = useRef(false);
   const [upgrade, setUpgrade] = useState(false);
 

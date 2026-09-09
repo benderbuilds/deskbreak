@@ -63,7 +63,7 @@ Shown when `NODE_ENV !== "production"` **or** `NEXT_PUBLIC_DEMO_UNLOCK=true`:
 ## What’s in the app
 
 - **Landing** — SEO hero for first-time visitors
-- **Onboarding** — hook, pain, time, promise, goal, work setup, optional reminder, then a forced-nudge 2-min Desk Reset before the paywall. Standing-desk setup swaps seated-only Desk Reset (and Pro circuit) steps to stand-at-desk catalog moves without forking the JSON.
+- **Onboarding** — hook, pain, time, promise, goal, work setup, optional reminder, then a forced-nudge 2-min Desk Reset before the paywall. Standing-desk setup swaps seated-only steps; goal reorders Desk Reset (neck-first / energy-first) after those swaps. Same program id — no JSON fork.
 - **Paywall** — Free vs Pro, Subscribe annually, Continue on Free
 - **Home** — greeting, goal line, setup-aware subline, streak, one-tap 2-min reset, locked Pro circuits
 - **Active workout** — large timer, Stretch illustration (optional motion frames), cue, next / skip / pause

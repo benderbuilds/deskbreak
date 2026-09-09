@@ -13,6 +13,7 @@ import { isProEntitlement, isProgramLocked } from "@/lib/entitlements";
 import { getPrograms } from "@/lib/content";
 import { greetingForHour } from "@/lib/format";
 import { taglineForSetup } from "@/lib/setup-steps";
+import { deskResetGoalKicker } from "@/lib/goal-steps";
 import {
   formatRelativeWorkoutDay,
   markReminderShown,
@@ -120,6 +121,7 @@ export function HomeView() {
               featured={index === 0}
               locked={isProgramLocked(program, state.entitlement)}
               tagline={taglineForSetup(program, state.onboardingAnswers.setup)}
+              kicker={deskResetGoalKicker(program.id, state.onboardingAnswers.goal)}
               onLocked={() =>
                 setUpgrade(
                   `${program.name} is part of Pro, along with the full library.`,
@@ -152,12 +154,14 @@ function ProgramCard({
   featured,
   locked,
   tagline,
+  kicker,
   onLocked,
 }: {
   program: Program;
   featured: boolean;
   locked: boolean;
   tagline: string;
+  kicker?: string | null;
   onLocked: () => void;
 }) {
   const className = [
@@ -186,6 +190,16 @@ function ProgramCard({
         <p className={["mt-1 text-sm leading-snug", featured ? "text-white/85" : "text-ink/55"].join(" ")}>
           {tagline}
         </p>
+        {kicker && !locked ? (
+          <p
+            className={[
+              "mt-1 text-xs font-semibold",
+              featured ? "text-white/70" : "text-coral",
+            ].join(" ")}
+          >
+            {kicker}
+          </p>
+        ) : null}
       </div>
       <span
         aria-hidden
