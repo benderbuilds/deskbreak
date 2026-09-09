@@ -15,8 +15,11 @@ export type Dose = {
   perSide?: boolean;
 };
 
+export type Access = "free" | "pro";
+
 export type Exercise = {
   id: string;
+  access: Access;
   name: string;
   cue: string;
   bodyArea: BodyArea;
@@ -33,6 +36,7 @@ export type ProgramStep = {
 
 export type Program = {
   id: string;
+  access: Access;
   name: string;
   shortLabel: string;
   durationMin: number;

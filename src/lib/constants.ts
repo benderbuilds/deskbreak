@@ -1,17 +1,4 @@
-export const FREE_PROGRAM_ID = "desk-reset-2min";
-
-export const FREE_EXERCISE_IDS = [
-  "chin-tucks",
-  "neck-nods",
-  "shoulder-rolls",
-  "seated-cat-cow",
-  "wrist-circles",
-  "finger-fans",
-  "seated-figure-four",
-  "seated-marches",
-  "box-breathing",
-  "physiological-sigh",
-] as const;
+export const FIRST_WIN_PROGRAM_ID = "desk-reset-2min";
 
 export const ANNUAL_PRICE_USD = 47.99;
 export const MONTHLY_COMPARE_USD = 8.99;

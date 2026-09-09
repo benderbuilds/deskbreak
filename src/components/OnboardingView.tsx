@@ -5,45 +5,36 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
 import { LogoMark } from "@/components/LogoMark";
-import { GOAL_COPY, SETUP_COPY } from "@/lib/constants";
-import { saveOnboardingAnswers } from "@/lib/storage";
-import type { GoalId, ReminderPref, SetupId } from "@/lib/types";
+import { FIRST_WIN_PROGRAM_ID } from "@/lib/constants";
+import { completeOnboarding, saveOnboardingAnswers } from "@/lib/storage";
+import type { ReminderPref } from "@/lib/types";
 
-type Answers = {
-  goal: GoalId | null;
-  setup: SetupId | null;
-  reminder: ReminderPref | null;
-};
-
-const TOTAL = 7;
+const TOTAL = 6;
 
 export function OnboardingView() {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Answers>({
-    goal: null,
-    setup: null,
-    reminder: null,
-  });
+  const [reminder, setReminder] = useState<ReminderPref | null>(null);
 
   function persistAnd(next: () => void) {
-    saveOnboardingAnswers(answers);
+    saveOnboardingAnswers({
+      goal: null,
+      setup: null,
+      reminder: reminder ?? "off",
+    });
+    completeOnboarding();
     next();
   }
 
   function goFirstWin() {
-    persistAnd(() => router.push("/workout/desk-reset-2min?src=firstWin"));
+    persistAnd(() =>
+      router.push(`/workout/${FIRST_WIN_PROGRAM_ID}?src=firstWin`),
+    );
   }
 
   function goPaywallLater() {
     persistAnd(() => router.push("/paywall?from=skip"));
   }
-
-  const canAdvance =
-    step === 2 ? Boolean(answers.goal) :
-    step === 3 ? Boolean(answers.setup) :
-    step === 4 ? Boolean(answers.reminder) :
-    true;
 
   return (
     <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))]">
@@ -54,10 +45,10 @@ export function OnboardingView() {
             DeskBreak
           </span>
         </div>
-        {step < 6 ? (
+        {step < 5 ? (
           <button
             type="button"
-            onClick={() => setStep((s) => Math.min(6, s + 1))}
+            onClick={() => setStep((s) => Math.min(5, s + 1))}
             className="min-h-11 rounded-full px-3 text-sm font-semibold text-ink/45"
           >
             Skip
@@ -77,66 +68,46 @@ export function OnboardingView() {
       <main className="flex flex-1 flex-col justify-center py-6">
         {step === 0 && (
           <CopyStep
+            kicker="Hook"
+            title="Your neck shouldn’t pay rent for a laptop."
+            body="DeskBreak is a two-minute unstick you start with one tap — still at the chair, still in the workday."
+          />
+        )}
+        {step === 1 && (
+          <CopyStep
             kicker="The 3pm slump"
             title="Desk stiffness is not a personality."
             body="Shoulders up by the ears. Wrists humming. Energy gone and it’s still Tuesday. That’s the tax of sitting still — not a lack of grit."
           />
         )}
-        {step === 1 && (
-          <CopyStep
-            kicker="The promise"
-            title="Two minutes that actually fit a workday."
-            body="No mat. No change of clothes. Office workouts and desk exercises you start with one tap between calls — or a home workout routine for busy days at the kitchen table."
-          />
-        )}
         {step === 2 && (
-          <ChoiceStep
-            kicker="Make it yours"
-            title="What do you want out of a reset?"
-            options={[
-              { id: "neck", label: GOAL_COPY.neck.label, hint: "Unstick the screen hunch." },
-              { id: "energy", label: GOAL_COPY.energy.label, hint: "Come back online without coffee #4." },
-              { id: "consistent", label: GOAL_COPY.consistent.label, hint: "A tiny habit that doesn’t nag." },
-            ]}
-            value={answers.goal}
-            onChange={(goal) => setAnswers((a) => ({ ...a, goal: goal as GoalId }))}
+          <CopyStep
+            kicker="Two minutes"
+            title="Two minutes that actually fit a workday."
+            body="No mat. No change of clothes. Office workouts and desk exercises between calls — or a home workout routine for busy days at the kitchen table."
           />
         )}
         {step === 3 && (
-          <ChoiceStep
-            kicker="Your setup"
-            title="Where do you actually work?"
-            options={[
-              { id: "seated", label: SETUP_COPY.seated.label, hint: SETUP_COPY.seated.hint },
-              { id: "standing", label: SETUP_COPY.standing.label, hint: SETUP_COPY.standing.hint },
-            ]}
-            value={answers.setup}
-            onChange={(setup) => setAnswers((a) => ({ ...a, setup: setup as SetupId }))}
+          <CopyStep
+            kicker="The promise"
+            title="Show up for the tiny reset. That’s the whole game."
+            body="One tap. A lanky coach named Stretch. Cue text you can actually follow. Then back to the calendar."
           />
         )}
         {step === 4 && (
           <ChoiceStep
-            kicker="A nudge, not a guilt trip"
+            kicker="Optional nudge"
             title="Want a reminder to stand up?"
             options={[
               { id: "midday", label: "Around lunch", hint: "A noon ping if this tab is open." },
               { id: "afternoon", label: "Mid-afternoon", hint: "When the slump usually lands." },
               { id: "off", label: "No reminders", hint: "You’ll start breaks yourself." },
             ]}
-            value={answers.reminder}
-            onChange={(reminder) =>
-              setAnswers((a) => ({ ...a, reminder: reminder as ReminderPref }))
-            }
+            value={reminder}
+            onChange={(id) => setReminder(id as ReminderPref)}
           />
         )}
         {step === 5 && (
-          <CopyStep
-            kicker="No fake stats"
-            title="We won’t invent a user count."
-            body="DeskBreak is for people who sit through standups, then sit through the work after. No clinical trial. No “10,000 desk athletes.” Just a two-minute reset that fits between calendar blocks."
-          />
-        )}
-        {step === 6 && (
           <CopyStep
             kicker="First win"
             title="Take the 2-min Desk Reset before anything else."
@@ -145,10 +116,8 @@ export function OnboardingView() {
         )}
       </main>
 
-      {step < 6 ? (
-        <Button disabled={!canAdvance} onClick={() => setStep((s) => s + 1)}>
-          Continue
-        </Button>
+      {step < 5 ? (
+        <Button onClick={() => setStep((s) => s + 1)}>Continue</Button>
       ) : (
         <div className="flex flex-col gap-3">
           <Button onClick={goFirstWin}>Start my 2-min reset</Button>

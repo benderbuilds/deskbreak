@@ -158,7 +158,7 @@ export function isOnboardingComplete(): boolean {
 }
 
 export function completeOnboarding(): void {
-  patchAppState((state) => ({ ...state, onboardingComplete: true, paywallSeen: true }));
+  patchAppState((state) => ({ ...state, onboardingComplete: true }));
 }
 
 export function resetOnboarding(): void {

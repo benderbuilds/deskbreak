@@ -6,8 +6,7 @@ import { CharacterArt } from "@/components/CharacterArt";
 import { EmptyState } from "@/components/StatusStates";
 import { UpgradeSheet } from "@/components/UpgradeSheet";
 import { BODY_AREA_LABELS, BODY_AREAS } from "@/lib/body-areas";
-import { FREE_EXERCISE_IDS } from "@/lib/constants";
-import { getExercise, getExercises } from "@/lib/content";
+import { getExercise, getExercises, getFreeExercises } from "@/lib/content";
 import { isExerciseLocked, isProEntitlement } from "@/lib/entitlements";
 import { formatDose } from "@/lib/format";
 import { useAppState } from "@/lib/use-app-state";
@@ -37,7 +36,7 @@ export function LibraryView() {
         <p className="mt-2 text-sm leading-relaxed text-ink/60">
           {pro
             ? `${exercises.length} desk-safe moves. Filter by the bit that feels stuck.`
-            : `${FREE_EXERCISE_IDS.length} free moves · ${exercises.length} with Pro.`}
+            : `${getFreeExercises().length} free moves · ${exercises.length} with Pro.`}
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">

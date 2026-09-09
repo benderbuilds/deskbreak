@@ -63,7 +63,7 @@ Shown when `NODE_ENV !== "production"` **or** `NEXT_PUBLIC_DEMO_UNLOCK=true`:
 ## What’s in the app
 
 - **Landing** — SEO hero for first-time visitors
-- **Onboarding** — hook, promise, goal / setup / reminder, honest social proof, then a forced-nudge 2-min Desk Reset before the paywall
+- **Onboarding** — hook, pain, time, promise, optional reminder, then a forced-nudge 2-min Desk Reset before the paywall
 - **Paywall** — Free vs Pro, Subscribe annually, Continue on Free
 - **Home** — greeting, streak, one-tap 2-min reset, locked Pro circuits
 - **Active workout** — large timer, Stretch illustration (optional motion frames), cue, next / skip / pause
@@ -98,7 +98,7 @@ Swap exercises and programs in:
 data/exercises-and-programs.json
 ```
 
-Types: `src/lib/types.ts`. Free move ids: `src/lib/constants.ts`.
+Types: `src/lib/types.ts`. Mark each exercise and program with `"access": "free"` or `"pro"` in the JSON; entitlements read that field.
 
 ## Stack
 

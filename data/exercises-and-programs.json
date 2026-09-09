@@ -2,6 +2,7 @@
   "exercises": [
     {
       "id": "chin-tucks",
+      "access": "free",
       "name": "Chin tucks",
       "cue": "Glide your chin straight back, as if making a double chin, then ease forward.",
       "bodyArea": "neck",
@@ -12,6 +13,7 @@
     },
     {
       "id": "neck-nods",
+      "access": "free",
       "name": "Easy neck nods",
       "cue": "Tiny yes-nods from the crown — think 2 centimeters, not a big look-down.",
       "bodyArea": "neck",
@@ -22,6 +24,7 @@
     },
     {
       "id": "neck-side-stretch",
+      "access": "pro",
       "name": "Neck side stretch",
       "cue": "Ear toward shoulder, opposite hand resting in your lap. Breathe into the long side.",
       "bodyArea": "neck",
@@ -32,6 +35,7 @@
     },
     {
       "id": "neck-turns",
+      "access": "pro",
       "name": "Slow neck turns",
       "cue": "Look over one shoulder as if checking a coworker, pause, then the other side.",
       "bodyArea": "neck",
@@ -42,6 +46,7 @@
     },
     {
       "id": "shoulder-rolls",
+      "access": "free",
       "name": "Shoulder rolls",
       "cue": "Roll shoulders up, back, and down like you’re sliding off a too-tight jacket.",
       "bodyArea": "shoulders",
@@ -52,6 +57,7 @@
     },
     {
       "id": "scapular-squeezes",
+      "access": "pro",
       "name": "Shoulder blade squeezes",
       "cue": "Draw the blades toward each other and slightly down. Soften the ribs.",
       "bodyArea": "shoulders",
@@ -62,6 +68,7 @@
     },
     {
       "id": "overhead-reach",
+      "access": "pro",
       "name": "Overhead reach",
       "cue": "Interlace fingers, turn palms up, and reach toward the ceiling without shrugging.",
       "bodyArea": "shoulders",
@@ -72,6 +79,7 @@
     },
     {
       "id": "desk-push-away",
+      "access": "pro",
       "name": "Desk push-away",
       "cue": "Hands on the desk, round the upper back as you push the desk away, then let the chest melt forward.",
       "bodyArea": "shoulders",
@@ -82,6 +90,7 @@
     },
     {
       "id": "upper-trap-drop",
+      "access": "pro",
       "name": "Upper trap drop",
       "cue": "Hold the chair seat with one hand, gently tilt head the other way, and let that shoulder hang.",
       "bodyArea": "shoulders",
@@ -92,6 +101,7 @@
     },
     {
       "id": "shoulder-blade-slides",
+      "access": "pro",
       "name": "Blade slides",
       "cue": "Arms by your sides, slide the shoulder blades down toward your back pockets, then release.",
       "bodyArea": "shoulders",
@@ -102,6 +112,7 @@
     },
     {
       "id": "chest-opener",
+      "access": "pro",
       "name": "Chest opener",
       "cue": "Clasp hands behind you (or grab the chair back) and open the collarbones to the room.",
       "bodyArea": "upperBack",
@@ -112,6 +123,7 @@
     },
     {
       "id": "seated-cat-cow",
+      "access": "free",
       "name": "Seated cat-cow",
       "cue": "Hands on thighs: round the spine and look toward the belt, then lift the chest and gaze softly ahead.",
       "bodyArea": "upperBack",
@@ -122,6 +134,7 @@
     },
     {
       "id": "thoracic-rotation",
+      "access": "pro",
       "name": "Chair twists",
       "cue": "Sit tall, hand on the opposite chair back, and rotate from the ribs — not the neck.",
       "bodyArea": "upperBack",
@@ -132,6 +145,7 @@
     },
     {
       "id": "standing-extension",
+      "access": "pro",
       "name": "Stand-and-open",
       "cue": "Stand, hands on the low back or desk, and gently lift the chest as if looking over a fence.",
       "bodyArea": "upperBack",
@@ -142,6 +156,7 @@
     },
     {
       "id": "pec-stretch-desk",
+      "access": "pro",
       "name": "Desk pec stretch",
       "cue": "Forearm along the desk edge, step the same-side foot back, and rotate the chest open.",
       "bodyArea": "upperBack",
@@ -152,6 +167,7 @@
     },
     {
       "id": "side-body-reach",
+      "access": "pro",
       "name": "Side body reach",
       "cue": "Sit tall, reach one arm overhead, and crescent over without collapsing the opposite hip.",
       "bodyArea": "upperBack",
@@ -162,6 +178,7 @@
     },
     {
       "id": "wrist-circles",
+      "access": "free",
       "name": "Wrist circles",
       "cue": "Elbows by your ribs, make slow circles with both fists, then switch directions.",
       "bodyArea": "wrists",
@@ -172,6 +189,7 @@
     },
     {
       "id": "wrist-flexor-stretch",
+      "access": "pro",
       "name": "Palm-up stretch",
       "cue": "Arm forward, palm up; with the other hand, ease fingers toward the floor.",
       "bodyArea": "wrists",
@@ -182,6 +200,7 @@
     },
     {
       "id": "wrist-extensor-stretch",
+      "access": "pro",
       "name": "Palm-down stretch",
       "cue": "Arm forward, palm down; gently draw the hand toward you until the top of the forearm wakes up.",
       "bodyArea": "wrists",
@@ -192,6 +211,7 @@
     },
     {
       "id": "finger-fans",
+      "access": "free",
       "name": "Finger fans",
       "cue": "Spread the fingers wide, then make a soft fist. Repeat like a slow blink.",
       "bodyArea": "wrists",
@@ -202,6 +222,7 @@
     },
     {
       "id": "prayer-stretch",
+      "access": "pro",
       "name": "Prayer stretch",
       "cue": "Palms together at the chest, slowly lower the heels of the hands toward the navel.",
       "bodyArea": "wrists",
@@ -212,6 +233,7 @@
     },
     {
       "id": "seated-figure-four",
+      "access": "free",
       "name": "Seated figure-four",
       "cue": "Ankle on the opposite knee, sit tall, and hinge a little forward from the hips.",
       "bodyArea": "hips",
@@ -222,6 +244,7 @@
     },
     {
       "id": "seated-hip-flexor",
+      "access": "pro",
       "name": "Chair-edge hip flexor",
       "cue": "Perch on the front of the chair, one foot back, tuck the tail slightly, and breathe.",
       "bodyArea": "hips",
@@ -232,6 +255,7 @@
     },
     {
       "id": "seated-twist",
+      "access": "pro",
       "name": "Easy seated twist",
       "cue": "Inhale tall, exhale and rotate toward the chair back. Keep both sit bones heavy.",
       "bodyArea": "hips",
@@ -242,6 +266,7 @@
     },
     {
       "id": "glute-squeezes",
+      "access": "pro",
       "name": "Seated glute squeezes",
       "cue": "Press the sit bones into the chair, squeeze, hold a beat, then fully let go.",
       "bodyArea": "hips",
@@ -252,6 +277,7 @@
     },
     {
       "id": "standing-hip-hinge",
+      "access": "pro",
       "name": "Desk hip hinge",
       "cue": "Hands on the desk, send hips back, long spine, then stand by squeezing the glutes.",
       "bodyArea": "hips",
@@ -262,6 +288,7 @@
     },
     {
       "id": "seated-marches",
+      "access": "free",
       "name": "Seated marches",
       "cue": "Lift one knee, tap it down, switch. Keep the chest quiet and the belly soft.",
       "bodyArea": "legs",
@@ -272,6 +299,7 @@
     },
     {
       "id": "sit-to-stand",
+      "access": "pro",
       "name": "Sit-to-stand",
       "cue": "Feet under knees, stand without using your hands if you can, then sit slowly.",
       "bodyArea": "legs",
@@ -282,6 +310,7 @@
     },
     {
       "id": "calf-raises",
+      "access": "pro",
       "name": "Desk calf raises",
       "cue": "Hold the desk lightly, rise onto the balls of the feet, then lower with control.",
       "bodyArea": "legs",
@@ -292,6 +321,7 @@
     },
     {
       "id": "ankle-circles",
+      "access": "pro",
       "name": "Ankle circles",
       "cue": "Hover one foot and draw slow circles. Switch direction, then switch feet.",
       "bodyArea": "legs",
@@ -302,6 +332,7 @@
     },
     {
       "id": "box-breathing",
+      "access": "free",
       "name": "Box breathing",
       "cue": "Inhale 4, hold 4, exhale 4, hold 4. Soft belly, quiet shoulders.",
       "bodyArea": "breathing",
@@ -312,6 +343,7 @@
     },
     {
       "id": "physiological-sigh",
+      "access": "free",
       "name": "Double inhale",
       "cue": "Two sips of air in through the nose, then a long easy exhale through the mouth.",
       "bodyArea": "breathing",
@@ -324,6 +356,7 @@
   "programs": [
     {
       "id": "desk-reset-2min",
+      "access": "free",
       "name": "2 min Desk Reset",
       "shortLabel": "Desk Reset",
       "durationMin": 2,
@@ -339,6 +372,7 @@
     },
     {
       "id": "lunch-reset-5min",
+      "access": "pro",
       "name": "5 min Lunch Reset",
       "shortLabel": "Lunch Reset",
       "durationMin": 5,
@@ -362,6 +396,7 @@
     },
     {
       "id": "busy-day-10min",
+      "access": "pro",
       "name": "10 min Busy-Day Circuit",
       "shortLabel": "Busy-Day Circuit",
       "durationMin": 10,

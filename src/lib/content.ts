@@ -12,6 +12,9 @@ const programById = new Map(
 );
 
 for (const exercise of catalog.exercises) {
+  if (exercise.access !== "free" && exercise.access !== "pro") {
+    throw new Error(`Exercise ${exercise.id} needs access "free" or "pro"`);
+  }
   if (exercise.saferSwapId && !exerciseById.has(exercise.saferSwapId)) {
     throw new Error(
       `Exercise ${exercise.id} has unknown saferSwapId ${exercise.saferSwapId}`,
@@ -20,6 +23,9 @@ for (const exercise of catalog.exercises) {
 }
 
 for (const program of catalog.programs) {
+  if (program.access !== "free" && program.access !== "pro") {
+    throw new Error(`Program ${program.id} needs access "free" or "pro"`);
+  }
   for (const step of program.steps) {
     if (!exerciseById.has(step.exerciseId)) {
       throw new Error(
@@ -35,6 +41,10 @@ export function getCatalog(): Catalog {
 
 export function getExercises(): Exercise[] {
   return catalog.exercises;
+}
+
+export function getFreeExercises(): Exercise[] {
+  return catalog.exercises.filter((exercise) => exercise.access === "free");
 }
 
 export function getPrograms(): Program[] {

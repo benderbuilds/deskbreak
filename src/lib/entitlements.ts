@@ -1,4 +1,4 @@
-import { FREE_EXERCISE_IDS, FREE_PROGRAM_ID } from "./constants";
+import { getExercise, getProgram } from "./content";
 import { getEntitlement } from "./storage";
 import type { Entitlement, Exercise, Program } from "./types";
 
@@ -13,11 +13,11 @@ export function isPro(): boolean {
 }
 
 export function isFreeProgram(programId: string): boolean {
-  return programId === FREE_PROGRAM_ID;
+  return getProgram(programId)?.access === "free";
 }
 
 export function isFreeExercise(exerciseId: string): boolean {
-  return (FREE_EXERCISE_IDS as readonly string[]).includes(exerciseId);
+  return getExercise(exerciseId)?.access === "free";
 }
 
 export function canAccessProgram(programId: string, entitlement: Entitlement): boolean {
