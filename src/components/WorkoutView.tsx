@@ -117,14 +117,13 @@ export function WorkoutView({
 
   const seconds = formatClock(engine.remainingSec);
   const stepLabel = `${engine.stepIndex + 1} of ${engine.steps.length}`;
-  const leaveHref = firstWin ? "/paywall?from=skip" : "/";
 
   return (
     <div className="flex min-h-dvh flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(0.9rem,env(safe-area-inset-top))]">
       <header className="mb-4 flex items-center justify-between gap-3">
         <button
           type="button"
-          onClick={() => router.push(leaveHref)}
+          onClick={() => router.push("/")}
           className="grid h-12 w-12 place-items-center rounded-full bg-white text-ink shadow-[0_3px_0_rgba(28,25,23,0.06)] transition-transform duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)] active:scale-95"
           aria-label="Leave break"
         >

@@ -138,14 +138,31 @@ export function PaywallView() {
 
       {!alreadyPro && (
         <div className="flex flex-col gap-3">
-          <Button onClick={subscribe} disabled={busy}>
-            {busy ? "Opening Checkout…" : "Subscribe annually"}
-          </Button>
-          {demo ? (
-            <Button variant="mint" onClick={demoUnlock}>
-              Unlock Pro for demo
-            </Button>
-          ) : null}
+          {!stripeReady && demo ? (
+            <>
+              <Button variant="mint" onClick={demoUnlock}>
+                Unlock Pro for demo
+              </Button>
+              <Button variant="ghost" onClick={subscribe} disabled={busy}>
+                {busy ? "Opening Checkout…" : "Subscribe annually"}
+              </Button>
+              <p className="text-center text-xs leading-relaxed text-ink/45">
+                Stripe isn’t configured on this build, so Subscribe would fail.
+                Demo unlock is for local/morning use — no charges.
+              </p>
+            </>
+          ) : (
+            <>
+              <Button onClick={subscribe} disabled={busy || !stripeReady}>
+                {busy ? "Opening Checkout…" : "Subscribe annually"}
+              </Button>
+              {demo ? (
+                <Button variant="mint" onClick={demoUnlock}>
+                  Unlock Pro for demo
+                </Button>
+              ) : null}
+            </>
+          )}
           <Button variant="ghost" onClick={continueFree}>
             Continue on Free
           </Button>

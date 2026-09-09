@@ -23,10 +23,12 @@ export function CharacterArt({
   size?: number;
 }) {
   const [frameB, setFrameB] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const motion = animate && hasMotionFrame(pose, exerciseId);
 
   useEffect(() => {
     setFrameB(false);
+    setFailedSrc(null);
   }, [exerciseId, pose]);
 
   useEffect(() => {
@@ -37,11 +39,13 @@ export function CharacterArt({
     return () => window.clearInterval(id);
   }, [motion, exerciseId]);
 
-  const src = characterSrc({
+  const intended = characterSrc({
     pose,
     exerciseId,
     frame: frameB && motion ? "b" : "a",
   });
+  const fallback = "/character/stretch-fallback.svg";
+  const src = failedSrc === intended ? fallback : intended;
 
   return (
     // Public SVG masters — keep as <img> so files stay untouched.
@@ -52,6 +56,10 @@ export function CharacterArt({
       width={size}
       height={size}
       draggable={false}
+      onError={() => {
+        if (src === fallback) return;
+        setFailedSrc(intended);
+      }}
       className={["pointer-events-none select-none", className]
         .filter(Boolean)
         .join(" ")}
