@@ -174,7 +174,9 @@ export function WorkoutView({
           <CharacterArt
             pose="exercise"
             exerciseId={current.exercise.id}
+            bodyArea={current.exercise.bodyArea}
             animate={engine.status === "running"}
+            tappable
             size={200}
             alt={`Stretch — ${current.exercise.name}`}
           />

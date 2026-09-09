@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch — Long exhale reset">
+  <title>DeskBreak Stretch — Long exhale reset</title>
+  <rect width="512" height="512" fill="none"/>
+  <!-- ground -->
+  <ellipse cx="256" cy="468" rx="110" ry="10" fill="#E7E2DA" opacity="0.55"/>
+  <g id="chair">
+    <rect x="168" y="300" width="176" height="90" rx="18" fill="#E7E2DA" stroke="#1C1917" stroke-width="3.0"/>
+    <rect x="180" y="230" width="22" height="78" rx="8" fill="#E7E2DA" stroke="#1C1917" stroke-width="3.0"/>
+    <rect x="310" y="230" width="22" height="78" rx="8" fill="#E7E2DA" stroke="#1C1917" stroke-width="3.0"/>
+  </g>
+  <g id="legs">
+    <path d="M220,320 L200,430" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+    <path d="M292,320 L312,430" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+    <path d="M220,320 L200,430" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+    <path d="M292,320 L312,430" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="200" cy="436" rx="18" ry="8" fill="#1C1917"/>
+    <ellipse cx="312" cy="436" rx="18" ry="8" fill="#1C1917"/>
+  </g>
+  <g id="torso" transform="rotate(0 256 247.5)">
+    <rect x="221.0" y="200" width="70" height="95" rx="22" fill="#FFFFFF" stroke="#1C1917" stroke-width="3.0"/>
+  </g>
+  <g class="arm">
+    <path d="M230,225 Q220,260 240,275" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round"/>
+    <path d="M230,225 Q220,260 240,275" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="240" cy="275" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+  <g class="arm">
+    <path d="M282,225 Q292,260 272,275" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round"/>
+    <path d="M282,225 Q292,260 272,275" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="272" cy="275" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+<circle cx="240" cy="275" r="8" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+<circle cx="272" cy="275" r="8" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  <g id="head" transform="rotate(0 256 150)">
+    <circle cx="256" cy="150" r="36" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <!-- hair -->
+    <path d="M222,142 Q228,110 256,112 Q284,110 290,142" fill="#1C1917"/>
+    <circle cx="244" cy="150" r="3.2" fill="#1C1917"/>
+    <circle cx="268" cy="150" r="3.2" fill="#1C1917"/>
+    <ellipse cx="256" cy="164" rx="5" ry="6" fill="none" stroke="#1C1917" stroke-width="2.5"/>
+    
+  </g>
+<path d="M256,120 Q256,100 256,95" stroke="#FF5A36" stroke-width="2" opacity="0.45" stroke-linecap="round"/><path d="M248,105 L256,95 L264,105" fill="none" stroke="#FF5A36" stroke-width="2" opacity="0.45"/>
+</svg>

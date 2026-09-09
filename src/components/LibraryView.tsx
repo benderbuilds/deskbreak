@@ -105,6 +105,7 @@ function ExerciseCard({
           <CharacterArt
             pose={locked ? "locked" : "exercise"}
             exerciseId={locked ? undefined : exercise.id}
+            bodyArea={locked ? undefined : exercise.bodyArea}
             size={72}
             alt={locked ? "Stretch — locked move" : `Stretch — ${exercise.name}`}
             className="mt-0.5 shrink-0"

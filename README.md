@@ -71,7 +71,24 @@ Shown when `NODE_ENV !== "production"` **or** `NEXT_PUBLIC_DEMO_UNLOCK=true`:
 - **Library** — Stretch thumbnails; filter by body area; Pro locks on gated moves
 - **Settings** — reminders, plan, replay onboarding
 - **PWA** — manifest, icons, install prompt when the browser offers it
-- **Stretch** — SVG masters in `public/character/` (idle, done, locked, fallback, plus per-move art)
+- **Stretch** — SVG coach in `public/character/` (see below)
+
+## Character art (Stretch)
+
+Flat 2D desk-coach poses. Name + cue stay primary; art is extra. Workout shows a large stage above the cue (tap the art for a bounce that never covers Next / Skip / Pause). Library uses a small thumbnail. Missing files fall back to `stretch-fallback.svg`, then to the nearest body-area pose.
+
+Drop replacements in `public/character/` using the **catalog exercise id**:
+
+```
+public/character/{exerciseId}.svg
+public/character/{exerciseId}-b.svg   # optional second motion frame
+public/character/stretch-idle.svg
+public/character/stretch-done.svg
+public/character/stretch-locked.svg
+public/character/stretch-fallback.svg
+```
+
+2-min Desk Reset ids: `chin-tucks`, `shoulder-rolls`, `seated-cat-cow`, `wrist-circles`, `seated-figure-four`, `box-breathing`. Other moves reuse the closest body-area file until a dedicated SVG exists. Mapping lives in `src/lib/character-art.ts`. Keep 512×512, brand colors (`#F7F4EF` paper, `#FF5A36` coral, `#2DD4A8` mint, `#1C1917` ink).
 
 ## Content
 
