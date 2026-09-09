@@ -1,4 +1,5 @@
-import type { Dose, Exercise, Program, ProgramStep } from "./types";
+import type { Dose, Exercise, Program, ProgramStep, SetupId } from "./types";
+import { stepsForSetup } from "./setup-steps";
 
 export type ResolvedStep = {
   index: number;
@@ -10,8 +11,9 @@ export type ResolvedStep = {
 export function resolveProgramSteps(
   program: Program,
   exercisesById: Map<string, Exercise>,
+  setup?: SetupId | null,
 ): ResolvedStep[] {
-  return program.steps.map((step, index) => {
+  return stepsForSetup(program.steps, setup).map((step, index) => {
     const exercise = exercisesById.get(step.exerciseId);
     if (!exercise) {
       throw new Error(

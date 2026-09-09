@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getExercises, getProgram } from "./content";
 import { resolveProgramSteps, type ResolvedStep } from "./format";
+import type { SetupId } from "./types";
 
 export type WorkoutStatus = "idle" | "running" | "paused" | "complete";
 
@@ -25,13 +26,16 @@ export type WorkoutEngine = {
 
 const TICK_MS = 100;
 
-export function useWorkoutEngine(programId: string): WorkoutEngine {
+export function useWorkoutEngine(
+  programId: string,
+  setup?: SetupId | null,
+): WorkoutEngine {
   const program = getProgram(programId);
   const steps = useMemo(() => {
     if (!program) return [];
     const byId = new Map(getExercises().map((exercise) => [exercise.id, exercise]));
-    return resolveProgramSteps(program, byId);
-  }, [program]);
+    return resolveProgramSteps(program, byId, setup);
+  }, [program, setup]);
 
   const [status, setStatus] = useState<WorkoutStatus>(
     steps.length ? "running" : "idle",

@@ -1,4 +1,5 @@
 import catalogJson from "../../data/exercises-and-programs.json";
+import { STANDING_STEP_SWAPS } from "./setup-steps";
 import type { Catalog, Exercise, Program } from "./types";
 
 const catalog = catalogJson as Catalog;
@@ -19,6 +20,15 @@ for (const exercise of catalog.exercises) {
     throw new Error(
       `Exercise ${exercise.id} has unknown saferSwapId ${exercise.saferSwapId}`,
     );
+  }
+}
+
+for (const [fromId, toId] of Object.entries(STANDING_STEP_SWAPS)) {
+  if (!exerciseById.has(fromId)) {
+    throw new Error(`Standing swap source missing from catalog: ${fromId}`);
+  }
+  if (!exerciseById.has(toId)) {
+    throw new Error(`Standing swap target missing from catalog: ${toId}`);
   }
 }
 

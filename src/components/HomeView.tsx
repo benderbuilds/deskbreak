@@ -8,10 +8,11 @@ import { InstallPrompt } from "@/components/InstallPrompt";
 import { LogoMark } from "@/components/LogoMark";
 import { ProBadge } from "@/components/ProBadge";
 import { UpgradeSheet } from "@/components/UpgradeSheet";
-import { GOAL_COPY } from "@/lib/constants";
+import { GOAL_COPY, SETUP_COPY } from "@/lib/constants";
 import { isProEntitlement, isProgramLocked } from "@/lib/entitlements";
 import { getPrograms } from "@/lib/content";
 import { greetingForHour } from "@/lib/format";
+import { taglineForSetup } from "@/lib/setup-steps";
 import {
   formatRelativeWorkoutDay,
   markReminderShown,
@@ -45,6 +46,9 @@ export function HomeView() {
   const goalLine = state.onboardingAnswers.goal
     ? GOAL_COPY[state.onboardingAnswers.goal].homeLine
     : "Office workouts and desk exercises that fit between meetings.";
+  const setupLine = state.onboardingAnswers.setup
+    ? SETUP_COPY[state.onboardingAnswers.setup].hint
+    : "One tap to start. Desk exercises while working — or a home workout routine for busy days. No equipment.";
 
   const reminderDue =
     isClient &&
@@ -104,8 +108,7 @@ export function HomeView() {
             {goalLine}
           </h1>
           <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/65">
-            One tap to start. Desk exercises while working — or a home workout
-            routine for busy days. No equipment.
+            {setupLine}
           </p>
         </section>
 
@@ -116,6 +119,7 @@ export function HomeView() {
               program={program}
               featured={index === 0}
               locked={isProgramLocked(program, state.entitlement)}
+              tagline={taglineForSetup(program, state.onboardingAnswers.setup)}
               onLocked={() =>
                 setUpgrade(
                   `${program.name} is part of Pro, along with the full library.`,
@@ -147,11 +151,13 @@ function ProgramCard({
   program,
   featured,
   locked,
+  tagline,
   onLocked,
 }: {
   program: Program;
   featured: boolean;
   locked: boolean;
+  tagline: string;
   onLocked: () => void;
 }) {
   const className = [
@@ -178,7 +184,7 @@ function ProgramCard({
           {program.shortLabel}
         </h2>
         <p className={["mt-1 text-sm leading-snug", featured ? "text-white/85" : "text-ink/55"].join(" ")}>
-          {program.tagline}
+          {tagline}
         </p>
       </div>
       <span
