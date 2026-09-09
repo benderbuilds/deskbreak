@@ -6,13 +6,12 @@ import type { Program, ProgramStep, SetupId } from "./types";
  * a swap points at a Pro catalog id (first-win must not paywall).
  */
 export const STANDING_STEP_SWAPS: Record<string, string> = {
-  "seated-cat-cow": "standing-extension",
-  "seated-figure-four": "standing-hip-hinge",
-  "seated-marches": "calf-raises",
-  "seated-hip-flexor": "standing-hip-hinge",
-  "seated-twist": "standing-extension",
-  "thoracic-rotation": "pec-stretch-desk",
-  "glute-squeezes": "sit-to-stand",
+  "seated-cat-cow": "standing-posture-reset",
+  "seated-figure-4": "standing-hip-hinge-desk",
+  "seated-march": "calf-raise",
+  "seated-hip-opener": "standing-hip-flexor",
+  "seated-thoracic-rotation": "chest-opener",
+  "glute-bridge": "sit-to-stand-glute",
 };
 
 export function stepsForSetup(

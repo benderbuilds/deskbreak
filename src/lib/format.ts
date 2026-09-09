@@ -47,10 +47,16 @@ export function formatDose(dose: Dose): string {
   if (dose.breaths) {
     parts.push(`${dose.breaths} breaths`);
   }
+  if (dose.rounds) {
+    parts.push(`${dose.rounds} rounds`);
+  }
   if (dose.seconds && parts.length === 0) {
     parts.push(`${dose.seconds}s`);
   }
-  if (dose.perSide) {
+  const eachSide =
+    dose.perSide ||
+    (typeof dose.type === "string" && /EachSide/i.test(dose.type));
+  if (eachSide) {
     parts.push("each side");
   }
   return parts.join(" · ") || "Move with the timer";

@@ -2,25 +2,27 @@ import { FIRST_WIN_PROGRAM_ID } from "./constants";
 import type { GoalId, ProgramStep } from "./types";
 
 /**
- * Energy prefers marches (seated) or calf-raises (after standing setup already
- * swapped figure-four → hip-hinge). Desk Reset stays one free program.
+ * Energy prefers marches (seated) or calf-raise (after standing setup already
+ * swapped figure-4 → hip-hinge). Desk Reset stays one free program.
  */
 const ENERGY_MOVEMENT_SWAPS: Record<string, string> = {
-  "seated-figure-four": "seated-marches",
-  "standing-hip-hinge": "calf-raises",
+  "seated-figure-4": "seated-march",
+  "standing-hip-hinge-desk": "calf-raise",
 };
 
 function neckRank(id: string): number {
-  if (id === "chin-tucks" || id === "neck-nods") return 0;
+  if (id === "chin-tuck" || id === "chin-tuck-hold" || id === "suboccipital-nod") {
+    return 0;
+  }
   if (id === "shoulder-rolls") return 1;
-  if (id === "seated-cat-cow" || id === "standing-extension") return 2;
+  if (id === "seated-cat-cow" || id === "standing-posture-reset") return 2;
   return 10;
 }
 
 function energyRank(id: string): number {
   if (id === "shoulder-rolls") return 0;
-  if (id === "seated-marches" || id === "calf-raises") return 1;
-  if (id === "box-breathing" || id === "physiological-sigh") return 2;
+  if (id === "seated-march" || id === "calf-raise") return 1;
+  if (id === "box-breathing" || id === "long-exhale-reset") return 2;
   return 10;
 }
 

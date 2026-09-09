@@ -8,6 +8,7 @@ import { LogoMark } from "@/components/LogoMark";
 import { ProBadge } from "@/components/ProBadge";
 import { ErrorState } from "@/components/StatusStates";
 import { ANNUAL_PER_MONTH, ANNUAL_PRICE_USD, MONTHLY_COMPARE_USD } from "@/lib/constants";
+import { getExercises, getFreeExercises } from "@/lib/content";
 import { canDemoUnlock, isProEntitlement, stripePriceConfigured } from "@/lib/entitlements";
 import { markPaywallSeen, unlockPro } from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
@@ -18,6 +19,8 @@ export function PaywallView() {
   const alreadyPro = isProEntitlement(state.entitlement);
   const demo = canDemoUnlock();
   const stripeReady = stripePriceConfigured();
+  const freeMoveCount = getFreeExercises().length;
+  const libraryCount = getExercises().length;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -99,7 +102,7 @@ export function PaywallView() {
               items={[
                 "Onboarding + Home",
                 "2 min Desk Reset, unlimited",
-                "10 moves in the library",
+                `${freeMoveCount} moves in the library`,
                 "Basic streak",
               ]}
             />
@@ -112,7 +115,7 @@ export function PaywallView() {
               items={[
                 "5 min Lunch Reset",
                 "10 min Busy-Day Circuit",
-                "Full 32-move library",
+                `Full ${libraryCount}-move library`,
                 "Custom reminder time",
                 "XP + celebration themes",
                 "Pro badge",
