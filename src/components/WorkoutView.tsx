@@ -183,6 +183,9 @@ export function WorkoutView({
             pose="exercise"
             exerciseId={current.exercise.id}
             bodyArea={current.exercise.bodyArea}
+            stretchAsset={current.exercise.stretchAsset}
+            stretchAssetB={current.exercise.stretchAssetB}
+            stretchView={current.exercise.stretchView}
             animate={engine.status === "running"}
             tappable
             size={200}

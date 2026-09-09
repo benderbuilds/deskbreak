@@ -6,7 +6,7 @@ import {
   hasMotionFrame,
   type CharacterPose,
 } from "@/lib/character-art";
-import type { BodyArea } from "@/lib/types";
+import type { BodyArea, StretchView } from "@/lib/types";
 
 const FALLBACK_SRC = "/character/stretch-fallback.svg";
 
@@ -14,6 +14,9 @@ export function CharacterArt({
   pose = "idle",
   exerciseId,
   bodyArea,
+  stretchAsset,
+  stretchAssetB,
+  stretchView,
   animate = false,
   tappable = false,
   alt = "Stretch",
@@ -23,6 +26,9 @@ export function CharacterArt({
   pose?: CharacterPose;
   exerciseId?: string;
   bodyArea?: BodyArea;
+  stretchAsset?: string;
+  stretchAssetB?: string;
+  stretchView?: StretchView;
   animate?: boolean;
   tappable?: boolean;
   alt?: string;
@@ -35,14 +41,22 @@ export function CharacterArt({
   const [fallbackFailed, setFallbackFailed] = useState(false);
   const [bounce, setBounce] = useState(false);
   const motion =
-    animate && !motionDisabled && hasMotionFrame(pose, exerciseId, bodyArea);
+    animate &&
+    !motionDisabled &&
+    hasMotionFrame({
+      pose,
+      exerciseId,
+      bodyArea,
+      stretchAsset,
+      stretchAssetB,
+    });
 
   useEffect(() => {
     setFrameB(false);
     setUseFallback(false);
     setMotionDisabled(false);
     setFallbackFailed(false);
-  }, [exerciseId, pose, bodyArea]);
+  }, [exerciseId, pose, bodyArea, stretchAsset, stretchAssetB]);
 
   useEffect(() => {
     if (!motion) return;
@@ -50,12 +64,15 @@ export function CharacterArt({
     if (media.matches) return;
     const id = window.setInterval(() => setFrameB((on) => !on), 720);
     return () => window.clearInterval(id);
-  }, [motion, exerciseId]);
+  }, [motion, exerciseId, stretchAsset, stretchAssetB]);
 
   const intended = characterSrc({
     pose,
     exerciseId,
     bodyArea,
+    stretchAsset,
+    stretchAssetB,
+    stretchView,
     frame: frameB && motion ? "b" : "a",
   });
   const src = useFallback ? FALLBACK_SRC : intended;
@@ -94,6 +111,7 @@ export function CharacterArt({
       aria-hidden={tappable}
       role={tappable ? undefined : "img"}
       aria-label={tappable ? undefined : alt}
+      data-stretch-view={stretchView}
       className={visualClass}
       style={{
         display: "inline-block",
@@ -113,6 +131,7 @@ export function CharacterArt({
       width={size}
       height={size}
       draggable={false}
+      data-stretch-view={stretchView}
       onError={handleImageError}
       onAnimationEnd={() => setBounce(false)}
       className={visualClass}
@@ -126,6 +145,7 @@ export function CharacterArt({
       type="button"
       onClick={tapBounce}
       aria-label={alt}
+      data-stretch-view={stretchView}
       className="relative z-0 rounded-[28px] outline-none focus-visible:ring-2 focus-visible:ring-coral"
     >
       {graphic}

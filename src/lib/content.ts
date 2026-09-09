@@ -21,6 +21,27 @@ for (const exercise of catalog.exercises) {
       `Exercise ${exercise.id} has unknown saferSwapId ${exercise.saferSwapId}`,
     );
   }
+  if (
+    exercise.stretchView &&
+    exercise.stretchView !== "side" &&
+    exercise.stretchView !== "front" &&
+    exercise.stretchView !== "threeQuarter"
+  ) {
+    throw new Error(
+      `Exercise ${exercise.id} has invalid stretchView ${exercise.stretchView}`,
+    );
+  }
+  for (const field of [
+    exercise.stretchAsset,
+    exercise.stretchAssetB,
+    exercise.stretchAssetFrontArchive,
+  ]) {
+    if (field && /-side\.(svg|png)$/i.test(field)) {
+      throw new Error(
+        `Exercise ${exercise.id} stretch asset must not use a -side suffix: ${field}`,
+      );
+    }
+  }
 }
 
 for (const [fromId, toId] of Object.entries(STANDING_STEP_SWAPS)) {

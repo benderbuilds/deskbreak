@@ -17,6 +17,8 @@ export type Dose = {
 
 export type Access = "free" | "pro";
 
+export type StretchView = "side" | "front" | "threeQuarter";
+
 export type Exercise = {
   id: string;
   access: Access;
@@ -27,7 +29,10 @@ export type Exercise = {
   commonMistake: string;
   skipIf: string[];
   saferSwapId: string | null;
-  // TODO(catalog-v3): stretchView?: "side" | "front" — not in this JSON yet.
+  stretchView?: StretchView;
+  stretchAsset?: string;
+  stretchAssetB?: string;
+  stretchAssetFrontArchive?: string;
 };
 
 export type ProgramStep = {

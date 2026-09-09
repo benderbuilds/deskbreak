@@ -9,7 +9,11 @@
       "defaultDose": { "reps": 8 },
       "commonMistake": "Tipping the head down instead of sliding it back.",
       "skipIf": ["neck-irritation", "dizziness"],
-      "saferSwapId": "neck-nods"
+      "saferSwapId": "neck-nods",
+      "stretchView": "side",
+      "stretchAsset": "chin-tuck.svg",
+      "stretchAssetB": "chin-tuck-b.svg",
+      "stretchAssetFrontArchive": "chin-tuck-front.svg"
     },
     {
       "id": "neck-nods",
@@ -64,7 +68,9 @@
       "defaultDose": { "reps": 8, "holdSec": 3 },
       "commonMistake": "Flaring the ribs or puffing the chest.",
       "skipIf": [],
-      "saferSwapId": "shoulder-rolls"
+      "saferSwapId": "shoulder-rolls",
+      "stretchAsset": "seated-scap-squeeze.svg",
+      "stretchAssetB": "seated-scap-squeeze-b.svg"
     },
     {
       "id": "overhead-reach",
@@ -152,7 +158,10 @@
       "defaultDose": { "reps": 8 },
       "commonMistake": "Hinging only in the low back or throwing the head back.",
       "skipIf": ["cannot-stand", "dizziness"],
-      "saferSwapId": "seated-cat-cow"
+      "saferSwapId": "seated-cat-cow",
+      "stretchView": "side",
+      "stretchAsset": "standing-posture-reset.svg",
+      "stretchAssetB": "standing-posture-reset-b.svg"
     },
     {
       "id": "pec-stretch-desk",
@@ -196,7 +205,10 @@
       "defaultDose": { "holdSec": 15, "perSide": true },
       "commonMistake": "Bending the elbow or forcing a sharp angle.",
       "skipIf": ["wrist-pain"],
-      "saferSwapId": "wrist-circles"
+      "saferSwapId": "wrist-circles",
+      "stretchView": "side",
+      "stretchAsset": "wrist-flexor-stretch.svg",
+      "stretchAssetFrontArchive": "wrist-flexor-stretch-front.svg"
     },
     {
       "id": "wrist-extensor-stretch",
@@ -207,7 +219,10 @@
       "defaultDose": { "holdSec": 15, "perSide": true },
       "commonMistake": "Pressing into a painful pinch at the wrist crease.",
       "skipIf": ["wrist-pain"],
-      "saferSwapId": "wrist-circles"
+      "saferSwapId": "wrist-circles",
+      "stretchView": "side",
+      "stretchAsset": "wrist-extensor-stretch.svg",
+      "stretchAssetFrontArchive": "wrist-extensor-stretch-front.svg"
     },
     {
       "id": "finger-fans",
@@ -240,7 +255,10 @@
       "defaultDose": { "holdSec": 20, "perSide": true },
       "commonMistake": "Rounding the back instead of hinging, or forcing the knee down.",
       "skipIf": ["knee-irritation"],
-      "saferSwapId": "glute-squeezes"
+      "saferSwapId": "glute-squeezes",
+      "stretchView": "side",
+      "stretchAsset": "seated-figure-4.svg",
+      "stretchAssetFrontArchive": "seated-figure-4-front.svg"
     },
     {
       "id": "seated-hip-flexor",
@@ -295,7 +313,8 @@
       "defaultDose": { "reps": 20 },
       "commonMistake": "Leaning back or gripping the chair for dear life.",
       "skipIf": [],
-      "saferSwapId": null
+      "saferSwapId": null,
+      "stretchAsset": "seated-marches.svg"
     },
     {
       "id": "sit-to-stand",
@@ -339,7 +358,11 @@
       "defaultDose": { "breaths": 4 },
       "commonMistake": "Forcing a huge inhale or tensing the neck.",
       "skipIf": ["dizziness"],
-      "saferSwapId": "physiological-sigh"
+      "saferSwapId": "physiological-sigh",
+      "stretchView": "side",
+      "stretchAsset": "long-exhale-reset.svg",
+      "stretchAssetB": "long-exhale-reset-b.svg",
+      "stretchAssetFrontArchive": "long-exhale-reset-front.svg"
     },
     {
       "id": "physiological-sigh",
@@ -350,7 +373,8 @@
       "defaultDose": { "breaths": 5 },
       "commonMistake": "Rushing the exhale or lifting the shoulders on the sips.",
       "skipIf": [],
-      "saferSwapId": null
+      "saferSwapId": null,
+      "stretchAsset": "physiological-sigh.svg"
     }
   ],
   "programs": [

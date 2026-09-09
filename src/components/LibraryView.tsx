@@ -105,6 +105,9 @@ function ExerciseCard({
             pose={locked ? "locked" : "exercise"}
             exerciseId={locked ? undefined : exercise.id}
             bodyArea={locked ? undefined : exercise.bodyArea}
+            stretchAsset={locked ? undefined : exercise.stretchAsset}
+            stretchAssetB={locked ? undefined : exercise.stretchAssetB}
+            stretchView={locked ? undefined : exercise.stretchView}
             size={72}
             alt={locked ? "Stretch — locked move" : `Stretch — ${exercise.name}`}
             className="mt-0.5 shrink-0"
