@@ -91,7 +91,7 @@ export function OnboardingView() {
           <CopyStep
             kicker="The promise"
             title="Show up for the tiny reset. That’s the whole game."
-            body="One tap. A lanky coach named Reed. Cue text you can actually follow. Then back to the calendar."
+            body="One tap. A lanky coach named Stretch. Cue text you can actually follow. Then back to the calendar."
           />
         )}
         {step === 4 && (
@@ -153,7 +153,7 @@ function CopyStep({
       </h1>
       <p className="mt-4 text-[1.05rem] leading-relaxed text-ink/65">{body}</p>
       <div className="mt-6 flex justify-center">
-        <CharacterArt pose="idle" size={168} alt="Reed" />
+        <CharacterArt pose="idle" size={168} alt="Stretch" />
       </div>
     </div>
   );

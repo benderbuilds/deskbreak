@@ -76,7 +76,7 @@ export function PaywallSuccessView({ sessionId }: { sessionId: string | null }) 
       <CharacterArt
         pose="done"
         size={160}
-        alt="Reed — you’re on Pro"
+        alt="Stretch — you’re on Pro"
         className="animate-[popIn_320ms_cubic-bezier(0.34,1.45,0.64,1)]"
       />
       <h1 className="mt-4 font-display text-3xl font-semibold text-ink">You’re on Pro.</h1>

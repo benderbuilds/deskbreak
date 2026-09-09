@@ -48,7 +48,7 @@ const MOTION_STEMS = new Set([
 export function stemForExercise(exerciseId: string, bodyArea?: BodyArea): string {
   if (EXERCISE_STEMS[exerciseId]) return EXERCISE_STEMS[exerciseId];
   if (bodyArea) return BODY_AREA_STEMS[bodyArea];
-  return "reed-fallback";
+  return "stretch-fallback";
 }
 
 export function hasMotionFrame(
@@ -71,15 +71,15 @@ export function characterSrc({
   bodyArea?: BodyArea;
   frame?: "a" | "b";
 }): string {
-  if (pose === "idle") return "/character/reed-idle.svg";
-  if (pose === "done") return "/character/reed-done.svg";
-  if (pose === "locked") return "/character/reed-locked.svg";
-  if (pose === "fallback") return "/character/reed-fallback.svg";
+  if (pose === "idle") return "/character/stretch-idle.svg";
+  if (pose === "done") return "/character/stretch-done.svg";
+  if (pose === "locked") return "/character/stretch-locked.svg";
+  if (pose === "fallback") return "/character/stretch-fallback.svg";
   const stem = exerciseId
     ? stemForExercise(exerciseId, bodyArea)
     : bodyArea
       ? BODY_AREA_STEMS[bodyArea]
-      : "reed-fallback";
+      : "stretch-fallback";
   if (frame === "b" && MOTION_STEMS.has(stem)) {
     return `/character/${stem}-b.svg`;
   }

@@ -26,7 +26,7 @@ export function LandingView() {
         </p>
 
         <div className="mt-6 flex justify-center">
-          <CharacterArt pose="idle" size={200} alt="Reed, DeskBreak’s desk-break character" />
+          <CharacterArt pose="idle" size={200} alt="Stretch, DeskBreak’s desk-break character" />
         </div>
 
         <ul className="mt-8 space-y-3">

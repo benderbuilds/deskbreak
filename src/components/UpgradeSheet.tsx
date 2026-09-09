@@ -40,7 +40,7 @@ export function UpgradeSheet({
           </button>
         </div>
         <div className="mt-1 flex justify-center">
-          <CharacterArt pose="locked" size={120} alt="Reed — Pro locked" />
+          <CharacterArt pose="locked" size={120} alt="Stretch — Pro locked" />
         </div>
         <h2 id="upgrade-title" className="mt-3 font-display text-[1.7rem] font-semibold leading-tight text-ink">
           Unlock the rest of the workday
