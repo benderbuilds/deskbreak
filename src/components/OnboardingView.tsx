@@ -5,21 +5,39 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
 import { LogoMark } from "@/components/LogoMark";
-import { FIRST_WIN_PROGRAM_ID } from "@/lib/constants";
+import {
+  FIRST_WIN_PROGRAM_ID,
+  GOAL_COPY,
+  SETUP_COPY,
+} from "@/lib/constants";
 import { completeOnboarding, saveOnboardingAnswers } from "@/lib/storage";
-import type { ReminderPref } from "@/lib/types";
+import type { GoalId, ReminderPref, SetupId } from "@/lib/types";
 
-const TOTAL = 6;
+const TOTAL = 8;
+const GOAL_STEP = 4;
+const SETUP_STEP = 5;
+const FIRST_WIN_STEP = 7;
 
 export function OnboardingView() {
   const router = useRouter();
   const [step, setStep] = useState(0);
+  const [goal, setGoal] = useState<GoalId | null>(null);
+  const [setup, setSetup] = useState<SetupId | null>(null);
   const [reminder, setReminder] = useState<ReminderPref | null>(null);
 
+  const canContinue =
+    (step === GOAL_STEP && Boolean(goal)) ||
+    (step === SETUP_STEP && Boolean(setup)) ||
+    (step !== GOAL_STEP && step !== SETUP_STEP);
+
   function persistAnd(next: () => void) {
+    if (!goal || !setup) {
+      setStep(goal ? SETUP_STEP : GOAL_STEP);
+      return;
+    }
     saveOnboardingAnswers({
-      goal: null,
-      setup: null,
+      goal,
+      setup,
       reminder: reminder ?? "off",
     });
     completeOnboarding();
@@ -36,6 +54,8 @@ export function OnboardingView() {
     persistAnd(() => router.push("/paywall?from=skip"));
   }
 
+  const showSkip = step < FIRST_WIN_STEP && step !== GOAL_STEP && step !== SETUP_STEP;
+
   return (
     <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))]">
       <header className="flex items-center justify-between">
@@ -45,10 +65,10 @@ export function OnboardingView() {
             DeskBreak
           </span>
         </div>
-        {step < 5 ? (
+        {showSkip ? (
           <button
             type="button"
-            onClick={() => setStep((s) => Math.min(5, s + 1))}
+            onClick={() => setStep((s) => Math.min(FIRST_WIN_STEP, s + 1))}
             className="min-h-11 rounded-full px-3 text-sm font-semibold text-ink/45"
           >
             Skip
@@ -94,7 +114,52 @@ export function OnboardingView() {
             body="One tap. A lanky coach named Stretch. Cue text you can actually follow. Then back to the calendar."
           />
         )}
-        {step === 4 && (
+        {step === GOAL_STEP && (
+          <ChoiceStep
+            kicker="Goal"
+            title="What should two minutes fix first?"
+            options={[
+              {
+                id: "neck",
+                label: GOAL_COPY.neck.label,
+                hint: "Unstick the laptop-neck without leaving the chair.",
+              },
+              {
+                id: "energy",
+                label: GOAL_COPY.energy.label,
+                hint: "Come back online between blocks.",
+              },
+              {
+                id: "consistent",
+                label: GOAL_COPY.consistent.label,
+                hint: "Show up for the tiny reset on purpose.",
+              },
+            ]}
+            value={goal}
+            onChange={(id) => setGoal(id as GoalId)}
+          />
+        )}
+        {step === SETUP_STEP && (
+          <ChoiceStep
+            kicker="Work setup"
+            title="Where do you actually sit (or stand)?"
+            options={[
+              {
+                id: "seated",
+                label: SETUP_COPY.seated.label,
+                hint: SETUP_COPY.seated.hint,
+              },
+              {
+                id: "standing",
+                label: SETUP_COPY.standing.label,
+                hint: SETUP_COPY.standing.hint,
+              },
+            ]}
+            value={setup}
+            onChange={(id) => setSetup(id as SetupId)}
+          />
+        )}
+        {step === 6 && (
           <ChoiceStep
             kicker="Optional nudge"
             title="Want a reminder to stand up?"
@@ -107,7 +172,7 @@ export function OnboardingView() {
             onChange={(id) => setReminder(id as ReminderPref)}
           />
         )}
-        {step === 5 && (
+        {step === FIRST_WIN_STEP && (
           <CopyStep
             kicker="First win"
             title="Take the 2-min Desk Reset before anything else."
@@ -116,8 +181,10 @@ export function OnboardingView() {
         )}
       </main>
 
-      {step < 5 ? (
-        <Button onClick={() => setStep((s) => s + 1)}>Continue</Button>
+      {step < FIRST_WIN_STEP ? (
+        <Button onClick={() => setStep((s) => s + 1)} disabled={!canContinue}>
+          Continue
+        </Button>
       ) : (
         <div className="flex flex-col gap-3">
           <Button onClick={goFirstWin}>Start my 2-min reset</Button>

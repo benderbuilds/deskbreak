@@ -8,10 +8,13 @@ export type CharacterPose = "exercise" | "idle" | "done" | "locked" | "fallback"
  */
 const EXERCISE_STEMS: Record<string, string> = {
   "chin-tucks": "chin-tucks",
+  "neck-nods": "neck-nods",
   "shoulder-rolls": "shoulder-rolls",
   "seated-cat-cow": "seated-cat-cow",
   "wrist-circles": "wrist-circles",
+  "finger-fans": "finger-fans",
   "seated-figure-four": "seated-figure-four",
+  "seated-marches": "seated-marches",
   "box-breathing": "box-breathing",
   "physiological-sigh": "physiological-sigh",
   "scapular-squeezes": "scapular-squeezes",

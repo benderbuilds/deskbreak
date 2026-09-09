@@ -63,7 +63,7 @@ Shown when `NODE_ENV !== "production"` **or** `NEXT_PUBLIC_DEMO_UNLOCK=true`:
 ## What’s in the app
 
 - **Landing** — SEO hero for first-time visitors
-- **Onboarding** — hook, pain, time, promise, optional reminder, then a forced-nudge 2-min Desk Reset before the paywall
+- **Onboarding** — hook, pain, time, promise, goal, work setup, optional reminder, then a forced-nudge 2-min Desk Reset before the paywall
 - **Paywall** — Free vs Pro, Subscribe annually, Continue on Free
 - **Home** — greeting, streak, one-tap 2-min reset, locked Pro circuits
 - **Active workout** — large timer, Stretch illustration (optional motion frames), cue, next / skip / pause
@@ -88,7 +88,7 @@ public/character/stretch-locked.svg
 public/character/stretch-fallback.svg
 ```
 
-2-min Desk Reset ids: `chin-tucks`, `shoulder-rolls`, `seated-cat-cow`, `wrist-circles`, `seated-figure-four`, `box-breathing`. Other moves reuse the closest body-area file until a dedicated SVG exists. Mapping lives in `src/lib/character-art.ts`. Keep 512×512, brand colors (`#F7F4EF` paper, `#FF5A36` coral, `#2DD4A8` mint, `#1C1917` ink).
+2-min Desk Reset ids: `chin-tucks`, `shoulder-rolls`, `seated-cat-cow`, `wrist-circles`, `seated-figure-four`, `box-breathing`. Free library also ships `neck-nods`, `finger-fans`, `seated-marches`. Other moves reuse the closest body-area file until a dedicated SVG exists. Mapping lives in `src/lib/character-art.ts`. Keep 512×512, brand colors (`#F7F4EF` paper, `#FF5A36` coral, `#2DD4A8` mint, `#1C1917` ink).
 
 ## Content
 
