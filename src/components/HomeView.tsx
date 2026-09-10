@@ -29,6 +29,7 @@ import { deskResetGoalKicker } from "@/lib/goal-steps";
 import {
   formatRelativeWorkoutDay,
   markReminderShown,
+  saveSetup,
   todayKey,
 } from "@/lib/storage";
 import {
@@ -173,6 +174,14 @@ export function HomeView() {
           {alternateProgram ? (
             <Link
               href={`/workout/${alternateProgram.id}`}
+              onClick={() => {
+                if (
+                  alternateProgram.stance === "seated" ||
+                  alternateProgram.stance === "standing"
+                ) {
+                  saveSetup(alternateProgram.stance);
+                }
+              }}
               className="min-h-11 text-left text-sm font-semibold text-ink/45"
             >
               {preferAlternateLabel(setup)} →
