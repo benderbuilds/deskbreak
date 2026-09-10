@@ -45,6 +45,23 @@ export type ProgramStep = {
   durationSec: number;
 };
 
+export type ProgramStance = "seated" | "standing";
+
+export type DurationBenefitKey = "2min" | "5min" | "10min";
+
+export type DurationBenefit = {
+  cardLine: string;
+  whyThisHelps: string;
+  onboardingLine: string;
+  doneLine: string;
+  blurb?: string;
+};
+
+export type ProgramBenefits = {
+  disclaimer: string;
+  byDuration: Record<DurationBenefitKey, DurationBenefit>;
+};
+
 export type Program = {
   id: string;
   access: Access;
@@ -52,12 +69,14 @@ export type Program = {
   shortLabel: string;
   durationMin: number;
   tagline: string;
+  stance?: ProgramStance;
   steps: ProgramStep[];
 };
 
 export type Catalog = {
   exercises: Exercise[];
   programs: Program[];
+  programBenefits?: ProgramBenefits;
 };
 
 export type WorkoutSession = {

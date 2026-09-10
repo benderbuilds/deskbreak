@@ -108,7 +108,7 @@ export function PaywallView() {
               price="Forever"
               items={[
                 "Onboarding + Home",
-                "2 min Desk Reset, unlimited",
+                "2 min Desk Reset, seated or standing",
                 `${freeMoveCount} moves in the library`,
                 "Basic streak",
               ]}

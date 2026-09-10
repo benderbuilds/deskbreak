@@ -16,7 +16,7 @@ export function resolveProgramSteps(
   goal?: GoalId | null,
 ): ResolvedStep[] {
   const prepared = stepsForGoal(
-    stepsForSetup(program.steps, setup),
+    stepsForSetup(program.steps, setup, program.id),
     goal,
     program.id,
   );

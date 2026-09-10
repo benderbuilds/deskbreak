@@ -1,9 +1,10 @@
+import { isDeskResetId } from "./constants";
 import type { Program, ProgramStep, SetupId } from "./types";
 
 /**
  * Seated-only catalog ids → stand-at-desk alternatives that already exist.
- * Used for standing-desk onboarding. Desk Reset stays a free program even when
- * a swap points at a Pro catalog id (first-win must not paywall).
+ * Used for 5/10 programs when setup is standing. The two 2-min Desk Resets
+ * stay distinct (seated vs standing-native) and are not swapped.
  */
 export const STANDING_STEP_SWAPS: Record<string, string> = {
   "seated-cat-cow": "standing-posture-reset",
@@ -17,8 +18,10 @@ export const STANDING_STEP_SWAPS: Record<string, string> = {
 export function stepsForSetup(
   steps: ProgramStep[],
   setup: SetupId | null | undefined,
+  programId?: string,
 ): ProgramStep[] {
   if (setup !== "standing") return steps;
+  if (programId && isDeskResetId(programId)) return steps;
   return steps.map((step) => {
     const swapId = STANDING_STEP_SWAPS[step.exerciseId];
     if (!swapId || swapId === step.exerciseId) return step;
@@ -28,10 +31,7 @@ export function stepsForSetup(
 
 export function taglineForSetup(
   program: Program,
-  setup: SetupId | null | undefined,
+  _setup?: SetupId | null,
 ): string {
-  if (setup === "standing" && program.id === "desk-reset-2min") {
-    return program.tagline || "Two minutes. Still at your desk. Actually feel better.";
-  }
   return program.tagline;
 }

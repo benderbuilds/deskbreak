@@ -8,9 +8,20 @@ import { InstallPrompt } from "@/components/InstallPrompt";
 import { LogoMark } from "@/components/LogoMark";
 import { ProBadge } from "@/components/ProBadge";
 import { UpgradeSheet } from "@/components/UpgradeSheet";
-import { FIRST_WIN_PROGRAM_ID, GOAL_COPY, HOME_START_NUDGE, SETUP_COPY } from "@/lib/constants";
+import {
+  alternateResetId,
+  featuredResetId,
+  GOAL_COPY,
+  HOME_START_NUDGE,
+  SETUP_COPY,
+} from "@/lib/constants";
 import { isProEntitlement, isProgramLocked } from "@/lib/entitlements";
-import { getProgram, getPrograms } from "@/lib/content";
+import {
+  benefitsForProgram,
+  getProgram,
+  getProgramBenefits,
+  getPrograms,
+} from "@/lib/content";
 import { greetingForHour } from "@/lib/format";
 import { taglineForSetup } from "@/lib/setup-steps";
 import { deskResetGoalKicker } from "@/lib/goal-steps";
@@ -31,16 +42,22 @@ import type { Program } from "@/lib/types";
 
 export function HomeView() {
   const programs = getPrograms();
+  const benefits = getProgramBenefits();
   const isClient = useIsClient();
   const state = useAppState();
-  const pro = isProEntitlement(state.entitlement);
   const [upgrade, setUpgrade] = useState<string | null>(null);
+  const [whyId, setWhyId] = useState<string | null>(null);
+  const isPro = isProEntitlement(state.entitlement);
   const greeting = isClient ? greetingForHour(new Date().getHours()) : "Hey";
   const progress = state.progress;
   const goal = state.onboardingAnswers.goal;
   const setup = state.onboardingAnswers.setup;
-  const startProgram = getProgram(FIRST_WIN_PROGRAM_ID) ?? programs[0];
-  const morePrograms = programs.filter((program) => program.id !== startProgram?.id);
+  const featuredId = featuredResetId(setup);
+  const startProgram = getProgram(featuredId) ?? programs[0];
+  const alternateProgram = getProgram(alternateResetId(setup));
+  const longerPrograms = programs
+    .filter((program) => program.id !== startProgram?.id && program.id !== alternateProgram?.id)
+    .sort((a, b) => a.durationMin - b.durationMin);
 
   const lastLabel = useMemo(() => {
     if (!progress.lastWorkout) return null;
@@ -62,6 +79,8 @@ export function HomeView() {
       hourNow: currentHour(),
     });
 
+  const standingHero = startProgram?.stance === "standing";
+
   return (
     <div className="flex min-h-dvh flex-col">
       <main className="flex-1 px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))]">
@@ -73,17 +92,17 @@ export function HomeView() {
                 <p className="font-display text-xl font-semibold leading-none text-ink">
                   DeskBreak
                 </p>
-                {pro ? <ProBadge /> : null}
+                {isPro ? <ProBadge /> : null}
               </div>
               <p className="mt-1 text-sm text-ink/55">{greeting}</p>
             </div>
           </div>
-          <StreakPill streak={progress.streak} showXp={pro ? progress.xp : null} />
+          <StreakPill streak={progress.streak} showXp={isPro ? progress.xp : null} />
         </header>
 
         {reminderDue ? (
           <Link
-            href="/workout/desk-reset-2min"
+            href={`/workout/${featuredId}`}
             onClick={() => {
               markReminderShown();
               pingLocalNotification("DeskBreak", "Two minutes. That’s the whole ask.");
@@ -118,12 +137,22 @@ export function HomeView() {
           {startProgram ? (
             <div className="relative">
               <div className="flex justify-center">
-                <CharacterArt
-                  pose="idle"
-                  size={172}
-                  tappable
-                  alt="Stretch ready for a desk break"
-                />
+                {standingHero ? (
+                  <CharacterArt
+                    pose="exercise"
+                    exerciseId="standing-posture-reset"
+                    size={172}
+                    tappable
+                    alt="Stretch standing for a desk break"
+                  />
+                ) : (
+                  <CharacterArt
+                    pose="idle"
+                    size={172}
+                    tappable
+                    alt="Stretch ready for a desk break"
+                  />
+                )}
               </div>
               <div className="relative z-10 -mt-9">
                 <ProgramCard
@@ -132,6 +161,10 @@ export function HomeView() {
                   locked={isProgramLocked(startProgram, state.entitlement)}
                   tagline={taglineForSetup(startProgram, setup)}
                   kicker={deskResetGoalKicker(startProgram.id, goal)}
+                  whyOpen={whyId === startProgram.id}
+                  onToggleWhy={() =>
+                    setWhyId(whyId === startProgram.id ? null : startProgram.id)
+                  }
                   onLocked={() =>
                     setUpgrade(`${startProgram.name} is part of Pro, along with the full library.`)
                   }
@@ -140,31 +173,32 @@ export function HomeView() {
             </div>
           ) : null}
 
-          {pro
-            ? morePrograms.map((program) => (
-                <ProgramCard
-                  key={program.id}
-                  program={program}
-                  featured={false}
-                  locked={isProgramLocked(program, state.entitlement)}
-                  tagline={taglineForSetup(program, setup)}
-                  kicker={deskResetGoalKicker(program.id, goal)}
-                  onLocked={() =>
-                    setUpgrade(`${program.name} is part of Pro, along with the full library.`)
-                  }
-                />
-              ))
-            : (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setUpgrade("Lunch Reset and Busy-Day Circuit unlock with Pro.")
-                  }
-                  className="min-h-11 text-left text-sm font-semibold text-ink/45"
-                >
-                  More breaks with Pro →
-                </button>
-              )}
+          {alternateProgram ? (
+            <Link
+              href={`/workout/${alternateProgram.id}`}
+              className="min-h-11 text-left text-sm font-semibold text-ink/45"
+            >
+              {setup === "standing" ? "Prefer seated?" : "Prefer standing?"} →
+            </Link>
+          ) : null}
+
+          {longerPrograms.map((program) => (
+            <ProgramCard
+              key={program.id}
+              program={program}
+              featured={false}
+              locked={isProgramLocked(program, state.entitlement)}
+              tagline={taglineForSetup(program, setup)}
+              kicker={deskResetGoalKicker(program.id, goal)}
+              whyOpen={whyId === program.id}
+              onToggleWhy={() =>
+                setWhyId(whyId === program.id ? null : program.id)
+              }
+              onLocked={() =>
+                setUpgrade(`${program.name} is part of Pro, along with the full library.`)
+              }
+            />
+          ))}
         </section>
 
         {lastLabel ? (
@@ -174,6 +208,11 @@ export function HomeView() {
             Fresh slate. That’s kind of nice.
           </p>
         )}
+        {benefits?.disclaimer ? (
+          <p className="mt-3 text-center text-[11px] leading-relaxed text-ink/35">
+            {benefits.disclaimer}
+          </p>
+        ) : null}
       </main>
       <BottomNav />
       <UpgradeSheet
@@ -199,6 +238,8 @@ function ProgramCard({
   locked,
   tagline,
   kicker,
+  whyOpen,
+  onToggleWhy,
   onLocked,
 }: {
   program: Program;
@@ -206,16 +247,40 @@ function ProgramCard({
   locked: boolean;
   tagline: string;
   kicker?: string | null;
+  whyOpen: boolean;
+  onToggleWhy: () => void;
   onLocked: () => void;
 }) {
+  const standing = program.stance === "standing";
+  const outlineHero = featured && standing;
+  const filledHero = featured && !standing;
+  const benefit = benefitsForProgram(program);
+
   const className = [
-    "group block rounded-[28px] p-5 outline-none text-left w-full",
+    "rounded-[28px] p-5 outline-none text-left w-full",
     "transition-[transform,box-shadow] duration-[240ms] ease-[cubic-bezier(0.34,1.4,0.64,1)]",
-    "active:translate-y-[2px] active:shadow-none focus-visible:ring-2 focus-visible:ring-coral",
-    featured
-      ? "bg-coral text-white shadow-[0_6px_0_#E04420]"
-      : "bg-white text-ink shadow-[0_5px_0_rgba(28,25,23,0.08)]",
+    outlineHero
+      ? "bg-paper text-ink border-[3px] border-coral shadow-[0_6px_0_#E04420]"
+      : filledHero
+        ? "bg-coral text-white shadow-[0_6px_0_#E04420]"
+        : "bg-white text-ink shadow-[0_5px_0_rgba(28,25,23,0.08)]",
   ].join(" ");
+
+  const muted = outlineHero
+    ? "text-ink/55"
+    : filledHero
+      ? "text-white/85"
+      : "text-ink/55";
+  const kickerClass = outlineHero
+    ? "text-coral"
+    : filledHero
+      ? "text-white/70"
+      : "text-coral";
+  const eyebrow = outlineHero
+    ? "text-coral"
+    : filledHero
+      ? "text-white/75"
+      : "text-coral";
 
   const inner = (
     <div className="flex items-center justify-between gap-3">
@@ -223,24 +288,26 @@ function ProgramCard({
         <p
           className={[
             "text-xs font-semibold uppercase tracking-[0.14em]",
-            featured ? "text-white/75" : "text-coral",
+            eyebrow,
           ].join(" ")}
         >
-          {program.durationMin} min{locked ? " · Pro" : featured ? " · Start" : ""}
+          {program.durationMin} min
+          {standing ? " · Standing" : ""}
+          {locked ? " · Pro" : featured ? " · Start" : ""}
         </p>
         <h2 className="mt-1 font-display text-[1.45rem] font-semibold leading-tight">
           {program.shortLabel}
         </h2>
-        <p className={["mt-1 text-sm leading-snug", featured ? "text-white/85" : "text-ink/55"].join(" ")}>
+        <p className={["mt-1 text-sm leading-snug", muted].join(" ")}>
           {tagline}
         </p>
+        {benefit?.cardLine ? (
+          <p className={["mt-1.5 text-sm leading-snug", muted].join(" ")}>
+            {benefit.cardLine}
+          </p>
+        ) : null}
         {kicker && !locked ? (
-          <p
-            className={[
-              "mt-1 text-xs font-semibold",
-              featured ? "text-white/70" : "text-coral",
-            ].join(" ")}
-          >
+          <p className={["mt-1 text-xs font-semibold", kickerClass].join(" ")}>
             {kicker}
           </p>
         ) : null}
@@ -249,7 +316,7 @@ function ProgramCard({
         aria-hidden
         className={[
           "grid h-12 min-w-12 shrink-0 place-items-center rounded-full px-3 text-sm font-semibold",
-          featured ? "bg-white/15" : "bg-paper",
+          filledHero ? "bg-white/15" : "bg-paper",
         ].join(" ")}
       >
         {locked ? "🔒" : featured ? "Start" : "→"}
@@ -257,18 +324,48 @@ function ProgramCard({
     </div>
   );
 
-  if (locked) {
-    return (
-      <button type="button" className={className} onClick={onLocked}>
-        {inner}
-      </button>
-    );
-  }
-
   return (
-    <Link href={`/workout/${program.id}`} className={className}>
-      {inner}
-    </Link>
+    <article className={className}>
+      {locked ? (
+        <button
+          type="button"
+          className="w-full text-left outline-none focus-visible:ring-2 focus-visible:ring-coral"
+          onClick={onLocked}
+        >
+          {inner}
+        </button>
+      ) : (
+        <Link
+          href={`/workout/${program.id}`}
+          className="block outline-none focus-visible:ring-2 focus-visible:ring-coral active:translate-y-[2px]"
+        >
+          {inner}
+        </Link>
+      )}
+      {benefit?.whyThisHelps ? (
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={onToggleWhy}
+            className={[
+              "rounded-full px-3 py-1.5 text-xs font-semibold",
+              filledHero
+                ? "bg-white/15 text-white"
+                : outlineHero
+                  ? "bg-white text-coral shadow-[0_2px_0_rgba(28,25,23,0.06)]"
+                  : "bg-paper text-coral",
+            ].join(" ")}
+          >
+            Why this helps
+          </button>
+          {whyOpen ? (
+            <p className={["mt-2 text-xs leading-relaxed", muted].join(" ")}>
+              {benefit.whyThisHelps}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+    </article>
   );
 }
 
