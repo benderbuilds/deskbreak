@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Button, ButtonLink } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
@@ -35,6 +36,7 @@ export function WorkoutView({
   const [upgrade, setUpgrade] = useState(false);
   const [skipToast, setSkipToast] = useState(false);
   const skipTimer = useRef<number | null>(null);
+  const skippedCountRef = useRef(0);
 
   useEffect(() => {
     if (engine.status !== "complete" || !program || recordedRef.current) return;
@@ -65,6 +67,16 @@ export function WorkoutView({
   ]);
 
   useEffect(() => {
+    const count = engine.skippedIds.length;
+    if (count > skippedCountRef.current) {
+      setSkipToast(true);
+      if (skipTimer.current) window.clearTimeout(skipTimer.current);
+      skipTimer.current = window.setTimeout(() => setSkipToast(false), 2400);
+    }
+    skippedCountRef.current = count;
+  }, [engine.skippedIds.length]);
+
+  useEffect(() => {
     return () => {
       if (skipTimer.current) window.clearTimeout(skipTimer.current);
     };
@@ -80,12 +92,6 @@ export function WorkoutView({
     // First-win Leave must not dump to the paywall. Paywall comes from Done
     // (?next=paywall) after a completed reset, or “I’ll do it later” in onboarding.
     router.push("/");
-  }
-
-  function flashSkipToast() {
-    setSkipToast(true);
-    if (skipTimer.current) window.clearTimeout(skipTimer.current);
-    skipTimer.current = window.setTimeout(() => setSkipToast(false), 2200);
   }
 
   if (!program) {
@@ -263,23 +269,25 @@ export function WorkoutView({
         ) : null}
       </div>
 
-      {skipToast ? (
-        <div
-          role="status"
-          className="pointer-events-none fixed inset-x-4 bottom-28 z-50 mx-auto max-w-[430px] animate-[popIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]"
-        >
-          <p className="rounded-full bg-ink px-4 py-3 text-center text-sm font-semibold text-paper shadow-[0_4px_0_#0C0A09]">
-            Skipped. No judgment.
-          </p>
-        </div>
-      ) : null}
+      {skipToast
+        ? createPortal(
+            <div
+              role="status"
+              className="pointer-events-none fixed inset-x-4 bottom-28 z-[100] mx-auto max-w-[430px] animate-[popIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]"
+            >
+              <p className="rounded-full bg-ink px-4 py-3 text-center text-sm font-semibold text-paper shadow-[0_4px_0_#0C0A09]">
+                Skipped. No judgment.
+              </p>
+            </div>,
+            document.body,
+          )
+        : null}
 
       <div className="relative z-20 mt-6 grid grid-cols-[1fr_1.4fr] gap-3">
         <Button
           variant="ghost"
           onClick={() => {
             unlockCelebrationAudio();
-            flashSkipToast();
             engine.skip();
           }}
         >
