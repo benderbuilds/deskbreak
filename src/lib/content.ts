@@ -1,4 +1,5 @@
 import catalogJson from "../../data/exercises-and-programs.json";
+import { doseToDurationSec, storedDose } from "./dose";
 import { STANDING_STEP_SWAPS } from "./setup-steps";
 import type { Access, BodyArea, Catalog, Dose, Exercise, Program, ProgramStep } from "./types";
 
@@ -47,54 +48,31 @@ function normalizeExercise(exercise: Exercise): Exercise {
   return { ...exercise, bodyArea };
 }
 
-function doseToDurationSec(dose?: RawDose, fallback = 20): number {
-  if (!dose) return fallback;
-  if (dose.seconds) return Math.max(8, dose.seconds);
-  if (dose.holdSec) return Math.max(8, dose.holdSec);
-  if (dose.breaths) return Math.max(8, dose.breaths * 8);
-  if (dose.rounds) return Math.max(8, dose.rounds * 16);
-  if (dose.reps) {
-    const ways =
-      typeof dose.type === "string" && /EachWay/i.test(dose.type)
-        ? dose.directions?.length || 2
-        : 1;
-    return Math.max(8, dose.reps * 2 * ways);
-  }
-  return fallback;
-}
-
-function scaleStepsToTarget(steps: ProgramStep[], targetSec: number): ProgramStep[] {
-  const sum = steps.reduce((total, step) => total + step.durationSec, 0);
-  if (sum <= 0 || targetSec <= 0) return steps;
-  const scaled = steps.map((step) => ({
-    ...step,
-    durationSec: Math.max(8, Math.round((step.durationSec * targetSec) / sum)),
-  }));
-  const scaledSum = scaled.reduce((total, step) => total + step.durationSec, 0);
-  const last = scaled[scaled.length - 1];
-  if (last) {
-    last.durationSec = Math.max(8, last.durationSec + (targetSec - scaledSum));
-  }
-  return scaled;
-}
-
 function normalizeProgram(program: RawProgram): Program {
-  const targetSec =
+  const durationTargetSec =
     program.durationTargetSec ??
-    (program.durationMin ? program.durationMin * 60 : 0);
-  const mapped: ProgramStep[] = program.steps.map((step) => ({
+    (program.durationMin ? program.durationMin * 60 : undefined);
+  const steps: ProgramStep[] = program.steps.map((step) => ({
     exerciseId: step.exerciseId,
     durationSec: step.durationSec ?? doseToDurationSec(step.dose),
+    dose: storedDose(step.dose),
   }));
-  const steps = targetSec ? scaleStepsToTarget(mapped, targetSec) : mapped;
   const durationMin =
-    program.durationMin ?? Math.max(1, Math.round((targetSec || steps.reduce((s, step) => s + step.durationSec, 0)) / 60));
+    program.durationMin ??
+    Math.max(
+      1,
+      Math.round(
+        (durationTargetSec ||
+          steps.reduce((sum, step) => sum + step.durationSec, 0)) / 60,
+      ),
+    );
   return {
     id: program.id,
     access: program.access,
     name: program.name,
     shortLabel: program.shortLabel ?? program.name.replace(/^\d+-min\s+/i, ""),
     durationMin,
+    durationTargetSec,
     tagline: program.tagline ?? program.goal ?? "",
     steps,
   };
@@ -193,6 +171,7 @@ export function getProgram(id: string): Program | undefined {
 }
 
 export function getProgramDurationSec(program: Program): number {
+  if (program.durationTargetSec) return program.durationTargetSec;
   return program.steps.reduce((sum, step) => sum + step.durationSec, 0);
 }
 

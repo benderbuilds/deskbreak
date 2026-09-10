@@ -1,13 +1,43 @@
-import type { Dose, Exercise, Program, ProgramStep, GoalId, SetupId } from "./types";
+import type { Dose, Exercise, Program, ProgramStep, GoalId, SetupId, StepSide } from "./types";
+import {
+  formatActiveDose,
+  formatDose,
+  isEachSideHoldDose,
+  isHoldDose,
+  scaleStepsToTarget,
+} from "./dose";
 import { stepsForGoal } from "./goal-steps";
 import { stepsForSetup } from "./setup-steps";
+
+export { formatActiveDose, formatDose, isEachSideHoldDose };
 
 export type ResolvedStep = {
   index: number;
   step: ProgramStep;
   exercise: Exercise;
   durationSec: number;
+  dose?: Dose;
+  side?: StepSide;
 };
+
+function expandEachSideHolds(
+  step: ProgramStep,
+  exercise: Exercise,
+): ProgramStep[] {
+  const stepDose = step.dose;
+  const exerciseDose = exercise.defaultDose;
+  const split =
+    isEachSideHoldDose(exerciseDose) ||
+    (isEachSideHoldDose(stepDose) && isHoldDose(exerciseDose));
+  if (!split) {
+    return [{ ...step, dose: stepDose }];
+  }
+  const dose = isEachSideHoldDose(stepDose) ? stepDose : exerciseDose;
+  return [
+    { ...step, dose, side: "left" },
+    { ...step, dose, side: "right" },
+  ];
+}
 
 export function resolveProgramSteps(
   program: Program,
@@ -20,7 +50,21 @@ export function resolveProgramSteps(
     goal,
     program.id,
   );
-  return prepared.map((step, index) => {
+  const expanded: ProgramStep[] = [];
+  for (const step of prepared) {
+    const exercise = exercisesById.get(step.exerciseId);
+    if (!exercise) {
+      throw new Error(
+        `Program ${program.id} references missing exercise ${step.exerciseId}`,
+      );
+    }
+    expanded.push(...expandEachSideHolds(step, exercise));
+  }
+  const targetSec =
+    program.durationTargetSec ??
+    (program.durationMin ? program.durationMin * 60 : 0);
+  const scaled = targetSec ? scaleStepsToTarget(expanded, targetSec) : expanded;
+  return scaled.map((step, index) => {
     const exercise = exercisesById.get(step.exerciseId);
     if (!exercise) {
       throw new Error(
@@ -32,34 +76,10 @@ export function resolveProgramSteps(
       step,
       exercise,
       durationSec: step.durationSec,
+      dose: step.dose,
+      side: step.side,
     };
   });
-}
-
-export function formatDose(dose: Dose): string {
-  const parts: string[] = [];
-  if (dose.reps) {
-    parts.push(`${dose.reps} reps`);
-  }
-  if (dose.holdSec) {
-    parts.push(`${dose.holdSec}s hold`);
-  }
-  if (dose.breaths) {
-    parts.push(`${dose.breaths} breaths`);
-  }
-  if (dose.rounds) {
-    parts.push(`${dose.rounds} rounds`);
-  }
-  if (dose.seconds && parts.length === 0) {
-    parts.push(`${dose.seconds}s`);
-  }
-  const eachSide =
-    dose.perSide ||
-    (typeof dose.type === "string" && /EachSide/i.test(dose.type));
-  if (eachSide) {
-    parts.push("each side");
-  }
-  return parts.join(" · ") || "Move with the timer";
 }
 
 export function formatClock(totalSec: number): string {

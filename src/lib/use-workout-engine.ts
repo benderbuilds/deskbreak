@@ -92,7 +92,17 @@ export function useWorkoutEngine(
           ids.includes(current.exercise.id) ? ids : [...ids, current.exercise.id],
         );
       }
-      const nextIndex = stepIndexRef.current + 1;
+      let nextIndex = stepIndexRef.current + 1;
+      if (mode === "skip") {
+        const paired = stepsRef.current[nextIndex];
+        if (
+          current.side === "left" &&
+          paired?.side === "right" &&
+          paired.exercise.id === current.exercise.id
+        ) {
+          nextIndex += 1;
+        }
+      }
       if (nextIndex >= stepsRef.current.length) {
         setRemainingMs(0);
         setStatus("complete");
