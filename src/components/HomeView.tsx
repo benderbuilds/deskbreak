@@ -116,8 +116,8 @@ export function HomeView() {
 
         <section className="flex flex-col gap-3" aria-label="Start a break">
           {startProgram ? (
-            <div className="relative pt-10">
-              <div className="absolute left-1/2 top-0 z-0 -translate-x-1/2">
+            <div className="relative">
+              <div className="flex justify-center">
                 <CharacterArt
                   pose="idle"
                   size={172}
@@ -125,17 +125,17 @@ export function HomeView() {
                   alt="Stretch ready for a desk break"
                 />
               </div>
-              <div className="relative z-10">
-              <ProgramCard
-                program={startProgram}
-                featured
-                locked={isProgramLocked(startProgram, state.entitlement)}
-                tagline={taglineForSetup(startProgram, setup)}
-                kicker={deskResetGoalKicker(startProgram.id, goal)}
-                onLocked={() =>
-                  setUpgrade(`${startProgram.name} is part of Pro, along with the full library.`)
-                }
-              />
+              <div className="relative z-10 -mt-9">
+                <ProgramCard
+                  program={startProgram}
+                  featured
+                  locked={isProgramLocked(startProgram, state.entitlement)}
+                  tagline={taglineForSetup(startProgram, setup)}
+                  kicker={deskResetGoalKicker(startProgram.id, goal)}
+                  onLocked={() =>
+                    setUpgrade(`${startProgram.name} is part of Pro, along with the full library.`)
+                  }
+                />
               </div>
             </div>
           ) : null}
@@ -213,7 +213,7 @@ function ProgramCard({
     "transition-[transform,box-shadow] duration-[240ms] ease-[cubic-bezier(0.34,1.4,0.64,1)]",
     "active:translate-y-[2px] active:shadow-none focus-visible:ring-2 focus-visible:ring-coral",
     featured
-      ? "bg-coral pt-16 text-white shadow-[0_6px_0_#E04420]"
+      ? "bg-coral text-white shadow-[0_6px_0_#E04420]"
       : "bg-white text-ink shadow-[0_5px_0_rgba(28,25,23,0.08)]",
   ].join(" ");
 
