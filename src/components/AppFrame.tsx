@@ -12,6 +12,7 @@ const OPEN_PREFIXES = [
   "/paywall",
   "/done",
   "/workout/desk-reset-2min",
+  "/workout/desk-reset-2min-standing",
 ];
 
 function isOpenPath(pathname: string): boolean {

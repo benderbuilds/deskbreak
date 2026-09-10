@@ -1,4 +1,22 @@
 export const FIRST_WIN_PROGRAM_ID = "desk-reset-2min";
+export const SEATED_RESET_ID = "desk-reset-2min";
+export const STANDING_RESET_ID = "desk-reset-2min-standing";
+
+export function isDeskResetId(programId: string): boolean {
+  return programId === SEATED_RESET_ID || programId === STANDING_RESET_ID;
+}
+
+export function featuredResetId(
+  setup: "seated" | "standing" | null | undefined,
+): string {
+  return setup === "standing" ? STANDING_RESET_ID : SEATED_RESET_ID;
+}
+
+export function alternateResetId(
+  setup: "seated" | "standing" | null | undefined,
+): string {
+  return setup === "standing" ? SEATED_RESET_ID : STANDING_RESET_ID;
+}
 
 export const HOME_START_NUDGE = "Meeting gap? Hit reset before Slack wins.";
 
@@ -36,7 +54,7 @@ export const SETUP_COPY: Record<"seated" | "standing", { label: string; hint: st
     },
     standing: {
       label: "Standing desk",
-      hint: "We’ll mix seated and stand-at-desk work.",
+      hint: "On-your-feet reset. Chair is a preference, not a requirement.",
     },
   };
 

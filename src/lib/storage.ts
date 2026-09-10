@@ -1,4 +1,4 @@
-import { REMINDER_HOURS } from "./constants";
+import { isDeskResetId, REMINDER_HOURS } from "./constants";
 import type {
   AppSettings,
   AppState,
@@ -254,7 +254,7 @@ export function recordCompletedWorkout(session: WorkoutSession): ProgressState {
   patchAppState((state) => ({
     ...state,
     firstWinComplete:
-      state.firstWinComplete || session.programId === "desk-reset-2min",
+      state.firstWinComplete || isDeskResetId(session.programId),
     progress,
   }));
   return progress;

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ButtonLink } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
-import { getExercise } from "@/lib/content";
+import { getExercise, getProgram, benefitsForProgram } from "@/lib/content";
 import { isProEntitlement } from "@/lib/entitlements";
 import { buildSessionSummary } from "@/lib/format";
 import { playCelebrationTune } from "@/lib/celebration-tune";
@@ -98,6 +98,9 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
         <p className="mt-3 max-w-[20rem] text-[1.05rem] leading-relaxed text-ink/65">
           {session.programName} in the books.
         </p>
+        <p className="mt-2 max-w-[20rem] text-sm leading-relaxed text-ink/50">
+          {closerForSession(session.finishedAt, session.programId)}
+        </p>
 
         <div className="mt-8 flex items-center gap-2 rounded-full bg-white px-5 py-3 text-ink shadow-[0_4px_0_rgba(28,25,23,0.06)] animate-[popIn_300ms_cubic-bezier(0.34,1.45,0.64,1)]">
           <p className="text-base font-semibold">{streakLabel}</p>
@@ -171,6 +174,21 @@ function headlineForSession(finishedAt: string, programId: string): string {
     hash = (hash + seed.charCodeAt(i) * (i + 1)) % DONE_HEADLINES.length;
   }
   return DONE_HEADLINES[hash] ?? DONE_HEADLINES[0];
+}
+
+function closerForSession(finishedAt: string, programId: string): string {
+  const program = getProgram(programId);
+  const benefit = program ? benefitsForProgram(program) : null;
+  const pool = [benefit?.doneLine, benefit?.blurb, benefit?.cardLine].filter(
+    (line): line is string => Boolean(line),
+  );
+  if (pool.length === 0) return "Shoulders slightly less rented out.";
+  const seed = `${finishedAt}:closer:${programId}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash + seed.charCodeAt(i) * (i + 1)) % pool.length;
+  }
+  return pool[hash] ?? pool[0];
 }
 
 function Celebration({ theme }: { theme: CelebrationTheme }) {

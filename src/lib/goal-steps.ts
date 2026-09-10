@@ -1,4 +1,4 @@
-import { FIRST_WIN_PROGRAM_ID } from "./constants";
+import { isDeskResetId } from "./constants";
 import type { GoalId, ProgramStep } from "./types";
 
 /**
@@ -14,7 +14,7 @@ function neckRank(id: string): number {
   if (id === "chin-tuck" || id === "chin-tuck-hold" || id === "suboccipital-nod") {
     return 0;
   }
-  if (id === "shoulder-rolls") return 1;
+  if (id === "shoulder-rolls" || id === "unshrug") return 1;
   if (id === "seated-cat-cow" || id === "standing-posture-reset") return 2;
   return 10;
 }
@@ -41,11 +41,13 @@ export function stepsForGoal(
   goal: GoalId | null | undefined,
   programId: string,
 ): ProgramStep[] {
-  if (programId !== FIRST_WIN_PROGRAM_ID) return steps;
+  if (!isDeskResetId(programId)) return steps;
   if (goal === "energy") {
+    const present = new Set(steps.map((step) => step.exerciseId));
     const swapped = steps.map((step) => {
       const nextId = ENERGY_MOVEMENT_SWAPS[step.exerciseId];
-      return nextId ? { ...step, exerciseId: nextId } : step;
+      if (!nextId || present.has(nextId)) return step;
+      return { ...step, exerciseId: nextId };
     });
     return stableByRank(swapped, energyRank);
   }
@@ -59,7 +61,7 @@ export function deskResetGoalKicker(
   programId: string,
   goal: GoalId | null | undefined,
 ): string | null {
-  if (programId !== FIRST_WIN_PROGRAM_ID) return null;
+  if (!isDeskResetId(programId)) return null;
   if (goal === "neck") return "Neck-first tonight";
   if (goal === "energy") return "Energy-first tonight";
   return null;

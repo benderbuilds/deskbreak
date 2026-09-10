@@ -114,7 +114,7 @@ export function WorkoutView({
         </div>
         <ErrorState
           title={`${program.shortLabel} is Pro`}
-          body="Stay unlimited on the 2-min Desk Reset, or unlock Lunch Reset and Busy-Day Circuit."
+          body="Stay unlimited on the 2-min Desk Reset (seated or standing), or unlock Lunch Reset and Busy-Day Circuit."
           action={
             <Button onClick={() => setUpgrade(true)}>See Pro</Button>
           }

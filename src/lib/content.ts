@@ -1,6 +1,19 @@
 import catalogJson from "../../data/exercises-and-programs.json";
+import { SEATED_RESET_ID, STANDING_RESET_ID } from "./constants";
 import { STANDING_STEP_SWAPS } from "./setup-steps";
-import type { Access, BodyArea, Catalog, Dose, Exercise, Program, ProgramStep } from "./types";
+import type {
+  Access,
+  BodyArea,
+  Catalog,
+  Dose,
+  DurationBenefit,
+  DurationBenefitKey,
+  Exercise,
+  Program,
+  ProgramBenefits,
+  ProgramStance,
+  ProgramStep,
+} from "./types";
 
 type RawDose = Dose & { directions?: string[] };
 type RawStep = {
@@ -17,11 +30,13 @@ type RawProgram = {
   durationTargetSec?: number;
   tagline?: string;
   goal?: string;
+  stance?: ProgramStance;
   steps: RawStep[];
 };
 type RawCatalog = {
   exercises: Exercise[];
   programs: RawProgram[];
+  programBenefits?: ProgramBenefits;
 };
 
 const BODY_AREA_NORMALIZE: Record<string, BodyArea> = {
@@ -78,6 +93,15 @@ function scaleStepsToTarget(steps: ProgramStep[], targetSec: number): ProgramSte
   return scaled;
 }
 
+function inferStance(program: RawProgram): ProgramStance | undefined {
+  if (program.stance === "seated" || program.stance === "standing") {
+    return program.stance;
+  }
+  if (program.id === STANDING_RESET_ID) return "standing";
+  if (program.id === SEATED_RESET_ID) return "seated";
+  return undefined;
+}
+
 function normalizeProgram(program: RawProgram): Program {
   const targetSec =
     program.durationTargetSec ??
@@ -96,6 +120,7 @@ function normalizeProgram(program: RawProgram): Program {
     shortLabel: program.shortLabel ?? program.name.replace(/^\d+-min\s+/i, ""),
     durationMin,
     tagline: program.tagline ?? program.goal ?? "",
+    stance: inferStance(program),
     steps,
   };
 }
@@ -104,6 +129,7 @@ const rawCatalog = catalogJson as RawCatalog;
 const catalog: Catalog = {
   exercises: rawCatalog.exercises.map(normalizeExercise),
   programs: rawCatalog.programs.map(normalizeProgram),
+  programBenefits: rawCatalog.programBenefits,
 };
 
 const exerciseById = new Map(
@@ -202,4 +228,23 @@ export function requireExercise(id: string): Exercise {
     throw new Error(`Unknown exercise id: ${id}`);
   }
   return exercise;
+}
+
+export function getProgramBenefits(): ProgramBenefits | undefined {
+  return catalog.programBenefits;
+}
+
+export function durationBenefitKey(
+  durationMin: number,
+): DurationBenefitKey | null {
+  if (durationMin <= 2) return "2min";
+  if (durationMin <= 5) return "5min";
+  if (durationMin <= 10) return "10min";
+  return null;
+}
+
+export function benefitsForProgram(program: Program): DurationBenefit | null {
+  const key = durationBenefitKey(program.durationMin);
+  if (!key) return null;
+  return catalog.programBenefits?.byDuration[key] ?? null;
 }

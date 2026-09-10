@@ -6,19 +6,27 @@ import { Button } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
 import { LogoMark } from "@/components/LogoMark";
 import {
-  FIRST_WIN_PROGRAM_ID,
+  featuredResetId,
   GOAL_COPY,
   SETUP_COPY,
 } from "@/lib/constants";
+import { getProgramBenefits } from "@/lib/content";
 import { completeOnboarding, saveOnboardingAnswers } from "@/lib/storage";
-import type { GoalId, ReminderPref, SetupId } from "@/lib/types";
+import type { DurationBenefitKey, GoalId, ReminderPref, SetupId } from "@/lib/types";
 
-const TOTAL = 5;
+const TOTAL = 6;
 const HOOK_STEP = 0;
-const GOAL_STEP = 1;
-const SETUP_STEP = 2;
-const REMINDER_STEP = 3;
-const FIRST_WIN_STEP = 4;
+const BENEFITS_STEP = 1;
+const GOAL_STEP = 2;
+const SETUP_STEP = 3;
+const REMINDER_STEP = 4;
+const FIRST_WIN_STEP = 5;
+
+const BENEFIT_PILLS: { key: DurationBenefitKey; label: string }[] = [
+  { key: "2min", label: "2" },
+  { key: "5min", label: "5" },
+  { key: "10min", label: "10" },
+];
 
 export function OnboardingView() {
   const router = useRouter();
@@ -48,7 +56,7 @@ export function OnboardingView() {
 
   function goFirstWin() {
     persistAnd(() =>
-      router.push(`/workout/${FIRST_WIN_PROGRAM_ID}?src=firstWin`),
+      router.push(`/workout/${featuredResetId(setup)}?src=firstWin`),
     );
   }
 
@@ -101,6 +109,7 @@ export function OnboardingView() {
             showStretch
           />
         )}
+        {step === BENEFITS_STEP && <BenefitsBeat />}
         {step === GOAL_STEP && (
           <ChoiceStep
             kicker="Goal"
@@ -163,9 +172,14 @@ export function OnboardingView() {
         {step === FIRST_WIN_STEP && (
           <CopyStep
             kicker="First win"
-            title="Take the 2-min Desk Reset before anything else."
+            title={
+              setup === "standing"
+                ? "Take the standing 2-min Desk Reset before anything else."
+                : "Take the 2-min Desk Reset before anything else."
+            }
             body="Feel one actual break. Then we’ll show Free vs Pro. You can stay on the 2-minute reset forever — no card required."
             showStretch
+            stretchStanding={setup === "standing"}
           />
         )}
       </main>
@@ -176,7 +190,9 @@ export function OnboardingView() {
         </Button>
       ) : (
         <div className="flex flex-col gap-3">
-          <Button onClick={goFirstWin}>Start my 2-min reset</Button>
+          <Button onClick={goFirstWin}>
+            {setup === "standing" ? "Start my standing reset" : "Start my 2-min reset"}
+          </Button>
           <button
             type="button"
             onClick={goPaywallLater}
@@ -195,11 +211,13 @@ function CopyStep({
   title,
   body,
   showStretch = false,
+  stretchStanding = false,
 }: {
   kicker: string;
   title: string;
   body: string;
   showStretch?: boolean;
+  stretchStanding?: boolean;
 }) {
   return (
     <div className="animate-[stepIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]">
@@ -212,8 +230,52 @@ function CopyStep({
       <p className="mt-4 text-[1.05rem] leading-relaxed text-ink/65">{body}</p>
       {showStretch ? (
         <div className="mt-6 flex justify-center">
-          <CharacterArt pose="idle" size={168} alt="Stretch" />
+          {stretchStanding ? (
+            <CharacterArt
+              pose="exercise"
+              exerciseId="standing-posture-reset"
+              size={168}
+              alt="Stretch standing"
+            />
+          ) : (
+            <CharacterArt pose="idle" size={168} alt="Stretch" />
+          )}
         </div>
+      ) : null}
+    </div>
+  );
+}
+
+function BenefitsBeat() {
+  const benefits = getProgramBenefits();
+  const byDuration = benefits?.byDuration;
+
+  return (
+    <div className="animate-[stepIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-coral">
+        Why it helps
+      </p>
+      <h1 className="mt-3 font-display text-[1.85rem] font-semibold leading-[1.12] tracking-tight text-ink">
+        Two, five, or ten. That’s the whole menu.
+      </h1>
+      <p className="mt-3 text-[1.05rem] leading-relaxed text-ink/65">
+        Pick a gap in the day. The rest is optional.
+      </p>
+      <div className="mt-6 flex flex-col gap-2">
+        {BENEFIT_PILLS.map((pill) => (
+          <div
+            key={pill.key}
+            className="flex gap-3 rounded-[22px] bg-white px-4 py-3 shadow-[0_4px_0_rgba(28,25,23,0.06)]"
+          >
+            <span className="shrink-0 text-sm font-bold text-coral">{pill.label}</span>
+            <span className="text-sm leading-snug text-ink/70">
+              {byDuration?.[pill.key]?.onboardingLine ?? ""}
+            </span>
+          </div>
+        ))}
+      </div>
+      {benefits?.disclaimer ? (
+        <p className="mt-4 text-xs leading-relaxed text-ink/40">{benefits.disclaimer}</p>
       ) : null}
     </div>
   );

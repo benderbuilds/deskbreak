@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "product": "DeskBreak",
   "exercises": [
     {
@@ -1073,7 +1073,81 @@
         }
       ],
       "access": "free",
-      "tagline": "Two minutes. Still at your desk. Actually feel better."
+      "tagline": "Two minutes. Still at your desk. Actually feel better.",
+      "stance": "seated",
+      "durationMin": 2,
+      "shortLabel": "Desk Reset"
+    },
+    {
+      "id": "desk-reset-2min-standing",
+      "name": "2-min Standing Desk Reset",
+      "shortLabel": "Desk Reset",
+      "durationTargetSec": 120,
+      "durationMin": 2,
+      "stance": "standing",
+      "seoHook": "standing desk exercises while working",
+      "goal": "On-your-feet posture + hip/calf reset between meetings.",
+      "tagline": "Two minutes. On your feet. Still at the desk.",
+      "access": "free",
+      "steps": [
+        {
+          "exerciseId": "standing-posture-reset",
+          "dose": {
+            "type": "holdSec",
+            "seconds": 15
+          }
+        },
+        {
+          "exerciseId": "chin-tuck",
+          "dose": {
+            "type": "reps",
+            "reps": 8
+          }
+        },
+        {
+          "exerciseId": "unshrug",
+          "dose": {
+            "type": "repsHold",
+            "reps": 6,
+            "holdSec": 2
+          }
+        },
+        {
+          "exerciseId": "standing-overhead-reach",
+          "dose": {
+            "type": "holdSec",
+            "seconds": 15
+          }
+        },
+        {
+          "exerciseId": "standing-hip-hinge-desk",
+          "dose": {
+            "type": "reps",
+            "reps": 6
+          }
+        },
+        {
+          "exerciseId": "standing-hip-flexor",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 12
+          }
+        },
+        {
+          "exerciseId": "calf-raise",
+          "dose": {
+            "type": "reps",
+            "reps": 10
+          }
+        },
+        {
+          "exerciseId": "long-exhale-reset",
+          "dose": {
+            "type": "breaths",
+            "breaths": 3
+          }
+        }
+      ]
     },
     {
       "id": "lunch-reset-5min",
@@ -1132,7 +1206,10 @@
           }
         }
       ],
-      "access": "pro"
+      "access": "pro",
+      "durationMin": 5,
+      "shortLabel": "Lunch Reset",
+      "tagline": "Hips + chest. Still office-appropriate."
     },
     {
       "id": "busy-day-circuit-10min",
@@ -1234,7 +1311,10 @@
           }
         }
       ],
-      "access": "pro"
+      "access": "pro",
+      "durationMin": 10,
+      "shortLabel": "Busy-Day Circuit",
+      "tagline": "Full-body undo after a heavy sit day."
     }
   ],
   "bodyAreas": [
@@ -1273,7 +1353,8 @@
     "model": "free_vs_pro_annual",
     "free": {
       "programs": [
-        "desk-reset-2min"
+        "desk-reset-2min",
+        "desk-reset-2min-standing"
       ],
       "exerciseCount": 15,
       "exerciseIds": [
@@ -1293,7 +1374,7 @@
         "wrist-extensor-stretch",
         "wrist-flexor-stretch"
       ],
-      "notes": "2-min Desk Reset + core library moves (includes program alts and v5 free stubs)."
+      "notes": "2-min Desk Reset (seated + distinct standing) + core library moves (includes program alts and v5 free stubs)."
     },
     "pro": {
       "programs": [
@@ -1463,5 +1544,31 @@
       "desk-wiggle-reset",
       "screen-distance-blink"
     ]
+  },
+  "programBenefits": {
+    "disclaimer": "Gentle desk movement — not medical advice. Skip anything that nips.",
+    "byDuration": {
+      "2min": {
+        "cardLine": "Unstick the laptop lean. Then back to the tab.",
+        "whyThisHelps": "Two minutes is a meeting-gap dose: posture, a little mobility, and a longer exhale. Not a workout. Not a lecture.",
+        "onboardingLine": "Unstick before Slack wins.",
+        "doneLine": "Tiny dose. Laptop-neck slightly less in charge.",
+        "blurb": "A meeting-gap posture reset."
+      },
+      "5min": {
+        "cardLine": "Hips and chest get a real lunch, not just a sandwich.",
+        "whyThisHelps": "Five minutes is long enough to open hips and chest — the bits two minutes only taps. Still office-quiet.",
+        "onboardingLine": "Shoulders, hips, actually lunch.",
+        "doneLine": "Hips just remembered they exist.",
+        "blurb": "Energy up without leaving the floor."
+      },
+      "10min": {
+        "cardLine": "The sit-day undo when two minutes was a polite suggestion.",
+        "whyThisHelps": "Ten minutes covers neck through calves. The long unstick after a day that sat on you.",
+        "onboardingLine": "The heavy-sit undo.",
+        "doneLine": "That’s the long unstick. Go easy on the next hour.",
+        "blurb": "Full-body undo. Still office-appropriate."
+      }
+    }
   }
 }

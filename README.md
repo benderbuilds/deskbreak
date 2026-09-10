@@ -26,7 +26,7 @@ Production `npm start` hides the demo unlock unless `NEXT_PUBLIC_DEMO_UNLOCK=tru
 | | Free | Pro (annual) |
 | --- | --- | --- |
 | Onboarding + Home | ✓ | ✓ |
-| 2 min Desk Reset | Unlimited | Unlimited |
+| 2 min Desk Reset (seated + standing) | Unlimited | Unlimited |
 | 5 min Lunch Reset | Locked | ✓ |
 | 10 min Busy-Day Circuit | Locked | ✓ |
 | Library | 15 moves | Full catalog |
@@ -63,11 +63,11 @@ Shown when `NODE_ENV !== "production"` **or** `NEXT_PUBLIC_DEMO_UNLOCK=true`:
 ## What’s in the app
 
 - **Landing** — SEO hero for first-time visitors
-- **Onboarding** — hook, required goal + work setup, optional reminder (defaults off), then a 2-min Desk Reset before the paywall. Standing-desk setup swaps seated-only steps; goal reorders Desk Reset (neck-first / energy-first) after those swaps. Same program id — no JSON fork.
+- **Onboarding** — hook, why 2·5·10 helps, required goal + work setup, optional reminder (defaults off), then a 2-min Desk Reset before the paywall. Standing-desk setup features a distinct standing 2-min program (not seated swaps). Goal can still reorder Desk Reset (neck-first / energy-first).
 - **Paywall** — Free vs Pro, Subscribe annually, Continue on Free
-- **Home** — greeting, goal + setup chips, Start nudge, one-tap 2-min reset, locked Pro circuits
+- **Home** — greeting, goal + setup chips, Start nudge, featured 2-min reset (outline coral when standing), Prefer seated/standing, locked Pro circuits with benefit lines
 - **Active workout** — large timer, Stretch illustration (optional motion frames), cue, next / skip / pause
-- **Done** — Stretch celebration + short chime, streak, copyable summary
+- **Done** — Stretch celebration + short chime, streak, benefit closer, copyable summary
 - **Library** — Stretch thumbnails; filter by body area; Pro locks on gated moves
 - **Settings** — reminders, plan, replay onboarding
 - **PWA** — manifest, icons, install prompt when the browser offers it
