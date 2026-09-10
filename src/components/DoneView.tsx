@@ -78,7 +78,7 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
 
   const headline = headlineForSession(session.finishedAt, session.programId);
   const primaryHref = nextPaywall ? "/paywall?from=firstWin" : "/";
-  const primaryLabel = nextPaywall ? "See Free vs Pro" : "Back home";
+  const primaryLabel = nextPaywall ? "Keep the momentum." : "Back home";
 
   return (
     <div className="relative flex min-h-dvh flex-col overflow-hidden px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
@@ -96,7 +96,7 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
           {headline}
         </h1>
         <p className="mt-3 max-w-[20rem] text-[1.05rem] leading-relaxed text-ink/65">
-          {session.programName} in the books. Back to it — lighter.
+          {session.programName} in the books.
         </p>
 
         <div className="mt-8 flex items-center gap-2 rounded-full bg-white px-5 py-3 text-ink shadow-[0_4px_0_rgba(28,25,23,0.06)] animate-[popIn_300ms_cubic-bezier(0.34,1.45,0.64,1)]">
@@ -131,9 +131,6 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
       </main>
 
       <div className="relative z-10 mt-6 flex flex-col gap-3">
-        <Button variant={copied ? "mint" : "ghost"} onClick={copySummary}>
-          {copied ? "Copied" : "Copy summary"}
-        </Button>
         <ButtonLink href={primaryHref}>{primaryLabel}</ButtonLink>
         {nextPaywall ? (
           <Button
@@ -143,9 +140,13 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
               router.replace("/");
             }}
           >
-            Skip to home
+            Continue with Free
           </Button>
-        ) : null}
+        ) : (
+          <Button variant={copied ? "mint" : "ghost"} onClick={copySummary}>
+            {copied ? "Copied" : "Copy summary"}
+          </Button>
+        )}
       </div>
     </div>
   );

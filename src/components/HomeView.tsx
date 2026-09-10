@@ -48,7 +48,6 @@ export function HomeView() {
     return `${progress.lastWorkout.programName}${when ? ` · ${when}` : ""}`;
   }, [progress]);
 
-  const title = goal ? GOAL_COPY[goal].homeLine : HOME_START_NUDGE;
   const sub = setup
     ? SETUP_COPY[setup].hint
     : "Two minutes. Still at your desk. Actually feel better.";
@@ -103,9 +102,8 @@ export function HomeView() {
         <InstallPrompt />
 
         <section className="mb-5">
-          <p className="text-sm font-semibold leading-snug text-coral">{HOME_START_NUDGE}</p>
-          <h1 className="mt-2 font-display text-[1.75rem] font-semibold leading-[1.15] tracking-tight text-ink">
-            {title === HOME_START_NUDGE ? "Two minutes. Still at your desk." : title}
+          <h1 className="font-display text-[1.75rem] font-semibold leading-[1.15] tracking-tight text-ink">
+            {HOME_START_NUDGE}
           </h1>
           <p className="mt-2 text-[0.95rem] leading-relaxed text-ink/60">{sub}</p>
           {(goal || setup) && (
@@ -119,7 +117,7 @@ export function HomeView() {
         <section className="flex flex-col gap-3" aria-label="Start a break">
           {startProgram ? (
             <div className="relative pt-10">
-              <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2">
+              <div className="absolute left-1/2 top-0 z-0 -translate-x-1/2">
                 <CharacterArt
                   pose="idle"
                   size={172}
@@ -127,6 +125,7 @@ export function HomeView() {
                   alt="Stretch ready for a desk break"
                 />
               </div>
+              <div className="relative z-10">
               <ProgramCard
                 program={startProgram}
                 featured
@@ -137,6 +136,7 @@ export function HomeView() {
                   setUpgrade(`${startProgram.name} is part of Pro, along with the full library.`)
                 }
               />
+              </div>
             </div>
           ) : null}
 
