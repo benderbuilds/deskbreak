@@ -1,237 +1,198 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button, ButtonLink } from "@/components/Button";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
-import { LogoMark } from "@/components/LogoMark";
-import { ProBadge } from "@/components/ProBadge";
-import { ErrorState } from "@/components/StatusStates";
+import { track } from "@/lib/analytics";
+import { PAYWALL_HEADLINES, PRO_PROMISE } from "@/lib/constants";
 import {
-  ANNUAL_DISCOUNT_PERCENT,
   ANNUAL_LIST_PRICE_USD,
-  ANNUAL_PER_MONTH,
   ANNUAL_PRICE_USD,
-} from "@/lib/constants";
-import { getExercises, getFreeExercises } from "@/lib/content";
-import { canDemoUnlock, isProEntitlement, stripePriceConfigured } from "@/lib/entitlements";
-import { markPaywallSeen, unlockPro } from "@/lib/storage";
+  CHECKOUT_CTA,
+  CHECKOUT_UNAVAILABLE,
+  PRICE_OPTIONS,
+  formatUsd,
+} from "@/lib/pricing";
+import { ensureAnonymousId, markPaywallSeen } from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
+import { isPrimaryNeed, type BillingPeriod, type PrimaryNeed } from "@/lib/types";
+
+const BENEFITS = [
+  {
+    title: "The right reset",
+    body: "Tell DeskBreak what's tight and get a routine matched to it.",
+  },
+  {
+    title: "The right time",
+    body: "Get nudged before your desk day catches up with you.",
+  },
+  {
+    title: "Zero planning",
+    body: "Open DeskBreak and we'll tell you what to do next.",
+  },
+  {
+    title: "Progress that means something",
+    body: "See which breaks actually make you feel better.",
+  },
+];
 
 export function PaywallView() {
   const router = useRouter();
+  const params = useSearchParams();
   const state = useAppState();
-  const alreadyPro = isProEntitlement(state.entitlement);
-  const demo = canDemoUnlock();
-  const stripeReady = stripePriceConfigured();
-  const freeMoveCount = getFreeExercises().length;
-  const libraryCount = getExercises().length;
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  async function subscribe() {
-    setBusy(true);
-    setError(null);
+  const source = params.get("from") ?? "direct";
+  const needParam = params.get("need");
+  const need: PrimaryNeed = isPrimaryNeed(needParam)
+    ? needParam
+    : (state.primaryNeed ?? "general");
+
+  const [period, setPeriod] = useState<BillingPeriod>("annual");
+  const [submitting, setSubmitting] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    markPaywallSeen();
+    track("paywall_viewed", { paywall_source: source, need });
+  }, [source, need]);
+
+  function choosePeriod(next: BillingPeriod) {
+    setPeriod(next);
+    track("pricing_period_selected", { period: next, paywall_source: source });
+  }
+
+  async function startCheckout() {
+    setSubmitting(true);
+    setFailed(false);
+    track("checkout_started", { period, paywall_source: source, need });
+
     try {
-      const res = await fetch("/api/checkout", { method: "POST" });
-      const data = (await res.json()) as { url?: string; message?: string };
-      if (!res.ok || !data.url) {
-        setError(
-          data.message ??
-            "Stripe Checkout isn’t configured yet. Add keys or use the demo unlock in development.",
-        );
-        setBusy(false);
-        return;
-      }
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          period,
+          email: state.email,
+          anonymousId: ensureAnonymousId(),
+          primaryNeed: need,
+          paywallSource: source,
+        }),
+      });
+      const data = (await response.json().catch(() => ({}))) as { url?: string };
+      if (!response.ok || !data.url) throw new Error("checkout_unavailable");
       window.location.href = data.url;
     } catch {
-      setError("Couldn’t reach Checkout. Try again, or use demo unlock if you’re local.");
-      setBusy(false);
+      // The customer never sees why. Operators get the detail in the server log.
+      track("checkout_failed", { period, paywall_source: source });
+      setFailed(true);
+      setSubmitting(false);
     }
   }
 
   function continueFree() {
-    markPaywallSeen();
-    router.replace("/");
+    track("free_continued", { paywall_source: source, need });
+    router.push("/app");
   }
 
-  function demoUnlock() {
-    unlockPro("demo");
-    router.replace("/");
-  }
+  const option = PRICE_OPTIONS[period];
+  const showListPrice =
+    period === "annual" && ANNUAL_LIST_PRICE_USD > ANNUAL_PRICE_USD;
 
   return (
-    <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))]">
-      <header className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <LogoMark size={32} />
-          <span className="font-display text-lg font-semibold text-ink">DeskBreak</span>
-        </div>
-        <button
-          type="button"
-          onClick={continueFree}
-          className="min-h-11 text-sm font-semibold text-ink/45"
-        >
-          Not now
-        </button>
-      </header>
-
-      <main className="flex-1 py-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-coral">
-          After your reset
-        </p>
-        <div className="mt-3 flex justify-center">
-          <CharacterArt pose="locked" size={140} alt="Stretch — Pro locked" />
-        </div>
-        <p className="mt-2 text-center text-xs font-semibold text-ink/45">
-          Pro’s there when the day gets longer.
-        </p>
-        <h1 className="mt-3 font-display text-[2.1rem] font-semibold leading-[1.1] text-ink">
-          Keep the momentum.
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-ink/65">
-          You felt a 2-minute reset. Pro fits the rest of the day.
-        </p>
-
-        {alreadyPro ? (
-          <div className="mt-6 rounded-[24px] bg-mint/20 p-4">
-            <ProBadge />
-            <p className="mt-2 text-sm font-semibold text-ink">You’re on Pro.</p>
-            <ButtonLink href="/" className="mt-4">
-              Back home
-            </ButtonLink>
-          </div>
-        ) : (
-          <div className="mt-6 grid gap-3">
-            <PlanCard
-              name="Free"
-              price="Forever"
-              items={[
-                "Onboarding + Home",
-                "2 min Desk Reset, unlimited",
-                `${freeMoveCount} moves in the library`,
-                "Basic streak",
-              ]}
-            />
-            <PlanCard
-              featured
-              name="Pro"
-              price={`$${ANNUAL_PRICE_USD}/year`}
-              compare={`$${ANNUAL_LIST_PRICE_USD}/year`}
-              note={`${ANNUAL_DISCOUNT_PERCENT}% off. Less than $${ANNUAL_PER_MONTH}/month, billed annually.`}
-              items={[
-                "5 min Lunch Reset",
-                "10 min Busy-Day Circuit",
-                `Full ${libraryCount}-move library`,
-                "Custom reminder time",
-                "XP + celebration themes",
-                "Pro badge",
-              ]}
-            />
-          </div>
-        )}
-
-        {error ? (
-          <div className="mt-4">
-            <ErrorState title="Checkout unavailable" body={error} />
-          </div>
-        ) : null}
-
-        {!stripeReady && !alreadyPro ? (
-          <p className="mt-4 text-center text-xs leading-relaxed text-ink/45">
-            Live billing needs <code className="font-semibold">STRIPE_SECRET_KEY</code> and{" "}
-            <code className="font-semibold">NEXT_PUBLIC_STRIPE_PRICE_ID</code>. No charges
-            are simulated.
-          </p>
-        ) : null}
-      </main>
-
-      {!alreadyPro && (
-        <div className="flex flex-col gap-3">
-          {!stripeReady && demo ? (
-            <>
-              <Button variant="mint" onClick={demoUnlock}>
-                Unlock Pro for demo
-              </Button>
-              <Button variant="ghost" disabled>
-                Unlock Pro — ${ANNUAL_PRICE_USD}/yr
-              </Button>
-              <p className="text-center text-xs leading-relaxed text-ink/45">
-                Stripe isn’t configured on this build, so Subscribe would 501.
-                Demo unlock is for local/morning use — no charges.
-              </p>
-            </>
-          ) : (
-            <>
-              <Button onClick={subscribe} disabled={busy || !stripeReady}>
-                {busy ? "Opening Checkout…" : `Unlock Pro — $${ANNUAL_PRICE_USD}/yr`}
-              </Button>
-              {demo ? (
-                <Button variant="mint" onClick={demoUnlock}>
-                  Unlock Pro for demo
-                </Button>
-              ) : null}
-              {!stripeReady ? (
-                <p className="text-center text-xs leading-relaxed text-ink/45">
-                  Stripe isn’t configured, so Subscribe is unavailable. No charges
-                  are simulated.
-                </p>
-              ) : null}
-            </>
-          )}
-          <Button variant="ghost" onClick={continueFree}>
-            Continue with Free
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PlanCard({
-  name,
-  price,
-  items,
-  featured,
-  compare,
-  note,
-}: {
-  name: string;
-  price: string;
-  items: string[];
-  featured?: boolean;
-  compare?: string;
-  note?: string;
-}) {
-  return (
-    <section
-      className={[
-        "rounded-[24px] p-4",
-        featured
-          ? "bg-ink text-paper shadow-[0_6px_0_#0C0A09]"
-          : "bg-white text-ink shadow-[0_4px_0_rgba(28,25,23,0.06)]",
-      ].join(" ")}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="font-display text-xl font-semibold">{name}</h2>
-        {featured ? <ProBadge /> : null}
+    <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
+      <div className="flex justify-center">
+        <CharacterArt pose="ready" size={150} alt="Stretch, ready to go" />
       </div>
-      <p className="mt-1 text-sm font-semibold">
-        {compare ? (
-          <span className={`mr-2 ${featured ? "text-paper/40" : "text-ink/35"} line-through`}>
-            {compare}
-          </span>
-        ) : null}
-        {price}
-      </p>
-      {note ? (
-        <p className={`mt-1 text-xs ${featured ? "text-paper/70" : "text-ink/55"}`}>{note}</p>
-      ) : null}
-      <ul className={`mt-3 space-y-1 text-sm ${featured ? "text-paper/80" : "text-ink/65"}`}>
-        {items.map((item) => (
-          <li key={item}>• {item}</li>
+
+      <h1 className="mt-4 text-center font-display text-[2rem] font-semibold leading-tight tracking-tight text-ink">
+        {PAYWALL_HEADLINES[need]}
+      </h1>
+      <p className="mt-3 text-center leading-relaxed text-ink/65">{PRO_PROMISE}</p>
+
+      <ul className="mt-7 grid gap-2.5">
+        {BENEFITS.map((benefit) => (
+          <li
+            key={benefit.title}
+            className="rounded-[20px] bg-white px-4 py-3.5 shadow-[0_3px_0_rgba(28,25,23,0.06)]"
+          >
+            <p className="font-display text-base font-semibold text-ink">
+              {benefit.title}
+            </p>
+            <p className="mt-0.5 text-sm leading-relaxed text-ink/60">{benefit.body}</p>
+          </li>
         ))}
       </ul>
-    </section>
+
+      <div
+        className="mt-7 grid grid-cols-2 gap-2 rounded-[20px] bg-ink/5 p-1.5"
+        role="radiogroup"
+        aria-label="Billing period"
+      >
+        {(["annual", "monthly"] as BillingPeriod[]).map((value) => {
+          const active = period === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => choosePeriod(value)}
+              className={[
+                "min-h-12 rounded-[16px] text-sm font-semibold transition-colors",
+                active ? "bg-white text-ink shadow-[0_2px_0_rgba(28,25,23,0.08)]" : "text-ink/55",
+              ].join(" ")}
+            >
+              {value === "annual" ? "Annual" : "Monthly"}
+              {value === "annual" && PRICE_OPTIONS.annual.badge ? (
+                <span className="ml-1.5 text-[11px] font-semibold text-coral">
+                  {PRICE_OPTIONS.annual.badge}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-5 text-center">
+        <p className="font-display text-[2.4rem] font-semibold leading-none tracking-tight text-ink">
+          {option.amountLabel}
+          <span className="text-lg font-semibold text-ink/45">{option.cadenceLabel}</span>
+        </p>
+        <p className="mt-2 text-sm text-ink/55">
+          {showListPrice ? (
+            <>
+              <span className="line-through">{formatUsd(ANNUAL_LIST_PRICE_USD)}/year</span>{" "}
+            </>
+          ) : null}
+          {option.supportLabel}
+        </p>
+      </div>
+
+      {failed ? (
+        <div
+          className="mt-5 rounded-[20px] border-2 border-coral/30 bg-white px-4 py-4 text-center"
+          role="alert"
+        >
+          <p className="font-display text-base font-semibold text-ink">
+            {CHECKOUT_UNAVAILABLE.title}
+          </p>
+          <p className="mt-1 text-sm leading-relaxed text-ink/60">
+            {CHECKOUT_UNAVAILABLE.body}
+          </p>
+        </div>
+      ) : null}
+
+      <div className="mt-6 grid gap-3">
+        <Button onClick={startCheckout} disabled={submitting}>
+          {submitting ? "Opening checkout..." : CHECKOUT_CTA}
+        </Button>
+        <Button variant="ghost" onClick={continueFree}>
+          Keep using DeskBreak free
+        </Button>
+      </div>
+
+      <p className="mt-4 text-center text-xs text-ink/45">Cancel anytime.</p>
+    </div>
   );
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch — Calf raise, heels lifted (side)">
+  <title>DeskBreak Stretch — Calf raise, heels lifted (side)</title>
+  <rect width="512" height="512" fill="none"/>
+  <ellipse cx="256" cy="470" rx="100" ry="10" fill="#E7E2DA" opacity="0.5"/>
+  <!-- desk edge for balance -->
+  <rect x="330" y="300" width="150" height="16" rx="6" fill="#E7E2DA" stroke="#1C1917" stroke-width="3.0"/>
+  <!-- legs: straight, heels off the floor -->
+  <path d="M244,308 L238,428" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+  <path d="M244,308 L238,428" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+  <path d="M272,308 L268,428" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+  <path d="M272,308 L268,428" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+  <!-- feet: toes down, heels raised -->
+  <path d="M232,428 L268,452" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+  <path d="M262,428 L296,452" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+  <!-- floor line shows the heel gap -->
+  <path d="M196,456 L316,456" stroke="#1C1917" stroke-width="2.5" opacity="0.3" stroke-linecap="round"/>
+  <path d="M232,430 L232,452" stroke="#2DD4A8" stroke-width="4" stroke-linecap="round"/>
+  <g id="torso">
+    <rect x="228" y="180" width="56" height="112" rx="22" fill="#FFFFFF" stroke="#1C1917" stroke-width="3.0"/>
+  </g>
+  <!-- hand rests lightly on the desk -->
+  <g class="arm">
+    <path d="M280,206 L336,262 L360,298" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M280,206 L336,262 L360,298" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="362" cy="298" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+  <!-- rise arrow -->
+  <path d="M186,330 L186,268" stroke="#FF5A36" stroke-width="2.5" stroke-linecap="round" opacity="0.75"/>
+  <path d="M178,282 L186,266 L194,282" fill="none" stroke="#FF5A36" stroke-width="2.5" stroke-linejoin="round" opacity="0.75"/>
+  <g id="head">
+    <circle cx="252" cy="136" r="34" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <path d="M222,130 Q242,96 274,108 Q262,128 232,140" fill="#1C1917"/>
+    <path d="M280,140 L290,145 L280,150 Z" fill="#F3E6D8" stroke="#1C1917" stroke-width="2"/>
+    <circle cx="256" cy="136" r="3" fill="#1C1917"/>
+    <path d="M258,150 Q266,154 274,148" fill="none" stroke="#1C1917" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</svg>

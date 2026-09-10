@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch — Calf raise start, heels on the floor (side)">
+  <title>DeskBreak Stretch — Calf raise start, heels on the floor (side)</title>
+  <rect width="512" height="512" fill="none"/>
+  <ellipse cx="256" cy="470" rx="100" ry="10" fill="#E7E2DA" opacity="0.5"/>
+  <rect x="330" y="300" width="150" height="16" rx="6" fill="#E7E2DA" stroke="#1C1917" stroke-width="3.0"/>
+  <path d="M244,332 L238,452" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+  <path d="M244,332 L238,452" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+  <path d="M272,332 L268,452" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+  <path d="M272,332 L268,452" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+  <!-- flat feet on the floor -->
+  <ellipse cx="248" cy="456" rx="24" ry="8" fill="#1C1917"/>
+  <ellipse cx="280" cy="456" rx="24" ry="8" fill="#1C1917"/>
+  <path d="M196,456 L316,456" stroke="#1C1917" stroke-width="2.5" opacity="0.3" stroke-linecap="round"/>
+  <g id="torso">
+    <rect x="228" y="204" width="56" height="112" rx="22" fill="#FFFFFF" stroke="#1C1917" stroke-width="3.0"/>
+  </g>
+  <g class="arm">
+    <path d="M280,230 L336,270 L360,300" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M280,230 L336,270 L360,300" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="362" cy="300" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+  <g id="head">
+    <circle cx="252" cy="160" r="34" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <path d="M222,154 Q242,120 274,132 Q262,152 232,164" fill="#1C1917"/>
+    <path d="M280,164 L290,169 L280,174 Z" fill="#F3E6D8" stroke="#1C1917" stroke-width="2"/>
+    <circle cx="256" cy="160" r="3" fill="#1C1917"/>
+    <path d="M258,174 Q266,178 274,172" fill="none" stroke="#1C1917" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</svg>

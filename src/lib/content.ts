@@ -1,135 +1,58 @@
 import catalogJson from "../../data/exercises-and-programs.json";
 import { doseToDurationSec, storedDose } from "./dose";
-import { STANDING_STEP_SWAPS } from "./setup-steps";
-import type { Access, BodyArea, Catalog, Dose, Exercise, Program, ProgramStep } from "./types";
+import type {
+  Catalog,
+  DurationBenefit,
+  Exercise,
+  Program,
+  ProgramStep,
+  SetupId,
+} from "./types";
 
-type RawDose = Dose & { directions?: string[] };
-type RawStep = {
-  exerciseId: string;
-  durationSec?: number;
-  dose?: RawDose;
-};
-type RawProgram = {
-  id: string;
-  access: Access;
-  name: string;
-  shortLabel?: string;
-  durationMin?: number;
-  durationTargetSec?: number;
-  tagline?: string;
-  goal?: string;
-  steps: RawStep[];
-};
+type RawStep = { exerciseId: string; durationSec?: number; dose?: Parameters<typeof storedDose>[0] };
+type RawProgram = Omit<Program, "steps"> & { steps: RawStep[] };
 type RawCatalog = {
   exercises: Exercise[];
   programs: RawProgram[];
+  durationBenefits: Record<string, DurationBenefit>;
+  disclaimer: string;
 };
-
-const BODY_AREA_NORMALIZE: Record<string, BodyArea> = {
-  neck: "neck",
-  shoulders: "shoulders",
-  upperBack: "upperBack",
-  upper_back: "upperBack",
-  wrists: "wrists",
-  hips: "hips",
-  legs: "legs",
-  breathing: "breathing",
-  core: "core",
-  posture: "posture",
-};
-
-function normalizeExercise(exercise: Exercise): Exercise {
-  const bodyArea = BODY_AREA_NORMALIZE[exercise.bodyArea];
-  if (!bodyArea) {
-    throw new Error(
-      `Exercise ${exercise.id} has unknown bodyArea ${exercise.bodyArea}`,
-    );
-  }
-  return { ...exercise, bodyArea };
-}
 
 function normalizeProgram(program: RawProgram): Program {
-  const durationTargetSec =
-    program.durationTargetSec ??
-    (program.durationMin ? program.durationMin * 60 : undefined);
   const steps: ProgramStep[] = program.steps.map((step) => ({
     exerciseId: step.exerciseId,
     durationSec: step.durationSec ?? doseToDurationSec(step.dose),
     dose: storedDose(step.dose),
   }));
-  const durationMin =
-    program.durationMin ??
-    Math.max(
-      1,
-      Math.round(
-        (durationTargetSec ||
-          steps.reduce((sum, step) => sum + step.durationSec, 0)) / 60,
-      ),
-    );
   return {
-    id: program.id,
-    access: program.access,
-    name: program.name,
-    shortLabel: program.shortLabel ?? program.name.replace(/^\d+-min\s+/i, ""),
-    durationMin,
-    durationTargetSec,
-    tagline: program.tagline ?? program.goal ?? "",
+    ...program,
+    durationTargetSec: program.durationTargetSec ?? program.durationMin * 60,
     steps,
   };
 }
 
-const rawCatalog = catalogJson as RawCatalog;
+const raw = catalogJson as unknown as RawCatalog;
+
 const catalog: Catalog = {
-  exercises: rawCatalog.exercises.map(normalizeExercise),
-  programs: rawCatalog.programs.map(normalizeProgram),
+  exercises: raw.exercises,
+  programs: raw.programs.map(normalizeProgram),
+  durationBenefits: raw.durationBenefits,
+  disclaimer: raw.disclaimer,
 };
 
-const exerciseById = new Map(
-  catalog.exercises.map((exercise) => [exercise.id, exercise]),
-);
+const exerciseById = new Map(catalog.exercises.map((e) => [e.id, e]));
+const programById = new Map(catalog.programs.map((p) => [p.id, p]));
 
-const programById = new Map(
-  catalog.programs.map((program) => [program.id, program]),
-);
-
+// Content bugs should fail the build, not ship a broken workout.
 for (const exercise of catalog.exercises) {
   if (exercise.access !== "free" && exercise.access !== "pro") {
     throw new Error(`Exercise ${exercise.id} needs access "free" or "pro"`);
   }
+  if (!exercise.needs?.length) {
+    throw new Error(`Exercise ${exercise.id} needs at least one primary need`);
+  }
   if (exercise.saferSwapId && !exerciseById.has(exercise.saferSwapId)) {
-    throw new Error(
-      `Exercise ${exercise.id} has unknown saferSwapId ${exercise.saferSwapId}`,
-    );
-  }
-  if (
-    exercise.stretchView &&
-    exercise.stretchView !== "side" &&
-    exercise.stretchView !== "front" &&
-    exercise.stretchView !== "threeQuarter"
-  ) {
-    throw new Error(
-      `Exercise ${exercise.id} has invalid stretchView ${exercise.stretchView}`,
-    );
-  }
-  for (const field of [
-    exercise.stretchAsset,
-    exercise.stretchAssetB,
-    exercise.stretchAssetFrontArchive,
-  ]) {
-    if (field && /-side\.(svg|png)$/i.test(field)) {
-      throw new Error(
-        `Exercise ${exercise.id} stretch asset must not use a -side suffix: ${field}`,
-      );
-    }
-  }
-}
-
-for (const [fromId, toId] of Object.entries(STANDING_STEP_SWAPS)) {
-  if (!exerciseById.has(fromId)) {
-    throw new Error(`Standing swap source missing from catalog: ${fromId}`);
-  }
-  if (!exerciseById.has(toId)) {
-    throw new Error(`Standing swap target missing from catalog: ${toId}`);
+    throw new Error(`Exercise ${exercise.id} has unknown saferSwapId ${exercise.saferSwapId}`);
   }
 }
 
@@ -138,9 +61,14 @@ for (const program of catalog.programs) {
     throw new Error(`Program ${program.id} needs access "free" or "pro"`);
   }
   for (const step of program.steps) {
-    if (!exerciseById.has(step.exerciseId)) {
+    const exercise = exerciseById.get(step.exerciseId);
+    if (!exercise) {
+      throw new Error(`Program ${program.id} references missing exercise ${step.exerciseId}`);
+    }
+    // A free program must stay free all the way down, or the first reset paywalls.
+    if (program.access === "free" && exercise.access !== "free") {
       throw new Error(
-        `Program ${program.id} references missing exercise ${step.exerciseId}`,
+        `Free program ${program.id} uses Pro exercise ${step.exerciseId}`,
       );
     }
   }
@@ -154,8 +82,8 @@ export function getExercises(): Exercise[] {
   return catalog.exercises;
 }
 
-export function getFreeExercises(): Exercise[] {
-  return catalog.exercises.filter((exercise) => exercise.access === "free");
+export function getExercisesById(): Map<string, Exercise> {
+  return exerciseById;
 }
 
 export function getPrograms(): Program[] {
@@ -170,15 +98,31 @@ export function getProgram(id: string): Program | undefined {
   return programById.get(id);
 }
 
+export function getDurationBenefit(durationMin: number): DurationBenefit | undefined {
+  return catalog.durationBenefits[String(durationMin)];
+}
+
+export function getDisclaimer(): string {
+  return catalog.disclaimer;
+}
+
 export function getProgramDurationSec(program: Program): number {
   if (program.durationTargetSec) return program.durationTargetSec;
   return program.steps.reduce((sum, step) => sum + step.durationSec, 0);
 }
 
+/** Whether a move can be done in the position the user is actually in. */
+export function fitsSetup(exercise: Exercise, setup: SetupId): boolean {
+  return exercise.setup === "either" || exercise.setup === setup;
+}
+
+/** The cue phrased for the position the user is in, when the catalog has one. */
+export function cueForSetup(exercise: Exercise, setup: SetupId): string {
+  return exercise.setupVariants?.[setup]?.cue ?? exercise.cue;
+}
+
 export function requireExercise(id: string): Exercise {
-  const exercise = getExercise(id);
-  if (!exercise) {
-    throw new Error(`Unknown exercise id: ${id}`);
-  }
+  const exercise = exerciseById.get(id);
+  if (!exercise) throw new Error(`Unknown exercise id: ${id}`);
   return exercise;
 }

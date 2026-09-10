@@ -2,232 +2,263 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, ButtonLink } from "@/components/Button";
+import { Button } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
-import { getExercise } from "@/lib/content";
+import { InstallPrompt } from "@/components/InstallPrompt";
+import { track } from "@/lib/analytics";
+import { FEEDBACK_RESPONSES } from "@/lib/constants";
+import { getDurationBenefit } from "@/lib/content";
 import { isProEntitlement } from "@/lib/entitlements";
-import { buildSessionSummary } from "@/lib/format";
-import { playCelebrationTune } from "@/lib/celebration-tune";
-import { getLastSession, markPaywallSeen } from "@/lib/storage";
+import {
+  dismissEmailPrompt,
+  ensureAnonymousId,
+  recordFeedback,
+  saveEmail,
+  shouldAskForFeedback,
+} from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
 import { useIsClient } from "@/lib/use-client";
-import type { CelebrationTheme } from "@/lib/types";
+import type { PerceivedEffect } from "@/lib/types";
 
-export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
+type Stage = "feedback" | "email" | "wrap";
+
+/**
+ * The screen that decides whether someone ever comes back.
+ *
+ * It asks one honest question, answers it honestly, then asks for an email. The
+ * paywall comes after, and only when there is something real to sell against.
+ */
+export function DoneView() {
   const router = useRouter();
   const isClient = useIsClient();
-  const app = useAppState();
-  const session = isClient ? getLastSession() : null;
-  const streak = app.progress.streak;
-  const pro = isProEntitlement(app.entitlement);
-  const theme: CelebrationTheme = pro ? app.settings.celebrationTheme : "classic";
-  const [copied, setCopied] = useState(false);
+  const state = useAppState();
+  const session = state.progress.lastWorkout;
+  const pro = isProEntitlement(state.entitlement);
+
+  const askFeedback = useMemo(
+    () => isClient && shouldAskForFeedback() && !session?.perceivedEffect,
+    [isClient, session?.perceivedEffect],
+  );
+
+  const [advanced, setAdvanced] = useState<Stage | null>(null);
+  const [effect, setEffect] = useState<PerceivedEffect | null>(null);
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  // Derived, not stored: the natural stage falls out of what we already know,
+  // and `advanced` only records the steps the user has actually completed.
+  const nextAfterFeedback: Stage = state.email || pro ? "wrap" : "email";
+  const stage: Stage = advanced ?? (askFeedback ? "feedback" : nextAfterFeedback);
 
   useEffect(() => {
-    if (isClient && !session) {
-      router.replace(nextPaywall ? "/paywall" : "/");
+    if (stage === "email") track("email_prompt_viewed", { source: "done" });
+  }, [stage]);
+
+  if (!isClient) return null;
+
+  const benefit = session ? getDurationBenefit(session.durationMin) : undefined;
+  const minutesLabel = session ? `${session.durationMin} minutes` : "Two minutes";
+
+  function submitFeedback(value: PerceivedEffect) {
+    setEffect(value);
+    if (session) {
+      recordFeedback(session.sessionId, value);
+      track("reset_feedback_submitted", {
+        perceived_effect: value,
+        program_id: session.programId,
+        need: session.primaryNeed,
+      });
+      void fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: session.sessionId,
+          programId: session.programId,
+          perceivedEffect: value,
+        }),
+      }).catch(() => {});
     }
-  }, [isClient, session, router, nextPaywall]);
+    setAdvanced(nextAfterFeedback);
+  }
 
-  useEffect(() => {
-    if (!session) return;
-    playCelebrationTune(session.finishedAt);
-  }, [session]);
-
-  const completedNames = useMemo(
-    () =>
-      (session?.completedExerciseIds ?? [])
-        .map((id) => getExercise(id)?.name)
-        .filter((name): name is string => Boolean(name)),
-    [session],
-  );
-  const skippedNames = useMemo(
-    () =>
-      (session?.skippedExerciseIds ?? [])
-        .map((id) => getExercise(id)?.name)
-        .filter((name): name is string => Boolean(name)),
-    [session],
-  );
-
-  const summary = useMemo(() => {
-    if (!session) return "";
-    return buildSessionSummary({
-      programName: session.programName,
-      durationMin: session.durationMin,
-      completedNames,
-      skippedNames,
-      streak,
-      elapsedSec: session.elapsedSec,
-    });
-  }, [session, completedNames, skippedNames, streak]);
-
-  async function copySummary() {
-    if (!summary) return;
+  async function submitEmail(event: React.FormEvent) {
+    event.preventDefault();
+    const trimmed = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) {
+      setEmailError("That doesn't look like an email address.");
+      return;
+    }
+    setSubmitting(true);
+    setEmailError(null);
     try {
-      await navigator.clipboard.writeText(summary);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
+      const response = await fetch("/api/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: trimmed,
+          anonymousId: ensureAnonymousId(),
+          primaryNeed: state.primaryNeed,
+          preferredSetup: state.preferredSetup,
+          attribution: {
+            source: state.attribution.firstUtmSource,
+            medium: state.attribution.firstUtmMedium,
+            campaign: state.attribution.firstUtmCampaign,
+            content: state.attribution.firstUtmContent,
+            landingPath: state.attribution.firstLandingPath,
+          },
+        }),
+      });
+      if (!response.ok) throw new Error("email_failed");
+      saveEmail(trimmed);
+      track("email_submitted", { source: "done", need: state.primaryNeed });
+      setAdvanced("wrap");
     } catch {
-      setCopied(false);
+      setEmailError("We couldn't save that just now. You can add it in Settings.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
-  if (!session) {
-    return <div className="min-h-dvh bg-paper" />;
+  function skipEmail() {
+    dismissEmailPrompt();
+    track("email_skipped", { source: "done" });
+    setAdvanced("wrap");
   }
 
-  const headline = headlineForSession(session.finishedAt, session.programId);
-  const streakLabel = streak > 0 ? `🔥 ${streak}-day groove` : "Quiet flex";
-  const moreHref = `/workout/${session.programId}`;
+  function continueOn() {
+    // Free users see the offer once the reset has actually proved something.
+    if (!pro) {
+      router.push(`/app/pro?from=done&need=${state.primaryNeed ?? "general"}`);
+      return;
+    }
+    router.push("/app");
+  }
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-hidden px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
-      <Celebration theme={theme} />
-
-      <main className="relative z-10 flex flex-1 flex-col items-center text-center">
+    <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
+      <div className="flex justify-center">
         <CharacterArt
           pose="done"
-          size={180}
-          alt="Stretch — that's a break"
-          className="mt-2 animate-[popIn_320ms_cubic-bezier(0.34,1.45,0.64,1)]"
+          setup={session?.setup}
+          size={190}
+          alt="Stretch, done and noticeably less folded"
         />
-
-        <h1 className="mt-4 font-display text-[2.35rem] font-semibold leading-none tracking-tight text-ink animate-[stepIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]">
-          {headline}
-        </h1>
-        <p className="mt-3 max-w-[20rem] text-[1.05rem] leading-relaxed text-ink/65">
-          {session.programName} in the books.
-        </p>
-
-        <div className="mt-8 flex items-center gap-2 rounded-full bg-white px-5 py-3 text-ink shadow-[0_4px_0_rgba(28,25,23,0.06)] animate-[popIn_300ms_cubic-bezier(0.34,1.45,0.64,1)]">
-          <p className="text-base font-semibold">{streakLabel}</p>
-        </div>
-        {pro ? (
-          <p className="mt-3 text-sm font-semibold text-ink/50">{app.progress.xp} XP</p>
-        ) : null}
-
-        <section className="mt-8 w-full rounded-[28px] bg-white p-5 text-left shadow-[0_5px_0_rgba(28,25,23,0.06)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-coral">
-            Summary
-          </p>
-          <p className="mt-2 font-display text-xl font-semibold text-ink">
-            {completedNames.length} move{completedNames.length === 1 ? "" : "s"} done
-          </p>
-          {completedNames.length === 0 ? (
-            <p className="mt-3 text-sm text-ink/55">You showed up. That still counts.</p>
-          ) : (
-            <ul className="mt-3 space-y-1 text-sm text-ink/65">
-              {completedNames.map((name, index) => (
-                <li key={`${name}-${index}`}>• {name}</li>
-              ))}
-            </ul>
-          )}
-          {skippedNames.length > 0 && (
-            <p className="mt-3 text-sm text-ink/45">Skipped: {skippedNames.join(", ")}</p>
-          )}
-        </section>
-      </main>
-
-      <div className="relative z-10 mt-6 flex flex-col gap-3">
-        {nextPaywall ? (
-          <>
-            <ButtonLink href="/paywall?from=firstWin">See what Pro unlocks</ButtonLink>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                markPaywallSeen();
-                router.replace("/");
-              }}
-            >
-              Back to desk
-            </Button>
-          </>
-        ) : (
-          <>
-            <ButtonLink href="/">Back to desk</ButtonLink>
-            <ButtonLink href={moreHref} variant="ghost">
-              One more?
-            </ButtonLink>
-            <Button variant={copied ? "mint" : "ghost"} onClick={copySummary}>
-              {copied ? "Copied" : "Copy summary"}
-            </Button>
-          </>
-        )}
       </div>
+
+      <h1 className="mt-4 text-center font-display text-[2rem] font-semibold leading-tight tracking-tight text-ink">
+        Nice. {minutesLabel} done.
+      </h1>
+
+      {stage === "feedback" && askFeedback ? (
+        <>
+          <p className="mt-2 text-center text-ink/60">
+            Before you disappear back into your laptop...
+          </p>
+          <p className="mt-8 text-center font-display text-xl font-semibold text-ink">
+            Did that help?
+          </p>
+          <div className="mt-4 grid gap-3">
+            <Button onClick={() => submitFeedback("better")}>Yep, I feel better</Button>
+            <Button variant="ghost" onClick={() => submitFeedback("somewhat")}>
+              A little
+            </Button>
+            <Button variant="ghost" onClick={() => submitFeedback("not_better")}>
+              Not really
+            </Button>
+          </div>
+        </>
+      ) : null}
+
+      {stage === "email" ? (
+        <>
+          {effect ? (
+            <p className="mt-3 text-center text-[1.05rem] text-ink/70">
+              {FEEDBACK_RESPONSES[effect]}
+            </p>
+          ) : null}
+          <form onSubmit={submitEmail} className="mt-8">
+            <h2 className="font-display text-xl font-semibold text-ink">
+              Want tomorrow&apos;s DeskBreak?
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-ink/60">
+              We&apos;ll send one tiny reminder. No productivity newsletter avalanche.
+            </p>
+            <label htmlFor="done-email" className="sr-only">
+              Your email address
+            </label>
+            <input
+              id="done-email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              placeholder="you@work.com"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              className="mt-4 min-h-14 w-full rounded-[22px] border-2 border-ink/12 bg-white px-5 text-base text-ink outline-none focus-visible:border-coral"
+            />
+            {emailError ? (
+              <p className="mt-2 text-sm font-semibold text-coral" role="alert">
+                {emailError}
+              </p>
+            ) : null}
+            <div className="mt-4 grid gap-3">
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "Sending..." : "Send it to me"}
+              </Button>
+              <Button variant="ghost" onClick={skipEmail}>
+                Not now
+              </Button>
+            </div>
+          </form>
+        </>
+      ) : null}
+
+      {stage === "wrap" ? (
+        <>
+          {effect ? (
+            <p className="mt-3 text-center text-[1.05rem] text-ink/70">
+              {FEEDBACK_RESPONSES[effect]}
+            </p>
+          ) : benefit ? (
+            <p className="mt-3 text-center text-[1.05rem] text-ink/70">
+              {benefit.doneLine}
+            </p>
+          ) : null}
+
+          <dl className="mt-8 grid grid-cols-2 gap-3">
+            <div className="rounded-[22px] bg-white px-4 py-5 text-center shadow-[0_4px_0_rgba(28,25,23,0.06)]">
+              <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+                Streak
+              </dt>
+              <dd className="mt-1 font-display text-2xl font-semibold text-ink">
+                {state.progress.streak}{" "}
+                <span className="text-base text-ink/50">
+                  day{state.progress.streak === 1 ? "" : "s"}
+                </span>
+              </dd>
+            </div>
+            <div className="rounded-[22px] bg-white px-4 py-5 text-center shadow-[0_4px_0_rgba(28,25,23,0.06)]">
+              <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+                DeskBreaks
+              </dt>
+              <dd className="mt-1 font-display text-2xl font-semibold text-ink">
+                {state.progress.totalWorkouts}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="mt-6">
+            <InstallPrompt />
+          </div>
+
+          <div className="mt-auto pt-8">
+            <Button onClick={continueOn}>
+              {pro ? "Back to DeskBreak" : "Keep going"}
+            </Button>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }
-
-const DONE_HEADLINES = [
-  "That’s a break.",
-  "Shoulders say thanks.",
-  "Back to it — lighter.",
-] as const;
-
-function headlineForSession(finishedAt: string, programId: string): string {
-  const seed = `${finishedAt}:${programId}`;
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash = (hash + seed.charCodeAt(i) * (i + 1)) % DONE_HEADLINES.length;
-  }
-  return DONE_HEADLINES[hash] ?? DONE_HEADLINES[0];
-}
-
-function Celebration({ theme }: { theme: CelebrationTheme }) {
-  const bits =
-    theme === "classic"
-      ? CLASSIC_BITS
-      : theme === "spark"
-        ? SPARK_BITS
-        : [...CLASSIC_BITS, ...EXTRA_BITS];
-
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-      {bits.map((bit, i) => (
-        <span
-          key={`${theme}-${i}`}
-          className={
-            theme === "spark"
-              ? "absolute top-[18%] h-2 w-2 rounded-full animate-[popIn_320ms_cubic-bezier(0.34,1.45,0.64,1)]"
-              : "absolute top-[-12px] h-3 w-2.5 rounded-[2px] animate-[confettiFall_900ms_cubic-bezier(0.2,0.8,0.2,1)_forwards]"
-          }
-          style={{
-            left: bit.left,
-            background: bit.color,
-            animationDelay: bit.delay,
-            transform: `rotate(${bit.rotate}deg)`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-const CLASSIC_BITS = [
-  { left: "8%", delay: "0ms", color: "#FF5A36", rotate: 18 },
-  { left: "22%", delay: "40ms", color: "#2DD4A8", rotate: -12 },
-  { left: "38%", delay: "90ms", color: "#FF5A36", rotate: 28 },
-  { left: "55%", delay: "20ms", color: "#1C1917", rotate: -22 },
-  { left: "70%", delay: "70ms", color: "#2DD4A8", rotate: 14 },
-  { left: "84%", delay: "110ms", color: "#FF5A36", rotate: -8 },
-  { left: "14%", delay: "150ms", color: "#2DD4A8", rotate: 40 },
-  { left: "47%", delay: "180ms", color: "#FF5A36", rotate: -30 },
-  { left: "63%", delay: "130ms", color: "#1C1917", rotate: 8 },
-  { left: "91%", delay: "60ms", color: "#2DD4A8", rotate: -18 },
-];
-
-const EXTRA_BITS = [
-  { left: "5%", delay: "200ms", color: "#2DD4A8", rotate: 12 },
-  { left: "31%", delay: "240ms", color: "#FF5A36", rotate: -16 },
-  { left: "58%", delay: "210ms", color: "#2DD4A8", rotate: 24 },
-  { left: "76%", delay: "260ms", color: "#FF5A36", rotate: -6 },
-  { left: "95%", delay: "190ms", color: "#1C1917", rotate: 32 },
-];
-
-const SPARK_BITS = [
-  { left: "30%", delay: "0ms", color: "#2DD4A8", rotate: 0 },
-  { left: "46%", delay: "40ms", color: "#FF5A36", rotate: 0 },
-  { left: "62%", delay: "80ms", color: "#2DD4A8", rotate: 0 },
-  { left: "38%", delay: "120ms", color: "#FF5A36", rotate: 0 },
-  { left: "54%", delay: "160ms", color: "#1C1917", rotate: 0 },
-];

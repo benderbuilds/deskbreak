@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getExercises, getProgram } from "./content";
+import { getExercisesById } from "./content";
 import { resolveProgramSteps, type ResolvedStep } from "./format";
-import type { GoalId, SetupId } from "./types";
+import type { Program } from "./types";
 
-export type WorkoutStatus = "idle" | "running" | "paused" | "complete";
+export type WorkoutStatus = "running" | "paused" | "complete";
 
 export type WorkoutEngine = {
   status: WorkoutStatus;
@@ -13,7 +13,6 @@ export type WorkoutEngine = {
   current: ResolvedStep | null;
   stepIndex: number;
   remainingSec: number;
-  remainingMs: number;
   elapsedSec: number;
   progress: number;
   completedIds: string[];
@@ -27,23 +26,20 @@ export type WorkoutEngine = {
 const TICK_MS = 100;
 
 export function useWorkoutEngine(
-  programId: string,
-  setup?: SetupId | null,
-  goal?: GoalId | null,
+  program: Program | null,
+  startAtIndex = 0,
 ): WorkoutEngine {
-  const program = getProgram(programId);
-  const steps = useMemo(() => {
-    if (!program) return [];
-    const byId = new Map(getExercises().map((exercise) => [exercise.id, exercise]));
-    return resolveProgramSteps(program, byId, setup, goal);
-  }, [program, setup, goal]);
-
-  const [status, setStatus] = useState<WorkoutStatus>(
-    steps.length ? "running" : "idle",
+  const steps = useMemo(
+    () => (program ? resolveProgramSteps(program, getExercisesById()) : []),
+    [program],
   );
-  const [stepIndex, setStepIndex] = useState(0);
+
+  const initialIndex = Math.min(Math.max(0, startAtIndex), Math.max(0, steps.length - 1));
+
+  const [status, setStatus] = useState<WorkoutStatus>("running");
+  const [stepIndex, setStepIndex] = useState(initialIndex);
   const [remainingMs, setRemainingMs] = useState(
-    (steps[0]?.durationSec ?? 0) * 1000,
+    (steps[initialIndex]?.durationSec ?? 0) * 1000,
   );
   const [elapsedMs, setElapsedMs] = useState(0);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
@@ -78,22 +74,21 @@ export function useWorkoutEngine(
     (mode: "complete" | "skip") => {
       if (advancingRef.current) return;
       advancingRef.current = true;
+
       const current = stepsRef.current[stepIndexRef.current];
       if (!current) {
         setStatus("complete");
         return;
       }
-      if (mode === "skip") {
-        setSkippedIds((ids) =>
-          ids.includes(current.exercise.id) ? ids : [...ids, current.exercise.id],
-        );
-      } else {
-        setCompletedIds((ids) =>
-          ids.includes(current.exercise.id) ? ids : [...ids, current.exercise.id],
-        );
-      }
+
+      const collect = mode === "skip" ? setSkippedIds : setCompletedIds;
+      collect((ids) =>
+        ids.includes(current.exercise.id) ? ids : [...ids, current.exercise.id],
+      );
+
       let nextIndex = stepIndexRef.current + 1;
       if (mode === "skip") {
+        // Skipping the left side skips the right side too; nobody wants half.
         const paired = stepsRef.current[nextIndex];
         if (
           current.side === "left" &&
@@ -103,6 +98,7 @@ export function useWorkoutEngine(
           nextIndex += 1;
         }
       }
+
       if (nextIndex >= stepsRef.current.length) {
         setRemainingMs(0);
         setStatus("complete");
@@ -129,13 +125,11 @@ export function useWorkoutEngine(
   }, [status, finishCurrent]);
 
   const pause = useCallback(() => {
-    if (statusRef.current !== "running") return;
-    setStatus("paused");
+    if (statusRef.current === "running") setStatus("paused");
   }, []);
 
   const resume = useCallback(() => {
-    if (statusRef.current !== "paused") return;
-    setStatus("running");
+    if (statusRef.current === "paused") setStatus("running");
   }, []);
 
   const next = useCallback(() => finishCurrent("complete"), [finishCurrent]);
@@ -153,7 +147,6 @@ export function useWorkoutEngine(
     current,
     stepIndex,
     remainingSec: remainingMs / 1000,
-    remainingMs,
     elapsedSec: elapsedMs / 1000,
     progress: totalMs === 0 ? 0 : Math.min(1, consumedMs / totalMs),
     completedIds,

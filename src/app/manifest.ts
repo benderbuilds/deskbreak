@@ -5,8 +5,9 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "DeskBreak",
     short_name: "DeskBreak",
     description:
-      "One-tap office workouts and desk exercises. No equipment. Progress without guilt.",
-    start_url: "/",
+      "Tiny guided movement breaks for stiff necks, tight backs, tired shoulders, and desk-brain.",
+    start_url: "/app",
+    scope: "/",
     display: "standalone",
     background_color: "#F7F4EF",
     theme_color: "#FF5A36",

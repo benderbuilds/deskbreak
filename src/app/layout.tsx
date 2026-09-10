@@ -1,16 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import Script from "next/script";
 import { Fraunces, Inter } from "next/font/google";
-import { AppFrame } from "@/components/AppFrame";
+import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { INSTALL_CAPTURE_SCRIPT } from "@/lib/pwa-install";
+import { PRODUCT_SUBHEAD } from "@/lib/constants";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-fraunces",
@@ -18,16 +15,15 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "DeskBreak — 2-minute desk exercises while working",
-  description:
-    "One-tap office workouts and desk exercises for workers. A 2-minute Desk Reset, plus a home workout routine for busy days. No equipment. Free forever for the 2-minute habit.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.app"),
+  title: {
+    default: "DeskBreak - feel better at your desk in 2 minutes",
+    template: "%s | DeskBreak",
+  },
+  description: PRODUCT_SUBHEAD,
   applicationName: "DeskBreak",
   manifest: "/manifest.webmanifest",
-  appleWebApp: {
-    capable: true,
-    title: "DeskBreak",
-    statusBarStyle: "default",
-  },
+  appleWebApp: { capable: true, title: "DeskBreak", statusBarStyle: "default" },
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -40,9 +36,8 @@ export const metadata: Metadata = {
     apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
   },
   openGraph: {
-    title: "DeskBreak — desk exercises while working",
-    description:
-      "Office workouts and desk exercises that fit between meetings. Two minutes. No equipment.",
+    title: "DeskBreak - feel better at your desk in 2 minutes",
+    description: PRODUCT_SUBHEAD,
     type: "website",
   },
 };
@@ -54,20 +49,20 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
       className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-paper font-sans text-ink">
-        <Script
-          id="deskbreak-pwa-install"
-          strategy="beforeInteractive"
-        >
+        <Script id="deskbreak-pwa-install" strategy="beforeInteractive">
           {INSTALL_CAPTURE_SCRIPT}
         </Script>
-        <AppFrame>{children}</AppFrame>
+        {children}
+        <Suspense fallback={null}>
+          <AnalyticsProvider />
+        </Suspense>
       </body>
     </html>
   );
