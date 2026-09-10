@@ -3,7 +3,12 @@
 import { Button, ButtonLink } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
 import { ProBadge } from "@/components/ProBadge";
-import { ANNUAL_PER_MONTH, ANNUAL_PRICE_USD, MONTHLY_COMPARE_USD } from "@/lib/constants";
+import {
+  ANNUAL_DISCOUNT_PERCENT,
+  ANNUAL_LIST_PRICE_USD,
+  ANNUAL_PER_MONTH,
+  ANNUAL_PRICE_USD,
+} from "@/lib/constants";
 
 export function UpgradeSheet({
   open,
@@ -50,9 +55,9 @@ export function UpgradeSheet({
             "Lunch Reset, Busy-Day Circuit, and the full move library are part of DeskBreak Pro."}
         </p>
         <p className="mt-4 text-sm text-ink/70">
-          <span className="mr-2 text-ink/35 line-through">${MONTHLY_COMPARE_USD}/mo</span>
+          <span className="mr-2 text-ink/35 line-through">${ANNUAL_LIST_PRICE_USD}/year</span>
           <span className="font-semibold">${ANNUAL_PRICE_USD}/year</span>
-          {" "}— less than ${ANNUAL_PER_MONTH}/month, billed annually.
+          {" "}— {ANNUAL_DISCOUNT_PERCENT}% off. Less than ${ANNUAL_PER_MONTH}/month, billed annually.
         </p>
         <div className="mt-5 flex flex-col gap-2">
           <ButtonLink href="/paywall">See Free vs Pro</ButtonLink>
