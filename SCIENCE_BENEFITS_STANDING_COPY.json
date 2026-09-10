@@ -1,0 +1,202 @@
+{
+  "durationBenefits": {
+    "2": {
+      "cardLine": "Short moves ease stiffness and nudge alertness.",
+      "detail": "Research on active microbreaks suggests ~2\u20133 minutes of light movement can ease desk discomfort and help you stay sharper than sitting locked in one pose. Tiny resets also stack \u2014 how often you break up sitting matters, not just gym minutes.",
+      "doneLine": "Two minutes well spent. Your joints just got a meeting break."
+    },
+    "5": {
+      "cardLine": "Open hips and chest; wake energy mid-day.",
+      "detail": "Five minutes is enough to undo the laptop shape \u2014 hips, chest, upper back \u2014 and light standing work helps circulation after a sit block. Active breaks are also linked with less perceived fatigue than unbroken desk time.",
+      "doneLine": "Midday unkink complete. Blood moved. Brain slightly less mush."
+    },
+    "10": {
+      "cardLine": "Full desk-chain reset after a heavy sit day.",
+      "detail": "A longer circuit hits neck to calves in one pass \u2014 a real sit-interrupt, not just a stretch snack. Breaking up long sitting with light movement is studied for comfort and for how the body handles a sedentary day; breathe out slow at the end to leave work mode calmer.",
+      "doneLine": "Full-stack cleanup done. The chair can have you back \u2014 briefly."
+    }
+  },
+  "onboardingBenefits": {
+    "beat": "Quick resets beat heroic workouts you\u2019ll skip.",
+    "pills": {
+      "2": "Interrupt the sit",
+      "5": "Posture + energy",
+      "10": "Full-day cleanup"
+    }
+  },
+  "whySheetTitle": "Why two minutes still count",
+  "programs": {
+    "desk-reset-2min": {
+      "setup": "seated",
+      "cardVariant": "featuredCoral",
+      "label": "Seated \u00b7 2 min",
+      "badge": "At the desk \u00b7 seated",
+      "heroExerciseId": "chin-tuck",
+      "activeKicker": "Still in the chair. Still counts.",
+      "cardLine": "Short moves ease stiffness and nudge alertness.",
+      "detail": "Research on active microbreaks suggests ~2\u20133 minutes of light movement can ease desk discomfort and help you stay sharper than sitting locked in one pose. Tiny resets also stack \u2014 how often you break up sitting matters, not just gym minutes.",
+      "doneLine": "Two minutes well spent. Your joints just got a meeting break.",
+      "tagline": "Prefer to stay seated? Same two minutes, chair edition.",
+      "startPrompt": "No need to stand \u2014 this one\u2019s built for the chair.",
+      "isDefaultFree": false,
+      "homePriority": 2,
+      "alternateLabel": "Prefer seated?"
+    },
+    "desk-reset-2min-standing": {
+      "id": "desk-reset-2min-standing",
+      "name": "2-min Standing Desk Reset",
+      "durationTargetSec": 120,
+      "access": "free",
+      "position": "standing",
+      "seoHook": "desk exercises while working",
+      "tagline": "Two minutes on your feet \u2014 the default desk reset.",
+      "startPrompt": "Push back and stand if you can. Chair version is one tap away.",
+      "goal": "Upright stack, hip flexor open, calf pump, glute wake \u2014 standing-native, not a seated swap.",
+      "benefitHeadline": "Interrupt the sit before it stacks up",
+      "benefitUi": "Same 2-minute sit-interrupt idea \u2014 but standing-native: hips, calves, and upright stack instead of chair figure-4 and seated wrists.",
+      "benefitBlurbs": [
+        {
+          "id": "discomfort",
+          "title": "Ease desk stiffness",
+          "body": "Short active microbreaks (about 2\u20133 minutes of light movement) are linked with less perceived musculoskeletal discomfort versus staying locked in one posture.",
+          "mechanism": "Changing joint angles and lightly loading muscles reduces continuous tissue strain from static sitting."
+        },
+        {
+          "id": "focus",
+          "title": "Protect alertness",
+          "body": "Breaking long sits with brief light activity helps counter the dip in how awake and sharp people feel during unbroken desk work.",
+          "mechanism": "Posture change + light muscle work; related research on walking breaks shows they can help maintain cerebral blood flow that otherwise drifts down with prolonged sitting."
+        },
+        {
+          "id": "habit",
+          "title": "Feasible every meeting gap",
+          "body": "Tiny resets are easier to repeat than a workout \u2014 and frequency of sit-breaks matters as much as total exercise minutes for many desk-day effects.",
+          "mechanism": "Habit stacking: short bouts accumulate across the day without needing a gym or outfit change."
+        }
+      ],
+      "pairedWith": "desk-reset-2min",
+      "steps": [
+        {
+          "exerciseId": "standing-posture-reset",
+          "dose": {
+            "type": "holdSec",
+            "seconds": 20
+          },
+          "stretchView": "side",
+          "stretchAsset": "standing-posture-reset.svg",
+          "stretchAssetB": "standing-posture-reset-b.svg"
+        },
+        {
+          "exerciseId": "chin-tuck",
+          "dose": {
+            "type": "reps",
+            "reps": 8
+          },
+          "positionCue": "Stand tall. Slide your chin straight back (soft double chin). Eyes level \u2014 don\u2019t tip the nose down.",
+          "stretchView": "side",
+          "stretchAsset": "chin-tuck-standing.svg",
+          "stretchAssetB": "chin-tuck-standing-b.svg",
+          "assetStatus": "needs_art",
+          "stretchAssetFallback": "chin-tuck.svg"
+        },
+        {
+          "exerciseId": "unshrug",
+          "dose": {
+            "type": "repsHold",
+            "reps": 6,
+            "holdSec": 3
+          },
+          "stretchView": "front",
+          "stretchAsset": "unshrug.svg",
+          "stretchAssetB": "unshrug-b.svg"
+        },
+        {
+          "exerciseId": "standing-hip-flexor",
+          "dose": {
+            "type": "holdSecEachSide",
+            "seconds": 15
+          },
+          "stretchView": "side",
+          "stretchAsset": "standing-hip-flexor.svg",
+          "stretchAssetB": "standing-hip-flexor-b.svg"
+        },
+        {
+          "exerciseId": "calf-raise",
+          "dose": {
+            "type": "reps",
+            "reps": 10
+          },
+          "stretchView": "front",
+          "stretchAsset": "calf-raise.svg",
+          "stretchAssetB": "calf-raise-b.svg"
+        },
+        {
+          "exerciseId": "standing-glute-squeeze",
+          "dose": {
+            "type": "repsHold",
+            "reps": 8,
+            "holdSec": 3
+          },
+          "stretchView": "front",
+          "stretchAsset": "standing-glute-squeeze.svg",
+          "stretchAssetB": "standing-glute-squeeze-b.svg"
+        },
+        {
+          "exerciseId": "standing-wrist-shake",
+          "dose": {
+            "type": "holdSec",
+            "seconds": 15
+          },
+          "stretchView": "front",
+          "stretchAsset": "standing-wrist-shake.svg",
+          "stretchAssetB": "standing-wrist-shake-b.svg"
+        },
+        {
+          "exerciseId": "long-exhale-reset",
+          "dose": {
+            "type": "breaths",
+            "breaths": 3
+          },
+          "positionCue": "Stand with soft knees. Inhale through the nose, then sigh out through the mouth longer than the inhale. Soft shoulders.",
+          "stretchView": "side",
+          "stretchAsset": "long-exhale-reset-standing.svg",
+          "stretchAssetB": "long-exhale-reset-standing-b.svg",
+          "assetStatus": "needs_art",
+          "stretchAssetFallback": "long-exhale-reset.svg"
+        }
+      ],
+      "cardLine": "Short moves ease stiffness and nudge alertness.",
+      "benefitDetail": "Research on active microbreaks suggests ~2\u20133 minutes of light movement can ease desk discomfort and help you stay sharper than sitting locked in one pose. Tiny resets also stack \u2014 how often you break up sitting matters, not just gym minutes.",
+      "doneLine": "Two minutes well spent. Your joints just got a meeting break.",
+      "cardVariant": "featuredOutline",
+      "badge": "At the desk \u00b7 standing",
+      "label": "Standing \u00b7 2 min",
+      "activeKicker": "Stay tall. You\u2019re already up.",
+      "heroExerciseId": "standing-posture-reset",
+      "setup": "standing",
+      "isDefaultFree": true,
+      "homePriority": 1
+    }
+  },
+  "homeDefaultSetup": "standing",
+  "defaultFreeProgramId": "desk-reset-2min-standing",
+  "preferAlternateLabel": {
+    "whenFeaturingStanding": "Prefer seated?",
+    "whenFeaturingSeated": "Prefer standing?"
+  },
+  "productDefaults": {
+    "preferredSetup": "standing",
+    "featuredFreeProgramId": "desk-reset-2min-standing",
+    "alternateFreeProgramId": "desk-reset-2min",
+    "homeRule": "Unless user explicitly chose seated in onboarding/settings, feature standing 2-min (featuredOutline or coral per design). Seated demoted to Prefer seated? Both remain Free.",
+    "nudgeTone": "Encourage standing without guilt \u2014 never shame sitting."
+  },
+  "stretchAssetSelection": {
+    "rule": "For shared moves (position either) in a standing program: prefer `{exerciseId}-standing.svg` (+ `-standing-b.svg`). If missing, use `{exerciseId}.svg` fallback. Seated programs always use `{exerciseId}.svg`. Standing-only moves use `{exerciseId}.svg` (already standing masters).",
+    "sharedMoveIds": [
+      "chin-tuck",
+      "long-exhale-reset",
+      "shoulder-rolls"
+    ]
+  }
+}

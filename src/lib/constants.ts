@@ -1,4 +1,4 @@
-export const FIRST_WIN_PROGRAM_ID = "desk-reset-2min";
+export const FIRST_WIN_PROGRAM_ID = "desk-reset-2min-standing";
 export const SEATED_RESET_ID = "desk-reset-2min";
 export const STANDING_RESET_ID = "desk-reset-2min-standing";
 
@@ -6,16 +6,27 @@ export function isDeskResetId(programId: string): boolean {
   return programId === SEATED_RESET_ID || programId === STANDING_RESET_ID;
 }
 
+/** Standing is the default hero unless the user explicitly chose seated. */
 export function featuredResetId(
   setup: "seated" | "standing" | null | undefined,
 ): string {
-  return setup === "standing" ? STANDING_RESET_ID : SEATED_RESET_ID;
+  return setup === "seated" ? SEATED_RESET_ID : STANDING_RESET_ID;
 }
 
 export function alternateResetId(
   setup: "seated" | "standing" | null | undefined,
 ): string {
-  return setup === "standing" ? SEATED_RESET_ID : STANDING_RESET_ID;
+  return featuredResetId(setup) === STANDING_RESET_ID
+    ? SEATED_RESET_ID
+    : STANDING_RESET_ID;
+}
+
+export function preferAlternateLabel(
+  setup: "seated" | "standing" | null | undefined,
+): string {
+  return featuredResetId(setup) === STANDING_RESET_ID
+    ? "Prefer seated?"
+    : "Prefer standing?";
 }
 
 export const HOME_START_NUDGE = "Meeting gap? Hit reset before Slack wins.";

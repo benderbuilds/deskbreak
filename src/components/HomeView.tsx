@@ -13,6 +13,7 @@ import {
   featuredResetId,
   GOAL_COPY,
   HOME_START_NUDGE,
+  preferAlternateLabel,
   SETUP_COPY,
 } from "@/lib/constants";
 import { isProEntitlement, isProgramLocked } from "@/lib/entitlements";
@@ -67,7 +68,7 @@ export function HomeView() {
 
   const sub = setup
     ? SETUP_COPY[setup].hint
-    : "Two minutes. Still at your desk. Actually feel better.";
+    : "Two minutes on your feet if you can. Chair version is one tap away.";
 
   const reminderDue =
     isClient &&
@@ -137,22 +138,18 @@ export function HomeView() {
           {startProgram ? (
             <div className="relative">
               <div className="flex justify-center">
-                {standingHero ? (
-                  <CharacterArt
-                    pose="exercise"
-                    exerciseId="standing-posture-reset"
-                    size={172}
-                    tappable
-                    alt="Stretch standing for a desk break"
-                  />
-                ) : (
-                  <CharacterArt
-                    pose="idle"
-                    size={172}
-                    tappable
-                    alt="Stretch ready for a desk break"
-                  />
-                )}
+                <CharacterArt
+                  pose="idle"
+                  setup={standingHero ? "standing" : "seated"}
+                  programId={startProgram.id}
+                  size={172}
+                  tappable
+                  alt={
+                    standingHero
+                      ? "Stretch standing for a desk break"
+                      : "Stretch ready for a desk break"
+                  }
+                />
               </div>
               <div className="relative z-10 -mt-9">
                 <ProgramCard
@@ -178,7 +175,7 @@ export function HomeView() {
               href={`/workout/${alternateProgram.id}`}
               className="min-h-11 text-left text-sm font-semibold text-ink/45"
             >
-              {setup === "standing" ? "Prefer seated?" : "Prefer standing?"} →
+              {preferAlternateLabel(setup)} →
             </Link>
           ) : null}
 
@@ -255,6 +252,7 @@ function ProgramCard({
   const outlineHero = featured && standing;
   const filledHero = featured && !standing;
   const benefit = benefitsForProgram(program);
+  const whyTitle = getProgramBenefits()?.whySheetTitle;
 
   const className = [
     "rounded-[28px] p-5 outline-none text-left w-full",
@@ -359,9 +357,21 @@ function ProgramCard({
             Why this helps
           </button>
           {whyOpen ? (
-            <p className={["mt-2 text-xs leading-relaxed", muted].join(" ")}>
-              {benefit.whyThisHelps}
-            </p>
+            <div className="mt-2">
+              {whyTitle ? (
+                <p
+                  className={[
+                    "font-display text-sm font-semibold",
+                    filledHero ? "text-white" : "text-ink",
+                  ].join(" ")}
+                >
+                  {whyTitle}
+                </p>
+              ) : null}
+              <p className={["mt-1 text-xs leading-relaxed", muted].join(" ")}>
+                {benefit.whyThisHelps}
+              </p>
+            </div>
           ) : null}
         </div>
       ) : null}

@@ -173,13 +173,13 @@ export function OnboardingView() {
           <CopyStep
             kicker="First win"
             title={
-              setup === "standing"
-                ? "Take the standing 2-min Desk Reset before anything else."
-                : "Take the 2-min Desk Reset before anything else."
+              setup === "seated"
+                ? "Take the 2-min Desk Reset before anything else."
+                : "Take the standing 2-min Desk Reset before anything else."
             }
             body="Feel one actual break. Then we’ll show Free vs Pro. You can stay on the 2-minute reset forever — no card required."
             showStretch
-            stretchStanding={setup === "standing"}
+            stretchStanding={setup !== "seated"}
           />
         )}
       </main>
@@ -191,7 +191,7 @@ export function OnboardingView() {
       ) : (
         <div className="flex flex-col gap-3">
           <Button onClick={goFirstWin}>
-            {setup === "standing" ? "Start my standing reset" : "Start my 2-min reset"}
+            {setup === "seated" ? "Start my 2-min reset" : "Start my standing reset"}
           </Button>
           <button
             type="button"
@@ -232,8 +232,9 @@ function CopyStep({
         <div className="mt-6 flex justify-center">
           {stretchStanding ? (
             <CharacterArt
-              pose="exercise"
-              exerciseId="standing-posture-reset"
+              pose="idle"
+              setup="standing"
+              programId="desk-reset-2min-standing"
               size={168}
               alt="Stretch standing"
             />
@@ -256,10 +257,10 @@ function BenefitsBeat() {
         Why it helps
       </p>
       <h1 className="mt-3 font-display text-[1.85rem] font-semibold leading-[1.12] tracking-tight text-ink">
-        Two, five, or ten. That’s the whole menu.
+        {benefits?.onboardingBeat ?? "Quick resets beat heroic workouts you’ll skip."}
       </h1>
       <p className="mt-3 text-[1.05rem] leading-relaxed text-ink/65">
-        Pick a gap in the day. The rest is optional.
+        Two, five, or ten minutes. Pick a gap. That’s the menu.
       </p>
       <div className="mt-6 flex flex-col gap-2">
         {BENEFIT_PILLS.map((pill) => (

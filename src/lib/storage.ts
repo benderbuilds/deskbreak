@@ -184,6 +184,13 @@ export function saveOnboardingAnswers(answers: OnboardingAnswers): void {
   }));
 }
 
+export function saveSetup(setup: OnboardingAnswers["setup"]): void {
+  patchAppState((state) => ({
+    ...state,
+    onboardingAnswers: { ...state.onboardingAnswers, setup },
+  }));
+}
+
 export function markFirstWinComplete(): void {
   patchAppState((state) => ({ ...state, firstWinComplete: true }));
 }

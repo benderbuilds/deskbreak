@@ -87,6 +87,8 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
       <main className="relative z-10 flex flex-1 flex-col items-center text-center">
         <CharacterArt
           pose="done"
+          setup={getProgram(session.programId)?.stance}
+          programId={session.programId}
           size={180}
           alt="Stretch — that's a break"
           className="mt-2 animate-[popIn_320ms_cubic-bezier(0.34,1.45,0.64,1)]"

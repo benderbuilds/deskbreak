@@ -1,4 +1,4 @@
-import type { Dose, Exercise, Program, ProgramStep, GoalId, SetupId } from "./types";
+import type { Dose, Exercise, Program, ProgramStep, GoalId, SetupId, StretchView } from "./types";
 import { stepsForGoal } from "./goal-steps";
 import { stepsForSetup } from "./setup-steps";
 
@@ -8,6 +8,26 @@ export type ResolvedStep = {
   exercise: Exercise;
   durationSec: number;
 };
+
+type SetupVariant = {
+  cue?: string;
+  stretchView?: StretchView;
+  stretchAsset?: string;
+  stretchAssetB?: string;
+};
+
+function variantForPose(
+  exercise: Exercise,
+  pose: SetupId | null | undefined,
+): SetupVariant | undefined {
+  if (pose !== "seated" && pose !== "standing") return undefined;
+  const variants = (
+    exercise as Exercise & {
+      setupVariants?: { seated?: SetupVariant; standing?: SetupVariant };
+    }
+  ).setupVariants;
+  return variants?.[pose];
+}
 
 export function resolveProgramSteps(
   program: Program,
@@ -20,6 +40,7 @@ export function resolveProgramSteps(
     goal,
     program.id,
   );
+  const pose = program.stance ?? setup;
   return prepared.map((step, index) => {
     const exercise = exercisesById.get(step.exerciseId);
     if (!exercise) {
@@ -27,10 +48,19 @@ export function resolveProgramSteps(
         `Program ${program.id} references missing exercise ${step.exerciseId}`,
       );
     }
+    const variant = variantForPose(exercise, pose);
     return {
       index,
       step,
-      exercise,
+      exercise: {
+        ...exercise,
+        cue: step.positionCue ?? variant?.cue ?? exercise.cue,
+        stretchView: step.stretchView ?? variant?.stretchView ?? exercise.stretchView,
+        stretchAsset:
+          step.stretchAsset ?? variant?.stretchAsset ?? exercise.stretchAsset,
+        stretchAssetB:
+          step.stretchAssetB ?? variant?.stretchAssetB ?? exercise.stretchAssetB,
+      },
       durationSec: step.durationSec,
     };
   });

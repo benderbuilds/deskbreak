@@ -5,17 +5,19 @@ import { useRouter } from "next/navigation";
 import { BottomNav } from "@/components/BottomNav";
 import { Button, ButtonLink } from "@/components/Button";
 import { ProBadge } from "@/components/ProBadge";
+import { SETUP_COPY } from "@/lib/constants";
 import { canDemoUnlock, isProEntitlement } from "@/lib/entitlements";
 import { formatHourLabel, requestReminderPermission } from "@/lib/reminders";
 import {
   resetOnboarding,
   saveSettings,
+  saveSetup,
   setCelebrationTheme,
   setPlanFree,
   unlockPro,
 } from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
-import type { CelebrationTheme } from "@/lib/types";
+import type { CelebrationTheme, SetupId } from "@/lib/types";
 
 const HOURS = [9, 10, 11, 12, 13, 14, 15, 16, 17];
 
@@ -105,6 +107,36 @@ export function SettingsView() {
                 Unlock Pro for demo
               </Button>
             ) : null}
+          </div>
+        </section>
+
+        <section className="mt-4 rounded-[24px] bg-white p-4 shadow-[0_4px_0_rgba(28,25,23,0.06)]">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/45">
+            Desk setup
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-ink/65">
+            Standing is the default 2-min reset. Switch to seated anytime — both stay Free.
+          </p>
+          <div className="mt-3 flex flex-col gap-2">
+            {(["standing", "seated"] as SetupId[]).map((id) => {
+              const active = state.onboardingAnswers.setup === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => saveSetup(id)}
+                  className={[
+                    "min-h-12 rounded-[18px] px-4 py-3 text-left",
+                    active ? "bg-ink text-paper" : "bg-paper text-ink/70",
+                  ].join(" ")}
+                >
+                  <span className="block text-sm font-semibold">{SETUP_COPY[id].label}</span>
+                  <span className={["block text-xs", active ? "text-paper/70" : "text-ink/50"].join(" ")}>
+                    {SETUP_COPY[id].hint}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </section>
 

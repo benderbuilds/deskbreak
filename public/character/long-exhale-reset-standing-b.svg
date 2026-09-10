@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch — Inhale standing">
+  <title>DeskBreak Stretch — Inhale standing</title>
+  <rect width="512" height="512" fill="none"/>
+  <ellipse cx="256" cy="470" rx="100" ry="10" fill="#E7E2DA" opacity="0.5"/>
+  <g>
+    <path d="M240,320 L214,450" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+    <path d="M272,320 L298,450" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+    <path d="M240,320 L214,450" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+    <path d="M272,320 L298,450" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="214" cy="456" rx="18" ry="8" fill="#1C1917"/>
+    <ellipse cx="298" cy="456" rx="18" ry="8" fill="#1C1917"/>
+  </g>
+<rect x="228.0" y="185" width="56" height="110" rx="22" fill="#FFFFFF" stroke="#1C1917" stroke-width="3.0"/>
+  <g>
+    <path d="M240,225 L245,260 L255,280" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M240,225 L245,260 L255,280" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="255" cy="280" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+  <g>
+    <path d="M272,225 L278,260 L268,280" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M272,225 L278,260 L268,280" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="268" cy="280" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+<circle cx="255" cy="280" r="8" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+<ellipse cx="256" cy="285" rx="36" ry="20" fill="none" stroke="#FF5A36" stroke-width="2" opacity="0.4" stroke-dasharray="4 4"/>
+  <g>
+    <circle cx="250" cy="140" r="34" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <path d="M220,136 Q242,102 270,112" fill="#1C1917"/>
+    <path d="M282,142 L296,148 L282,154 Z" fill="#F3E6D8" stroke="#1C1917" stroke-width="2"/>
+    <circle cx="260" cy="140" r="3" fill="#1C1917"/>
+  </g>
+</svg>

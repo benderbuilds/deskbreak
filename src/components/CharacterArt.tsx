@@ -6,7 +6,7 @@ import {
   hasMotionFrame,
   type CharacterPose,
 } from "@/lib/character-art";
-import type { BodyArea, StretchView } from "@/lib/types";
+import type { BodyArea, SetupId, StretchView } from "@/lib/types";
 
 const FALLBACK_SRC = "/character/stretch-fallback.svg";
 
@@ -17,6 +17,8 @@ export function CharacterArt({
   stretchAsset,
   stretchAssetB,
   stretchView,
+  setup,
+  programId,
   animate = false,
   tappable = false,
   alt = "Stretch",
@@ -29,6 +31,8 @@ export function CharacterArt({
   stretchAsset?: string;
   stretchAssetB?: string;
   stretchView?: StretchView;
+  setup?: SetupId | null;
+  programId?: string;
   animate?: boolean;
   tappable?: boolean;
   alt?: string;
@@ -49,6 +53,8 @@ export function CharacterArt({
       bodyArea,
       stretchAsset,
       stretchAssetB,
+      setup,
+      programId,
     });
 
   useEffect(() => {
@@ -56,7 +62,7 @@ export function CharacterArt({
     setUseFallback(false);
     setMotionDisabled(false);
     setFallbackFailed(false);
-  }, [exerciseId, pose, bodyArea, stretchAsset, stretchAssetB]);
+  }, [exerciseId, pose, bodyArea, stretchAsset, stretchAssetB, setup, programId]);
 
   useEffect(() => {
     if (!motion) return;
@@ -73,6 +79,8 @@ export function CharacterArt({
     stretchAsset,
     stretchAssetB,
     stretchView,
+    setup,
+    programId,
     frame: frameB && motion ? "b" : "a",
   });
   const src = useFallback ? FALLBACK_SRC : intended;

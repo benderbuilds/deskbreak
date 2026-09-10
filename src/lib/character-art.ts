@@ -1,4 +1,5 @@
-import type { BodyArea, StretchView } from "./types";
+import { STANDING_RESET_ID } from "./constants";
+import type { BodyArea, SetupId, StretchView } from "./types";
 
 export type CharacterPose = "exercise" | "idle" | "done" | "locked" | "fallback";
 
@@ -52,10 +53,11 @@ const EXERCISE_STEMS: Record<string, string> = {
   "seated-lumbar-support-reset": "seated-cat-cow",
   "standing-hip-hinge": "sit-to-stand-glute",
   "standing-hip-hinge-desk": "sit-to-stand-glute",
-  "standing-hip-flexor": "sit-to-stand-glute",
+  "standing-hip-flexor": "standing-hip-flexor",
   "hamstring-hinge": "sit-to-stand-glute",
   "glute-bridge": "sit-to-stand-glute",
-  "standing-glute-squeeze": "sit-to-stand-glute",
+  "standing-glute-squeeze": "standing-glute-squeeze",
+  "standing-wrist-shake": "standing-wrist-shake",
   "sit-to-stand": "sit-to-stand-glute",
   "sit-to-stand-glute": "sit-to-stand-glute",
   "pec-stretch-desk": "chest-opener",
@@ -89,10 +91,13 @@ const BODY_AREA_STEMS: Record<BodyArea, string> = {
 /** Stems that ship a same-plane `-b` motion frame. Hold-only / no-b masters omitted. */
 const MOTION_STEMS = new Set([
   "chin-tuck",
+  "chin-tuck-standing",
   "shoulder-rolls",
+  "shoulder-rolls-standing",
   "seated-cat-cow",
   "seated-scap-squeeze",
   "long-exhale-reset",
+  "long-exhale-reset-standing",
   "standing-posture-reset",
   "box-breathing",
   "wall-angels",
@@ -102,7 +107,33 @@ const MOTION_STEMS = new Set([
   "elbows-pinned-er-scap",
   "seated-thoracic-rotation",
   "seated-hip-windshield-wipers",
+  "standing-hip-flexor",
+  "standing-glute-squeeze",
+  "standing-wrist-shake",
 ]);
+
+/** Shared seated masters that ship a standing dual (`{id}-standing.svg`). */
+const SHARED_STANDING_DUALS = new Set([
+  "chin-tuck",
+  "long-exhale-reset",
+  "shoulder-rolls",
+]);
+
+function standingContext({
+  setup,
+  programId,
+  stretchAsset,
+}: {
+  setup?: SetupId | null;
+  programId?: string;
+  stretchAsset?: string;
+}): boolean {
+  return (
+    setup === "standing" ||
+    programId === STANDING_RESET_ID ||
+    Boolean(stretchAsset?.includes("standing"))
+  );
+}
 
 function stripSideSuffix(file: string): string {
   return file
@@ -138,12 +169,16 @@ export function hasMotionFrame({
   bodyArea,
   stretchAsset,
   stretchAssetB,
+  setup,
+  programId,
 }: {
   pose: CharacterPose;
   exerciseId?: string;
   bodyArea?: BodyArea;
   stretchAsset?: string;
   stretchAssetB?: string;
+  setup?: SetupId | null;
+  programId?: string;
 }): boolean {
   if (pose !== "exercise") return false;
   if (stretchAssetB) {
@@ -151,7 +186,12 @@ export function hasMotionFrame({
   }
   if (stretchAsset) return MOTION_STEMS.has(aliasedStem(stemFromAsset(stretchAsset)));
   if (!exerciseId) return false;
-  return MOTION_STEMS.has(stemForExercise(exerciseId, bodyArea));
+  const standing = standingContext({ setup, programId, stretchAsset });
+  const stem =
+    standing && SHARED_STANDING_DUALS.has(exerciseId)
+      ? `${exerciseId}-standing`
+      : stemForExercise(exerciseId, bodyArea);
+  return MOTION_STEMS.has(stem);
 }
 
 export function characterSrc({
@@ -161,6 +201,8 @@ export function characterSrc({
   frame = "a",
   stretchAsset,
   stretchAssetB,
+  setup,
+  programId,
 }: {
   pose: CharacterPose;
   exerciseId?: string;
@@ -169,9 +211,20 @@ export function characterSrc({
   stretchAsset?: string;
   stretchAssetB?: string;
   stretchView?: StretchView;
+  setup?: SetupId | null;
+  programId?: string;
 }): string {
-  if (pose === "idle") return "/character/stretch-idle.svg";
-  if (pose === "done") return "/character/stretch-done.svg";
+  const standing = standingContext({ setup, programId, stretchAsset });
+  if (pose === "idle") {
+    return standing
+      ? "/character/stretch-idle-standing.svg"
+      : "/character/stretch-idle.svg";
+  }
+  if (pose === "done") {
+    return standing
+      ? "/character/stretch-done-standing.svg"
+      : "/character/stretch-done.svg";
+  }
   if (pose === "locked") return "/character/stretch-locked.svg";
   if (pose === "fallback") return "/character/stretch-fallback.svg";
 
@@ -185,11 +238,14 @@ export function characterSrc({
   }
 
   if (exerciseId) {
-    const stem = stemForExercise(exerciseId, bodyArea);
-    if (frame === "b" && MOTION_STEMS.has(stem)) {
-      return `/character/${stem}-b.svg`;
+    const dual =
+      standing && SHARED_STANDING_DUALS.has(exerciseId)
+        ? `${exerciseId}-standing`
+        : stemForExercise(exerciseId, bodyArea);
+    if (frame === "b" && MOTION_STEMS.has(dual)) {
+      return `/character/${dual}-b.svg`;
     }
-    return `/character/${stem}.svg`;
+    return `/character/${dual}.svg`;
   }
 
   if (bodyArea) {

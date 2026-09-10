@@ -43,6 +43,10 @@ export type Exercise = {
 export type ProgramStep = {
   exerciseId: string;
   durationSec: number;
+  positionCue?: string;
+  stretchView?: StretchView;
+  stretchAsset?: string;
+  stretchAssetB?: string;
 };
 
 export type ProgramStance = "seated" | "standing";
@@ -59,7 +63,15 @@ export type DurationBenefit = {
 
 export type ProgramBenefits = {
   disclaimer: string;
+  whySheetTitle?: string;
+  onboardingBeat?: string;
   byDuration: Record<DurationBenefitKey, DurationBenefit>;
+};
+
+export type ProductDefaults = {
+  preferredSetup: ProgramStance;
+  featuredFreeProgramId: string;
+  alternateFreeProgramId: string;
 };
 
 export type Program = {
@@ -70,6 +82,8 @@ export type Program = {
   durationMin: number;
   tagline: string;
   stance?: ProgramStance;
+  startPrompt?: string;
+  activeKicker?: string;
   steps: ProgramStep[];
 };
 
@@ -77,6 +91,7 @@ export type Catalog = {
   exercises: Exercise[];
   programs: Program[];
   programBenefits?: ProgramBenefits;
+  productDefaults?: ProductDefaults;
 };
 
 export type WorkoutSession = {

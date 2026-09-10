@@ -169,6 +169,9 @@ export function WorkoutView({
             {program.shortLabel}
           </p>
           <p className="text-sm font-semibold text-ink/60">{stepLabel}</p>
+          {program.activeKicker ? (
+            <p className="text-[11px] font-semibold text-ink/45">{program.activeKicker}</p>
+          ) : null}
         </div>
         <button
           type="button"
@@ -228,6 +231,8 @@ export function WorkoutView({
             stretchAsset={current.exercise.stretchAsset}
             stretchAssetB={current.exercise.stretchAssetB}
             stretchView={current.exercise.stretchView}
+            setup={program.stance ?? setup}
+            programId={program.id}
             animate={engine.status === "running"}
             tappable
             size={228}

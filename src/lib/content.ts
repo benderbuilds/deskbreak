@@ -1,4 +1,5 @@
 import catalogJson from "../../data/exercises-and-programs.json";
+import scienceCopy from "../../SCIENCE_BENEFITS_STANDING_COPY.json";
 import { SEATED_RESET_ID, STANDING_RESET_ID } from "./constants";
 import { STANDING_STEP_SWAPS } from "./setup-steps";
 import type {
@@ -9,10 +10,12 @@ import type {
   DurationBenefit,
   DurationBenefitKey,
   Exercise,
+  ProductDefaults,
   Program,
   ProgramBenefits,
   ProgramStance,
   ProgramStep,
+  StretchView,
 } from "./types";
 
 type RawDose = Dose & { directions?: string[] };
@@ -20,6 +23,11 @@ type RawStep = {
   exerciseId: string;
   durationSec?: number;
   dose?: RawDose;
+  positionCue?: string;
+  stretchView?: StretchView;
+  stretchAsset?: string;
+  stretchAssetB?: string;
+  stretchAssetFallback?: string;
 };
 type RawProgram = {
   id: string;
@@ -31,12 +39,30 @@ type RawProgram = {
   tagline?: string;
   goal?: string;
   stance?: ProgramStance;
+  setup?: string;
+  position?: string;
+  startPrompt?: string;
+  activeKicker?: string;
   steps: RawStep[];
+};
+type RawDurationSlot = {
+  cardLine: string;
+  detail: string;
+  doneLine?: string;
 };
 type RawCatalog = {
   exercises: Exercise[];
   programs: RawProgram[];
-  programBenefits?: ProgramBenefits;
+  programBenefits?: {
+    disclaimer?: string;
+    byDuration?: Record<string, unknown>;
+  };
+  durationBenefits?: Record<"2" | "5" | "10", RawDurationSlot>;
+  onboardingBenefits?: {
+    beat?: string;
+    pills?: Record<"2" | "5" | "10", string>;
+  };
+  productDefaults?: ProductDefaults;
 };
 
 const BODY_AREA_NORMALIZE: Record<string, BodyArea> = {
@@ -51,6 +77,8 @@ const BODY_AREA_NORMALIZE: Record<string, BodyArea> = {
   core: "core",
   posture: "posture",
 };
+
+const SHARED_STANDING_DUALS = ["chin-tuck", "long-exhale-reset", "shoulder-rolls"];
 
 function normalizeExercise(exercise: Exercise): Exercise {
   const bodyArea = BODY_AREA_NORMALIZE[exercise.bodyArea];
@@ -97,6 +125,12 @@ function inferStance(program: RawProgram): ProgramStance | undefined {
   if (program.stance === "seated" || program.stance === "standing") {
     return program.stance;
   }
+  if (program.setup === "seated" || program.setup === "standing") {
+    return program.setup;
+  }
+  if (program.position === "seated" || program.position === "standing") {
+    return program.position;
+  }
   if (program.id === STANDING_RESET_ID) return "standing";
   if (program.id === SEATED_RESET_ID) return "seated";
   return undefined;
@@ -106,13 +140,28 @@ function normalizeProgram(program: RawProgram): Program {
   const targetSec =
     program.durationTargetSec ??
     (program.durationMin ? program.durationMin * 60 : 0);
-  const mapped: ProgramStep[] = program.steps.map((step) => ({
-    exerciseId: step.exerciseId,
-    durationSec: step.durationSec ?? doseToDurationSec(step.dose),
-  }));
+  const mapped: ProgramStep[] = program.steps.map((step) => {
+    const fallbackCleared = SHARED_STANDING_DUALS.includes(step.exerciseId)
+      ? undefined
+      : step.stretchAssetFallback;
+    return {
+      exerciseId: step.exerciseId,
+      durationSec: step.durationSec ?? doseToDurationSec(step.dose),
+      positionCue: step.positionCue,
+      stretchView: step.stretchView,
+      stretchAsset: step.stretchAsset ?? fallbackCleared,
+      stretchAssetB: step.stretchAssetB,
+    };
+  });
   const steps = targetSec ? scaleStepsToTarget(mapped, targetSec) : mapped;
   const durationMin =
-    program.durationMin ?? Math.max(1, Math.round((targetSec || steps.reduce((s, step) => s + step.durationSec, 0)) / 60));
+    program.durationMin ??
+    Math.max(
+      1,
+      Math.round(
+        (targetSec || steps.reduce((s, step) => s + step.durationSec, 0)) / 60,
+      ),
+    );
   return {
     id: program.id,
     access: program.access,
@@ -121,7 +170,38 @@ function normalizeProgram(program: RawProgram): Program {
     durationMin,
     tagline: program.tagline ?? program.goal ?? "",
     stance: inferStance(program),
+    startPrompt: program.startPrompt,
+    activeKicker: program.activeKicker,
     steps,
+  };
+}
+
+function durationSlot(
+  key: "2" | "5" | "10",
+): { cardLine: string; whyThisHelps: string; doneLine: string; onboardingLine: string } {
+  const copy = scienceCopy.durationBenefits[key];
+  const pill = scienceCopy.onboardingBenefits.pills[key];
+  return {
+    cardLine: copy.cardLine,
+    whyThisHelps: copy.detail,
+    doneLine: copy.doneLine,
+    onboardingLine: pill,
+  };
+}
+
+function buildProgramBenefits(raw: RawCatalog): ProgramBenefits {
+  const disclaimer =
+    raw.programBenefits?.disclaimer ??
+    "Educational wellness copy — not medical advice. Benefits describe typical mechanisms from workplace / sedentary-behavior research; individual results vary.";
+  return {
+    disclaimer,
+    whySheetTitle: scienceCopy.whySheetTitle,
+    onboardingBeat: scienceCopy.onboardingBenefits.beat,
+    byDuration: {
+      "2min": durationSlot("2"),
+      "5min": durationSlot("5"),
+      "10min": durationSlot("10"),
+    },
   };
 }
 
@@ -129,7 +209,12 @@ const rawCatalog = catalogJson as RawCatalog;
 const catalog: Catalog = {
   exercises: rawCatalog.exercises.map(normalizeExercise),
   programs: rawCatalog.programs.map(normalizeProgram),
-  programBenefits: rawCatalog.programBenefits,
+  programBenefits: buildProgramBenefits(rawCatalog),
+  productDefaults: rawCatalog.productDefaults ?? {
+    preferredSetup: "standing",
+    featuredFreeProgramId: STANDING_RESET_ID,
+    alternateFreeProgramId: SEATED_RESET_ID,
+  },
 };
 
 const exerciseById = new Map(
@@ -194,6 +279,12 @@ for (const program of catalog.programs) {
   }
 }
 
+if (catalog.productDefaults?.featuredFreeProgramId !== STANDING_RESET_ID) {
+  throw new Error(
+    `productDefaults.featuredFreeProgramId must be ${STANDING_RESET_ID}`,
+  );
+}
+
 export function getCatalog(): Catalog {
   return catalog;
 }
@@ -232,6 +323,16 @@ export function requireExercise(id: string): Exercise {
 
 export function getProgramBenefits(): ProgramBenefits | undefined {
   return catalog.programBenefits;
+}
+
+export function getProductDefaults(): ProductDefaults {
+  return (
+    catalog.productDefaults ?? {
+      preferredSetup: "standing",
+      featuredFreeProgramId: STANDING_RESET_ID,
+      alternateFreeProgramId: SEATED_RESET_ID,
+    }
+  );
 }
 
 export function durationBenefitKey(
