@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch — Standing hip flexor other">
+  <title>DeskBreak Stretch — Standing hip flexor other</title>
+  <rect width="512" height="512" fill="none"/>
+  <ellipse cx="256" cy="470" rx="100" ry="10" fill="#E7E2DA" opacity="0.5"/>
+  <path d="M262,320 L292,450" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+  <path d="M262,320 L292,450" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+  <path d="M250,320 L170,400 L150,450" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
+  <path d="M250,320 L170,400 L150,450" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="292" cy="456" rx="18" ry="8" fill="#1C1917"/>
+  <ellipse cx="150" cy="456" rx="18" ry="8" fill="#1C1917"/>
+<rect x="228.0" y="180" width="56" height="110" rx="22" fill="#FFFFFF" stroke="#1C1917" stroke-width="3.0"/>
+  <g>
+    <path d="M262,210 L290,280 L300,340" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M262,210 L290,280 L300,340" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="300" cy="340" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+  <g>
+    <circle cx="262" cy="135" r="34" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <path d="M232,131 Q254,97 282,107" fill="#1C1917"/>
+    <path d="M294,137 L308,143 L294,149 Z" fill="#F3E6D8" stroke="#1C1917" stroke-width="2"/>
+    <circle cx="272" cy="135" r="3" fill="#1C1917"/>
+  </g>
+</svg>
