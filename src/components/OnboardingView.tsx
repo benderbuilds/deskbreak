@@ -13,24 +13,24 @@ import {
 import { completeOnboarding, saveOnboardingAnswers } from "@/lib/storage";
 import type { GoalId, ReminderPref, SetupId } from "@/lib/types";
 
-const TOTAL = 4;
-const GOAL_STEP = 0;
-const SETUP_STEP = 1;
-const REMINDER_STEP = 2;
-const FIRST_WIN_STEP = 3;
+const TOTAL = 5;
+const HOOK_STEP = 0;
+const GOAL_STEP = 1;
+const SETUP_STEP = 2;
+const REMINDER_STEP = 3;
+const FIRST_WIN_STEP = 4;
 
 export function OnboardingView() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [goal, setGoal] = useState<GoalId | null>(null);
   const [setup, setSetup] = useState<SetupId | null>(null);
-  const [reminder, setReminder] = useState<ReminderPref | null>(null);
+  const [reminder, setReminder] = useState<ReminderPref>("off");
 
   const canContinue =
     (step === GOAL_STEP && Boolean(goal)) ||
     (step === SETUP_STEP && Boolean(setup)) ||
-    step === REMINDER_STEP ||
-    step === FIRST_WIN_STEP;
+    (step !== GOAL_STEP && step !== SETUP_STEP);
 
   function persistAnd(next: () => void) {
     if (!goal || !setup) {
@@ -40,7 +40,7 @@ export function OnboardingView() {
     saveOnboardingAnswers({
       goal,
       setup,
-      reminder: reminder ?? "off",
+      reminder,
     });
     completeOnboarding();
     next();
@@ -82,17 +82,29 @@ export function OnboardingView() {
 
       <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-ink/8" aria-hidden>
         <div
-          className="h-full rounded-full bg-coral transition-[width] duration-300 ease-[cubic-bezier(0.34,1.2,0.64,1)]"
+          className="h-full rounded-full bg-coral transition-[width] duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]"
           style={{ width: `${((step + 1) / TOTAL) * 100}%` }}
         />
       </div>
+      {step === FIRST_WIN_STEP ? (
+        <p className="mt-2 text-center text-xs font-semibold uppercase tracking-[0.14em] text-coral">
+          Almost moving
+        </p>
+      ) : null}
 
       <main className="flex flex-1 flex-col justify-center py-6">
+        {step === HOOK_STEP && (
+          <CopyStep
+            kicker="Hook"
+            title="Your neck shouldn’t pay rent for a laptop."
+            body="Two minutes. Still at your desk. One tap when the meeting gap opens."
+            showStretch
+          />
+        )}
         {step === GOAL_STEP && (
           <ChoiceStep
             kicker="Goal"
             title="What should two minutes fix first?"
-            body="Your neck shouldn’t pay rent for a laptop. Pick a goal — we stay at the desk."
             options={[
               {
                 id: "neck",
@@ -137,12 +149,12 @@ export function OnboardingView() {
         {step === REMINDER_STEP && (
           <ChoiceStep
             kicker="Optional"
-            title="Want a reminder? Skip if not."
-            body="We’ll only nudge if this tab is open. You can turn it on later."
+            title="Want a reminder? Off is fine."
+            body="We’ll only nudge if this tab is open. Skip anytime."
             options={[
+              { id: "off", label: "No reminders", hint: "You’ll start breaks yourself." },
               { id: "midday", label: "Around lunch", hint: "A noon ping if this tab is open." },
               { id: "afternoon", label: "Mid-afternoon", hint: "When the slump usually lands." },
-              { id: "off", label: "No reminders", hint: "You’ll start breaks yourself." },
             ]}
             value={reminder}
             onChange={(id) => setReminder(id as ReminderPref)}
@@ -153,13 +165,14 @@ export function OnboardingView() {
             kicker="First win"
             title="Take the 2-min Desk Reset before anything else."
             body="Feel one actual break. Then we’ll show Free vs Pro. You can stay on the 2-minute reset forever — no card required."
+            showStretch
           />
         )}
       </main>
 
       {step < FIRST_WIN_STEP ? (
         <Button onClick={() => setStep((s) => s + 1)} disabled={!canContinue}>
-          {step === REMINDER_STEP && !reminder ? "Skip reminders" : "Continue"}
+          Continue
         </Button>
       ) : (
         <div className="flex flex-col gap-3">
@@ -181,13 +194,15 @@ function CopyStep({
   kicker,
   title,
   body,
+  showStretch = false,
 }: {
   kicker: string;
   title: string;
   body: string;
+  showStretch?: boolean;
 }) {
   return (
-    <div className="animate-[stepIn_280ms_cubic-bezier(0.34,1.2,0.64,1)]">
+    <div className="animate-[stepIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]">
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-coral">
         {kicker}
       </p>
@@ -195,9 +210,11 @@ function CopyStep({
         {title}
       </h1>
       <p className="mt-4 text-[1.05rem] leading-relaxed text-ink/65">{body}</p>
-      <div className="mt-6 flex justify-center">
-        <CharacterArt pose="idle" size={168} alt="Stretch" />
-      </div>
+      {showStretch ? (
+        <div className="mt-6 flex justify-center">
+          <CharacterArt pose="idle" size={168} alt="Stretch" />
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -218,7 +235,7 @@ function ChoiceStep({
   onChange: (id: string) => void;
 }) {
   return (
-    <div className="animate-[stepIn_280ms_cubic-bezier(0.34,1.2,0.64,1)]">
+    <div className="animate-[stepIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]">
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-coral">
         {kicker}
       </p>
@@ -238,7 +255,8 @@ function ChoiceStep({
               onClick={() => onChange(option.id)}
               className={[
                 "min-h-16 rounded-[22px] px-4 py-3 text-left",
-                "transition-transform duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)] active:scale-[0.98]",
+                "transition-[transform,box-shadow] duration-[240ms] ease-[cubic-bezier(0.34,1.4,0.64,1)]",
+                "active:translate-y-[2px] active:shadow-none",
                 active
                   ? "bg-ink text-paper shadow-[0_4px_0_#0C0A09]"
                   : "bg-white text-ink shadow-[0_4px_0_rgba(28,25,23,0.06)]",

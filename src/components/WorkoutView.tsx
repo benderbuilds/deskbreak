@@ -33,6 +33,8 @@ export function WorkoutView({
   const engine = useWorkoutEngine(allowed && program ? programId : "", setup, goal);
   const recordedRef = useRef(false);
   const [upgrade, setUpgrade] = useState(false);
+  const [skipToast, setSkipToast] = useState(false);
+  const skipTimer = useRef<number | null>(null);
 
   useEffect(() => {
     if (engine.status !== "complete" || !program || recordedRef.current) return;
@@ -62,6 +64,12 @@ export function WorkoutView({
     state.paywallSeen,
   ]);
 
+  useEffect(() => {
+    return () => {
+      if (skipTimer.current) window.clearTimeout(skipTimer.current);
+    };
+  }, []);
+
   const current = engine.current;
   const doseLabel = useMemo(
     () => (current ? formatDose(current.exercise.defaultDose) : ""),
@@ -72,6 +80,12 @@ export function WorkoutView({
     // First-win Leave must not dump to the paywall. Paywall comes from Done
     // (?next=paywall) after a completed reset, or “I’ll do it later” in onboarding.
     router.push("/");
+  }
+
+  function flashSkipToast() {
+    setSkipToast(true);
+    if (skipTimer.current) window.clearTimeout(skipTimer.current);
+    skipTimer.current = window.setTimeout(() => setSkipToast(false), 1600);
   }
 
   if (!program) {
@@ -127,14 +141,19 @@ export function WorkoutView({
 
   const seconds = formatClock(engine.remainingSec);
   const stepLabel = `${engine.stepIndex + 1} of ${engine.steps.length}`;
+  const stepProgress =
+    current.durationSec > 0
+      ? Math.min(1, Math.max(0, 1 - engine.remainingSec / current.durationSec))
+      : 0;
+  const ring = 2 * Math.PI * 46;
 
   return (
     <div className="flex min-h-dvh flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(0.9rem,env(safe-area-inset-top))]">
-      <header className="mb-4 flex items-center justify-between gap-3">
+      <header className="mb-3 flex items-center justify-between gap-3">
         <button
           type="button"
           onClick={leaveBreak}
-          className="relative z-20 grid h-12 w-12 place-items-center rounded-full bg-white text-ink shadow-[0_3px_0_rgba(28,25,23,0.06)] transition-transform duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)] active:scale-95"
+          className="relative z-20 grid h-12 w-12 place-items-center rounded-full bg-white text-ink shadow-[0_3px_0_rgba(28,25,23,0.06)] transition-[transform,box-shadow] duration-[240ms] ease-[cubic-bezier(0.34,1.4,0.64,1)] active:translate-y-[2px] active:shadow-none"
           aria-label="Leave break"
         >
           <CloseIcon />
@@ -148,14 +167,14 @@ export function WorkoutView({
         <button
           type="button"
           onClick={engine.status === "paused" ? engine.resume : engine.pause}
-          className="relative z-20 grid h-12 w-12 place-items-center rounded-full bg-white text-ink shadow-[0_3px_0_rgba(28,25,23,0.06)] transition-transform duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)] active:scale-95"
+          className="relative z-20 grid h-12 w-12 place-items-center rounded-full bg-white text-ink shadow-[0_3px_0_rgba(28,25,23,0.06)] transition-[transform,box-shadow] duration-[240ms] ease-[cubic-bezier(0.34,1.4,0.64,1)] active:translate-y-[2px] active:shadow-none"
           aria-label={engine.status === "paused" ? "Resume" : "Pause"}
         >
           {engine.status === "paused" ? <PlayIcon /> : <PauseIcon />}
         </button>
       </header>
 
-      <div className="mb-5 h-2 overflow-hidden rounded-full bg-ink/8">
+      <div className="mb-3 h-2 overflow-hidden rounded-full bg-ink/8">
         <div
           className="h-full rounded-full bg-mint transition-[width] duration-[260ms] ease-[cubic-bezier(0.34,1.4,0.64,1)]"
           style={{ width: `${Math.round(engine.progress * 100)}%` }}
@@ -176,35 +195,10 @@ export function WorkoutView({
         )}
 
         <div
-          key={engine.stepIndex}
-          className="animate-[timerIn_280ms_cubic-bezier(0.34,1.45,0.64,1)]"
+          key={`${current.exercise.id}-copy`}
+          className="w-full animate-[stepIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]"
         >
-          <p className="font-display text-[5.5rem] font-semibold leading-none tracking-tight text-ink tabular-nums">
-            {seconds}
-          </p>
-          <p className="mt-2 text-sm font-semibold text-ink/45">{doseLabel}</p>
-        </div>
-
-        <div className="relative z-0 mt-4">
-          <CharacterArt
-            pose="exercise"
-            exerciseId={current.exercise.id}
-            bodyArea={current.exercise.bodyArea}
-            stretchAsset={current.exercise.stretchAsset}
-            stretchAssetB={current.exercise.stretchAssetB}
-            stretchView={current.exercise.stretchView}
-            animate={engine.status === "running"}
-            tappable
-            size={200}
-            alt={`Stretch — ${current.exercise.name}`}
-          />
-        </div>
-
-        <div
-          key={current.exercise.id}
-          className="mt-4 w-full animate-[stepIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]"
-        >
-          <h1 className="font-display text-[2rem] font-semibold leading-tight text-ink">
+          <h1 className="font-display text-[1.85rem] font-semibold leading-tight text-ink">
             {current.exercise.name}
           </h1>
           {current.exercise.shortLabel ? (
@@ -215,17 +209,75 @@ export function WorkoutView({
           <p className="mt-3 text-[1.05rem] leading-relaxed text-ink/70">
             {current.exercise.cue}
           </p>
-          <p className="mt-4 text-sm text-ink/45">
-            Watch for: {current.exercise.commonMistake}
-          </p>
         </div>
+
+        <div
+          key={current.exercise.id}
+          className="relative z-0 mt-4 animate-[popIn_280ms_cubic-bezier(0.34,1.45,0.64,1)]"
+        >
+          <CharacterArt
+            pose="exercise"
+            exerciseId={current.exercise.id}
+            bodyArea={current.exercise.bodyArea}
+            stretchAsset={current.exercise.stretchAsset}
+            stretchAssetB={current.exercise.stretchAssetB}
+            stretchView={current.exercise.stretchView}
+            animate={engine.status === "running"}
+            tappable
+            size={228}
+            alt={`Stretch — ${current.exercise.name}`}
+          />
+        </div>
+
+        <div
+          key={`timer-${engine.stepIndex}`}
+          className="relative mt-3 grid place-items-center animate-[timerIn_280ms_cubic-bezier(0.34,1.45,0.64,1)]"
+        >
+          <svg width="120" height="120" viewBox="0 0 120 120" className="-rotate-90" aria-hidden>
+            <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(28,25,23,0.08)" strokeWidth="8" />
+            <circle
+              cx="60"
+              cy="60"
+              r="46"
+              fill="none"
+              stroke="#2DD4A8"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={ring}
+              strokeDashoffset={ring * (1 - stepProgress)}
+              className="transition-[stroke-dashoffset] duration-[260ms] ease-[cubic-bezier(0.34,1.4,0.64,1)]"
+            />
+          </svg>
+          <div className="absolute inset-0 grid place-items-center">
+            <p className="font-display text-[2.15rem] font-semibold leading-none tracking-tight text-ink tabular-nums">
+              {seconds}
+            </p>
+          </div>
+        </div>
+        <p className="mt-1 text-sm font-semibold text-ink/45">{doseLabel}</p>
+
+        {current.exercise.commonMistake ? (
+          <p className="mt-4 max-w-[22rem] rounded-full bg-white px-4 py-2 text-xs font-semibold leading-snug text-ink/60 shadow-[0_3px_0_rgba(28,25,23,0.06)]">
+            Tip · {current.exercise.commonMistake}
+          </p>
+        ) : null}
       </div>
 
-      <div className="relative z-20 mt-6 grid grid-cols-[1fr_1.4fr] gap-3">
+      {skipToast ? (
+        <p
+          role="status"
+          className="relative z-20 mt-3 text-center text-sm font-semibold text-ink/55 animate-[stepIn_240ms_cubic-bezier(0.34,1.4,0.64,1)]"
+        >
+          Skipped. No judgment.
+        </p>
+      ) : null}
+
+      <div className="relative z-20 mt-4 grid grid-cols-[1fr_1.4fr] gap-3">
         <Button
           variant="ghost"
           onClick={() => {
             unlockCelebrationAudio();
+            flashSkipToast();
             engine.skip();
           }}
         >
