@@ -77,12 +77,12 @@ export function InstallPrompt() {
     <div className="mb-4 rounded-[22px] bg-white px-4 py-3 shadow-[0_3px_0_rgba(28,25,23,0.06)]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-ink">Add to home screen</p>
+          <p className="text-sm font-semibold text-ink">Want DeskBreak one tap away?</p>
           <p className="mt-0.5 text-xs leading-relaxed text-ink/55">
             {canPrompt
-              ? "One tap next time — no browser tab."
+              ? "Add it to your home screen. No browser tab next time."
               : ios
-                ? "Share, then Add to Home Screen. One tap next time."
+                ? "Share, then Add to Home Screen."
                 : "Install DeskBreak from your browser menu."}
           </p>
         </div>

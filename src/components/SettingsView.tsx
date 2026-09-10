@@ -1,223 +1,325 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { BottomNav } from "@/components/BottomNav";
+import Link from "next/link";
 import { Button, ButtonLink } from "@/components/Button";
 import { ProBadge } from "@/components/ProBadge";
-import { canDemoUnlock, isProEntitlement } from "@/lib/entitlements";
-import { formatHourLabel, requestReminderPermission } from "@/lib/reminders";
+import { track } from "@/lib/analytics";
+import { NEED_OPTIONS, MOVEMENT_DISCLAIMER, SUPPORT_EMAIL } from "@/lib/constants";
+import { isProEntitlement, toEntitlement } from "@/lib/entitlements";
 import {
-  resetOnboarding,
+  defaultDailyReminder,
+  formatReminderTime,
+  requestNotificationPermission,
+} from "@/lib/reminders";
+import {
+  cacheEntitlement,
+  ensureAnonymousId,
+  saveEmail,
+  saveReminders,
   saveSettings,
-  setCelebrationTheme,
-  setPlanFree,
-  unlockPro,
+  setPreferredSetup,
+  setPrimaryNeed,
 } from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
-import type { CelebrationTheme } from "@/lib/types";
-
-const HOURS = [9, 10, 11, 12, 13, 14, 15, 16, 17];
+import { useIsClient } from "@/lib/use-client";
+import { formatMinutes, toTimeInput, parseTimeInput } from "@/lib/workday";
+import type { PrimaryNeed, SetupId } from "@/lib/types";
 
 export function SettingsView() {
-  const router = useRouter();
+  const isClient = useIsClient();
   const state = useAppState();
   const pro = isProEntitlement(state.entitlement);
-  const demo = canDemoUnlock();
+
+  const [restoreEmail, setRestoreEmail] = useState("");
+  const [restoring, setRestoring] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
-  async function toggleReminders() {
-    const next = !state.settings.remindersEnabled;
-    if (!next) {
-      saveSettings({ remindersEnabled: false });
-      setNotice("Reminders off.");
+  if (!isClient) return null;
+
+  const reminders = state.settings.reminders;
+  const daily = reminders.find((entry) => entry.kind === "daily");
+  // Free gets one daily reminder; Pro gets the schedule its plan implies.
+  const reminderLimit = pro ? Infinity : 1;
+
+  async function toggleDaily() {
+    if (daily?.enabled) {
+      saveReminders(reminders.filter((entry) => entry.id !== daily.id));
+      setNotice("Daily reminder off.");
       return;
     }
-    const permission = await requestReminderPermission();
-    if (permission === "unsupported") {
-      saveSettings({
-        remindersEnabled: true,
-        reminderHour: state.settings.reminderHour ?? 12,
+    const permission = await requestNotificationPermission();
+    const next = daily
+      ? reminders.map((entry) =>
+          entry.id === daily.id ? { ...entry, enabled: true } : entry,
+        )
+      : [...reminders.slice(0, reminderLimit - 1), defaultDailyReminder()];
+    saveReminders(next);
+    track("reminder_created", { kind: "daily", channel: state.email ? "email" : "browser" });
+    setNotice(
+      state.email
+        ? "We'll email you once a day."
+        : permission === "granted"
+          ? "We'll nudge you while DeskBreak is open. Add an email below for reminders that reach you anywhere."
+          : "Saved. Add an email below so reminders reach you when DeskBreak isn't open.",
+    );
+  }
+
+  function setDailyTime(value: string) {
+    const minutes = parseTimeInput(value);
+    if (minutes === null) return;
+    const existing = daily ?? defaultDailyReminder();
+    saveReminders([
+      ...reminders.filter((entry) => entry.id !== existing.id),
+      { ...existing, minutes, enabled: true },
+    ]);
+  }
+
+  async function restorePro() {
+    const trimmed = restoreEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) {
+      setNotice("That doesn't look like an email address.");
+      return;
+    }
+    setRestoring(true);
+    try {
+      const response = await fetch("/api/restore", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed, anonymousId: ensureAnonymousId() }),
       });
+      const data = await response.json();
+      if (!response.ok) throw new Error("restore_failed");
+      cacheEntitlement(toEntitlement(data));
+      saveEmail(trimmed);
       setNotice(
-        "This browser can’t send system notifications. We’ll show an in-app nudge if DeskBreak is open at your reminder hour.",
+        data.pro
+          ? "Pro restored on this device."
+          : "No active subscription on that email. If you just paid, give it a minute and try again.",
       );
-      return;
+    } catch {
+      setNotice("We couldn't check that just now. Try again shortly.");
+    } finally {
+      setRestoring(false);
     }
-    if (permission === "denied") {
-      saveSettings({
-        remindersEnabled: true,
-        reminderHour: state.settings.reminderHour ?? 12,
-      });
-      setNotice(
-        "Notifications are blocked. We’ll still flag your reminder time while this tab is open.",
-      );
-      return;
-    }
-    saveSettings({
-      remindersEnabled: true,
-      reminderHour: state.settings.reminderHour ?? 12,
-    });
-    setNotice("Reminders on. We’ll ping if this tab is open at that hour.");
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <main className="flex-1 px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))]">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-coral">
+    <div className="flex flex-1 flex-col px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))]">
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-[2rem] font-semibold leading-tight text-ink">
           You
-        </p>
-        <div className="mt-1 flex items-center gap-2">
-          <h1 className="font-display text-[2rem] font-semibold text-ink">Settings</h1>
-          {pro ? <ProBadge /> : null}
-        </div>
+        </h1>
+        {pro ? <ProBadge /> : null}
+      </div>
 
-        <section className="mt-6 rounded-[24px] bg-white p-4 shadow-[0_4px_0_rgba(28,25,23,0.06)]">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/45">
-            Plan
-          </h2>
-          <p className="mt-2 font-display text-xl font-semibold text-ink">
-            {pro ? "DeskBreak Pro" : "Free"}
-          </p>
-          <p className="mt-1 text-sm text-ink/60">
-            {pro
-              ? state.entitlement.proExpiresAt
-                ? `Year access on this device through ${new Date(state.entitlement.proExpiresAt).toLocaleDateString()}. Source: ${state.entitlement.source ?? "unknown"}.`
-                : "Pro is active on this device."
-              : "2-min Desk Reset is unlimited. Longer circuits are Pro."}
-          </p>
-          <div className="mt-4 flex flex-col gap-2">
-            {pro ? (
-              demo ? (
-                <Button variant="ghost" onClick={() => setPlanFree()}>
-                  Downgrade to Free (demo)
-                </Button>
-              ) : (
-                <p className="text-xs text-ink/45">
-                  Manage billing in Stripe if you subscribed with a card.
-                </p>
-              )
+      {notice ? (
+        <p
+          className="mt-4 rounded-[18px] bg-white px-4 py-3 text-sm leading-relaxed text-ink/70 shadow-[0_2px_0_rgba(28,25,23,0.06)]"
+          role="status"
+        >
+          {notice}
+        </p>
+      ) : null}
+
+      <Section title="Your DeskBreak">
+        <Field label="Primary trouble spot">
+          <div className="flex flex-wrap gap-2">
+            {NEED_OPTIONS.map((option) => (
+              <Chip
+                key={option.id}
+                label={option.chip}
+                active={state.primaryNeed === option.id}
+                onClick={() => setPrimaryNeed(option.id as PrimaryNeed)}
+              />
+            ))}
+          </div>
+        </Field>
+        <Field label="Seated or standing">
+          <div className="flex gap-2">
+            {(["seated", "standing"] as SetupId[]).map((value) => (
+              <Chip
+                key={value}
+                label={value === "seated" ? "Mostly seated" : "Standing desk"}
+                active={state.preferredSetup === value}
+                onClick={() => setPreferredSetup(value)}
+              />
+            ))}
+          </div>
+        </Field>
+        {pro ? (
+          <Field label="Workday schedule">
+            {state.plan ? (
+              <p className="text-sm text-ink/60">
+                {formatMinutes(state.plan.startMinutes)} to{" "}
+                {formatMinutes(state.plan.endMinutes)} ·{" "}
+                <Link href="/app/plan" className="font-semibold text-coral">
+                  Edit
+                </Link>
+              </p>
             ) : (
-              <ButtonLink href="/paywall">Upgrade to Pro</ButtonLink>
+              <ButtonLink href="/app/plan" variant="ghost">
+                Build my workday plan
+              </ButtonLink>
             )}
-            {demo && !pro ? (
-              <Button variant="mint" onClick={() => unlockPro("demo")}>
-                Unlock Pro for demo
-              </Button>
+          </Field>
+        ) : null}
+      </Section>
+
+      <Section title="Reminders">
+        <Field label={daily?.enabled ? "Daily reminder is on" : "Daily reminder is off"}>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              block={false}
+              variant={daily?.enabled ? "ghost" : "primary"}
+              className="min-h-11 px-4 text-sm"
+              onClick={toggleDaily}
+            >
+              {daily?.enabled ? "Turn off" : "Turn on"}
+            </Button>
+            {daily?.enabled ? (
+              <label className="text-sm text-ink/55">
+                at{" "}
+                <input
+                  type="time"
+                  aria-label="Reminder time"
+                  value={toTimeInput(daily.minutes)}
+                  onChange={(event) => setDailyTime(event.target.value)}
+                  className="min-h-11 rounded-[14px] border-2 border-ink/12 bg-white px-3 text-sm text-ink outline-none focus-visible:border-coral"
+                />
+              </label>
             ) : null}
           </div>
-        </section>
-
-        <section className="mt-4 rounded-[24px] bg-white p-4 shadow-[0_4px_0_rgba(28,25,23,0.06)]">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/45">
-            Reminders
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-ink/65">
-            Browsers can’t reliably ping you at 2pm unless DeskBreak is open.
-            We’ll try a system notification, and always show an in-app nudge at
-            your hour.
-          </p>
-          <div className="mt-4">
-            <Button variant={state.settings.remindersEnabled ? "mint" : "ghost"} onClick={toggleReminders}>
-              {state.settings.remindersEnabled ? "Reminders on" : "Turn reminders on"}
-            </Button>
-          </div>
-          {pro ? (
-            <div className="mt-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-ink/45">
-                Custom time
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {HOURS.map((hour) => (
-                  <button
-                    key={hour}
-                    type="button"
-                    onClick={() => saveSettings({ reminderHour: hour, remindersEnabled: true })}
-                    className={[
-                      "min-h-11 rounded-full px-3 text-sm font-semibold",
-                      state.settings.reminderHour === hour
-                        ? "bg-ink text-paper"
-                        : "bg-paper text-ink/70",
-                    ].join(" ")}
-                  >
-                    {formatHourLabel(hour)}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <p className="mt-3 text-sm text-ink/50">
-              Custom reminder times are a Pro unlock.{" "}
-              <a href="/paywall" className="font-semibold text-coral">
-                See plans
-              </a>
+          {daily?.enabled ? (
+            <p className="mt-2 text-xs text-ink/45">
+              Around {formatReminderTime(daily.minutes)}, weekdays.
             </p>
-          )}
-        </section>
-
-        <section className="mt-4 rounded-[24px] bg-white p-4 shadow-[0_4px_0_rgba(28,25,23,0.06)]">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/45">
-            Celebrations
-          </h2>
-          {pro ? (
-            <div className="mt-3 flex flex-col gap-2">
-              {(
-                [
-                  ["classic", "Classic mint check"],
-                  ["confetti", "Extra confetti"],
-                  ["spark", "Spark burst"],
-                ] as [CelebrationTheme, string][]
-              ).map(([id, label]) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setCelebrationTheme(id)}
-                  className={[
-                    "min-h-12 rounded-[18px] px-4 text-left text-sm font-semibold",
-                    state.settings.celebrationTheme === id
-                      ? "bg-ink text-paper"
-                      : "bg-paper text-ink/70",
-                  ].join(" ")}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-2 text-sm text-ink/55">
-              XP and celebration themes unlock with Pro.
-            </p>
-          )}
-        </section>
-
-        {notice ? (
-          <p className="mt-4 text-sm leading-relaxed text-ink/60" role="status">
-            {notice}
+          ) : null}
+        </Field>
+        {!pro ? (
+          <p className="text-sm leading-relaxed text-ink/55">
+            Free includes one daily reminder. Pro schedules reminders around your
+            workday plan.
           </p>
         ) : null}
+      </Section>
 
-        <section className="mt-4 rounded-[24px] bg-white p-4 shadow-[0_4px_0_rgba(28,25,23,0.06)]">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/45">
-            Data
-          </h2>
-          <p className="mt-2 text-sm text-ink/60">
-            Progress lives in this browser. Resetting onboarding does not remove
-            Pro or your streak.
+      <Section title="Account">
+        <Field label="Email">
+          <p className="text-sm text-ink/60">
+            {state.email ?? "Not set. Add one below to get reminders and keep Pro."}
           </p>
-          <div className="mt-4">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                resetOnboarding();
-                router.replace("/");
-              }}
-            >
-              Replay onboarding
+        </Field>
+        <Field label="Restore Pro purchase">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="restore-email" className="sr-only">
+              Checkout email
+            </label>
+            <input
+              id="restore-email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              placeholder="you@work.com"
+              value={restoreEmail}
+              onChange={(event) => setRestoreEmail(event.target.value)}
+              className="min-h-14 w-full rounded-[18px] border-2 border-ink/12 bg-white px-4 text-base text-ink outline-none focus-visible:border-coral"
+            />
+            <Button variant="ghost" onClick={restorePro} disabled={restoring}>
+              {restoring ? "Checking..." : "Restore Pro"}
             </Button>
           </div>
-        </section>
-      </main>
-      <BottomNav />
+        </Field>
+      </Section>
+
+      <Section title="Plan">
+        <Field label={pro ? "DeskBreak Pro" : "DeskBreak Free"}>
+          {pro ? (
+            <>
+              <p className="text-sm text-ink/60">
+                {state.entitlement.cancelAtPeriodEnd
+                  ? "Cancels at the end of the current period."
+                  : state.entitlement.proExpiresAt
+                    ? `Renews ${new Date(state.entitlement.proExpiresAt).toLocaleDateString()}.`
+                    : "Active."}
+              </p>
+              <a
+                href={`mailto:${SUPPORT_EMAIL}?subject=Manage%20my%20DeskBreak%20subscription`}
+                className="mt-2 inline-block text-sm font-semibold text-coral"
+              >
+                Manage subscription
+              </a>
+            </>
+          ) : (
+            <ButtonLink href="/app/pro?from=settings">See Pro</ButtonLink>
+          )}
+        </Field>
+      </Section>
+
+      <Section title="App">
+        <Field label="Sound">
+          <Chip
+            label={state.settings.soundEnabled ? "On" : "Off"}
+            active={state.settings.soundEnabled}
+            onClick={() => saveSettings({ soundEnabled: !state.settings.soundEnabled })}
+          />
+        </Field>
+      </Section>
+
+      <Section title="Legal">
+        <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-coral">
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/support">Support</Link>
+        </nav>
+        <p className="mt-3 text-xs leading-relaxed text-ink/45">
+          {MOVEMENT_DISCLAIMER}
+        </p>
+      </Section>
     </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="mt-7">
+      <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+        {title}
+      </h2>
+      <div className="mt-3 grid gap-4">{children}</div>
+    </section>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-[20px] bg-white px-4 py-4 shadow-[0_2px_0_rgba(28,25,23,0.06)]">
+      <p className="text-sm font-semibold text-ink">{label}</p>
+      <div className="mt-2.5">{children}</div>
+    </div>
+  );
+}
+
+function Chip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={[
+        "min-h-11 rounded-full px-4 text-sm font-semibold transition-colors",
+        active ? "bg-ink text-paper" : "bg-ink/5 text-ink/60",
+      ].join(" ")}
+    >
+      {label}
+    </button>
   );
 }
