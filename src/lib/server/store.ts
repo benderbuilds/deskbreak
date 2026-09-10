@@ -9,9 +9,11 @@ import "server-only";
  * tell the difference rather than quietly pretending a purchase was saved.
  */
 
+// Both are provided automatically by the Supabase integration for Vercel.
+// Nothing here should ever be copied by hand, and neither is NEXT_PUBLIC_:
+// the secret key bypasses row-level security and must stay server-side.
 const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "");
-const SUPABASE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
 
 export function isDurable(): boolean {
   return Boolean(SUPABASE_URL && SUPABASE_KEY);

@@ -79,10 +79,14 @@ Local storage caches the answer for a fast first paint. It is never the source
 of truth, and a v1 `plan: "pro"` blob is explicitly not carried forward by the
 state migration. Settings has **Restore Pro** for a new device.
 
-Without `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`, the store falls back to an
-in-process map so local dev and CI work with no credentials. That is not durable,
-`isDurable()` reports it, and the webhook logs loudly about it. Production needs
-Supabase; apply `supabase/schema.sql`.
+`SUPABASE_URL` and `SUPABASE_SECRET_KEY` are injected by the Supabase
+integration for Vercel, so there is nothing to copy by hand on a deploy. Set them
+in `.env.local` only to develop against a real project.
+
+Without them the store falls back to an in-process map so local dev and CI work
+with no credentials. That is not durable, `isDurable()` reports it, and the
+webhook logs loudly about it. Production needs Supabase; apply
+`supabase/schema.sql` once from the SQL editor.
 
 Without Stripe keys, checkout returns 503 and the paywall shows "Pro checkout is
 temporarily unavailable." Customers never see an environment variable name.
