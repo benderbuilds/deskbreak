@@ -266,7 +266,7 @@ export function WorkoutView({
       {skipToast ? (
         <div
           role="status"
-          className="pointer-events-none absolute inset-x-5 bottom-[5.5rem] z-30 animate-[popIn_240ms_cubic-bezier(0.34,1.4,0.64,1)]"
+          className="pointer-events-none fixed inset-x-4 bottom-28 z-50 mx-auto max-w-[430px] animate-[popIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]"
         >
           <p className="rounded-full bg-ink px-4 py-3 text-center text-sm font-semibold text-paper shadow-[0_4px_0_#0C0A09]">
             Skipped. No judgment.
