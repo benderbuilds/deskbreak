@@ -1,120 +1,166 @@
 # DeskBreak
 
-Mobile-first web app for one-tap desk breaks. No equipment. No account.
+DeskBreak keeps your desk day from catching up with your body.
 
-Office workouts and desk exercises you can do in 2, 5, or 10 minutes — at work or as a home workout routine for busy days.
+Tiny guided movement breaks for stiff necks, tight backs, tired shoulders and
+desk-brain. Free proves that two minutes makes you feel better. Pro removes the
+work of remembering what to do and when.
 
 ## Run locally
 
 ```bash
 npm install
-cp .env.example .env.local   # optional; demo unlock works in `next dev` without this
+cp .env.example .env.local   # optional; everything below is opt-in
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) at a phone-width viewport (~390px).
+Open http://localhost:3000 at a phone-width viewport (~390px). Mobile is the
+primary design target.
 
 ```bash
+npm run lint
 npm run build
-npm start
+npm test          # Playwright, mobile + desktop
+npm run test:unit # content and art checks only, no server needed
 ```
 
-Production `npm start` hides the demo unlock unless `NEXT_PUBLIC_DEMO_UNLOCK=true`.
+## The shape of the app
+
+There are two halves, and they are deliberately separate.
+
+**Public, server-rendered, indexable** (`/`, `/desk-exercises/*`, `/guides/*`,
+`/privacy`, `/terms`, `/support`). Nothing here reads local storage, so a
+first-time visitor gets static HTML. Every SEO page ends in a button that starts
+the matching guided reset rather than just describing one.
+
+**The app** (`/app/*`). Personal state, excluded from the index.
+
+### The activation funnel
+
+```
+/                       landing
+  -> /app/start         "What needs attention right now?"  (one tap)
+  -> (only if needed)   "Can you stand right now?"
+  -> /app/workout/:id   the reset starts immediately
+  -> /app/done          "Did that help?" -> email -> personalised Pro offer
+  -> /app               home recommends what to do next
+```
+
+No account before the first reset, and at most two decisions to get moving.
 
 ## Free vs Pro
 
-| | Free | Pro (annual) |
+| | Free | Pro |
 | --- | --- | --- |
-| Onboarding + Home | ✓ | ✓ |
-| 2 min Desk Reset | Unlimited | Unlimited |
-| 5 min Lunch Reset | Locked | ✓ |
-| 10 min Busy-Day Circuit | Locked | ✓ |
-| Library | 15 moves | Full catalog |
-| Streak | Basic | Streak + XP |
-| Reminders | Onboarding presets | Custom hour |
-| Celebration themes | Classic | Classic / confetti / spark |
-| Badge | — | Pro |
+| 2-minute resets for every problem area | Unlimited | Unlimited |
+| Movement library | 23 moves | Full catalog |
+| Longer programs (3, 4, 5, 10 min) | Locked but visible | Included |
+| Workday plan | - | Yes |
+| Reminders | One daily | Scheduled around your plan |
+| Progress history | Last 7 days | Full |
+| 7-Day Desk Reset | - | Yes |
 
-**Pro pricing:** **$74 / year** (50% off list **$148 / year**; shown as “less than $7/month, billed annually”). Stripe Price ID stays in env (`NEXT_PUBLIC_STRIPE_PRICE_ID`).
+Pricing lives in exactly one place: `src/lib/pricing.ts`, fed by env. Launch
+prices are **$5.99/month** and **$39/year** (founding). Do not hardcode a price
+anywhere else.
 
-Entitlement (`plan`, `proExpiresAt`) is stored in `localStorage` on this device. There is no login.
+## Entitlement
 
-## Stripe Checkout
+Pro is server-backed. The flow is:
 
-Live charging is **opt-in**. The paywall always looks production-ready. It only redirects to Stripe when both env vars are set:
+1. `POST /api/checkout` creates a Stripe Checkout Session and attaches the
+   profile id.
+2. `POST /api/stripe/webhook` writes `subscriptions` from Stripe's own status
+   and period end. **Nothing else writes that table**, and no code path invents
+   an expiry date.
+3. `GET /api/entitlement` is what the client asks on load.
 
-```
-STRIPE_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_STRIPE_PRICE_ID=price_...
-```
+Local storage caches the answer for a fast first paint. It is never the source
+of truth, and a v1 `plan: "pro"` blob is explicitly not carried forward by the
+state migration. Settings has **Restore Pro** for a new device.
 
-Create an **annual subscription** price of $74 in Stripe and paste the Price ID.
+Without `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`, the store falls back to an
+in-process map so local dev and CI work with no credentials. That is not durable,
+`isDurable()` reports it, and the webhook logs loudly about it. Production needs
+Supabase; apply `supabase/schema.sql`.
 
-- Success: `/paywall/success?session_id=...` verifies the session, then unlocks Pro.
-- Cancel: back to `/paywall`.
-- Missing keys: Checkout returns 501. **No fake charges.**
+Without Stripe keys, checkout returns 503 and the paywall shows "Pro checkout is
+temporarily unavailable." Customers never see an environment variable name.
 
-### Demo unlock (overnight / local)
+## Recommendation engine
 
-Shown when `NODE_ENV !== "production"` **or** `NEXT_PUBLIC_DEMO_UNLOCK=true`:
+One module decides what a user should do next: `src/lib/recommendation.ts`.
 
-**Unlock Pro for demo** — sets `plan: pro` in localStorage for a year. Use this to try the full app tomorrow morning without Stripe.
-
-## What’s in the app
-
-- **Landing** — SEO hero for first-time visitors
-- **Onboarding** — hook, required goal + work setup, optional reminder (defaults off), then a 2-min Desk Reset before the paywall. Standing-desk setup swaps seated-only steps; goal reorders Desk Reset (neck-first / energy-first) after those swaps. Same program id — no JSON fork.
-- **Paywall** — Free vs Pro, Subscribe annually, Continue on Free
-- **Home** — greeting, goal + setup chips, Start nudge, one-tap 2-min reset, locked Pro circuits
-- **Active workout** — large timer, Stretch illustration (optional motion frames), cue, next / skip / pause
-- **Done** — Stretch celebration + short chime, streak, copyable summary
-- **Library** — Stretch thumbnails; filter by body area; Pro locks on gated moves
-- **Settings** — reminders, plan, replay onboarding
-- **PWA** — manifest, icons, install prompt when the browser offers it
-- **Stretch** — SVG coach in `public/character/` (see below)
-
-## Brand mark
-
-Locked mark: coral squircle + white profile silhouette of a person sitting in a chair with both arms raised. No desk. One head, two arms, two legs, simple chair.
-
-Icons are **crops/resizes of Jesse’s locked PNG** (not a redrawn stick figure, not the old scribble).
-
-- `scripts/locked-mark-source.png` — lock source
-- `public/icons/logo-mark.png` — in-app mark (`LogoMark`)
-- `public/favicon.svg`, `public/favicon.ico`, `public/favicon-32.png`, `public/favicon-16.png`
-- `public/apple-touch-icon.png` (180×180, full-bleed; OS applies the mask)
-- `public/icons/icon-192.png`, `icon-512.png` (precomposed squircle)
-- `public/icons/icon-512-maskable.png` (full-bleed coral, figure inset for the maskable safe zone)
-
-Regenerate with `node scripts/generate-icons.mjs` or `python3 scripts/generate-icons.py`.
-
-## Character art (Stretch)
-
-Lanky abstract adult desk human — coral accent, ink line, paper-flat, wry not cute. Name + cue stay primary; art is extra. Workout shows a large stage above the cue (tap the art for a bounce that never covers Next / Skip / Pause). Library uses a small thumbnail. Missing files fall back to `stretch-fallback.svg`, then to the nearest body-area pose.
-
-Drop replacements in `public/character/` using the **catalog exercise id**:
-
-```
-public/character/{exerciseId}.svg
-public/character/{exerciseId}-b.svg   # optional second motion frame
-public/character/stretch-idle.svg
-public/character/stretch-done.svg
-public/character/stretch-locked.svg
-public/character/stretch-fallback.svg
+```ts
+getRecommendedProgram({ need, setup, durationMinutes, recentExerciseIds, timeOfDay, pro })
 ```
 
-2-min Desk Reset ids: `chin-tucks`, `shoulder-rolls`, `seated-cat-cow`, `wrist-circles`, `seated-figure-four`, `box-breathing`. Free library also ships `neck-nods`, `finger-fans`, `seated-marches`. Other moves reuse the closest body-area file until a dedicated SVG exists. Mapping lives in `src/lib/character-art.ts`. Keep 512×512, brand colors (`#F7F4EF` paper, `#FF5A36` coral, `#2DD4A8` mint, `#1C1917` ink).
+Deterministic rules, no machine learning. It prefers a hand-authored catalog
+program when one matches the context exactly, and otherwise assembles one from
+the exercise pool. It will not hand a seated user a standing-only move, will not
+hand a free user a Pro move, and keeps most of a routine on the topic the user
+actually picked. All of that is enforced in `tests/recommendation.spec.ts`.
+
+Feedback ("Did that help?") is stored per session in `sessions`. V2 only
+collects it; a later version can rank routines by what worked for whom.
 
 ## Content
 
-Swap exercises and programs in:
+One canonical file: `data/exercises-and-programs.json`. Types in
+`src/lib/types.ts`. Content bugs fail at import: a free program that references a
+Pro exercise, or a step pointing at a missing exercise, throws during the build.
+
+## Character art (Stretch)
+
+`public/character/{exerciseId}.svg`, with an optional `{exerciseId}-b.svg`
+second frame and an optional `{exerciseId}-standing.svg` for moves that read
+differently on your feet.
+
+Art resolves **by exercise id, from `data/art-manifest.json`**, which is
+generated from the files actually on disk. There are exactly two outcomes: the
+exercise's own artwork, or the neutral `stretch-fallback.svg`. It never borrows
+another exercise's pose, because a wrong picture teaches a wrong movement.
+
+```bash
+npm run art:manifest   # after adding or removing any SVG
+npm run art:audit      # lists moves with no dedicated art
+```
+
+The audit fails if a move used by a *free* program has no artwork. Free is the
+product's proof; a generic blob there costs conversions. Pro-only gaps are
+listed for an illustrator and fall back gracefully in the meantime.
+
+Keep new art at 512x512 in brand colors: `#F7F4EF` paper, `#FF5A36` coral,
+`#2DD4A8` mint, `#1C1917` ink. Stretch is a helpful adult coworker, not a
+cartoon mascot.
+
+## Analytics
+
+`src/lib/analytics.ts` is the only place that talks to PostHog. Components call
+`track("reset_started", {...})`. If PostHog is not configured, events queue
+briefly and then drop; analytics never blocks a reset.
+
+The funnel to watch:
 
 ```
-data/exercises-and-programs.json
+landing_viewed -> primary_cta_clicked -> reset_started -> reset_completed
+  -> reset_feedback_submitted -> paywall_viewed -> checkout_started -> checkout_completed
 ```
 
-Types: `src/lib/types.ts`. Mark each exercise and program with `"access": "free"` or `"pro"` in the JSON; entitlements read that field.
+First-touch UTM attribution is written once and never overwritten, because that
+is the number a channel experiment is judged on. Latest touch is tracked
+separately.
+
+## Reminders
+
+Level 1 is email, because a browser tab is not open at 3 PM. `POST
+/api/reminders/send` is meant to be called hourly by a scheduler with
+`Authorization: Bearer $CRON_SECRET`, and sends through Resend.
+
+DeskBreak does not claim to know you have been sitting, because it cannot.
 
 ## Stack
 
-Next.js App Router, TypeScript, Tailwind CSS. Client workout engine. Stripe Checkout only if configured.
+Next.js App Router, TypeScript, Tailwind CSS. Stripe for billing, Supabase for
+persistence, PostHog for measurement, Resend for email. Every one of those is
+optional in development.
