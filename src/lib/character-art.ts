@@ -399,4 +399,31 @@ export function assertStretchPoseMatch(): void {
     characterSrc({ pose: "idle", setup: "standing" }),
     (src) => src === "/character/stretch-idle-standing.svg",
   );
+  expectSrc(
+    "standing done",
+    characterSrc({ pose: "done", setup: "standing" }),
+    (src) => src === "/character/stretch-done-standing.svg",
+  );
+  expectSrc(
+    "standing long-exhale from seated asset",
+    characterSrc({
+      pose: "exercise",
+      exerciseId: "long-exhale-reset",
+      stretchAsset: "long-exhale-reset.svg",
+      setup: "standing",
+      programId: STANDING_RESET_ID,
+    }),
+    (src) => src === "/character/long-exhale-reset-standing.svg",
+  );
+  expectSrc(
+    "standing shoulder-rolls from seated asset",
+    characterSrc({
+      pose: "exercise",
+      exerciseId: "shoulder-rolls",
+      stretchAsset: "shoulder-rolls.svg",
+      setup: "standing",
+      programId: STANDING_RESET_ID,
+    }),
+    (src) => src === "/character/shoulder-rolls-standing.svg",
+  );
 }

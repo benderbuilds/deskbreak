@@ -304,6 +304,28 @@ if (catalog.productDefaults?.featuredFreeProgramId !== STANDING_RESET_ID) {
   );
 }
 
+for (const id of SHARED_STANDING_DUALS) {
+  const standingAsset = exerciseById.get(id)?.setupVariants?.standing?.stretchAsset;
+  if (!standingAsset || !standingAsset.includes("-standing.")) {
+    throw new Error(
+      `Exercise ${id} must ship a standing dual (clear stretchAssetFallback)`,
+    );
+  }
+}
+
+const standingReset = programById.get(STANDING_RESET_ID);
+if (!standingReset) {
+  throw new Error(`Missing standing reset program ${STANDING_RESET_ID}`);
+}
+for (const step of standingReset.steps) {
+  if (!SHARED_STANDING_DUALS.includes(step.exerciseId)) continue;
+  if (!step.stretchAsset?.includes("-standing.")) {
+    throw new Error(
+      `Standing reset step ${step.exerciseId} must use *-standing.svg, not a seated fallback`,
+    );
+  }
+}
+
 assertStretchPoseMatch();
 
 export function getCatalog(): Catalog {
