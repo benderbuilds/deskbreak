@@ -18,6 +18,24 @@ type Body = {
   paywallSource?: string;
 };
 
+/**
+ * Why checkout could not run, as a code an operator can act on.
+ *
+ * Customers never see this: the paywall shows the same friendly copy whatever
+ * comes back. It exists so `curl /api/checkout` says which of several unrelated
+ * problems is actually happening, without naming an environment variable or
+ * leaking anything about the configuration itself.
+ */
+type UnavailableReason =
+  | "price_not_configured"
+  | "identity_unavailable"
+  | "provider_rejected"
+  | "no_checkout_url";
+
+function unavailable(reason: UnavailableReason) {
+  return NextResponse.json({ error: "unavailable", reason }, { status: 503 });
+}
+
 export async function POST(request: Request) {
   let body: Body;
   try {
@@ -34,18 +52,26 @@ export async function POST(request: Request) {
       "configuration",
       `no Stripe price configured for the ${period} plan`,
     );
-    return NextResponse.json({ error: "unavailable" }, { status: 503 });
+    return unavailable("price_not_configured");
   }
 
+  // Create the identity up front so the webhook has something to attach to even
+  // if the customer closes the tab before returning. Kept in its own try so a
+  // database problem is never reported as a payment problem: the two have
+  // completely different fixes and used to look identical from outside.
+  let profile;
   try {
-    // Create the identity up front so the webhook has something to attach to
-    // even if the customer closes the tab before returning.
-    const profile = await ensureProfile({
+    profile = await ensureProfile({
       email: body.email && isValidEmail(body.email) ? body.email : null,
       anonymousId: body.anonymousId ?? null,
       primaryNeed: body.primaryNeed ?? null,
     });
+  } catch (error) {
+    logCheckoutFailure("identity", error);
+    return unavailable("identity_unavailable");
+  }
 
+  try {
     const origin = originFrom(request);
     const session = await getStripe().checkout.sessions.create({
       mode: "subscription",
@@ -70,12 +96,12 @@ export async function POST(request: Request) {
 
     if (!session.url) {
       logCheckoutFailure("session", "Stripe returned a session with no URL");
-      return NextResponse.json({ error: "unavailable" }, { status: 503 });
+      return unavailable("no_checkout_url");
     }
 
     return NextResponse.json({ url: session.url, userId: profile.id });
   } catch (error) {
     logCheckoutFailure("create", error);
-    return NextResponse.json({ error: "unavailable" }, { status: 503 });
+    return unavailable("provider_rejected");
   }
 }
