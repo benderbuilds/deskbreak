@@ -73,17 +73,19 @@ export function PaywallView() {
 
       <main className="flex-1 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-coral">
-          Soft paywall
+          After your reset
         </p>
         <div className="mt-3 flex justify-center">
-          <CharacterArt pose="idle" size={140} alt="Stretch" />
+          <CharacterArt pose="locked" size={140} alt="Stretch — Pro locked" />
         </div>
-        <h1 className="mt-2 font-display text-[2.1rem] font-semibold leading-[1.1] text-ink">
-          Keep the 2-minute habit. Unlock the workday when you’re ready.
+        <p className="mt-2 text-center text-xs font-semibold text-ink/45">
+          Pro’s there when the day gets longer.
+        </p>
+        <h1 className="mt-3 font-display text-[2.1rem] font-semibold leading-[1.1] text-ink">
+          Keep the momentum.
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-ink/65">
-          You already felt a reset. Stay free, or go Pro for the longer circuits,
-          full library, reminders, and celebrations.
+          You felt a 2-minute reset. Pro fits the rest of the day.
         </p>
 
         {alreadyPro ? (
@@ -147,7 +149,7 @@ export function PaywallView() {
                 Unlock Pro for demo
               </Button>
               <Button variant="ghost" disabled>
-                Subscribe annually
+                Unlock Pro — ${ANNUAL_PRICE_USD}/yr
               </Button>
               <p className="text-center text-xs leading-relaxed text-ink/45">
                 Stripe isn’t configured on this build, so Subscribe would 501.
@@ -157,7 +159,7 @@ export function PaywallView() {
           ) : (
             <>
               <Button onClick={subscribe} disabled={busy || !stripeReady}>
-                {busy ? "Opening Checkout…" : "Subscribe annually"}
+                {busy ? "Opening Checkout…" : `Unlock Pro — $${ANNUAL_PRICE_USD}/yr`}
               </Button>
               {demo ? (
                 <Button variant="mint" onClick={demoUnlock}>
@@ -173,7 +175,7 @@ export function PaywallView() {
             </>
           )}
           <Button variant="ghost" onClick={continueFree}>
-            Continue on Free
+            Continue with Free
           </Button>
         </div>
       )}

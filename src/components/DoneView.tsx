@@ -7,6 +7,7 @@ import { CharacterArt } from "@/components/CharacterArt";
 import { getExercise } from "@/lib/content";
 import { isProEntitlement } from "@/lib/entitlements";
 import { buildSessionSummary } from "@/lib/format";
+import { playCelebrationTune } from "@/lib/celebration-tune";
 import { getLastSession, markPaywallSeen } from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
 import { useIsClient } from "@/lib/use-client";
@@ -27,6 +28,11 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
       router.replace(nextPaywall ? "/paywall" : "/");
     }
   }, [isClient, session, router, nextPaywall]);
+
+  useEffect(() => {
+    if (!session) return;
+    playCelebrationTune(session.finishedAt);
+  }, [session]);
 
   const completedNames = useMemo(
     () =>
@@ -70,8 +76,9 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
     return <div className="min-h-dvh bg-paper" />;
   }
 
+  const headline = headlineForSession(session.finishedAt, session.programId);
   const primaryHref = nextPaywall ? "/paywall?from=firstWin" : "/";
-  const primaryLabel = nextPaywall ? "See Free vs Pro" : "Back home";
+  const primaryLabel = nextPaywall ? "Keep the momentum." : "Back home";
 
   return (
     <div className="relative flex min-h-dvh flex-col overflow-hidden px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
@@ -85,18 +92,17 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
           className="mt-2 animate-[popIn_320ms_cubic-bezier(0.34,1.45,0.64,1)]"
         />
 
-        <h1 className="mt-4 font-display text-[2.35rem] font-semibold leading-none tracking-tight text-ink animate-[stepIn_280ms_cubic-bezier(0.34,1.2,0.64,1)]">
-          That&apos;s a break.
+        <h1 className="mt-4 font-display text-[2.35rem] font-semibold leading-none tracking-tight text-ink animate-[stepIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]">
+          {headline}
         </h1>
         <p className="mt-3 max-w-[20rem] text-[1.05rem] leading-relaxed text-ink/65">
-          {session.programName} in the books. No extra credit required.
+          {session.programName} in the books.
         </p>
 
         <div className="mt-8 flex items-center gap-2 rounded-full bg-white px-5 py-3 text-ink shadow-[0_4px_0_rgba(28,25,23,0.06)] animate-[popIn_300ms_cubic-bezier(0.34,1.45,0.64,1)]">
-          <span aria-hidden className="text-lg">
-            🔥
-          </span>
-          <p className="text-base font-semibold">{streak} day streak</p>
+          <p className="text-base font-semibold">
+            {streak > 0 ? `🔥 ${streak}-day groove` : "Day one anytime"}
+          </p>
         </div>
         {pro ? (
           <p className="mt-3 text-sm font-semibold text-ink/50">{app.progress.xp} XP</p>
@@ -125,9 +131,6 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
       </main>
 
       <div className="relative z-10 mt-6 flex flex-col gap-3">
-        <Button variant={copied ? "mint" : "ghost"} onClick={copySummary}>
-          {copied ? "Copied" : "Copy summary"}
-        </Button>
         <ButtonLink href={primaryHref}>{primaryLabel}</ButtonLink>
         {nextPaywall ? (
           <Button
@@ -137,12 +140,31 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
               router.replace("/");
             }}
           >
-            Skip to home
+            Continue with Free
           </Button>
-        ) : null}
+        ) : (
+          <Button variant={copied ? "mint" : "ghost"} onClick={copySummary}>
+            {copied ? "Copied" : "Copy summary"}
+          </Button>
+        )}
       </div>
     </div>
   );
+}
+
+const DONE_HEADLINES = [
+  "That’s a break.",
+  "Shoulders say thanks.",
+  "Back to it — lighter.",
+] as const;
+
+function headlineForSession(finishedAt: string, programId: string): string {
+  const seed = `${finishedAt}:${programId}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash + seed.charCodeAt(i) * (i + 1)) % DONE_HEADLINES.length;
+  }
+  return DONE_HEADLINES[hash] ?? DONE_HEADLINES[0];
 }
 
 function Celebration({ theme }: { theme: CelebrationTheme }) {

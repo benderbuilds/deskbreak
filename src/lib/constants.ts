@@ -1,5 +1,7 @@
 export const FIRST_WIN_PROGRAM_ID = "desk-reset-2min";
 
+export const HOME_START_NUDGE = "Meeting gap? Hit reset before Slack wins.";
+
 export const ANNUAL_PRICE_USD = 47.99;
 export const MONTHLY_COMPARE_USD = 8.99;
 export const ANNUAL_PER_MONTH = 4;

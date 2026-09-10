@@ -70,6 +70,8 @@ const EXERCISE_STEMS: Record<string, string> = {
   "seated-hip-windshield-wipers": "seated-hip-windshield-wipers",
   "foot-tripod-toe-spread": "foot-tripod-toe-spread",
   "short-foot-grip": "foot-tripod-toe-spread",
+  "desk-wiggle-reset": "seated-cat-cow",
+  "screen-distance-blink": "standing-posture-reset",
 };
 
 const BODY_AREA_STEMS: Record<BodyArea, string> = {

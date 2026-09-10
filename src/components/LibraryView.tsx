@@ -136,6 +136,9 @@ function ExerciseCard({
               </div>
             ) : (
               <>
+                {exercise.shortLabel ? (
+                  <p className="mt-1 text-xs font-semibold text-coral">{exercise.shortLabel}</p>
+                ) : null}
                 <p className="mt-2 text-sm leading-relaxed text-ink/65">{exercise.cue}</p>
                 <p className="mt-3 text-sm font-semibold text-coral">
                   {formatDose(exercise.defaultDose)}

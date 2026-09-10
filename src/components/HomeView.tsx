@@ -8,9 +8,9 @@ import { InstallPrompt } from "@/components/InstallPrompt";
 import { LogoMark } from "@/components/LogoMark";
 import { ProBadge } from "@/components/ProBadge";
 import { UpgradeSheet } from "@/components/UpgradeSheet";
-import { GOAL_COPY, SETUP_COPY } from "@/lib/constants";
+import { FIRST_WIN_PROGRAM_ID, GOAL_COPY, HOME_START_NUDGE, SETUP_COPY } from "@/lib/constants";
 import { isProEntitlement, isProgramLocked } from "@/lib/entitlements";
-import { getPrograms } from "@/lib/content";
+import { getProgram, getPrograms } from "@/lib/content";
 import { greetingForHour } from "@/lib/format";
 import { taglineForSetup } from "@/lib/setup-steps";
 import { deskResetGoalKicker } from "@/lib/goal-steps";
@@ -37,6 +37,10 @@ export function HomeView() {
   const [upgrade, setUpgrade] = useState<string | null>(null);
   const greeting = isClient ? greetingForHour(new Date().getHours()) : "Hey";
   const progress = state.progress;
+  const goal = state.onboardingAnswers.goal;
+  const setup = state.onboardingAnswers.setup;
+  const startProgram = getProgram(FIRST_WIN_PROGRAM_ID) ?? programs[0];
+  const morePrograms = programs.filter((program) => program.id !== startProgram?.id);
 
   const lastLabel = useMemo(() => {
     if (!progress.lastWorkout) return null;
@@ -44,12 +48,9 @@ export function HomeView() {
     return `${progress.lastWorkout.programName}${when ? ` · ${when}` : ""}`;
   }, [progress]);
 
-  const goalLine = state.onboardingAnswers.goal
-    ? GOAL_COPY[state.onboardingAnswers.goal].homeLine
-    : "Office workouts and desk exercises that fit between meetings.";
-  const setupLine = state.onboardingAnswers.setup
-    ? SETUP_COPY[state.onboardingAnswers.setup].hint
-    : "One tap to start. Desk exercises while working — or a home workout routine for busy days. No equipment.";
+  const sub = setup
+    ? SETUP_COPY[setup].hint
+    : "Two minutes. Still at your desk. Actually feel better.";
 
   const reminderDue =
     isClient &&
@@ -64,7 +65,7 @@ export function HomeView() {
   return (
     <div className="flex min-h-dvh flex-col">
       <main className="flex-1 px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))]">
-        <header className="mb-6 flex items-start justify-between gap-3">
+        <header className="mb-5 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <LogoMark />
             <div>
@@ -77,7 +78,7 @@ export function HomeView() {
               <p className="mt-1 text-sm text-ink/55">{greeting}</p>
             </div>
           </div>
-          <StreakPill streak={progress.streak} xp={pro ? progress.xp : null} />
+          <StreakPill streak={progress.streak} showXp={pro ? progress.xp : null} />
         </header>
 
         {reminderDue ? (
@@ -100,42 +101,77 @@ export function HomeView() {
 
         <InstallPrompt />
 
-        <div className="mb-4 flex justify-center">
-          <CharacterArt pose="idle" size={148} tappable alt="Stretch ready for a desk break" />
-        </div>
-
-        <section className="mb-7">
+        <section className="mb-5">
           <h1 className="font-display text-[1.75rem] font-semibold leading-[1.15] tracking-tight text-ink">
-            {goalLine}
+            {HOME_START_NUDGE}
           </h1>
-          <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/65">
-            {setupLine}
-          </p>
+          <p className="mt-2 text-[0.95rem] leading-relaxed text-ink/60">{sub}</p>
+          {(goal || setup) && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {goal ? <MetaChip>{GOAL_COPY[goal].label}</MetaChip> : null}
+              {setup ? <MetaChip>{SETUP_COPY[setup].label}</MetaChip> : null}
+            </div>
+          )}
         </section>
 
         <section className="flex flex-col gap-3" aria-label="Start a break">
-          {programs.map((program, index) => (
-            <ProgramCard
-              key={program.id}
-              program={program}
-              featured={index === 0}
-              locked={isProgramLocked(program, state.entitlement)}
-              tagline={taglineForSetup(program, state.onboardingAnswers.setup)}
-              kicker={deskResetGoalKicker(program.id, state.onboardingAnswers.goal)}
-              onLocked={() =>
-                setUpgrade(
-                  `${program.name} is part of Pro, along with the full library.`,
-                )
-              }
-            />
-          ))}
+          {startProgram ? (
+            <div className="relative pt-10">
+              <div className="absolute left-1/2 top-0 z-0 -translate-x-1/2">
+                <CharacterArt
+                  pose="idle"
+                  size={172}
+                  tappable
+                  alt="Stretch ready for a desk break"
+                />
+              </div>
+              <div className="relative z-10">
+              <ProgramCard
+                program={startProgram}
+                featured
+                locked={isProgramLocked(startProgram, state.entitlement)}
+                tagline={taglineForSetup(startProgram, setup)}
+                kicker={deskResetGoalKicker(startProgram.id, goal)}
+                onLocked={() =>
+                  setUpgrade(`${startProgram.name} is part of Pro, along with the full library.`)
+                }
+              />
+              </div>
+            </div>
+          ) : null}
+
+          {pro
+            ? morePrograms.map((program) => (
+                <ProgramCard
+                  key={program.id}
+                  program={program}
+                  featured={false}
+                  locked={isProgramLocked(program, state.entitlement)}
+                  tagline={taglineForSetup(program, setup)}
+                  kicker={deskResetGoalKicker(program.id, goal)}
+                  onLocked={() =>
+                    setUpgrade(`${program.name} is part of Pro, along with the full library.`)
+                  }
+                />
+              ))
+            : (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setUpgrade("Lunch Reset and Busy-Day Circuit unlock with Pro.")
+                  }
+                  className="min-h-11 text-left text-sm font-semibold text-ink/45"
+                >
+                  More breaks with Pro →
+                </button>
+              )}
         </section>
 
         {lastLabel ? (
           <p className="mt-6 text-center text-sm text-ink/45">Last break: {lastLabel}</p>
         ) : (
           <p className="mt-6 text-center text-sm text-ink/45">
-            Show up for two minutes. That counts.
+            Fresh slate. That’s kind of nice.
           </p>
         )}
       </main>
@@ -146,6 +182,14 @@ export function HomeView() {
         reason={upgrade ?? undefined}
       />
     </div>
+  );
+}
+
+function MetaChip({ children }: { children: string }) {
+  return (
+    <span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink shadow-[0_2px_0_rgba(28,25,23,0.06)]">
+      {children}
+    </span>
   );
 }
 
@@ -166,10 +210,10 @@ function ProgramCard({
 }) {
   const className = [
     "group block rounded-[28px] p-5 outline-none text-left w-full",
-    "transition-transform duration-[280ms] ease-[cubic-bezier(0.34,1.4,0.64,1)]",
-    "active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-coral",
+    "transition-[transform,box-shadow] duration-[240ms] ease-[cubic-bezier(0.34,1.4,0.64,1)]",
+    "active:translate-y-[2px] active:shadow-none focus-visible:ring-2 focus-visible:ring-coral",
     featured
-      ? "bg-coral text-white shadow-[0_6px_0_#E04420]"
+      ? "bg-coral pt-16 text-white shadow-[0_6px_0_#E04420]"
       : "bg-white text-ink shadow-[0_5px_0_rgba(28,25,23,0.08)]",
   ].join(" ");
 
@@ -182,7 +226,7 @@ function ProgramCard({
             featured ? "text-white/75" : "text-coral",
           ].join(" ")}
         >
-          {program.durationMin} min{locked ? " · Pro" : ""}
+          {program.durationMin} min{locked ? " · Pro" : featured ? " · Start" : ""}
         </p>
         <h2 className="mt-1 font-display text-[1.45rem] font-semibold leading-tight">
           {program.shortLabel}
@@ -204,11 +248,11 @@ function ProgramCard({
       <span
         aria-hidden
         className={[
-          "grid h-12 w-12 shrink-0 place-items-center rounded-full text-xl font-semibold",
+          "grid h-12 min-w-12 shrink-0 place-items-center rounded-full px-3 text-sm font-semibold",
           featured ? "bg-white/15" : "bg-paper",
         ].join(" ")}
       >
-        {locked ? "🔒" : "→"}
+        {locked ? "🔒" : featured ? "Start" : "→"}
       </span>
     </div>
   );
@@ -228,14 +272,14 @@ function ProgramCard({
   );
 }
 
-function StreakPill({ streak, xp }: { streak: number; xp: number | null }) {
+function StreakPill({ streak, showXp }: { streak: number; showXp: number | null }) {
   return (
     <div className="flex min-h-11 flex-col items-end justify-center rounded-full bg-white px-3.5 py-1.5 text-sm font-semibold text-ink shadow-[0_3px_0_rgba(28,25,23,0.06)]">
       <span>
-        🔥 {streak > 0 ? `${streak} day${streak === 1 ? "" : "s"}` : "Start"}
+        {streak > 0 ? `🔥 ${streak}-day groove` : "Day one anytime"}
       </span>
-      {xp != null ? (
-        <span className="text-[11px] font-semibold text-ink/45">{xp} XP</span>
+      {showXp != null ? (
+        <span className="text-[11px] font-semibold text-ink/45">{showXp} XP</span>
       ) : null}
     </div>
   );

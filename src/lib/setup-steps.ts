@@ -31,7 +31,7 @@ export function taglineForSetup(
   setup: SetupId | null | undefined,
 ): string {
   if (setup === "standing" && program.id === "desk-reset-2min") {
-    return "A tiny unstick. Still at your desk.";
+    return program.tagline || "Two minutes. Still at your desk. Actually feel better.";
   }
   return program.tagline;
 }

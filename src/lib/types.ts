@@ -28,6 +28,7 @@ export type Exercise = {
   access: Access;
   name: string;
   cue: string;
+  shortLabel?: string;
   bodyArea: BodyArea;
   defaultDose: Dose;
   commonMistake: string;

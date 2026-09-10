@@ -33,9 +33,24 @@ body {
 @keyframes stepIn {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.98);
+    transform: translateY(12px) scale(0.96);
   }
   to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes timerIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.86) translateY(8px);
+  }
+  68% {
+    opacity: 1;
+    transform: scale(1.045) translateY(-2px);
+  }
+  100% {
     opacity: 1;
     transform: none;
   }
