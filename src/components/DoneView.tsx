@@ -77,8 +77,8 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
   }
 
   const headline = headlineForSession(session.finishedAt, session.programId);
-  const primaryHref = nextPaywall ? "/paywall?from=firstWin" : "/";
-  const primaryLabel = nextPaywall ? "Keep the momentum." : "Back home";
+  const streakLabel = streak > 0 ? `🔥 ${streak}-day groove` : "Quiet flex";
+  const moreHref = `/workout/${session.programId}`;
 
   return (
     <div className="relative flex min-h-dvh flex-col overflow-hidden px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
@@ -100,9 +100,7 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
         </p>
 
         <div className="mt-8 flex items-center gap-2 rounded-full bg-white px-5 py-3 text-ink shadow-[0_4px_0_rgba(28,25,23,0.06)] animate-[popIn_300ms_cubic-bezier(0.34,1.45,0.64,1)]">
-          <p className="text-base font-semibold">
-            {streak > 0 ? `🔥 ${streak}-day groove` : "Day one anytime"}
-          </p>
+          <p className="text-base font-semibold">{streakLabel}</p>
         </div>
         {pro ? (
           <p className="mt-3 text-sm font-semibold text-ink/50">{app.progress.xp} XP</p>
@@ -131,21 +129,29 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
       </main>
 
       <div className="relative z-10 mt-6 flex flex-col gap-3">
-        <ButtonLink href={primaryHref}>{primaryLabel}</ButtonLink>
         {nextPaywall ? (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              markPaywallSeen();
-              router.replace("/");
-            }}
-          >
-            Continue with Free
-          </Button>
+          <>
+            <ButtonLink href="/paywall?from=firstWin">See what Pro unlocks</ButtonLink>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                markPaywallSeen();
+                router.replace("/");
+              }}
+            >
+              Back to desk
+            </Button>
+          </>
         ) : (
-          <Button variant={copied ? "mint" : "ghost"} onClick={copySummary}>
-            {copied ? "Copied" : "Copy summary"}
-          </Button>
+          <>
+            <ButtonLink href="/">Back to desk</ButtonLink>
+            <ButtonLink href={moreHref} variant="ghost">
+              One more?
+            </ButtonLink>
+            <Button variant={copied ? "mint" : "ghost"} onClick={copySummary}>
+              {copied ? "Copied" : "Copy summary"}
+            </Button>
+          </>
         )}
       </div>
     </div>
