@@ -1,5 +1,6 @@
 import catalogJson from "../../data/exercises-and-programs.json";
 import scienceCopy from "../../SCIENCE_BENEFITS_STANDING_COPY.json";
+import { assertStretchPoseMatch } from "./character-art";
 import { SEATED_RESET_ID, STANDING_RESET_ID } from "./constants";
 import { STANDING_STEP_SWAPS } from "./setup-steps";
 import type {
@@ -229,6 +230,19 @@ for (const exercise of catalog.exercises) {
   if (exercise.access !== "free" && exercise.access !== "pro") {
     throw new Error(`Exercise ${exercise.id} needs access "free" or "pro"`);
   }
+  if (/sticky notes/i.test(exercise.cue)) {
+    throw new Error(
+      `Exercise ${exercise.id} live cue must not use the sticky-notes metaphor`,
+    );
+  }
+  for (const pose of ["seated", "standing"] as const) {
+    const variantCue = exercise.setupVariants?.[pose]?.cue;
+    if (variantCue && /sticky notes/i.test(variantCue)) {
+      throw new Error(
+        `Exercise ${exercise.id} ${pose} cue must not use the sticky-notes metaphor`,
+      );
+    }
+  }
   if (exercise.saferSwapId && !exerciseById.has(exercise.saferSwapId)) {
     throw new Error(
       `Exercise ${exercise.id} has unknown saferSwapId ${exercise.saferSwapId}`,
@@ -276,6 +290,11 @@ for (const program of catalog.programs) {
         `Program ${program.id} references missing exercise ${step.exerciseId}`,
       );
     }
+    if (step.positionCue && /sticky notes/i.test(step.positionCue)) {
+      throw new Error(
+        `Program ${program.id} step ${step.exerciseId} cue must not use the sticky-notes metaphor`,
+      );
+    }
   }
 }
 
@@ -284,6 +303,8 @@ if (catalog.productDefaults?.featuredFreeProgramId !== STANDING_RESET_ID) {
     `productDefaults.featuredFreeProgramId must be ${STANDING_RESET_ID}`,
   );
 }
+
+assertStretchPoseMatch();
 
 export function getCatalog(): Catalog {
   return catalog;

@@ -1,4 +1,4 @@
-import type { Dose, Exercise, Program, ProgramStep, GoalId, SetupId, StretchView } from "./types";
+import type { Dose, Exercise, Program, ProgramStep, GoalId, SetupId } from "./types";
 import { stepsForGoal } from "./goal-steps";
 import { stepsForSetup } from "./setup-steps";
 
@@ -9,24 +9,25 @@ export type ResolvedStep = {
   durationSec: number;
 };
 
-type SetupVariant = {
-  cue?: string;
-  stretchView?: StretchView;
-  stretchAsset?: string;
-  stretchAssetB?: string;
-};
-
 function variantForPose(
   exercise: Exercise,
   pose: SetupId | null | undefined,
-): SetupVariant | undefined {
+) {
   if (pose !== "seated" && pose !== "standing") return undefined;
-  const variants = (
-    exercise as Exercise & {
-      setupVariants?: { seated?: SetupVariant; standing?: SetupVariant };
-    }
-  ).setupVariants;
-  return variants?.[pose];
+  return exercise.setupVariants?.[pose];
+}
+
+function stepAssetFitsPose(
+  asset: string | undefined,
+  pose: SetupId | null | undefined,
+): boolean {
+  if (!asset || (pose !== "seated" && pose !== "standing")) return true;
+  const stem = asset
+    .replace(/^\/character\//, "")
+    .replace(/\.(svg|png)$/i, "")
+    .replace(/-b$/, "");
+  if (pose === "standing") return !stem.startsWith("seated-");
+  return !stem.endsWith("-standing");
 }
 
 export function resolveProgramSteps(
@@ -49,6 +50,12 @@ export function resolveProgramSteps(
       );
     }
     const variant = variantForPose(exercise, pose);
+    const stepAsset = stepAssetFitsPose(step.stretchAsset, pose)
+      ? step.stretchAsset
+      : undefined;
+    const stepAssetB = stepAssetFitsPose(step.stretchAssetB, pose)
+      ? step.stretchAssetB
+      : undefined;
     return {
       index,
       step,
@@ -56,10 +63,8 @@ export function resolveProgramSteps(
         ...exercise,
         cue: step.positionCue ?? variant?.cue ?? exercise.cue,
         stretchView: step.stretchView ?? variant?.stretchView ?? exercise.stretchView,
-        stretchAsset:
-          step.stretchAsset ?? variant?.stretchAsset ?? exercise.stretchAsset,
-        stretchAssetB:
-          step.stretchAssetB ?? variant?.stretchAssetB ?? exercise.stretchAssetB,
+        stretchAsset: stepAsset ?? variant?.stretchAsset ?? exercise.stretchAsset,
+        stretchAssetB: stepAssetB ?? variant?.stretchAssetB ?? exercise.stretchAssetB,
       },
       durationSec: step.durationSec,
     };

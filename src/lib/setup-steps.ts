@@ -15,6 +15,19 @@ export const STANDING_STEP_SWAPS: Record<string, string> = {
   "glute-bridge": "sit-to-stand-glute",
 };
 
+/** When a step is retargeted, drop the previous move's art/cues. */
+export function retargetStep(step: ProgramStep, exerciseId: string): ProgramStep {
+  if (exerciseId === step.exerciseId) return step;
+  return {
+    ...step,
+    exerciseId,
+    stretchAsset: undefined,
+    stretchAssetB: undefined,
+    stretchView: undefined,
+    positionCue: undefined,
+  };
+}
+
 export function stepsForSetup(
   steps: ProgramStep[],
   setup: SetupId | null | undefined,
@@ -25,7 +38,7 @@ export function stepsForSetup(
   return steps.map((step) => {
     const swapId = STANDING_STEP_SWAPS[step.exerciseId];
     if (!swapId || swapId === step.exerciseId) return step;
-    return { ...step, exerciseId: swapId };
+    return retargetStep(step, swapId);
   });
 }
 

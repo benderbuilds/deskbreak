@@ -32,10 +32,11 @@ const EXERCISE_STEMS: Record<string, string> = {
   "seated-marches": "seated-marches",
   "seated-march": "seated-marches",
   "walk-to-water-march": "seated-marches",
-  "calf-raises": "seated-marches",
-  "calf-raise": "seated-marches",
+  // Standing-native: never alias onto chair marches.
+  "calf-raises": "standing-posture-reset",
+  "calf-raise": "standing-posture-reset",
   "ankle-circles": "seated-marches",
-  "standing-quad-stretch": "seated-marches",
+  "standing-quad-stretch": "standing-hip-flexor",
   "box-breathing": "box-breathing",
   "physiological-sigh": "physiological-sigh",
   "long-exhale-reset": "long-exhale-reset",
@@ -119,20 +120,78 @@ const SHARED_STANDING_DUALS = new Set([
   "shoulder-rolls",
 ]);
 
+/** Chair / seated-only teaching masters — never show these in a standing workout. */
+const SEATED_CHAIR_STEMS = new Set([
+  "seated-cat-cow",
+  "seated-figure-4",
+  "seated-figure-four",
+  "seated-marches",
+  "seated-scap-squeeze",
+  "seated-thoracic-rotation",
+  "seated-hip-windshield-wipers",
+]);
+
+const SEATED_TO_STANDING_FALLBACK: Record<string, string> = {
+  "seated-cat-cow": "standing-posture-reset",
+  "seated-figure-4": "standing-hip-flexor",
+  "seated-figure-four": "standing-hip-flexor",
+  "seated-marches": "standing-posture-reset",
+  "seated-scap-squeeze": "shoulder-rolls-standing",
+  "seated-thoracic-rotation": "standing-posture-reset",
+  "seated-hip-windshield-wipers": "standing-hip-flexor",
+};
+
 function standingContext({
   setup,
   programId,
-  stretchAsset,
 }: {
   setup?: SetupId | null;
   programId?: string;
-  stretchAsset?: string;
 }): boolean {
-  return (
-    setup === "standing" ||
-    programId === STANDING_RESET_ID ||
-    Boolean(stretchAsset?.includes("standing"))
-  );
+  return setup === "standing" || programId === STANDING_RESET_ID;
+}
+
+function baseStem(stem: string): string {
+  return stem.replace(/-standing$/, "");
+}
+
+/**
+ * Stretch posture follows the workout. Shared duals pick seated vs `-standing`.
+ * Chair-only stems remap only inside a standing program (Library keeps the
+ * exercise's own teaching art). Standing-native masters are never swapped
+ * down to a chair.
+ */
+function poseMatchedStem(
+  stem: string,
+  standing: boolean,
+  programId?: string,
+): string {
+  const aliased = aliasedStem(stem);
+  const base = baseStem(aliased);
+  if (standing) {
+    if (SHARED_STANDING_DUALS.has(base)) return `${base}-standing`;
+    if (programId && SEATED_CHAIR_STEMS.has(aliased)) {
+      return SEATED_TO_STANDING_FALLBACK[aliased] ?? "standing-posture-reset";
+    }
+    return aliased;
+  }
+  if (SHARED_STANDING_DUALS.has(base) && aliased.endsWith("-standing")) {
+    return base;
+  }
+  return aliased;
+}
+
+function poseMatchedPath(
+  file: string,
+  standing: boolean,
+  frame: "a" | "b",
+  programId?: string,
+): string {
+  const cleaned = stripSideSuffix(file);
+  const wantB = frame === "b" || /-b\.(svg|png)$/i.test(cleaned);
+  const stem = poseMatchedStem(stemFromAsset(cleaned), standing, programId);
+  if (wantB && MOTION_STEMS.has(stem)) return `/character/${stem}-b.svg`;
+  return `/character/${stem}.svg`;
 }
 
 function stripSideSuffix(file: string): string {
@@ -149,17 +208,34 @@ function stemFromAsset(file: string): string {
   return stripSideSuffix(file).replace(/\.(svg|png)$/i, "").replace(/-b$/, "");
 }
 
-function aliasedCharacterPath(file: string): string {
-  const cleaned = stripSideSuffix(file);
-  const isB = /-b\.(svg|png)$/i.test(cleaned);
-  const stem = aliasedStem(stemFromAsset(cleaned));
-  return `/character/${stem}${isB ? "-b" : ""}.svg`;
-}
-
 export function stemForExercise(exerciseId: string, bodyArea?: BodyArea): string {
   if (EXERCISE_STEMS[exerciseId]) return EXERCISE_STEMS[exerciseId];
   if (exerciseId) return exerciseId;
   if (bodyArea) return BODY_AREA_STEMS[bodyArea];
+  return FALLBACK_STEM;
+}
+
+function resolvedExerciseStem({
+  exerciseId,
+  bodyArea,
+  stretchAsset,
+  stretchAssetB,
+  standing,
+  programId,
+}: {
+  exerciseId?: string;
+  bodyArea?: BodyArea;
+  stretchAsset?: string;
+  stretchAssetB?: string;
+  standing: boolean;
+  programId?: string;
+}): string {
+  const file = stretchAssetB ?? stretchAsset;
+  if (file) return poseMatchedStem(stemFromAsset(file), standing, programId);
+  if (exerciseId) {
+    return poseMatchedStem(stemForExercise(exerciseId, bodyArea), standing, programId);
+  }
+  if (bodyArea) return poseMatchedStem(BODY_AREA_STEMS[bodyArea], standing, programId);
   return FALLBACK_STEM;
 }
 
@@ -181,17 +257,17 @@ export function hasMotionFrame({
   programId?: string;
 }): boolean {
   if (pose !== "exercise") return false;
-  if (stretchAssetB) {
-    return MOTION_STEMS.has(aliasedStem(stemFromAsset(stretchAssetB)));
-  }
-  if (stretchAsset) return MOTION_STEMS.has(aliasedStem(stemFromAsset(stretchAsset)));
-  if (!exerciseId) return false;
-  const standing = standingContext({ setup, programId, stretchAsset });
-  const stem =
-    standing && SHARED_STANDING_DUALS.has(exerciseId)
-      ? `${exerciseId}-standing`
-      : stemForExercise(exerciseId, bodyArea);
-  return MOTION_STEMS.has(stem);
+  const standing = standingContext({ setup, programId });
+  return MOTION_STEMS.has(
+    resolvedExerciseStem({
+      exerciseId,
+      bodyArea,
+      stretchAsset,
+      stretchAssetB,
+      standing,
+      programId,
+    }),
+  );
 }
 
 export function characterSrc({
@@ -214,7 +290,7 @@ export function characterSrc({
   setup?: SetupId | null;
   programId?: string;
 }): string {
-  const standing = standingContext({ setup, programId, stretchAsset });
+  const standing = standingContext({ setup, programId });
   if (pose === "idle") {
     return standing
       ? "/character/stretch-idle-standing.svg"
@@ -229,32 +305,98 @@ export function characterSrc({
   if (pose === "fallback") return "/character/stretch-fallback.svg";
 
   if (stretchAsset) {
-    if (frame === "b") {
-      if (stretchAssetB) return aliasedCharacterPath(stretchAssetB);
-      const stem = aliasedStem(stemFromAsset(stretchAsset));
-      if (MOTION_STEMS.has(stem)) return `/character/${stem}-b.svg`;
-    }
-    return aliasedCharacterPath(stretchAsset);
+    const file = frame === "b" && stretchAssetB ? stretchAssetB : stretchAsset;
+    return poseMatchedPath(file, standing, frame, programId);
   }
 
-  if (exerciseId) {
-    const dual =
-      standing && SHARED_STANDING_DUALS.has(exerciseId)
-        ? `${exerciseId}-standing`
-        : stemForExercise(exerciseId, bodyArea);
-    if (frame === "b" && MOTION_STEMS.has(dual)) {
-      return `/character/${dual}-b.svg`;
-    }
-    return `/character/${dual}.svg`;
+  const stem = resolvedExerciseStem({
+    exerciseId,
+    bodyArea,
+    standing,
+    programId,
+  });
+  if (frame === "b" && MOTION_STEMS.has(stem)) {
+    return `/character/${stem}-b.svg`;
   }
+  return `/character/${stem}.svg`;
+}
 
-  if (bodyArea) {
-    const stem = BODY_AREA_STEMS[bodyArea];
-    if (frame === "b" && MOTION_STEMS.has(stem)) {
-      return `/character/${stem}-b.svg`;
-    }
-    return `/character/${stem}.svg`;
+function expectSrc(label: string, got: string, ok: (src: string) => boolean): void {
+  if (!ok(got)) {
+    throw new Error(`Stretch pose-match failed (${label}): ${got}`);
   }
+}
 
-  return "/character/stretch-fallback.svg";
+/** Catalog/build guard — standing workouts never resolve chair Stretch. */
+export function assertStretchPoseMatch(): void {
+  expectSrc(
+    "standing chin-tuck from seated asset",
+    characterSrc({
+      pose: "exercise",
+      exerciseId: "chin-tuck",
+      stretchAsset: "chin-tuck.svg",
+      setup: "standing",
+      programId: STANDING_RESET_ID,
+    }),
+    (src) => src === "/character/chin-tuck-standing.svg",
+  );
+  expectSrc(
+    "seated chin-tuck from standing asset",
+    characterSrc({
+      pose: "exercise",
+      exerciseId: "chin-tuck",
+      stretchAsset: "chin-tuck-standing.svg",
+      setup: "seated",
+      programId: "desk-reset-2min",
+    }),
+    (src) => src === "/character/chin-tuck.svg",
+  );
+  expectSrc(
+    "standing unshrug aliases to standing shoulder-rolls, not chair",
+    characterSrc({
+      pose: "exercise",
+      exerciseId: "unshrug",
+      stretchAsset: "unshrug.svg",
+      setup: "standing",
+      programId: STANDING_RESET_ID,
+    }),
+    (src) => src === "/character/shoulder-rolls-standing.svg",
+  );
+  expectSrc(
+    "standing calf-raise does not use seated marches",
+    characterSrc({
+      pose: "exercise",
+      exerciseId: "calf-raise",
+      stretchAsset: "calf-raise.svg",
+      setup: "standing",
+      programId: STANDING_RESET_ID,
+    }),
+    (src) => src === "/character/standing-posture-reset.svg",
+  );
+  expectSrc(
+    "seated shoulder-rolls stay seated",
+    characterSrc({
+      pose: "exercise",
+      exerciseId: "shoulder-rolls",
+      stretchAsset: "shoulder-rolls.svg",
+      setup: "seated",
+      programId: "desk-reset-2min",
+    }),
+    (src) => src === "/character/shoulder-rolls.svg",
+  );
+  expectSrc(
+    "library seated-cat-cow keeps chair art even if user stands",
+    characterSrc({
+      pose: "exercise",
+      exerciseId: "seated-cat-cow",
+      stretchAsset: "seated-cat-cow.svg",
+      setup: "standing",
+    }),
+    (src) => src === "/character/seated-cat-cow.svg",
+  );
+  expectSrc(
+    "standing idle",
+    characterSrc({ pose: "idle", setup: "standing" }),
+    (src) => src === "/character/stretch-idle-standing.svg",
+  );
 }

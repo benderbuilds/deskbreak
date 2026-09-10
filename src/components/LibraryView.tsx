@@ -10,7 +10,7 @@ import { getExercise, getExercises, getFreeExercises } from "@/lib/content";
 import { isExerciseLocked, isProEntitlement } from "@/lib/entitlements";
 import { formatDose } from "@/lib/format";
 import { useAppState } from "@/lib/use-app-state";
-import type { BodyArea, Exercise } from "@/lib/types";
+import type { BodyArea, Exercise, SetupId } from "@/lib/types";
 
 export function LibraryView() {
   const exercises = getExercises();
@@ -66,6 +66,7 @@ export function LibraryView() {
                 exercise={exercise}
                 locked={isExerciseLocked(exercise, state.entitlement)}
                 onLocked={() => setUpgrade(true)}
+                setup={state.onboardingAnswers.setup}
               />
             ))}
           </ul>
@@ -85,12 +86,19 @@ function ExerciseCard({
   exercise,
   locked,
   onLocked,
+  setup,
 }: {
   exercise: Exercise;
   locked: boolean;
   onLocked: () => void;
+  setup: SetupId | null;
 }) {
   const swap = exercise.saferSwapId ? getExercise(exercise.saferSwapId) : null;
+  const variant =
+    setup === "seated" || setup === "standing"
+      ? exercise.setupVariants?.[setup]
+      : undefined;
+  const cue = variant?.cue ?? exercise.cue;
 
   return (
     <li>
@@ -105,9 +113,12 @@ function ExerciseCard({
             pose={locked ? "locked" : "exercise"}
             exerciseId={locked ? undefined : exercise.id}
             bodyArea={locked ? undefined : exercise.bodyArea}
-            stretchAsset={locked ? undefined : exercise.stretchAsset}
-            stretchAssetB={locked ? undefined : exercise.stretchAssetB}
-            stretchView={locked ? undefined : exercise.stretchView}
+            stretchAsset={locked ? undefined : variant?.stretchAsset ?? exercise.stretchAsset}
+            stretchAssetB={
+              locked ? undefined : variant?.stretchAssetB ?? exercise.stretchAssetB
+            }
+            stretchView={locked ? undefined : variant?.stretchView ?? exercise.stretchView}
+            setup={setup}
             size={72}
             alt={locked ? "Stretch — locked move" : `Stretch — ${exercise.name}`}
             className="mt-0.5 shrink-0"
@@ -139,7 +150,7 @@ function ExerciseCard({
                 {exercise.shortLabel ? (
                   <p className="mt-1 text-xs font-semibold text-coral">{exercise.shortLabel}</p>
                 ) : null}
-                <p className="mt-2 text-sm leading-relaxed text-ink/65">{exercise.cue}</p>
+                <p className="mt-2 text-sm leading-relaxed text-ink/65">{cue}</p>
                 <p className="mt-3 text-sm font-semibold text-coral">
                   {formatDose(exercise.defaultDose)}
                 </p>

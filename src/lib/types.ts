@@ -23,6 +23,13 @@ export type Access = "free" | "pro";
 
 export type StretchView = "side" | "front" | "threeQuarter";
 
+export type SetupVariant = {
+  cue?: string;
+  stretchView?: StretchView;
+  stretchAsset?: string;
+  stretchAssetB?: string;
+};
+
 export type Exercise = {
   id: string;
   access: Access;
@@ -38,6 +45,10 @@ export type Exercise = {
   stretchAsset?: string;
   stretchAssetB?: string;
   stretchAssetFrontArchive?: string;
+  setupVariants?: {
+    seated?: SetupVariant;
+    standing?: SetupVariant;
+  };
 };
 
 export type ProgramStep = {

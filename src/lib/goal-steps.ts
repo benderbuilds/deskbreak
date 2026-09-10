@@ -1,4 +1,5 @@
 import { isDeskResetId } from "./constants";
+import { retargetStep } from "./setup-steps";
 import type { GoalId, ProgramStep } from "./types";
 
 /**
@@ -47,7 +48,7 @@ export function stepsForGoal(
     const swapped = steps.map((step) => {
       const nextId = ENERGY_MOVEMENT_SWAPS[step.exerciseId];
       if (!nextId || present.has(nextId)) return step;
-      return { ...step, exerciseId: nextId };
+      return retargetStep(step, nextId);
     });
     return stableByRank(swapped, energyRank);
   }
