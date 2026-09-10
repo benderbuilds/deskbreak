@@ -85,7 +85,7 @@ export function WorkoutView({
   function flashSkipToast() {
     setSkipToast(true);
     if (skipTimer.current) window.clearTimeout(skipTimer.current);
-    skipTimer.current = window.setTimeout(() => setSkipToast(false), 1600);
+    skipTimer.current = window.setTimeout(() => setSkipToast(false), 2200);
   }
 
   if (!program) {
@@ -148,7 +148,7 @@ export function WorkoutView({
   const ring = 2 * Math.PI * 46;
 
   return (
-    <div className="flex min-h-dvh flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(0.9rem,env(safe-area-inset-top))]">
+    <div className="relative flex min-h-dvh flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(0.9rem,env(safe-area-inset-top))]">
       <header className="mb-3 flex items-center justify-between gap-3">
         <button
           type="button"
@@ -264,15 +264,17 @@ export function WorkoutView({
       </div>
 
       {skipToast ? (
-        <p
+        <div
           role="status"
-          className="relative z-20 mt-3 text-center text-sm font-semibold text-ink/55 animate-[stepIn_240ms_cubic-bezier(0.34,1.4,0.64,1)]"
+          className="pointer-events-none absolute inset-x-5 bottom-[5.5rem] z-30 animate-[popIn_240ms_cubic-bezier(0.34,1.4,0.64,1)]"
         >
-          Skipped. No judgment.
-        </p>
+          <p className="rounded-full bg-ink px-4 py-3 text-center text-sm font-semibold text-paper shadow-[0_4px_0_#0C0A09]">
+            Skipped. No judgment.
+          </p>
+        </div>
       ) : null}
 
-      <div className="relative z-20 mt-4 grid grid-cols-[1fr_1.4fr] gap-3">
+      <div className="relative z-20 mt-6 grid grid-cols-[1fr_1.4fr] gap-3">
         <Button
           variant="ghost"
           onClick={() => {
