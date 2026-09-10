@@ -1,123 +1,86 @@
-import zlib from "node:zlib";
+/**
+ * Rasterize Jesse’s locked mark from SVG masters.
+ *
+ * Live mark: public/icons/logo-mark.svg
+ * (coral squircle + white seated silhouette — not the old scribble).
+ *
+ * Requires rsvg-convert (librsvg) and ImageMagick `convert` for the .ico
+ * and for downsampling smaller PNGs.
+ */
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
-function crc32(buf) {
-  let c = ~0;
-  for (const b of buf) {
-    c ^= b;
-    for (let i = 0; i < 8; i++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1));
-  }
-  return ~c >>> 0;
-}
+const root = process.cwd();
+const mark = path.join(root, "public/icons/logo-mark.svg");
+const maskable = path.join(root, "public/icons/logo-mark-maskable.svg");
+const fullbleed = path.join(root, "public/icons/logo-mark-fullbleed.svg");
+const faviconSvg = path.join(root, "public/favicon.svg");
+const outDir = path.join(root, "public/icons");
 
-function chunk(type, data) {
-  const len = Buffer.alloc(4);
-  len.writeUInt32BE(data.length);
-  const td = Buffer.concat([Buffer.from(type), data]);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(td));
-  return Buffer.concat([len, td, crc]);
-}
-
-function rgbaToPng(width, height, rgba) {
-  const raw = Buffer.alloc((width * 4 + 1) * height);
-  for (let y = 0; y < height; y++) {
-    raw[y * (width * 4 + 1)] = 0;
-    rgba.copy(
-      raw,
-      y * (width * 4 + 1) + 1,
-      y * width * 4,
-      (y + 1) * width * 4,
+function run(cmd, args) {
+  const result = spawnSync(cmd, args, { stdio: "inherit" });
+  if (result.error) {
+    throw new Error(
+      `Could not run ${cmd}: ${result.error.message}. Install librsvg / ImageMagick to regenerate icons.`,
     );
   }
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(width, 0);
-  ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8;
-  ihdr[9] = 6;
-  return Buffer.concat([
-    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
-    chunk("IHDR", ihdr),
-    chunk("IDAT", zlib.deflateSync(raw)),
-    chunk("IEND", Buffer.alloc(0)),
-  ]);
-}
-
-function setPixel(rgba, width, x, y, r, g, b, a = 255) {
-  if (x < 0 || y < 0 || x >= width || y >= rgba.length / 4 / width) return;
-  const i = (y * width + x) * 4;
-  rgba[i] = r;
-  rgba[i + 1] = g;
-  rgba[i + 2] = b;
-  rgba[i + 3] = a;
-}
-
-function fillRoundedRect(rgba, width, size, radius, color) {
-  const r2 = radius * radius;
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const inCorner = (cx, cy) => {
-        const dx = x - cx;
-        const dy = y - cy;
-        return dx * dx + dy * dy <= r2;
-      };
-      const inside =
-        (x >= radius && x < size - radius) ||
-        (y >= radius && y < size - radius) ||
-        inCorner(radius, radius) ||
-        inCorner(size - 1 - radius, radius) ||
-        inCorner(radius, size - 1 - radius) ||
-        inCorner(size - 1 - radius, size - 1 - radius);
-      if (inside) setPixel(rgba, width, x, y, ...color);
-    }
+  if (result.status !== 0) {
+    throw new Error(`${cmd} ${args.join(" ")} exited ${result.status}`);
   }
 }
 
-function drawThickLine(rgba, width, x0, y0, x1, y1, thickness, color) {
-  const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 2;
-  for (let s = 0; s <= steps; s++) {
-    const t = s / steps;
-    const x = x0 + (x1 - x0) * t;
-    const y = y0 + (y1 - y0) * t;
-    const r = thickness / 2;
-    for (let dy = -r; dy <= r; dy++) {
-      for (let dx = -r; dx <= r; dx++) {
-        if (dx * dx + dy * dy <= r * r) {
-          setPixel(rgba, width, Math.round(x + dx), Math.round(y + dy), ...color);
-        }
-      }
-    }
-  }
+function which(cmd) {
+  return spawnSync("which", [cmd], { encoding: "utf8" }).status === 0;
 }
 
-function drawCircle(rgba, width, cx, cy, radius, color) {
-  const r2 = radius * radius;
-  for (let y = Math.floor(cy - radius); y <= Math.ceil(cy + radius); y++) {
-    for (let x = Math.floor(cx - radius); x <= Math.ceil(cx + radius); x++) {
-      const dx = x - cx;
-      const dy = y - cy;
-      if (dx * dx + dy * dy <= r2) setPixel(rgba, width, x, y, ...color);
-    }
-  }
+if (!fs.existsSync(mark)) {
+  throw new Error(`Missing SVG master: ${mark}`);
 }
 
-function makeIcon(size) {
-  const rgba = Buffer.alloc(size * size * 4, 0);
-  const paper = [247, 244, 239];
-  const coral = [255, 90, 54];
-  fillRoundedRect(rgba, size, size, Math.round(size * 0.22), coral);
-  const s = size / 32;
-  drawThickLine(rgba, size, 10 * s, 21 * s, 22 * s, 10 * s, size * 0.07, paper);
-  drawThickLine(rgba, size, 9.5 * s, 16.5 * s, 21 * s, 17.1 * s, size * 0.07, paper);
-  drawCircle(rgba, size, 21.5 * s, 10.2 * s, size * 0.05, paper);
-  return rgbaToPng(size, size, rgba);
+if (!which("rsvg-convert")) {
+  console.error(
+    "rsvg-convert not found. Icons are authored in public/icons/logo-mark.svg; rasters are committed.",
+  );
+  process.exit(1);
 }
 
-const outDir = path.join(process.cwd(), "public/icons");
 fs.mkdirSync(outDir, { recursive: true });
-fs.writeFileSync(path.join(outDir, "icon-192.png"), makeIcon(192));
-fs.writeFileSync(path.join(outDir, "icon-512.png"), makeIcon(512));
-fs.writeFileSync(path.join(outDir, "apple-touch-icon.png"), makeIcon(180));
-fs.writeFileSync(path.join(process.cwd(), "src/app/icon.png"), makeIcon(64));
-console.log("wrote icons");
+
+function raster(svg, dest, size, { downsampleFrom = size } = {}) {
+  const srcSize = downsampleFrom;
+  const tmp = path.join(os.tmpdir(), `deskbreak-icon-${size}-${path.basename(dest)}`);
+  run("rsvg-convert", ["-w", String(srcSize), "-h", String(srcSize), svg, "-o", tmp]);
+  if (srcSize === size || !which("convert")) {
+    fs.copyFileSync(tmp, dest);
+  } else {
+    run("convert", [tmp, "-resize", `${size}x${size}`, dest]);
+  }
+  fs.unlinkSync(tmp);
+}
+
+raster(mark, path.join(outDir, "icon-192.png"), 192, { downsampleFrom: 768 });
+raster(mark, path.join(outDir, "icon-512.png"), 512);
+raster(maskable, path.join(outDir, "icon-512-maskable.png"), 512);
+raster(fullbleed, path.join(root, "public/apple-touch-icon.png"), 180, {
+  downsampleFrom: 720,
+});
+
+if (which("convert")) {
+  run("convert", [
+    "-background",
+    "none",
+    faviconSvg,
+    "-define",
+    "icon:auto-resize=64,48,32,16",
+    path.join(root, "public/favicon.ico"),
+  ]);
+} else {
+  console.warn("ImageMagick convert not found; skipped favicon.ico");
+}
+
+const staleApple = path.join(outDir, "apple-touch-icon.png");
+if (fs.existsSync(staleApple)) fs.unlinkSync(staleApple);
+
+console.log("wrote icons from SVG masters");

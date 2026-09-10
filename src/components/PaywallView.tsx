@@ -7,7 +7,12 @@ import { CharacterArt } from "@/components/CharacterArt";
 import { LogoMark } from "@/components/LogoMark";
 import { ProBadge } from "@/components/ProBadge";
 import { ErrorState } from "@/components/StatusStates";
-import { ANNUAL_PER_MONTH, ANNUAL_PRICE_USD, MONTHLY_COMPARE_USD } from "@/lib/constants";
+import {
+  ANNUAL_DISCOUNT_PERCENT,
+  ANNUAL_LIST_PRICE_USD,
+  ANNUAL_PER_MONTH,
+  ANNUAL_PRICE_USD,
+} from "@/lib/constants";
 import { getExercises, getFreeExercises } from "@/lib/content";
 import { canDemoUnlock, isProEntitlement, stripePriceConfigured } from "@/lib/entitlements";
 import { markPaywallSeen, unlockPro } from "@/lib/storage";
@@ -112,8 +117,8 @@ export function PaywallView() {
               featured
               name="Pro"
               price={`$${ANNUAL_PRICE_USD}/year`}
-              compare={`$${MONTHLY_COMPARE_USD}/mo`}
-              note={`Less than $${ANNUAL_PER_MONTH}/month, billed annually.`}
+              compare={`$${ANNUAL_LIST_PRICE_USD}/year`}
+              note={`${ANNUAL_DISCOUNT_PERCENT}% off. Less than $${ANNUAL_PER_MONTH}/month, billed annually.`}
               items={[
                 "5 min Lunch Reset",
                 "10 min Busy-Day Circuit",

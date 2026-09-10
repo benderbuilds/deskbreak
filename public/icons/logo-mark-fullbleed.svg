@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Square full-bleed for apple-touch (OS applies the squircle mask). -->
+  <rect width="512" height="512" fill="#FF5A36"/>
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M118 82 L186 179" stroke-width="36"/>
+    <path d="M334 81 L270 179" stroke-width="36"/>
+    <path d="M228 188 L234 300" stroke-width="84"/>
+    <path d="M217 296 L330 318" stroke-width="52"/>
+    <path d="M312 336 L313 424" stroke-width="34"/>
+    <path d="M342 332 L365 412" stroke-width="34"/>
+    <path d="M310 432 L336 434" stroke-width="27"/>
+    <path d="M368 426 L395 428" stroke-width="27"/>
+    <path d="M150 232 L168 336" stroke-width="22"/>
+    <path d="M172 348 L266 348" stroke-width="22"/>
+    <path d="M177 362 L162 434" stroke-width="22"/>
+    <path d="M253 348 L269 433" stroke-width="22"/>
+  </g>
+  <circle cx="227" cy="116" r="36" fill="#FFFFFF"/>
+</svg>

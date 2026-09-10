@@ -35,7 +35,7 @@ Production `npm start` hides the demo unlock unless `NEXT_PUBLIC_DEMO_UNLOCK=tru
 | Celebration themes | Classic | Classic / confetti / spark |
 | Badge | — | Pro |
 
-**Pro pricing:** **$47.99 / year** (shown as “less than $4/month, billed annually”). Optional comparison strikethrough vs $8.99/mo.
+**Pro pricing:** **$74 / year** (50% off list **$148 / year**; shown as “less than $7/month, billed annually”). Stripe Price ID stays in env (`NEXT_PUBLIC_STRIPE_PRICE_ID`).
 
 Entitlement (`plan`, `proExpiresAt`) is stored in `localStorage` on this device. There is no login.
 
@@ -48,7 +48,7 @@ STRIPE_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_STRIPE_PRICE_ID=price_...
 ```
 
-Create an **annual subscription** price of $47.99 in Stripe and paste the Price ID.
+Create an **annual subscription** price of $74 in Stripe and paste the Price ID.
 
 - Success: `/paywall/success?session_id=...` verifies the session, then unlocks Pro.
 - Cancel: back to `/paywall`.
@@ -72,6 +72,18 @@ Shown when `NODE_ENV !== "production"` **or** `NEXT_PUBLIC_DEMO_UNLOCK=true`:
 - **Settings** — reminders, plan, replay onboarding
 - **PWA** — manifest, icons, install prompt when the browser offers it
 - **Stretch** — SVG coach in `public/character/` (see below)
+
+## Brand mark
+
+Locked mark: coral `#FF5A36` squircle + white profile silhouette of a person sitting in a chair with both arms raised. No desk. One head, two arms, two legs, simple chair.
+
+- `public/icons/logo-mark.svg` — source mark (also used by `LogoMark`)
+- `public/favicon.svg`, `public/favicon.ico`
+- `public/apple-touch-icon.png` (180×180, full-bleed; OS applies the mask)
+- `public/icons/icon-192.png`, `icon-512.png` (precomposed squircle)
+- `public/icons/icon-512-maskable.png` (full-bleed coral, figure inset for the maskable safe zone)
+
+Regenerate rasters from the SVG masters with `node scripts/generate-icons.mjs` (needs `rsvg-convert` + ImageMagick). Do not restore the old procedural scribble.
 
 ## Character art (Stretch)
 
