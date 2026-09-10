@@ -35,7 +35,7 @@ Production `npm start` hides the demo unlock unless `NEXT_PUBLIC_DEMO_UNLOCK=tru
 | Celebration themes | Classic | Classic / confetti / spark |
 | Badge | — | Pro |
 
-**Pro pricing:** **$47.99 / year** (shown as “less than $4/month, billed annually”). Optional comparison strikethrough vs $8.99/mo.
+**Pro pricing:** **$74 / year** (50% off list **$148 / year**; shown as “less than $7/month, billed annually”). Stripe Price ID stays in env (`NEXT_PUBLIC_STRIPE_PRICE_ID`).
 
 Entitlement (`plan`, `proExpiresAt`) is stored in `localStorage` on this device. There is no login.
 
@@ -48,7 +48,7 @@ STRIPE_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_STRIPE_PRICE_ID=price_...
 ```
 
-Create an **annual subscription** price of $47.99 in Stripe and paste the Price ID.
+Create an **annual subscription** price of $74 in Stripe and paste the Price ID.
 
 - Success: `/paywall/success?session_id=...` verifies the session, then unlocks Pro.
 - Cancel: back to `/paywall`.

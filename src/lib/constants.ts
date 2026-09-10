@@ -2,9 +2,13 @@ export const FIRST_WIN_PROGRAM_ID = "desk-reset-2min";
 
 export const HOME_START_NUDGE = "Meeting gap? Hit reset before Slack wins.";
 
-export const ANNUAL_PRICE_USD = 47.99;
-export const MONTHLY_COMPARE_USD = 8.99;
-export const ANNUAL_PER_MONTH = 4;
+/** Charged / shown annual Pro price. Stripe Price ID stays in env. */
+export const ANNUAL_PRICE_USD = 74;
+/** List price used for the 50% off strikethrough. */
+export const ANNUAL_LIST_PRICE_USD = 148;
+export const ANNUAL_DISCOUNT_PERCENT = 50;
+/** $74/12 ≈ $6.17 — “less than $7/month” copy. */
+export const ANNUAL_PER_MONTH = 7;
 
 export const GOAL_COPY: Record<
   "neck" | "energy" | "consistent",
