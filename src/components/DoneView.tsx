@@ -7,6 +7,7 @@ import { CharacterArt } from "@/components/CharacterArt";
 import { getExercise } from "@/lib/content";
 import { isProEntitlement } from "@/lib/entitlements";
 import { buildSessionSummary } from "@/lib/format";
+import { playCelebrationTune } from "@/lib/celebration-tune";
 import { getLastSession, markPaywallSeen } from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
 import { useIsClient } from "@/lib/use-client";
@@ -27,6 +28,11 @@ export function DoneView({ nextPaywall = false }: { nextPaywall?: boolean }) {
       router.replace(nextPaywall ? "/paywall" : "/");
     }
   }, [isClient, session, router, nextPaywall]);
+
+  useEffect(() => {
+    if (!session) return;
+    playCelebrationTune(session.finishedAt);
+  }, [session]);
 
   const completedNames = useMemo(
     () =>

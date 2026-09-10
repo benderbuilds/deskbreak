@@ -13,6 +13,7 @@ import {
   recordCompletedWorkout,
   saveLastSession,
 } from "@/lib/storage";
+import { playCelebrationTune, unlockCelebrationAudio } from "@/lib/celebration-tune";
 import { useAppState } from "@/lib/use-app-state";
 import { useWorkoutEngine } from "@/lib/use-workout-engine";
 
@@ -47,6 +48,7 @@ export function WorkoutView({
     };
     saveLastSession(session);
     recordCompletedWorkout(session);
+    playCelebrationTune(session.finishedAt);
     const next = firstWin || !state.paywallSeen ? "/done?next=paywall" : "/done";
     router.replace(next);
   }, [
@@ -155,7 +157,7 @@ export function WorkoutView({
 
       <div className="mb-5 h-2 overflow-hidden rounded-full bg-ink/8">
         <div
-          className="h-full rounded-full bg-mint transition-[width] duration-200 ease-out"
+          className="h-full rounded-full bg-mint transition-[width] duration-[260ms] ease-[cubic-bezier(0.34,1.4,0.64,1)]"
           style={{ width: `${Math.round(engine.progress * 100)}%` }}
         />
       </div>
@@ -173,10 +175,15 @@ export function WorkoutView({
           </div>
         )}
 
-        <p className="font-display text-[5.5rem] font-semibold leading-none tracking-tight text-ink tabular-nums">
-          {seconds}
-        </p>
-        <p className="mt-2 text-sm font-semibold text-ink/45">{doseLabel}</p>
+        <div
+          key={engine.stepIndex}
+          className="animate-[timerIn_280ms_cubic-bezier(0.34,1.45,0.64,1)]"
+        >
+          <p className="font-display text-[5.5rem] font-semibold leading-none tracking-tight text-ink tabular-nums">
+            {seconds}
+          </p>
+          <p className="mt-2 text-sm font-semibold text-ink/45">{doseLabel}</p>
+        </div>
 
         <div className="relative z-0 mt-4">
           <CharacterArt
@@ -195,11 +202,16 @@ export function WorkoutView({
 
         <div
           key={current.exercise.id}
-          className="mt-4 w-full animate-[stepIn_260ms_cubic-bezier(0.34,1.2,0.64,1)]"
+          className="mt-4 w-full animate-[stepIn_280ms_cubic-bezier(0.34,1.4,0.64,1)]"
         >
           <h1 className="font-display text-[2rem] font-semibold leading-tight text-ink">
             {current.exercise.name}
           </h1>
+          {current.exercise.shortLabel ? (
+            <p className="mt-1 text-sm font-semibold text-coral">
+              {current.exercise.shortLabel}
+            </p>
+          ) : null}
           <p className="mt-3 text-[1.05rem] leading-relaxed text-ink/70">
             {current.exercise.cue}
           </p>
@@ -210,10 +222,21 @@ export function WorkoutView({
       </div>
 
       <div className="relative z-20 mt-6 grid grid-cols-[1fr_1.4fr] gap-3">
-        <Button variant="ghost" onClick={engine.skip}>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            unlockCelebrationAudio();
+            engine.skip();
+          }}
+        >
           Skip
         </Button>
-        <Button onClick={engine.next}>
+        <Button
+          onClick={() => {
+            unlockCelebrationAudio();
+            engine.next();
+          }}
+        >
           {engine.stepIndex === engine.steps.length - 1 ? "Done" : "Next"}
         </Button>
       </div>

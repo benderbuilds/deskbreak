@@ -8,9 +8,9 @@ import { InstallPrompt } from "@/components/InstallPrompt";
 import { LogoMark } from "@/components/LogoMark";
 import { ProBadge } from "@/components/ProBadge";
 import { UpgradeSheet } from "@/components/UpgradeSheet";
-import { GOAL_COPY, SETUP_COPY } from "@/lib/constants";
+import { FIRST_WIN_PROGRAM_ID, GOAL_COPY, HOME_START_NUDGE, SETUP_COPY } from "@/lib/constants";
 import { isProEntitlement, isProgramLocked } from "@/lib/entitlements";
-import { getPrograms } from "@/lib/content";
+import { getProgram, getPrograms } from "@/lib/content";
 import { greetingForHour } from "@/lib/format";
 import { taglineForSetup } from "@/lib/setup-steps";
 import { deskResetGoalKicker } from "@/lib/goal-steps";
@@ -37,6 +37,9 @@ export function HomeView() {
   const [upgrade, setUpgrade] = useState<string | null>(null);
   const greeting = isClient ? greetingForHour(new Date().getHours()) : "Hey";
   const progress = state.progress;
+  const goal = state.onboardingAnswers.goal;
+  const setup = state.onboardingAnswers.setup;
+  const startProgram = getProgram(FIRST_WIN_PROGRAM_ID) ?? programs[0];
 
   const lastLabel = useMemo(() => {
     if (!progress.lastWorkout) return null;
@@ -44,11 +47,11 @@ export function HomeView() {
     return `${progress.lastWorkout.programName}${when ? ` · ${when}` : ""}`;
   }, [progress]);
 
-  const goalLine = state.onboardingAnswers.goal
-    ? GOAL_COPY[state.onboardingAnswers.goal].homeLine
+  const goalLine = goal
+    ? GOAL_COPY[goal].homeLine
     : "Office workouts and desk exercises that fit between meetings.";
-  const setupLine = state.onboardingAnswers.setup
-    ? SETUP_COPY[state.onboardingAnswers.setup].hint
+  const setupLine = setup
+    ? SETUP_COPY[setup].hint
     : "One tap to start. Desk exercises while working — or a home workout routine for busy days. No equipment.";
 
   const reminderDue =
@@ -60,6 +63,8 @@ export function HomeView() {
       today: todayKey(),
       hourNow: currentHour(),
     });
+
+  const morePrograms = programs.filter((program) => program.id !== startProgram?.id);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -104,24 +109,47 @@ export function HomeView() {
           <CharacterArt pose="idle" size={148} tappable alt="Stretch ready for a desk break" />
         </div>
 
-        <section className="mb-7">
-          <h1 className="font-display text-[1.75rem] font-semibold leading-[1.15] tracking-tight text-ink">
+        <section className="mb-6">
+          <p className="text-sm font-semibold leading-snug text-coral">
+            {HOME_START_NUDGE}
+          </p>
+          <h1 className="mt-2 font-display text-[1.75rem] font-semibold leading-[1.15] tracking-tight text-ink">
             {goalLine}
           </h1>
+          {(goal || setup) && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {goal ? <MetaChip>{GOAL_COPY[goal].label}</MetaChip> : null}
+              {setup ? <MetaChip>{SETUP_COPY[setup].label}</MetaChip> : null}
+            </div>
+          )}
           <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/65">
             {setupLine}
           </p>
         </section>
 
         <section className="flex flex-col gap-3" aria-label="Start a break">
-          {programs.map((program, index) => (
+          {startProgram ? (
+            <ProgramCard
+              program={startProgram}
+              featured
+              locked={isProgramLocked(startProgram, state.entitlement)}
+              tagline={taglineForSetup(startProgram, setup)}
+              kicker={deskResetGoalKicker(startProgram.id, goal)}
+              onLocked={() =>
+                setUpgrade(
+                  `${startProgram.name} is part of Pro, along with the full library.`,
+                )
+              }
+            />
+          ) : null}
+          {morePrograms.map((program) => (
             <ProgramCard
               key={program.id}
               program={program}
-              featured={index === 0}
+              featured={false}
               locked={isProgramLocked(program, state.entitlement)}
-              tagline={taglineForSetup(program, state.onboardingAnswers.setup)}
-              kicker={deskResetGoalKicker(program.id, state.onboardingAnswers.goal)}
+              tagline={taglineForSetup(program, setup)}
+              kicker={deskResetGoalKicker(program.id, goal)}
               onLocked={() =>
                 setUpgrade(
                   `${program.name} is part of Pro, along with the full library.`,
@@ -146,6 +174,14 @@ export function HomeView() {
         reason={upgrade ?? undefined}
       />
     </div>
+  );
+}
+
+function MetaChip({ children }: { children: string }) {
+  return (
+    <span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink shadow-[0_2px_0_rgba(28,25,23,0.06)]">
+      {children}
+    </span>
   );
 }
 
@@ -182,7 +218,7 @@ function ProgramCard({
             featured ? "text-white/75" : "text-coral",
           ].join(" ")}
         >
-          {program.durationMin} min{locked ? " · Pro" : ""}
+          {program.durationMin} min{locked ? " · Pro" : featured ? " · Start" : ""}
         </p>
         <h2 className="mt-1 font-display text-[1.45rem] font-semibold leading-tight">
           {program.shortLabel}
@@ -204,11 +240,11 @@ function ProgramCard({
       <span
         aria-hidden
         className={[
-          "grid h-12 w-12 shrink-0 place-items-center rounded-full text-xl font-semibold",
+          "grid h-12 min-w-12 shrink-0 place-items-center rounded-full px-3 text-sm font-semibold",
           featured ? "bg-white/15" : "bg-paper",
         ].join(" ")}
       >
-        {locked ? "🔒" : "→"}
+        {locked ? "🔒" : featured ? "Start" : "→"}
       </span>
     </div>
   );

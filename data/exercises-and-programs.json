@@ -1,11 +1,11 @@
 {
-  "version": 4,
+  "version": 5,
   "product": "DeskBreak",
   "exercises": [
     {
       "id": "chin-tuck",
       "name": "Chin tuck",
-      "cue": "Gently pull chin straight back like making a double chin.",
+      "cue": "Slide your chin straight back — soft double-chin, eyes still on the screen.",
       "bodyArea": "neck",
       "defaultDose": {
         "type": "reps",
@@ -21,7 +21,8 @@
       "stretchView": "side",
       "stretchAsset": "chin-tuck.svg",
       "stretchAssetB": "chin-tuck-b.svg",
-      "stretchAssetFrontArchive": "chin-tuck-front.svg"
+      "stretchAssetFrontArchive": "chin-tuck-front.svg",
+      "shortLabel": "Undo the laptop lean."
     },
     {
       "id": "neck-side-stretch",
@@ -89,7 +90,7 @@
     {
       "id": "seated-scap-squeeze",
       "name": "Seated scap squeeze",
-      "cue": "Squeeze shoulder blades together and down.",
+      "cue": "Pinch your shoulder blades into your back pockets — down, not up into your ears.",
       "bodyArea": "upper_back",
       "defaultDose": {
         "type": "repsHold",
@@ -105,7 +106,8 @@
       "stretchView": "front",
       "stretchAsset": "seated-scap-squeeze.svg",
       "stretchAssetB": "seated-scap-squeeze-b.svg",
-      "stretchAssetFrontArchive": "seated-scap-squeeze-front.svg"
+      "stretchAssetFrontArchive": "seated-scap-squeeze-front.svg",
+      "shortLabel": "Open the chest without a gym."
     },
     {
       "id": "thoracic-extension",
@@ -131,7 +133,7 @@
     {
       "id": "seated-cat-cow",
       "name": "Seated cat-cow",
-      "cue": "Round the spine, then open the chest \u2014 slow and smooth.",
+      "cue": "Round the spine, then open the chest — slow and smooth.",
       "bodyArea": "upper_back",
       "defaultDose": {
         "type": "reps",
@@ -171,7 +173,7 @@
     {
       "id": "shoulder-rolls",
       "name": "Shoulder rolls",
-      "cue": "Slow circles backward, then forward.",
+      "cue": "Slow shoulder circles: sweep back like you’re peeling sticky notes off your upper back.",
       "bodyArea": "shoulders",
       "defaultDose": {
         "type": "repsEachWay",
@@ -184,7 +186,8 @@
       "stretchView": "front",
       "stretchAsset": "shoulder-rolls.svg",
       "stretchAssetB": "shoulder-rolls-b.svg",
-      "stretchAssetFrontArchive": "shoulder-rolls-front.svg"
+      "stretchAssetFrontArchive": "shoulder-rolls-front.svg",
+      "shortLabel": "Unstick the shrug."
     },
     {
       "id": "wall-angels",
@@ -209,7 +212,7 @@
     {
       "id": "wrist-flexor-stretch",
       "name": "Wrist flexor stretch",
-      "cue": "Arm out, palm up; gently pull fingers down.",
+      "cue": "Arm out, palm up; ease fingers toward the floor until the forearm wakes up.",
       "bodyArea": "wrists",
       "defaultDose": {
         "type": "holdSecEachSide",
@@ -225,7 +228,8 @@
       "stretchView": "side",
       "stretchAsset": "wrist-flexor-stretch.svg",
       "stretchAssetB": "wrist-flexor-stretch-b.svg",
-      "stretchAssetFrontArchive": "wrist-flexor-stretch-front.svg"
+      "stretchAssetFrontArchive": "wrist-flexor-stretch-front.svg",
+      "shortLabel": "Keyboard antidote."
     },
     {
       "id": "wrist-extensor-stretch",
@@ -290,7 +294,7 @@
     {
       "id": "seated-figure-4",
       "name": "Seated figure-4",
-      "cue": "Ankle on opposite knee; hinge forward slightly.",
+      "cue": "Ankle on opposite knee; tip forward an inch until the hip says ah — not ouch.",
       "bodyArea": "hips",
       "defaultDose": {
         "type": "holdSecEachSide",
@@ -306,7 +310,8 @@
       "stretchView": "side",
       "stretchAsset": "seated-figure-4.svg",
       "stretchAssetB": "seated-figure-4-b.svg",
-      "stretchAssetFrontArchive": "seated-figure-4-front.svg"
+      "stretchAssetFrontArchive": "seated-figure-4-front.svg",
+      "shortLabel": "Hip coffee break."
     },
     {
       "id": "seated-hip-opener",
@@ -592,7 +597,7 @@
     {
       "id": "long-exhale-reset",
       "name": "Long exhale reset",
-      "cue": "In through the nose; longer sigh out through the mouth.",
+      "cue": "Nose in, longer mouth sigh out — like fogging a quiet window.",
       "bodyArea": "breathing",
       "defaultDose": {
         "type": "breaths",
@@ -606,7 +611,8 @@
       "stretchView": "side",
       "stretchAsset": "long-exhale-reset.svg",
       "stretchAssetB": "long-exhale-reset-b.svg",
-      "stretchAssetFrontArchive": "long-exhale-reset-front.svg"
+      "stretchAssetFrontArchive": "long-exhale-reset-front.svg",
+      "shortLabel": "Two breaths, brain back."
     },
     {
       "id": "sit-bones-find",
@@ -699,7 +705,7 @@
     {
       "id": "unshrug",
       "name": "Unshrug",
-      "cue": "Slide shoulders down away from the ears, like putting shoulder blades in back pockets.",
+      "cue": "Drop your shoulders away from your earrings — blades melt into back pockets.",
       "bodyArea": "shoulders",
       "defaultDose": {
         "type": "repsHold",
@@ -713,7 +719,8 @@
       "stretchView": "front",
       "status": "stub_v1_1",
       "stretchAsset": "unshrug.svg",
-      "stretchAssetB": "unshrug-b.svg"
+      "stretchAssetB": "unshrug-b.svg",
+      "shortLabel": "Default desk posture, upgraded."
     },
     {
       "id": "short-foot-grip",
@@ -806,7 +813,7 @@
     {
       "id": "walk-to-water-march",
       "name": "Walk-to-water march",
-      "cue": "Easy march in place or a short walk to get water \u2014 keep it quiet and easy.",
+      "cue": "Easy march in place or a short walk to get water — keep it quiet and easy.",
       "bodyArea": "legs",
       "defaultDose": {
         "type": "holdSec",
@@ -958,9 +965,49 @@
       "stretchView": "front",
       "status": "stub_v1_1",
       "sourceTheme": "posture_desk_shortlist",
-      "notes": "Pairs with short-foot-grip; feet\u2192hips chain start.",
+      "notes": "Pairs with short-foot-grip; feet→hips chain start.",
       "stretchAsset": "foot-tripod-toe-spread.svg",
       "stretchAssetB": "foot-tripod-toe-spread-b.svg"
+    },
+    {
+      "id": "desk-wiggle-reset",
+      "name": "Desk wiggle reset",
+      "cue": "Thirty seconds of tiny chair dances — hips, ribs, shoulders — like shaking crumbs off a sweater.",
+      "shortLabel": "Permission to look a little silly.",
+      "bodyArea": "posture",
+      "defaultDose": {
+        "type": "holdSec",
+        "seconds": 30
+      },
+      "commonMistake": "Turning it into a workout or kicking the chair.",
+      "skipIf": [],
+      "saferSwapId": "seated-march",
+      "access": "free",
+      "stretchView": "side",
+      "status": "stub_v5",
+      "notes": "v5 free stub. Teaching plane reused from seated-cat-cow until a dedicated SVG exists.",
+      "stretchAsset": "seated-cat-cow.svg",
+      "stretchAssetB": "seated-cat-cow-b.svg"
+    },
+    {
+      "id": "screen-distance-blink",
+      "name": "Screen-distance blink",
+      "cue": "Push back an inch, soften your gaze to the far wall, slow blink ×5, then return.",
+      "shortLabel": "Eyes get a coffee break too.",
+      "bodyArea": "posture",
+      "defaultDose": {
+        "type": "reps",
+        "reps": 5
+      },
+      "commonMistake": "Leaning closer to the laptop instead of pushing back.",
+      "skipIf": [],
+      "saferSwapId": "long-exhale-reset",
+      "access": "free",
+      "stretchView": "side",
+      "status": "stub_v5",
+      "notes": "v5 free stub. Teaching plane reused from standing-posture-reset until a dedicated SVG exists.",
+      "stretchAsset": "standing-posture-reset.svg",
+      "stretchAssetB": "standing-posture-reset-b.svg"
     }
   ],
   "programs": [
@@ -1025,7 +1072,8 @@
           }
         }
       ],
-      "access": "free"
+      "access": "free",
+      "tagline": "Two minutes. Still at your desk. Actually feel better."
     },
     {
       "id": "lunch-reset-5min",
@@ -1227,12 +1275,14 @@
       "programs": [
         "desk-reset-2min"
       ],
-      "exerciseCount": 13,
+      "exerciseCount": 15,
       "exerciseIds": [
         "chin-tuck",
         "chin-tuck-hold",
+        "desk-wiggle-reset",
         "long-exhale-reset",
         "neck-side-stretch",
+        "screen-distance-blink",
         "seated-figure-4",
         "seated-march",
         "seated-scap-squeeze",
@@ -1243,7 +1293,7 @@
         "wrist-extensor-stretch",
         "wrist-flexor-stretch"
       ],
-      "notes": "2-min Desk Reset + 10 core library moves (includes program alts)."
+      "notes": "2-min Desk Reset + core library moves (includes program alts and v5 free stubs)."
     },
     "pro": {
       "programs": [
@@ -1296,8 +1346,8 @@
     }
   },
   "v11Shortlist": {
-    "theme": "feet \u2192 hips \u2192 spine \u2192 shoulders \u2192 neck; slow, controlled, breathe",
-    "inspiredBy": "desk/posture creator catalogs (e.g. @postureguymike themes) \u2014 original DeskBreak moves, not clones; no floor/roller proprietary work",
+    "theme": "feet → hips → spine → shoulders → neck; slow, controlled, breathe",
+    "inspiredBy": "desk/posture creator catalogs (e.g. @postureguymike themes) — original DeskBreak moves, not clones; no floor/roller proprietary work",
     "items": [
       {
         "n": 1,
@@ -1398,6 +1448,20 @@
       "scap-pack-hold",
       "seated-lumbar-support-reset",
       "walk-to-water-march"
+    ]
+  },
+  "v5Cues": {
+    "notes": "Cue rewrite for first-win / Home moves. Doses unchanged. New free stubs reuse existing teaching-plane assets.",
+    "ids": [
+      "chin-tuck",
+      "shoulder-rolls",
+      "seated-scap-squeeze",
+      "seated-figure-4",
+      "long-exhale-reset",
+      "unshrug",
+      "wrist-flexor-stretch",
+      "desk-wiggle-reset",
+      "screen-distance-blink"
     ]
   }
 }

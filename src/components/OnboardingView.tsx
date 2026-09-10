@@ -13,10 +13,11 @@ import {
 import { completeOnboarding, saveOnboardingAnswers } from "@/lib/storage";
 import type { GoalId, ReminderPref, SetupId } from "@/lib/types";
 
-const TOTAL = 8;
-const GOAL_STEP = 4;
-const SETUP_STEP = 5;
-const FIRST_WIN_STEP = 7;
+const TOTAL = 4;
+const GOAL_STEP = 0;
+const SETUP_STEP = 1;
+const REMINDER_STEP = 2;
+const FIRST_WIN_STEP = 3;
 
 export function OnboardingView() {
   const router = useRouter();
@@ -28,7 +29,8 @@ export function OnboardingView() {
   const canContinue =
     (step === GOAL_STEP && Boolean(goal)) ||
     (step === SETUP_STEP && Boolean(setup)) ||
-    (step !== GOAL_STEP && step !== SETUP_STEP);
+    step === REMINDER_STEP ||
+    step === FIRST_WIN_STEP;
 
   function persistAnd(next: () => void) {
     if (!goal || !setup) {
@@ -54,7 +56,7 @@ export function OnboardingView() {
     persistAnd(() => router.push("/paywall?from=skip"));
   }
 
-  const showSkip = step < FIRST_WIN_STEP && step !== GOAL_STEP && step !== SETUP_STEP;
+  const showSkip = step === REMINDER_STEP;
 
   return (
     <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))]">
@@ -68,7 +70,7 @@ export function OnboardingView() {
         {showSkip ? (
           <button
             type="button"
-            onClick={() => setStep((s) => Math.min(FIRST_WIN_STEP, s + 1))}
+            onClick={() => setStep(FIRST_WIN_STEP)}
             className="min-h-11 rounded-full px-3 text-sm font-semibold text-ink/45"
           >
             Skip
@@ -86,38 +88,11 @@ export function OnboardingView() {
       </div>
 
       <main className="flex flex-1 flex-col justify-center py-6">
-        {step === 0 && (
-          <CopyStep
-            kicker="Hook"
-            title="Your neck shouldn’t pay rent for a laptop."
-            body="DeskBreak is a two-minute unstick you start with one tap — still at the chair, still in the workday."
-          />
-        )}
-        {step === 1 && (
-          <CopyStep
-            kicker="The 3pm slump"
-            title="Desk stiffness is not a personality."
-            body="Shoulders up by the ears. Wrists humming. Energy gone and it’s still Tuesday. That’s the tax of sitting still — not a lack of grit."
-          />
-        )}
-        {step === 2 && (
-          <CopyStep
-            kicker="Two minutes"
-            title="Two minutes that actually fit a workday."
-            body="No mat. No change of clothes. Office workouts and desk exercises between calls — or a home workout routine for busy days at the kitchen table."
-          />
-        )}
-        {step === 3 && (
-          <CopyStep
-            kicker="The promise"
-            title="Show up for the tiny reset. That’s the whole game."
-            body="One tap. A lanky coach named Stretch. Cue text you can actually follow. Then back to the calendar."
-          />
-        )}
         {step === GOAL_STEP && (
           <ChoiceStep
             kicker="Goal"
             title="What should two minutes fix first?"
+            body="Your neck shouldn’t pay rent for a laptop. Pick a goal — we stay at the desk."
             options={[
               {
                 id: "neck",
@@ -159,10 +134,11 @@ export function OnboardingView() {
             onChange={(id) => setSetup(id as SetupId)}
           />
         )}
-        {step === 6 && (
+        {step === REMINDER_STEP && (
           <ChoiceStep
-            kicker="Optional nudge"
-            title="Want a reminder to stand up?"
+            kicker="Optional"
+            title="Want a reminder? Skip if not."
+            body="We’ll only nudge if this tab is open. You can turn it on later."
             options={[
               { id: "midday", label: "Around lunch", hint: "A noon ping if this tab is open." },
               { id: "afternoon", label: "Mid-afternoon", hint: "When the slump usually lands." },
@@ -183,7 +159,7 @@ export function OnboardingView() {
 
       {step < FIRST_WIN_STEP ? (
         <Button onClick={() => setStep((s) => s + 1)} disabled={!canContinue}>
-          Continue
+          {step === REMINDER_STEP && !reminder ? "Skip reminders" : "Continue"}
         </Button>
       ) : (
         <div className="flex flex-col gap-3">
@@ -229,12 +205,14 @@ function CopyStep({
 function ChoiceStep({
   kicker,
   title,
+  body,
   options,
   value,
   onChange,
 }: {
   kicker: string;
   title: string;
+  body?: string;
   options: { id: string; label: string; hint: string }[];
   value: string | null;
   onChange: (id: string) => void;
@@ -247,6 +225,9 @@ function ChoiceStep({
       <h1 className="mt-3 font-display text-[1.85rem] font-semibold leading-[1.12] tracking-tight text-ink">
         {title}
       </h1>
+      {body ? (
+        <p className="mt-3 text-[1.05rem] leading-relaxed text-ink/65">{body}</p>
+      ) : null}
       <div className="mt-6 flex flex-col gap-2">
         {options.map((option) => {
           const active = value === option.id;
