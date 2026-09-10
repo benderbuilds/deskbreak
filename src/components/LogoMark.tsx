@@ -1,7 +1,7 @@
 export function LogoMark({ size = 36 }: { size?: number }) {
   return (
     <img
-      src="/icons/logo-mark.svg"
+      src="/icons/logo-mark.png"
       width={size}
       height={size}
       alt=""

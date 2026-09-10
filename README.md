@@ -75,15 +75,18 @@ Shown when `NODE_ENV !== "production"` **or** `NEXT_PUBLIC_DEMO_UNLOCK=true`:
 
 ## Brand mark
 
-Locked mark: coral `#FF5A36` squircle + white profile silhouette of a person sitting in a chair with both arms raised. No desk. One head, two arms, two legs, simple chair.
+Locked mark: coral squircle + white profile silhouette of a person sitting in a chair with both arms raised. No desk. One head, two arms, two legs, simple chair.
 
-- `public/icons/logo-mark.svg` — source mark (also used by `LogoMark`)
-- `public/favicon.svg`, `public/favicon.ico`
+Icons are **crops/resizes of Jesse’s locked PNG** (not a redrawn stick figure, not the old scribble).
+
+- `scripts/locked-mark-source.png` — lock source
+- `public/icons/logo-mark.png` — in-app mark (`LogoMark`)
+- `public/favicon.svg`, `public/favicon.ico`, `public/favicon-32.png`, `public/favicon-16.png`
 - `public/apple-touch-icon.png` (180×180, full-bleed; OS applies the mask)
 - `public/icons/icon-192.png`, `icon-512.png` (precomposed squircle)
 - `public/icons/icon-512-maskable.png` (full-bleed coral, figure inset for the maskable safe zone)
 
-Regenerate rasters from the SVG masters with `node scripts/generate-icons.mjs` (needs `rsvg-convert` + ImageMagick). Do not restore the old procedural scribble.
+Regenerate with `node scripts/generate-icons.mjs` or `python3 scripts/generate-icons.py`.
 
 ## Character art (Stretch)
 
