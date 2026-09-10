@@ -9,7 +9,7 @@ import { ErrorState } from "@/components/StatusStates";
 import { UpgradeSheet } from "@/components/UpgradeSheet";
 import { getProgram } from "@/lib/content";
 import { canAccessProgram } from "@/lib/entitlements";
-import { formatClock, formatDose } from "@/lib/format";
+import { formatActiveDose, formatClock } from "@/lib/format";
 import {
   recordCompletedWorkout,
   saveLastSession,
@@ -84,7 +84,7 @@ export function WorkoutView({
 
   const current = engine.current;
   const doseLabel = useMemo(
-    () => (current ? formatDose(current.exercise.defaultDose) : ""),
+    () => (current ? formatActiveDose(current) : ""),
     [current],
   );
 
@@ -207,7 +207,11 @@ export function WorkoutView({
           <h1 className="font-display text-[1.85rem] font-semibold leading-tight text-ink">
             {current.exercise.name}
           </h1>
-          {current.exercise.shortLabel ? (
+          {current.side ? (
+            <p className="mt-1 text-sm font-semibold text-coral">
+              {current.side === "left" ? "Left side" : "Right side"}
+            </p>
+          ) : current.exercise.shortLabel ? (
             <p className="mt-1 text-sm font-semibold text-coral">
               {current.exercise.shortLabel}
             </p>

@@ -40,9 +40,13 @@ export type Exercise = {
   stretchAssetFrontArchive?: string;
 };
 
+export type StepSide = "left" | "right";
+
 export type ProgramStep = {
   exerciseId: string;
   durationSec: number;
+  dose?: Dose;
+  side?: StepSide;
 };
 
 export type Program = {
@@ -51,6 +55,7 @@ export type Program = {
   name: string;
   shortLabel: string;
   durationMin: number;
+  durationTargetSec?: number;
   tagline: string;
   steps: ProgramStep[];
 };

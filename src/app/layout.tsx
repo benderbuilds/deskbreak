@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Fraunces, Inter } from "next/font/google";
 import { AppFrame } from "@/components/AppFrame";
+import { INSTALL_CAPTURE_SCRIPT } from "@/lib/pwa-install";
 import "./globals.css";
 
 const inter = Inter({
@@ -55,6 +57,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-paper font-sans text-ink">
+        <Script
+          id="deskbreak-pwa-install"
+          strategy="beforeInteractive"
+        >
+          {INSTALL_CAPTURE_SCRIPT}
+        </Script>
         <AppFrame>{children}</AppFrame>
       </body>
     </html>
