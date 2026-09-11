@@ -3,11 +3,18 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ResumePrompt, WorkoutView } from "@/components/WorkoutView";
-import { clearActiveWorkout, getAppState } from "@/lib/storage";
-import { resumableWorkout } from "@/lib/resume";
-import { useIsClient } from "@/lib/use-client";
 import { LoadingShell } from "@/components/StatusStates";
-import { isPrimaryNeed, type PrimaryNeed, type SetupId } from "@/lib/types";
+import { track } from "@/lib/analytics";
+import { resumableWorkout } from "@/lib/resume";
+import { clearActiveWorkout, getAppState } from "@/lib/storage";
+import { useIsClient } from "@/lib/use-client";
+import {
+  isPrimaryNeed,
+  isSetupRequest,
+  type PrimaryNeed,
+  type SessionSource,
+  type SetupRequest,
+} from "@/lib/types";
 
 export function WorkoutScreen({ programId }: { programId: string }) {
   const isClient = useIsClient();
@@ -23,19 +30,20 @@ export function WorkoutScreen({ programId }: { programId: string }) {
   const state = getAppState();
   const needParam = params.get("need");
   const setupParam = params.get("setup");
-  const need: PrimaryNeed = isPrimaryNeed(needParam)
-    ? needParam
-    : (state.primaryNeed ?? "general");
-  const setup: SetupId =
-    setupParam === "standing" || setupParam === "seated"
-      ? setupParam
-      : (state.preferredSetup ?? "seated");
+  const need: PrimaryNeed = isPrimaryNeed(needParam) ? needParam : (state.primaryNeed ?? "general");
+  const setup: SetupRequest = isSetupRequest(setupParam)
+    ? setupParam
+    : (state.preferredSetup ?? "either");
+  const recommendationId = params.get("rec") ?? resumable?.recommendationId ?? null;
+  const source = (params.get("source") ?? resumable?.source ?? "unknown") as SessionSource;
+  const plannedBreakId = params.get("break") ?? resumable?.plannedBreakId ?? null;
 
   if (!decided && resumable) {
     return (
       <ResumePrompt
         stepIndex={resumable.stepIndex}
         onResume={() => {
+          track("session_resumed", { program_id: programId, step: resumable.stepIndex + 1 });
           setResumeAt(resumable.stepIndex);
           setDecided(true);
         }}
@@ -54,6 +62,9 @@ export function WorkoutScreen({ programId }: { programId: string }) {
       need={need}
       setup={setup}
       resumeAt={resumeAt ?? 0}
+      recommendationId={recommendationId}
+      source={source}
+      plannedBreakId={plannedBreakId}
     />
   );
 }

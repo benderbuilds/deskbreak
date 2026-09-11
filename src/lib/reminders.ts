@@ -18,24 +18,11 @@ export function reminderLineFor(dateKey: string): string {
 export function defaultDailyReminder(): Reminder {
   return {
     id: "daily",
-    minutes: 14 * 60,
+    minutes: 14 * 60 + 30,
     weekdaysOnly: true,
     kind: "daily",
     enabled: true,
   };
-}
-
-export function remindersForPlan(
-  breakMinutes: number[],
-  weekdaysOnly = true,
-): Reminder[] {
-  return breakMinutes.map((minutes, index) => ({
-    id: `plan-${index + 1}`,
-    minutes,
-    weekdaysOnly,
-    kind: "plan" as const,
-    enabled: true,
-  }));
 }
 
 export async function requestNotificationPermission(): Promise<
@@ -52,14 +39,25 @@ export async function requestNotificationPermission(): Promise<
 /**
  * Best-effort in-tab notification.
  *
- * This only fires while DeskBreak is open, which is why email is the reminder
- * channel that a subscription actually rests on.
+ * Only fires while DeskBreak is open. Background delivery goes through the
+ * service worker and Web Push instead.
  */
-export function pingLocalNotification(title: string, body: string): void {
+export function pingLocalNotification(title: string, body: string, href?: string): void {
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
   try {
-    new Notification(title, { body, icon: "/icons/icon-192.png" });
+    const notification = new Notification(title, {
+      body,
+      icon: "/icons/icon-192.png",
+      tag: "deskbreak-reminder",
+    });
+    if (href) {
+      notification.onclick = () => {
+        window.focus();
+        window.location.assign(href);
+        notification.close();
+      };
+    }
   } catch {
     /* some browsers block this outside a secure context */
   }

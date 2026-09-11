@@ -1,0 +1,1980 @@
+{
+  "note": "Routine templates the recommendation engine fills. Phases are internal: users only ever see 'Your Desk Reset'. Seconds per template must sum to durationMin * 60.",
+  "templates": [
+    {
+      "id": "general-2",
+      "need": "general",
+      "durationMin": 2,
+      "name": "2-Minute Quick Reset",
+      "shortLabel": "Quick Reset",
+      "tagline": "A fast, balanced reset you can do between things.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 25,
+          "bodyAreas": [
+            "neck",
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 25,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 30,
+          "bodyAreas": [
+            "hips",
+            "core",
+            "upperBack"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 25,
+          "bodyAreas": [
+            "legs",
+            "hips"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "strength",
+            "isometric",
+            "position_change"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 15,
+          "movementTypes": [
+            "breathing",
+            "position_change",
+            "eye_break"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "general-3",
+      "need": "general",
+      "durationMin": 3,
+      "name": "3-Minute Desk Reset",
+      "shortLabel": "Desk Reset",
+      "tagline": "Full-body movement for your workday.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 30,
+          "bodyAreas": [
+            "neck",
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 30,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength",
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 30,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 45,
+          "bodyAreas": [
+            "upperBack",
+            "hips",
+            "core"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 30,
+          "bodyAreas": [
+            "legs",
+            "hips"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "strength",
+            "isometric",
+            "position_change"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 15,
+          "movementTypes": [
+            "breathing",
+            "position_change",
+            "eye_break"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "general-5",
+      "need": "general",
+      "durationMin": 5,
+      "name": "5-Minute Deeper Reset",
+      "shortLabel": "Deeper Reset",
+      "tagline": "Long enough to get to everything.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 35,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "shoulders",
+            "neck"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 35,
+          "bodyAreas": [
+            "upperBack",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 45,
+          "bodyAreas": [
+            "upperBack",
+            "core"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 45,
+          "bodyAreas": [
+            "hips"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 40,
+          "bodyAreas": [
+            "legs",
+            "hips"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "strength",
+            "isometric",
+            "position_change"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 30,
+          "movementTypes": [
+            "breathing",
+            "position_change",
+            "eye_break"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "general-10",
+      "need": "general",
+      "durationMin": 10,
+      "name": "10-Minute Full Desk Workout",
+      "shortLabel": "Full Desk Workout",
+      "tagline": "An intentional exercise break.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 45,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 45,
+          "bodyAreas": [
+            "neck",
+            "shoulders"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 50,
+          "bodyAreas": [
+            "upperBack",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 45,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 45,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 45,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "upperBack",
+            "core"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "hips"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 60,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ],
+          "movementTypes": [
+            "strength",
+            "isometric"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 60,
+          "bodyAreas": [
+            "legs"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "strength"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 45,
+          "bodyAreas": [
+            "core",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 40,
+          "movementTypes": [
+            "breathing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "neck_shoulders-2",
+      "need": "neck_shoulders",
+      "durationMin": 2,
+      "name": "2-Minute Neck + Shoulder Reset",
+      "shortLabel": "Neck + Shoulder Reset",
+      "tagline": "Undo the laptop lean.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 25,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 30,
+          "bodyAreas": [
+            "neck",
+            "shoulders"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 30,
+          "bodyAreas": [
+            "upperBack",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 25,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 10,
+          "movementTypes": [
+            "breathing",
+            "position_change"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "neck_shoulders-3",
+      "need": "neck_shoulders",
+      "durationMin": 3,
+      "name": "3-Minute Neck + Shoulder Reset",
+      "shortLabel": "Neck + Shoulder Reset",
+      "tagline": "Undo the laptop lean.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 30,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "neck"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 35,
+          "bodyAreas": [
+            "upperBack",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 30,
+          "bodyAreas": [
+            "shoulders",
+            "neck"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength",
+            "mobility"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 15,
+          "movementTypes": [
+            "breathing",
+            "position_change"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "neck_shoulders-5",
+      "need": "neck_shoulders",
+      "durationMin": 5,
+      "name": "5-Minute Neck + Shoulder Reset",
+      "shortLabel": "Neck + Shoulder Reset",
+      "tagline": "A deeper pass at the neck and upper back.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 35,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "neck"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "neck",
+            "shoulders"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "upperBack",
+            "shoulders"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 40,
+          "bodyAreas": [
+            "upperBack"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 40,
+          "bodyAreas": [
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength",
+            "mobility"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 35,
+          "bodyAreas": [
+            "posture",
+            "upperBack",
+            "legs"
+          ],
+          "movementTypes": [
+            "position_change",
+            "aerobic",
+            "mobility"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 30,
+          "movementTypes": [
+            "breathing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "neck_shoulders-10",
+      "need": "neck_shoulders",
+      "durationMin": 10,
+      "name": "10-Minute Neck + Shoulder Workout",
+      "shortLabel": "Neck + Shoulder Workout",
+      "tagline": "Mobility, then strength, for the whole upper body.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 50,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "neck"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "neck",
+            "shoulders"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "shoulders"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "upperBack"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 60,
+          "bodyAreas": [
+            "upperBack"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 60,
+          "bodyAreas": [
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 55,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength",
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 55,
+          "bodyAreas": [
+            "posture",
+            "legs"
+          ],
+          "movementTypes": [
+            "position_change",
+            "aerobic",
+            "strength"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 40,
+          "movementTypes": [
+            "breathing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "back_hips-2",
+      "need": "back_hips",
+      "durationMin": 2,
+      "name": "2-Minute Back + Hip Reset",
+      "shortLabel": "Back + Hip Reset",
+      "tagline": "Loosen up after sitting.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 25,
+          "bodyAreas": [
+            "upperBack",
+            "core"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 30,
+          "bodyAreas": [
+            "core",
+            "hips"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 30,
+          "bodyAreas": [
+            "hips"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 25,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ],
+          "movementTypes": [
+            "strength",
+            "isometric",
+            "aerobic",
+            "position_change"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 10,
+          "movementTypes": [
+            "position_change",
+            "breathing"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "back_hips-3",
+      "need": "back_hips",
+      "durationMin": 3,
+      "name": "3-Minute Back + Hip Reset",
+      "shortLabel": "Back + Hip Reset",
+      "tagline": "Loosen up after sitting.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 30,
+          "bodyAreas": [
+            "upperBack",
+            "core"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 30,
+          "bodyAreas": [
+            "core",
+            "hips"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "upperBack"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "hips"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 30,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ],
+          "movementTypes": [
+            "strength",
+            "isometric",
+            "aerobic",
+            "position_change"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 15,
+          "movementTypes": [
+            "position_change",
+            "breathing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "back_hips-5",
+      "need": "back_hips",
+      "durationMin": 5,
+      "name": "5-Minute Back + Hip Reset",
+      "shortLabel": "Back + Hip Reset",
+      "tagline": "A deeper pass at the spine and hips.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 35,
+          "bodyAreas": [
+            "upperBack",
+            "core"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "core",
+            "hips"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "upperBack"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 45,
+          "bodyAreas": [
+            "hips"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 45,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 40,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ],
+          "movementTypes": [
+            "strength",
+            "isometric"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 35,
+          "bodyAreas": [
+            "legs",
+            "posture"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "position_change",
+            "strength"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 20,
+          "movementTypes": [
+            "position_change",
+            "breathing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "back_hips-10",
+      "need": "back_hips",
+      "durationMin": 10,
+      "name": "10-Minute Back + Hip Workout",
+      "shortLabel": "Back + Hip Workout",
+      "tagline": "Mobility, then strength, for the spine, hips and legs.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 50,
+          "bodyAreas": [
+            "upperBack",
+            "core"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "core",
+            "hips"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "upperBack"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "upperBack",
+            "core"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "hips"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 60,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ],
+          "movementTypes": [
+            "strength",
+            "isometric"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 55,
+          "bodyAreas": [
+            "hips",
+            "core",
+            "legs"
+          ],
+          "movementTypes": [
+            "strength",
+            "isometric"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 55,
+          "bodyAreas": [
+            "legs"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "strength"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 45,
+          "bodyAreas": [
+            "posture",
+            "legs"
+          ],
+          "movementTypes": [
+            "position_change",
+            "aerobic"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 40,
+          "movementTypes": [
+            "breathing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrists_hands-2",
+      "need": "wrists_hands",
+      "durationMin": 2,
+      "name": "2-Minute Wrist + Hand Reset",
+      "shortLabel": "Wrist + Hand Reset",
+      "tagline": "Give keyboard hands a break.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 25,
+          "bodyAreas": [
+            "wrists"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 25,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack",
+            "wrists"
+          ],
+          "movementTypes": [
+            "mobility",
+            "isometric"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrists_hands-3",
+      "need": "wrists_hands",
+      "durationMin": 3,
+      "name": "3-Minute Wrist + Hand Reset",
+      "shortLabel": "Wrist + Hand Reset",
+      "tagline": "Give keyboard hands a break.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 30,
+          "bodyAreas": [
+            "wrists"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 25,
+          "bodyAreas": [
+            "wrists"
+          ],
+          "movementTypes": [
+            "mobility",
+            "isometric"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 25,
+          "bodyAreas": [
+            "shoulders"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 20,
+          "bodyAreas": [
+            "upperBack",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength",
+            "position_change"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrists_hands-5",
+      "need": "wrists_hands",
+      "durationMin": 5,
+      "name": "5-Minute Wrist + Hand Reset",
+      "shortLabel": "Wrist + Hand Reset",
+      "tagline": "Hands, forearms, and the shoulders that carry them.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 35,
+          "bodyAreas": [
+            "wrists"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 45,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 45,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 30,
+          "bodyAreas": [
+            "wrists"
+          ],
+          "movementTypes": [
+            "mobility",
+            "isometric"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "shoulders",
+            "neck"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 35,
+          "bodyAreas": [
+            "upperBack",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 40,
+          "bodyAreas": [
+            "wrists",
+            "posture",
+            "legs"
+          ],
+          "movementTypes": [
+            "position_change",
+            "aerobic",
+            "mobility"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 35,
+          "movementTypes": [
+            "breathing",
+            "eye_break"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrists_hands-10",
+      "need": "wrists_hands",
+      "durationMin": 10,
+      "name": "10-Minute Wrist + Upper Body Workout",
+      "shortLabel": "Wrist + Upper Body Workout",
+      "tagline": "Everything from the fingertips to the shoulder blades.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 50,
+          "bodyAreas": [
+            "wrists"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "wrists"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 50,
+          "bodyAreas": [
+            "wrists"
+          ],
+          "movementTypes": [
+            "mobility",
+            "isometric"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "shoulders",
+            "neck"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 60,
+          "bodyAreas": [
+            "upperBack"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 55,
+          "bodyAreas": [
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 55,
+          "bodyAreas": [
+            "posture",
+            "legs",
+            "wrists"
+          ],
+          "movementTypes": [
+            "position_change",
+            "aerobic"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 50,
+          "bodyAreas": [
+            "legs"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "strength"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 40,
+          "movementTypes": [
+            "breathing",
+            "eye_break"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "energy-2",
+      "need": "energy",
+      "durationMin": 2,
+      "name": "2-Minute Energy Reset",
+      "shortLabel": "Energy Reset",
+      "tagline": "Wake yourself up without another coffee.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 25,
+          "bodyAreas": [
+            "posture",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "position_change",
+            "mobility"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "move",
+          "seconds": 35,
+          "bodyAreas": [
+            "legs"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "strength"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "move",
+          "seconds": 35,
+          "bodyAreas": [
+            "legs",
+            "hips"
+          ],
+          "movementTypes": [
+            "strength",
+            "aerobic",
+            "isometric"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 25,
+          "bodyAreas": [
+            "shoulders",
+            "posture",
+            "upperBack"
+          ],
+          "preferStanding": true
+        }
+      ]
+    },
+    {
+      "id": "energy-3",
+      "need": "energy",
+      "durationMin": 3,
+      "name": "3-Minute Energy Reset",
+      "shortLabel": "Energy Reset",
+      "tagline": "Wake yourself up without another coffee.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 25,
+          "bodyAreas": [
+            "posture",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "position_change",
+            "mobility"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 25,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "move",
+          "seconds": 35,
+          "bodyAreas": [
+            "legs"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "strength"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "activate",
+          "seconds": 35,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ],
+          "movementTypes": [
+            "strength",
+            "isometric"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 30,
+          "bodyAreas": [
+            "posture",
+            "shoulders",
+            "upperBack"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "move",
+          "seconds": 30,
+          "bodyAreas": [
+            "legs",
+            "hips",
+            "posture"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "isometric",
+            "position_change"
+          ],
+          "preferStanding": true
+        }
+      ]
+    },
+    {
+      "id": "energy-5",
+      "need": "energy",
+      "durationMin": 5,
+      "name": "5-Minute Energy Reset",
+      "shortLabel": "Energy Reset",
+      "tagline": "Standing, moving, and noticeably more awake.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 30,
+          "bodyAreas": [
+            "posture",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "position_change",
+            "mobility"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack",
+            "neck"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "move",
+          "seconds": 45,
+          "bodyAreas": [
+            "legs"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "strength"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "activate",
+          "seconds": 45,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ],
+          "movementTypes": [
+            "strength",
+            "isometric"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "posture",
+            "shoulders"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "move",
+          "seconds": 45,
+          "bodyAreas": [
+            "legs",
+            "posture"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "position_change"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "return",
+          "seconds": 25,
+          "movementTypes": [
+            "breathing",
+            "eye_break",
+            "position_change"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "energy-10",
+      "need": "energy",
+      "durationMin": 10,
+      "name": "10-Minute Energy Workout",
+      "shortLabel": "Energy Workout",
+      "tagline": "A real movement break, mostly on your feet.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 45,
+          "bodyAreas": [
+            "posture",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "position_change",
+            "mobility"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 50,
+          "bodyAreas": [
+            "neck",
+            "shoulders"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "move",
+          "seconds": 65,
+          "bodyAreas": [
+            "legs"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "strength"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "activate",
+          "seconds": 60,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ],
+          "movementTypes": [
+            "strength",
+            "isometric"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 60,
+          "bodyAreas": [
+            "hips",
+            "legs"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "activate",
+          "seconds": 60,
+          "bodyAreas": [
+            "legs",
+            "hips",
+            "core"
+          ],
+          "movementTypes": [
+            "strength",
+            "isometric"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "wrists",
+            "shoulders"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "move",
+          "seconds": 60,
+          "bodyAreas": [
+            "legs"
+          ],
+          "movementTypes": [
+            "aerobic"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "activate",
+          "seconds": 50,
+          "bodyAreas": [
+            "core",
+            "shoulders",
+            "upperBack"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 40,
+          "movementTypes": [
+            "breathing",
+            "position_change"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stress-2",
+      "need": "stress",
+      "durationMin": 2,
+      "name": "2-Minute Stress Reset",
+      "shortLabel": "Stress Reset",
+      "tagline": "Slow things down for two minutes.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 30,
+          "movementTypes": [
+            "breathing"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 30,
+          "bodyAreas": [
+            "shoulders",
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility",
+            "isometric"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 30,
+          "bodyAreas": [
+            "upperBack",
+            "core",
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 30,
+          "movementTypes": [
+            "breathing",
+            "eye_break"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stress-3",
+      "need": "stress",
+      "durationMin": 3,
+      "name": "3-Minute Stress Reset",
+      "shortLabel": "Stress Reset",
+      "tagline": "Slow things down for three minutes.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 35,
+          "movementTypes": [
+            "breathing"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "shoulders",
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility",
+            "isometric"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "upperBack",
+            "core"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 40,
+          "movementTypes": [
+            "breathing",
+            "eye_break"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stress-5",
+      "need": "stress",
+      "durationMin": 5,
+      "name": "5-Minute Stress Reset",
+      "shortLabel": "Stress Reset",
+      "tagline": "Breathe, move gently, and come back calmer.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 40,
+          "movementTypes": [
+            "breathing"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "shoulders",
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility",
+            "isometric"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "upperBack",
+            "core"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "hips",
+            "core"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 40,
+          "bodyAreas": [
+            "posture",
+            "legs"
+          ],
+          "movementTypes": [
+            "position_change",
+            "aerobic"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 30,
+          "movementTypes": [
+            "eye_break",
+            "position_change"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 30,
+          "movementTypes": [
+            "breathing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stress-10",
+      "need": "stress",
+      "durationMin": 10,
+      "name": "10-Minute Stress Reset",
+      "shortLabel": "Stress Reset",
+      "tagline": "A slow, thorough unwind.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 60,
+          "movementTypes": [
+            "breathing"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "shoulders",
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility",
+            "isometric"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "upperBack",
+            "core"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "hips"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "wrists"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 60,
+          "bodyAreas": [
+            "posture",
+            "legs"
+          ],
+          "movementTypes": [
+            "position_change",
+            "aerobic"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 50,
+          "movementTypes": [
+            "eye_break",
+            "position_change"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 50,
+          "movementTypes": [
+            "breathing"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 50,
+          "movementTypes": [
+            "breathing"
+          ]
+        }
+      ]
+    }
+  ]
+}

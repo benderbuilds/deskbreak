@@ -1,17 +1,32 @@
 import { getExercise, getProgram } from "./content";
-import type { Entitlement, Exercise, Program } from "./types";
+import type { DurationMinutes, Entitlement, Exercise, Program } from "./types";
 
 /**
  * Client-side reading of a server-issued entitlement.
  *
  * This is a cache, not an authority. The app asks `/api/entitlement` on load and
- * stores the answer; nothing here can promote a user to Pro on its own, and an
- * expired period end drops them back to free without waiting for a round trip.
+ * stores the answer; nothing here can promote a user to Pro on its own. An
+ * expired period end drops them back to free without waiting for a round trip,
+ * with a short grace window so a slow lookup never locks a paying user out.
  */
+const GRACE_MS = 48 * 60 * 60 * 1000;
+
 export function isProEntitlement(entitlement: Entitlement): boolean {
   if (entitlement.plan !== "pro") return false;
   if (!entitlement.proExpiresAt) return true;
-  return new Date(entitlement.proExpiresAt).getTime() > Date.now();
+  const expires = new Date(entitlement.proExpiresAt).getTime();
+  if (expires > Date.now()) return true;
+  // Past the period end but recently confirmed: Stripe may simply not have
+  // renewed the row yet. Keep Pro on briefly while the server catches up.
+  const checked = entitlement.checkedAt ? new Date(entitlement.checkedAt).getTime() : 0;
+  return checked > 0 && Date.now() - checked < GRACE_MS && expires > Date.now() - GRACE_MS;
+}
+
+/** Free gets the quick and daily resets; deeper and full workouts are Pro. */
+export const FREE_DURATIONS: DurationMinutes[] = [1, 2, 3];
+
+export function canAccessDuration(minutes: DurationMinutes, entitlement: Entitlement): boolean {
+  return isProEntitlement(entitlement) || FREE_DURATIONS.includes(minutes);
 }
 
 export function isFreeProgram(programId: string): boolean {
@@ -27,7 +42,9 @@ export function canAccessExercise(exerciseId: string, entitlement: Entitlement):
 }
 
 export function isProgramLocked(program: Program, entitlement: Entitlement): boolean {
-  return !canAccessProgram(program.id, entitlement);
+  if (isProEntitlement(entitlement)) return false;
+  if (program.access === "pro") return true;
+  return !FREE_DURATIONS.includes(program.durationMin);
 }
 
 export function isExerciseLocked(exercise: Exercise, entitlement: Entitlement): boolean {

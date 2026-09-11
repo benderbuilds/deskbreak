@@ -4,7 +4,7 @@ import Script from "next/script";
 import { Fraunces, Inter } from "next/font/google";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { INSTALL_CAPTURE_SCRIPT } from "@/lib/pwa-install";
-import { PRODUCT_SUBHEAD } from "@/lib/constants";
+import { PRODUCT_PROMISE, PRODUCT_SUBHEAD } from "@/lib/constants";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -17,7 +17,7 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.app"),
   title: {
-    default: "DeskBreak - feel better at your desk in 2 minutes",
+    default: `DeskBreak. ${PRODUCT_PROMISE}`,
     template: "%s | DeskBreak",
   },
   description: PRODUCT_SUBHEAD,
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
   },
   openGraph: {
-    title: "DeskBreak - feel better at your desk in 2 minutes",
+    title: `DeskBreak. ${PRODUCT_PROMISE}`,
     description: PRODUCT_SUBHEAD,
     type: "website",
   },

@@ -1,16 +1,19 @@
 import type { MetadataRoute } from "next";
-import { AREA_PAGES, GUIDE_PAGES } from "@/lib/seo-content";
+import { getExercises } from "@/lib/content";
+import { AREA_PAGES, GUIDE_PAGES, LANDING_PAGES } from "@/lib/seo-content";
 
-const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.app").replace(
-  /\/$/,
-  "",
-);
+const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.app").replace(/\/$/, "");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   return [
     { url: `${BASE}/`, lastModified: now, priority: 1 },
-    { url: `${BASE}/desk-exercises`, lastModified: now, priority: 0.8 },
+    { url: `${BASE}/science`, lastModified: now, priority: 0.8 },
+    ...LANDING_PAGES.map((page) => ({
+      url: `${BASE}/${page.slug}`,
+      lastModified: now,
+      priority: 0.9,
+    })),
     ...AREA_PAGES.map((page) => ({
       url: `${BASE}/desk-exercises/${page.slug}`,
       lastModified: now,
@@ -20,6 +23,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${BASE}/guides/${page.slug}`,
       lastModified: now,
       priority: 0.6,
+    })),
+    ...getExercises().map((exercise) => ({
+      url: `${BASE}/moves/${exercise.id}`,
+      lastModified: now,
+      priority: 0.5,
     })),
     { url: `${BASE}/privacy`, lastModified: now, priority: 0.2 },
     { url: `${BASE}/terms`, lastModified: now, priority: 0.2 },

@@ -9,8 +9,11 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
-const catalog = JSON.parse(
-  readFileSync(join(root, "data", "exercises-and-programs.json"), "utf8"),
+const { exercises } = JSON.parse(
+  readFileSync(join(root, "data", "exercises.json"), "utf8"),
+);
+const { programs } = JSON.parse(
+  readFileSync(join(root, "data", "programs.json"), "utf8"),
 );
 const stems = new Set(
   readdirSync(join(root, "public", "character"))
@@ -19,14 +22,14 @@ const stems = new Set(
 );
 
 const inFreePrograms = new Set(
-  catalog.programs
+  programs
     .filter((program) => program.access === "free")
     .flatMap((program) => program.steps.map((step) => step.exerciseId)),
 );
 
 const missing = [];
 const noMotionFrame = [];
-for (const exercise of catalog.exercises) {
+for (const exercise of exercises) {
   if (!stems.has(exercise.id) && !stems.has(`${exercise.id}-standing`)) {
     missing.push(exercise);
   } else if (!stems.has(`${exercise.id}-b`)) {
@@ -34,10 +37,8 @@ for (const exercise of catalog.exercises) {
   }
 }
 
-const covered = catalog.exercises.length - missing.length;
-console.log(
-  `art coverage: ${covered}/${catalog.exercises.length} moves have dedicated art`,
-);
+const covered = exercises.length - missing.length;
+console.log(`art coverage: ${covered}/${exercises.length} moves have dedicated art`);
 
 if (missing.length) {
   console.log("\nno artwork (falls back to the neutral Stretch pose):");

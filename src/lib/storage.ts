@@ -1,30 +1,49 @@
-import type {
-  AppSettings,
-  AppState,
-  Attribution,
-  ChallengeState,
-  Entitlement,
-  PerceivedEffect,
-  PrimaryNeed,
-  ProgressState,
-  Reminder,
-  SetupId,
-  WorkdayPlan,
-  WorkoutSession,
+import { shiftDay, todayKey } from "./dates";
+import {
+  applyFeedbackToSignals,
+  applySessionToSignals,
+  signalsFromHistory,
+  type PersonalizationSignals,
+} from "./personalization";
+import { satisfyBreak } from "./workday";
+import {
+  isFunctionalConstraint,
+  isPrimaryNeed,
+  type AccountState,
+  type AppSettings,
+  type AppState,
+  type Attribution,
+  type ChallengeState,
+  type DurationMinutes,
+  type Entitlement,
+  type FunctionalConstraint,
+  type PerceivedEffect,
+  type PlannedBreak,
+  type PrimaryNeed,
+  type ProgressState,
+  type PushState,
+  type Reminder,
+  type SessionSource,
+  type SetupId,
+  type SetupRequest,
+  type StiffnessRating,
+  type StoredRecommendation,
+  type WorkdayPlan,
+  type WorkoutSession,
 } from "./types";
-import { isPrimaryNeed } from "./types";
 
-export const APP_STATE_VERSION = 2;
+export { shiftDay, todayKey } from "./dates";
 
+export const APP_STATE_VERSION = 3;
+
+/** Same key as V2 on purpose: an upgrade must find the user's history. */
 const KEY = "deskbreak.app.v2";
 const ACTIVE_WORKOUT_KEY = "deskbreak.activeWorkout.v1";
 const LEGACY_ONBOARDING = "deskbreak.onboarding.v1";
 const LEGACY_PROGRESS = "deskbreak.progress.v1";
 
-/** Free keeps a short tail of history; Pro sees all of it. */
-const HISTORY_CAP = 200;
-/** Ask "did that help?" roughly every third reset, not every single time. */
-export const FEEDBACK_EVERY = 3;
+const HISTORY_CAP = 400;
+const RECOMMENDATION_CAP = 20;
 
 const listeners = new Set<() => void>();
 
@@ -59,6 +78,15 @@ export const emptyChallenge = (): ChallengeState => ({
   completedAt: null,
 });
 
+export const emptyAccount = (): AccountState => ({
+  profileId: null,
+  email: null,
+  signedInAt: null,
+  lastSyncedAt: null,
+});
+
+export const emptyPush = (): PushState => ({ endpoint: null, subscribedAt: null });
+
 export const defaultState = (): AppState => ({
   version: APP_STATE_VERSION,
   anonymousId: null,
@@ -66,9 +94,13 @@ export const defaultState = (): AppState => ({
   emailPromptDismissedAt: null,
   primaryNeed: null,
   preferredSetup: null,
+  preferredDuration: null,
+  constraints: [],
+  favorites: [],
   firstResetComplete: false,
   paywallSeen: false,
   installPromptSeen: false,
+  savePromptDismissedAt: null,
   entitlement: {
     plan: "free",
     proExpiresAt: null,
@@ -80,6 +112,8 @@ export const defaultState = (): AppState => ({
   progress: emptyProgress(),
   settings: {
     soundEnabled: true,
+    spokenCues: false,
+    autoAdvance: true,
     celebrationTheme: "classic",
     reminders: [],
     lastReminderDate: null,
@@ -87,6 +121,10 @@ export const defaultState = (): AppState => ({
   plan: null,
   challenge: emptyChallenge(),
   attribution: emptyAttribution(),
+  signals: {},
+  recommendations: [],
+  account: emptyAccount(),
+  push: emptyPush(),
   resetsSinceFeedback: 0,
 });
 
@@ -98,24 +136,14 @@ function canUseStorage(): boolean {
   return typeof window !== "undefined";
 }
 
-export function todayKey(date = new Date()): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-export function shiftDay(dateKey: string, delta: number): string {
-  const [y, m, d] = dateKey.split("-").map(Number);
-  const date = new Date(y, m - 1, d);
-  date.setDate(date.getDate() + delta);
-  return todayKey(date);
-}
-
 export function newId(): string {
   if (canUseStorage() && window.crypto?.randomUUID) return window.crypto.randomUUID();
   return `db_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
 }
+
+/* ------------------------------------------------------------------ *
+ * Migrations. Nobody loses history on an upgrade.
+ * ------------------------------------------------------------------ */
 
 type LegacyGoal = "neck" | "energy" | "consistent";
 
@@ -125,7 +153,7 @@ const LEGACY_GOAL_TO_NEED: Record<LegacyGoal, PrimaryNeed> = {
   consistent: "general",
 };
 
-type LegacyState = {
+type LegacyV1State = {
   version?: number;
   onboardingComplete?: boolean;
   onboardingAnswers?: { goal?: LegacyGoal | null; setup?: SetupId | null };
@@ -144,12 +172,10 @@ type LegacyState = {
 /**
  * Brings a v1 blob forward without losing the user.
  *
- * Preferences, streak and counts carry over. A local `plan: "pro"` does not:
- * entitlement is Stripe's answer now, and the app re-checks it against the
- * server on load. Losing a wrongly-cached unlock is recoverable; handing out
- * Pro because a browser said so is not.
+ * A local `plan: "pro"` does not carry over: entitlement is Stripe's answer, and
+ * the app re-checks it against the server on load.
  */
-export function migrateState(oldState: LegacyState): AppState {
+export function migrateState(oldState: LegacyV1State): AppState {
   const base = defaultState();
   const answers = oldState.onboardingAnswers ?? {};
   const legacyGoal = answers.goal ?? null;
@@ -157,7 +183,6 @@ export function migrateState(oldState: LegacyState): AppState {
 
   return {
     ...base,
-    anonymousId: base.anonymousId,
     primaryNeed: legacyGoal ? LEGACY_GOAL_TO_NEED[legacyGoal] : null,
     preferredSetup: answers.setup ?? null,
     firstResetComplete: Boolean(oldState.firstWinComplete || oldState.onboardingComplete),
@@ -191,6 +216,155 @@ export function migrateState(oldState: LegacyState): AppState {
   };
 }
 
+type LegacyV2Session = Omit<
+  WorkoutSession,
+  "perceivedEffect" | "exercises" | "recommendationId" | "algorithmVersion" | "source" | "plannedBreakId" | "generated"
+> & {
+  perceivedEffect?: string;
+  exercises?: WorkoutSession["exercises"];
+  recommendationId?: string | null;
+  algorithmVersion?: string | null;
+  source?: SessionSource;
+  plannedBreakId?: string | null;
+  generated?: boolean;
+};
+
+type LegacyV2Plan = {
+  startMinutes: number;
+  endMinutes: number;
+  preference: "light" | "balanced" | "frequent";
+  troubleSpots?: PrimaryNeed[];
+  generatedFor?: string | null;
+  breaks?: unknown[];
+};
+
+type LegacyV2State = Omit<Partial<AppState>, "plan" | "challenge" | "progress"> & {
+  plan?: LegacyV2Plan | WorkdayPlan | null;
+  challenge?: Partial<ChallengeState> & { baseline?: unknown; finalRating?: unknown };
+  progress?: Partial<ProgressState> & { history?: LegacyV2Session[]; lastWorkout?: LegacyV2Session | null };
+};
+
+function migrateEffect(value: unknown): PerceivedEffect | undefined {
+  if (value === "better") return "better";
+  if (value === "somewhat" || value === "same") return "same";
+  if (value === "not_better" || value === "worse") return "worse";
+  return undefined;
+}
+
+const LEGACY_RATINGS: Record<string, StiffnessRating> = {
+  great: 1,
+  pretty_good: 2,
+  stiff: 3,
+  very_stiff: 4,
+  uncomfortable: 5,
+};
+
+function migrateRating(value: unknown): StiffnessRating | null {
+  if (typeof value === "number" && value >= 1 && value <= 5) return value as StiffnessRating;
+  if (typeof value === "string" && value in LEGACY_RATINGS) return LEGACY_RATINGS[value];
+  return null;
+}
+
+export function normalizeSession(raw: LegacyV2Session): WorkoutSession {
+  return {
+    sessionId: raw.sessionId,
+    programId: raw.programId,
+    programName: raw.programName,
+    primaryNeed: isPrimaryNeed(raw.primaryNeed) ? raw.primaryNeed : "general",
+    setup: raw.setup ?? "seated",
+    durationMin: (raw.durationMin ?? 2) as DurationMinutes,
+    completedExerciseIds: raw.completedExerciseIds ?? [],
+    skippedExerciseIds: raw.skippedExerciseIds ?? [],
+    exercises: raw.exercises ?? [],
+    elapsedSec: raw.elapsedSec ?? 0,
+    startedAt: raw.startedAt,
+    finishedAt: raw.finishedAt,
+    perceivedEffect: migrateEffect(raw.perceivedEffect),
+    recommendationId: raw.recommendationId ?? null,
+    algorithmVersion: raw.algorithmVersion ?? null,
+    source: raw.source ?? "unknown",
+    plannedBreakId: raw.plannedBreakId ?? null,
+    generated: raw.generated ?? false,
+  };
+}
+
+function isV3Plan(plan: unknown): plan is WorkdayPlan {
+  return Boolean(plan && typeof plan === "object" && "preferences" in plan);
+}
+
+function migratePlan(plan: LegacyV2Plan | WorkdayPlan | null | undefined): WorkdayPlan | null {
+  if (!plan) return null;
+  if (isV3Plan(plan)) return plan;
+  const level =
+    plan.preference === "light" ? "minimal" : plan.preference === "frequent" ? "active" : "balanced";
+  return {
+    preferences: {
+      startMinutes: plan.startMinutes,
+      endMinutes: plan.endMinutes,
+      level,
+      enabledDays: [1, 2, 3, 4, 5],
+      timezone: null,
+    },
+    // Regenerated on the next visit with the V3 shape.
+    generatedFor: null,
+    breaks: [],
+    responseMinutes: [],
+    ignoredMinutes: [],
+  };
+}
+
+/** Recomputes the per-exercise signal map from scratch. Used on migration. */
+function signalsFromScratch(history: WorkoutSession[]): AppState["signals"] {
+  let signals: AppState["signals"] = {};
+  for (const session of [...history].reverse()) {
+    signals = applySessionToSignals(signals, session);
+    if (session.perceivedEffect) {
+      signals = applyFeedbackToSignals(signals, session, session.perceivedEffect);
+    }
+  }
+  return signals;
+}
+
+export function migrateV2State(parsed: LegacyV2State): AppState {
+  const base = defaultState();
+  const history = (parsed.progress?.history ?? []).map(normalizeSession);
+  const lastWorkout = parsed.progress?.lastWorkout
+    ? normalizeSession(parsed.progress.lastWorkout)
+    : null;
+
+  return {
+    ...base,
+    ...(parsed as Partial<AppState>),
+    version: APP_STATE_VERSION,
+    entitlement: { ...base.entitlement, ...parsed.entitlement },
+    progress: {
+      ...base.progress,
+      ...(parsed.progress as Partial<ProgressState>),
+      history,
+      lastWorkout,
+    },
+    settings: { ...base.settings, ...(parsed.settings as Partial<AppSettings>) },
+    plan: migratePlan(parsed.plan),
+    challenge: {
+      ...base.challenge,
+      ...parsed.challenge,
+      baseline: migrateRating(parsed.challenge?.baseline),
+      finalRating: migrateRating(parsed.challenge?.finalRating),
+    },
+    attribution: { ...base.attribution, ...parsed.attribution },
+    primaryNeed: isPrimaryNeed(parsed.primaryNeed) ? parsed.primaryNeed : null,
+    constraints: (parsed.constraints ?? []).filter(isFunctionalConstraint),
+    favorites: parsed.favorites ?? [],
+    signals:
+      parsed.signals && Object.keys(parsed.signals).length
+        ? parsed.signals
+        : signalsFromScratch(history),
+    recommendations: parsed.recommendations ?? [],
+    account: { ...base.account, ...parsed.account, email: parsed.account?.email ?? parsed.email ?? null },
+    push: { ...base.push, ...parsed.push },
+  };
+}
+
 function migrateLegacyKeys(): Partial<AppState> | null {
   if (!canUseStorage()) return null;
   const onboarded = window.localStorage.getItem(LEGACY_ONBOARDING) === "1";
@@ -215,33 +389,22 @@ function parseState(raw: string | null): AppState {
       ? { ...base, ...migrated, progress: { ...base.progress, ...migrated.progress } }
       : base;
   }
-  let parsed: Partial<AppState> & LegacyState;
+  let parsed: LegacyV2State & LegacyV1State;
   try {
     parsed = JSON.parse(raw);
   } catch {
     return base;
   }
 
-  if ((parsed.version ?? 1) < APP_STATE_VERSION) {
-    return migrateState(parsed);
-  }
-
-  return {
-    ...base,
-    ...(parsed as Partial<AppState>),
-    version: APP_STATE_VERSION,
-    entitlement: { ...base.entitlement, ...parsed.entitlement },
-    progress: {
-      ...base.progress,
-      ...(parsed.progress as Partial<ProgressState>),
-      history: (parsed.progress as Partial<ProgressState>)?.history ?? [],
-    },
-    settings: { ...base.settings, ...(parsed.settings as Partial<AppSettings>) },
-    challenge: { ...base.challenge, ...parsed.challenge },
-    attribution: { ...base.attribution, ...parsed.attribution },
-    primaryNeed: isPrimaryNeed(parsed.primaryNeed) ? parsed.primaryNeed : null,
-  };
+  const version = parsed.version ?? 1;
+  if (version < 2) return migrateV2State(migrateState(parsed));
+  // v2 and v3 blobs share a shape; the v3 migration is idempotent on v3 data.
+  return migrateV2State(parsed);
 }
+
+/* ------------------------------------------------------------------ *
+ * Store.
+ * ------------------------------------------------------------------ */
 
 export function getAppState(): AppState {
   if (!canUseStorage()) return SERVER_STATE;
@@ -303,12 +466,37 @@ export function ensureAnonymousId(): string {
   return id;
 }
 
-export function setPrimaryNeed(need: PrimaryNeed): void {
+/* ------------------------------------------------------------------ *
+ * Preferences.
+ * ------------------------------------------------------------------ */
+
+export function setPrimaryNeed(need: PrimaryNeed | null): void {
   patchAppState((state) => ({ ...state, primaryNeed: need }));
 }
 
-export function setPreferredSetup(setup: SetupId): void {
+export function setPreferredSetup(setup: SetupId | null): void {
   patchAppState((state) => ({ ...state, preferredSetup: setup }));
+}
+
+export function setPreferredDuration(minutes: DurationMinutes | null): void {
+  patchAppState((state) => ({ ...state, preferredDuration: minutes }));
+}
+
+export function setConstraints(constraints: FunctionalConstraint[]): void {
+  patchAppState((state) => ({ ...state, constraints: [...new Set(constraints)] }));
+}
+
+export function toggleFavorite(id: string): boolean {
+  let added = false;
+  patchAppState((state) => {
+    const has = state.favorites.includes(id);
+    added = !has;
+    return {
+      ...state,
+      favorites: has ? state.favorites.filter((entry) => entry !== id) : [...state.favorites, id],
+    };
+  });
+  return added;
 }
 
 export function markPaywallSeen(): void {
@@ -320,14 +508,19 @@ export function markInstallPromptSeen(): void {
 }
 
 export function saveEmail(email: string): void {
-  patchAppState((state) => ({ ...state, email }));
+  patchAppState((state) => ({
+    ...state,
+    email,
+    account: { ...state.account, email },
+  }));
 }
 
 export function dismissEmailPrompt(): void {
-  patchAppState((state) => ({
-    ...state,
-    emailPromptDismissedAt: new Date().toISOString(),
-  }));
+  patchAppState((state) => ({ ...state, emailPromptDismissedAt: new Date().toISOString() }));
+}
+
+export function dismissSavePrompt(): void {
+  patchAppState((state) => ({ ...state, savePromptDismissedAt: new Date().toISOString() }));
 }
 
 export function getProgress(): ProgressState {
@@ -358,8 +551,65 @@ export function saveWorkdayPlan(plan: WorkdayPlan | null): void {
   patchAppState((state) => ({ ...state, plan }));
 }
 
+export function updatePlannedBreak(
+  id: string,
+  patch: (entry: PlannedBreak) => PlannedBreak,
+): void {
+  patchAppState((state) =>
+    state.plan
+      ? {
+          ...state,
+          plan: {
+            ...state.plan,
+            breaks: state.plan.breaks.map((entry) => (entry.id === id ? patch(entry) : entry)),
+          },
+        }
+      : state,
+  );
+}
+
 export function saveChallenge(patch: Partial<ChallengeState>): void {
   patchAppState((state) => ({ ...state, challenge: { ...state.challenge, ...patch } }));
+}
+
+export function setAccount(patch: Partial<AccountState>): void {
+  patchAppState((state) => ({
+    ...state,
+    account: { ...state.account, ...patch },
+    email: patch.email ?? state.email,
+  }));
+}
+
+export function clearAccount(): void {
+  patchAppState((state) => ({ ...state, account: emptyAccount() }));
+}
+
+export function setPushState(patch: Partial<PushState>): void {
+  patchAppState((state) => ({ ...state, push: { ...state.push, ...patch } }));
+}
+
+/* ------------------------------------------------------------------ *
+ * Recommendations and sessions.
+ * ------------------------------------------------------------------ */
+
+export function rememberRecommendation(recommendation: StoredRecommendation): void {
+  patchAppState((state) => ({
+    ...state,
+    recommendations: [
+      recommendation,
+      ...state.recommendations.filter((entry) => entry.id !== recommendation.id),
+    ].slice(0, RECOMMENDATION_CAP),
+  }));
+}
+
+export function getStoredRecommendation(id: string | null | undefined): StoredRecommendation | null {
+  if (!id) return null;
+  return getAppState().recommendations.find((entry) => entry.id === id) ?? null;
+}
+
+/** Signals the engine reads, built from what this browser has seen. */
+export function personalizationSignals(state = getAppState()): PersonalizationSignals {
+  return signalsFromHistory(state.progress.history, state.signals);
 }
 
 export function recordCompletedWorkout(session: WorkoutSession): ProgressState {
@@ -381,7 +631,10 @@ export function recordCompletedWorkout(session: WorkoutSession): ProgressState {
     lastWorkout: session,
     totalWorkouts: current.progress.totalWorkouts + 1,
     xp: current.progress.xp + 10 + session.completedExerciseIds.length * 2,
-    history: [session, ...current.progress.history].slice(0, HISTORY_CAP),
+    history: [session, ...current.progress.history.filter((s) => s.sessionId !== session.sessionId)].slice(
+      0,
+      HISTORY_CAP,
+    ),
   };
 
   patchAppState((state) => ({
@@ -389,34 +642,12 @@ export function recordCompletedWorkout(session: WorkoutSession): ProgressState {
     firstResetComplete: true,
     progress,
     resetsSinceFeedback: state.resetsSinceFeedback + 1,
-    plan: markPlanBreakDone(state.plan, session),
+    signals: applySessionToSignals(state.signals, session),
+    plan: state.plan ? satisfyBreak(state.plan, session) : null,
     challenge: markChallengeDay(state.challenge, today),
   }));
 
   return progress;
-}
-
-function markPlanBreakDone(
-  plan: WorkdayPlan | null,
-  session: WorkoutSession,
-): WorkdayPlan | null {
-  if (!plan || plan.generatedFor !== todayKey()) return plan;
-  const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
-  // Credit the nearest pending break rather than asking the user to say which.
-  const pending = plan.breaks
-    .filter((entry) => entry.status === "pending" || entry.status === "snoozed")
-    .sort(
-      (a, b) => Math.abs(a.minutes - nowMinutes) - Math.abs(b.minutes - nowMinutes),
-    );
-  const target =
-    pending.find((entry) => entry.need === session.primaryNeed) ?? pending[0];
-  if (!target) return plan;
-  return {
-    ...plan,
-    breaks: plan.breaks.map((entry) =>
-      entry.id === target.id ? { ...entry, status: "done" as const } : entry,
-    ),
-  };
 }
 
 function markChallengeDay(challenge: ChallengeState, today: string): ChallengeState {
@@ -425,34 +656,68 @@ function markChallengeDay(challenge: ChallengeState, today: string): ChallengeSt
   return { ...challenge, completedDays: [...challenge.completedDays, today] };
 }
 
+/** V3 asks after every routine: the answer is the product's most valuable signal. */
 export function shouldAskForFeedback(): boolean {
   const state = getAppState();
-  if (!state.progress.totalWorkouts) return false;
-  // Always ask after the very first reset. It is the most valuable signal we get.
-  if (state.progress.totalWorkouts === 1) return true;
-  return state.resetsSinceFeedback >= FEEDBACK_EVERY;
+  const last = state.progress.lastWorkout;
+  return Boolean(last) && !last?.perceivedEffect;
 }
 
-export function recordFeedback(
-  sessionId: string,
-  effect: PerceivedEffect,
-): void {
-  patchAppState((state) => ({
-    ...state,
-    resetsSinceFeedback: 0,
-    progress: {
-      ...state.progress,
-      lastWorkout:
-        state.progress.lastWorkout?.sessionId === sessionId
-          ? { ...state.progress.lastWorkout, perceivedEffect: effect }
-          : state.progress.lastWorkout,
-      history: state.progress.history.map((session) =>
-        session.sessionId === sessionId
-          ? { ...session, perceivedEffect: effect }
-          : session,
-      ),
-    },
-  }));
+export function recordFeedback(sessionId: string, effect: PerceivedEffect): void {
+  patchAppState((state) => {
+    const session =
+      state.progress.history.find((entry) => entry.sessionId === sessionId) ??
+      (state.progress.lastWorkout?.sessionId === sessionId ? state.progress.lastWorkout : null);
+    return {
+      ...state,
+      resetsSinceFeedback: 0,
+      signals: session ? applyFeedbackToSignals(state.signals, session, effect) : state.signals,
+      progress: {
+        ...state.progress,
+        lastWorkout:
+          state.progress.lastWorkout?.sessionId === sessionId
+            ? { ...state.progress.lastWorkout, perceivedEffect: effect }
+            : state.progress.lastWorkout,
+        history: state.progress.history.map((entry) =>
+          entry.sessionId === sessionId ? { ...entry, perceivedEffect: effect } : entry,
+        ),
+      },
+    };
+  });
+}
+
+/**
+ * Merges sessions synced from the server into local history.
+ *
+ * Local wins on conflict, because it is the more detailed record; the server
+ * only adds sessions this browser has never seen (another device, or a signup
+ * that pulled an older anonymous history back in). Signals are rebuilt so the
+ * engine learns from the merged set.
+ */
+export function mergeRemoteHistory(remote: WorkoutSession[]): number {
+  let added = 0;
+  patchAppState((state) => {
+    const known = new Set(state.progress.history.map((entry) => entry.sessionId));
+    const fresh = remote.filter((entry) => !known.has(entry.sessionId));
+    added = fresh.length;
+    if (!fresh.length) return { ...state, account: { ...state.account, lastSyncedAt: new Date().toISOString() } };
+    const history = [...state.progress.history, ...fresh]
+      .sort((a, b) => b.finishedAt.localeCompare(a.finishedAt))
+      .slice(0, HISTORY_CAP);
+    return {
+      ...state,
+      progress: {
+        ...state.progress,
+        history,
+        totalWorkouts: Math.max(state.progress.totalWorkouts, history.length),
+        lastWorkout: state.progress.lastWorkout ?? history[0] ?? null,
+        lastWorkoutDate: state.progress.lastWorkoutDate ?? history[0]?.finishedAt.slice(0, 10) ?? null,
+      },
+      signals: signalsFromScratch(history),
+      account: { ...state.account, lastSyncedAt: new Date().toISOString() },
+    };
+  });
+  return added;
 }
 
 export function recentExerciseIds(limit = 12): string[] {
@@ -485,11 +750,14 @@ export function markReminderShown(date = todayKey()): void {
 
 export type ActiveWorkout = {
   programId: string;
-  setup: SetupId;
+  setup: SetupRequest;
   need: PrimaryNeed;
   stepIndex: number;
   startedAt: string;
   savedAt: string;
+  recommendationId: string | null;
+  source: SessionSource;
+  plannedBreakId: string | null;
 };
 
 export function saveActiveWorkout(active: ActiveWorkout): void {

@@ -9,6 +9,7 @@ import {
   subscribeAppState,
 } from "./storage";
 import { fetchEntitlement, isProEntitlement, toEntitlement } from "./entitlements";
+import { syncAccount } from "./account-client";
 import type { AppState } from "./types";
 
 export function useAppState(): AppState {
@@ -27,7 +28,7 @@ export function useIsPro(): boolean {
  */
 export function useEntitlementSync(sessionId?: string | null): void {
   const state = useAppState();
-  const email = state.email;
+  const email = state.account.email ?? state.email;
   const checked = useRef(false);
 
   useEffect(() => {
@@ -47,4 +48,17 @@ export function useEntitlementSync(sessionId?: string | null): void {
       cancelled = true;
     };
   }, [email, sessionId]);
+}
+
+/**
+ * For signed-in users, pulls history the server knows about that this browser
+ * does not. Runs once per mount; a failed sync changes nothing locally.
+ */
+export function useAccountSync(): void {
+  const synced = useRef(false);
+  useEffect(() => {
+    if (synced.current) return;
+    synced.current = true;
+    void syncAccount();
+  }, []);
 }

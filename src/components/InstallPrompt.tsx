@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/Button";
+import { track } from "@/lib/analytics";
+import { INSTALL_PROMPT_AFTER_SESSIONS } from "@/lib/constants";
 import {
   clearDeferredInstallPrompt,
   isAndroidDevice,
@@ -11,6 +13,8 @@ import {
   subscribeToInstallPrompt,
   type BeforeInstallPromptEvent,
 } from "@/lib/pwa-install";
+import { markInstallPromptSeen } from "@/lib/storage";
+import { useAppState } from "@/lib/use-app-state";
 import { useIsClient } from "@/lib/use-client";
 
 const DISMISS_KEY = "deskbreak.installHint.v1";
@@ -23,15 +27,41 @@ function wasDismissed(): boolean {
   }
 }
 
+/**
+ * "Keep DeskBreak one click away." Only after a few completed sessions, never
+ * on the first visit, and never again once dismissed.
+ */
 export function InstallPrompt() {
   const isClient = useIsClient();
+  const state = useAppState();
   const [event, setEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const tracked = useRef(false);
+
+  useEffect(() => subscribeToInstallPrompt(setEvent), []);
+
+  const eligible =
+    isClient &&
+    !dismissed &&
+    !isStandaloneDisplay() &&
+    !wasDismissed() &&
+    state.progress.totalWorkouts >= INSTALL_PROMPT_AFTER_SESSIONS;
 
   useEffect(() => {
-    return subscribeToInstallPrompt(setEvent);
-  }, []);
+    if (eligible && !tracked.current) {
+      tracked.current = true;
+      markInstallPromptSeen();
+      track("install_prompt_viewed", { sessions: state.progress.totalWorkouts });
+    }
+  }, [eligible, state.progress.totalWorkouts]);
+
+  if (!eligible) return null;
+
+  const canPrompt = Boolean(event ?? readDeferredInstallPrompt());
+  const ios = isIosDevice();
+  const desktop = !ios && !isAndroidDevice();
+  if (!canPrompt && !ios && !isAndroidDevice() && !desktop) return null;
 
   function dismiss() {
     setDismissed(true);
@@ -52,6 +82,7 @@ export function InstallPrompt() {
         clearDeferredInstallPrompt();
         setEvent(null);
         if (choice.outcome === "accepted") {
+          track("install_accepted");
           dismiss();
           return;
         }
@@ -65,25 +96,13 @@ export function InstallPrompt() {
     setShowHelp(true);
   }
 
-  if (!isClient || dismissed || isStandaloneDisplay() || wasDismissed()) {
-    return null;
-  }
-
-  const canPrompt = Boolean(event ?? readDeferredInstallPrompt());
-  const ios = isIosDevice();
-  if (!canPrompt && !ios && !isAndroidDevice()) return null;
-
   return (
-    <div className="mb-4 rounded-[22px] bg-white px-4 py-3 shadow-[0_3px_0_rgba(28,25,23,0.06)]">
+    <div className="surface px-4 py-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-ink">Want DeskBreak one tap away?</p>
+          <p className="text-sm font-semibold text-ink">Keep DeskBreak one click away</p>
           <p className="mt-0.5 text-xs leading-relaxed text-ink/55">
-            {canPrompt
-              ? "Add it to your home screen. No browser tab next time."
-              : ios
-                ? "Share, then Add to Home Screen."
-                : "Install DeskBreak from your browser menu."}
+            {desktop ? "Add DeskBreak to your desktop." : "Add DeskBreak to your home screen."}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
@@ -94,12 +113,7 @@ export function InstallPrompt() {
           >
             Later
           </button>
-          <Button
-            block={false}
-            className="min-h-11 px-4"
-            onClick={onAdd}
-            aria-expanded={showHelp}
-          >
+          <Button block={false} size="sm" onClick={onAdd} aria-expanded={showHelp}>
             Add
           </Button>
         </div>
@@ -111,6 +125,12 @@ export function InstallPrompt() {
               <li>1. Tap Share (square with the arrow).</li>
               <li>2. Tap Add to Home Screen.</li>
               <li>3. Tap Add. Open DeskBreak from that icon next time.</li>
+            </>
+          ) : desktop ? (
+            <>
+              <li>1. Open your browser menu, or the install icon in the address bar.</li>
+              <li>2. Choose Install DeskBreak.</li>
+              <li>3. It opens in its own window from now on.</li>
             </>
           ) : (
             <>

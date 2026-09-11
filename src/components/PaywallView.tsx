@@ -1,42 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
 import { track } from "@/lib/analytics";
-import { PAYWALL_HEADLINES, PRO_PROMISE } from "@/lib/constants";
+import { PAYWALL_HEADLINES, PRO_FEATURES } from "@/lib/constants";
 import {
   ANNUAL_LIST_PRICE_USD,
+  ANNUAL_PER_MONTH_LABEL,
   ANNUAL_PRICE_USD,
-  CHECKOUT_CTA,
   CHECKOUT_UNAVAILABLE,
   PRICE_OPTIONS,
+  TRIAL_DAYS,
   formatUsd,
 } from "@/lib/pricing";
 import { ensureAnonymousId, markPaywallSeen } from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
 import { isPrimaryNeed, type BillingPeriod, type PrimaryNeed } from "@/lib/types";
 
-const BENEFITS = [
-  {
-    title: "The right reset",
-    body: "Tell DeskBreak what's tight and get a routine matched to it.",
-  },
-  {
-    title: "The right time",
-    body: "Get nudged before your desk day catches up with you.",
-  },
-  {
-    title: "Zero planning",
-    body: "Open DeskBreak and we'll tell you what to do next.",
-  },
-  {
-    title: "Progress that means something",
-    body: "See which breaks actually make you feel better.",
-  },
-];
-
+/**
+ * The paywall, after DeskBreak has demonstrated something.
+ *
+ * It leads with this person's own numbers, sells automation and
+ * personalization rather than locked stretches, and always leaves a way to
+ * keep using the free product.
+ */
 export function PaywallView() {
   const router = useRouter();
   const params = useSearchParams();
@@ -44,17 +33,23 @@ export function PaywallView() {
 
   const source = params.get("from") ?? "direct";
   const needParam = params.get("need");
-  const need: PrimaryNeed = isPrimaryNeed(needParam)
-    ? needParam
-    : (state.primaryNeed ?? "general");
+  const need: PrimaryNeed = isPrimaryNeed(needParam) ? needParam : (state.primaryNeed ?? "general");
+  const minutes = params.get("minutes");
 
   const [period, setPeriod] = useState<BillingPeriod>("annual");
   const [submitting, setSubmitting] = useState(false);
   const [failed, setFailed] = useState(false);
 
+  const stats = useMemo(() => {
+    const total = state.progress.totalWorkouts;
+    const helped = state.progress.history.filter((session) => session.perceivedEffect === "better").length;
+    return { total, helped };
+  }, [state.progress.totalWorkouts, state.progress.history]);
+
   useEffect(() => {
     markPaywallSeen();
-    track("paywall_viewed", { paywall_source: source, need });
+    track("paywall_viewed", { paywall_source: source, need, sessions: stats.total, helped: stats.helped });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [source, need]);
 
   function choosePeriod(next: BillingPeriod) {
@@ -73,7 +68,7 @@ export function PaywallView() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           period,
-          email: state.email,
+          email: state.account.email ?? state.email,
           anonymousId: ensureAnonymousId(),
           primaryNeed: need,
           paywallSource: source,
@@ -96,39 +91,53 @@ export function PaywallView() {
   }
 
   const option = PRICE_OPTIONS[period];
-  const showListPrice =
-    period === "annual" && ANNUAL_LIST_PRICE_USD > ANNUAL_PRICE_USD;
+  const showListPrice = period === "annual" && ANNUAL_LIST_PRICE_USD > ANNUAL_PRICE_USD;
+  const headline =
+    source === "duration" && minutes
+      ? `${minutes}-minute workouts are part of Pro.`
+      : PAYWALL_HEADLINES[need];
 
   return (
-    <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
+    <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] lg:px-10">
       <div className="flex justify-center">
-        <CharacterArt pose="ready" size={150} alt="Stretch, ready to go" />
+        <CharacterArt pose="ready" size={130} alt="Stretch, ready to go" />
       </div>
 
       <h1 className="mt-4 text-center font-display text-[2rem] font-semibold leading-tight tracking-tight text-ink">
-        {PAYWALL_HEADLINES[need]}
+        {headline}
       </h1>
-      <p className="mt-3 text-center leading-relaxed text-ink/65">{PRO_PROMISE}</p>
 
-      <ul className="mt-7 grid gap-2.5">
-        {BENEFITS.map((benefit) => (
-          <li
-            key={benefit.title}
-            className="rounded-[20px] bg-white px-4 py-3.5 shadow-[0_3px_0_rgba(28,25,23,0.06)]"
-          >
-            <p className="font-display text-base font-semibold text-ink">
-              {benefit.title}
+      {stats.total > 0 ? (
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          <div className="surface px-4 py-4 text-center">
+            <p className="font-display text-2xl font-semibold text-ink">{stats.total}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink/45">
+              DeskBreak{stats.total === 1 ? "" : "s"}
             </p>
-            <p className="mt-0.5 text-sm leading-relaxed text-ink/60">{benefit.body}</p>
+          </div>
+          <div className="surface px-4 py-4 text-center">
+            <p className="font-display text-2xl font-semibold text-ink">{stats.helped}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink/45">helped</p>
+          </div>
+        </div>
+      ) : null}
+
+      <p className="mt-5 text-center leading-relaxed text-ink/70">
+        With Pro, DeskBreak learns what works and puts the right movement breaks into your workday automatically.
+      </p>
+
+      <ul className="mt-6 grid gap-2 sm:grid-cols-2">
+        {PRO_FEATURES.map((feature) => (
+          <li key={feature} className="flex items-center gap-2.5 text-sm font-semibold text-ink/80">
+            <span aria-hidden className="grid h-5 w-5 place-items-center rounded-full bg-mint text-[11px] font-bold text-ink">
+              ✓
+            </span>
+            {feature}
           </li>
         ))}
       </ul>
 
-      <div
-        className="mt-7 grid grid-cols-2 gap-2 rounded-[20px] bg-ink/5 p-1.5"
-        role="radiogroup"
-        aria-label="Billing period"
-      >
+      <div className="mt-7 grid grid-cols-2 gap-2 rounded-[16px] bg-ink/5 p-1.5" role="radiogroup" aria-label="Billing period">
         {(["annual", "monthly"] as BillingPeriod[]).map((value) => {
           const active = period === value;
           return (
@@ -139,15 +148,13 @@ export function PaywallView() {
               aria-checked={active}
               onClick={() => choosePeriod(value)}
               className={[
-                "min-h-12 rounded-[16px] text-sm font-semibold transition-colors",
-                active ? "bg-white text-ink shadow-[0_2px_0_rgba(28,25,23,0.08)]" : "text-ink/55",
+                "min-h-12 rounded-[12px] text-sm font-semibold transition-colors",
+                active ? "bg-white text-ink" : "text-ink/55",
               ].join(" ")}
             >
               {value === "annual" ? "Annual" : "Monthly"}
               {value === "annual" && PRICE_OPTIONS.annual.badge ? (
-                <span className="ml-1.5 text-[11px] font-semibold text-coral">
-                  {PRICE_OPTIONS.annual.badge}
-                </span>
+                <span className="ml-1.5 text-[11px] font-semibold text-coral">{PRICE_OPTIONS.annual.badge}</span>
               ) : null}
             </button>
           );
@@ -160,39 +167,28 @@ export function PaywallView() {
           <span className="text-lg font-semibold text-ink/45">{option.cadenceLabel}</span>
         </p>
         <p className="mt-2 text-sm text-ink/55">
-          {showListPrice ? (
-            <>
-              <span className="line-through">{formatUsd(ANNUAL_LIST_PRICE_USD)}/year</span>{" "}
-            </>
-          ) : null}
-          {option.supportLabel}
+          {showListPrice ? <span className="line-through">{formatUsd(ANNUAL_LIST_PRICE_USD)}/year</span> : null}{" "}
+          {period === "annual" ? `About ${ANNUAL_PER_MONTH_LABEL.replace("about ", "")}` : option.supportLabel}
         </p>
       </div>
 
       {failed ? (
-        <div
-          className="mt-5 rounded-[20px] border-2 border-coral/30 bg-white px-4 py-4 text-center"
-          role="alert"
-        >
-          <p className="font-display text-base font-semibold text-ink">
-            {CHECKOUT_UNAVAILABLE.title}
-          </p>
-          <p className="mt-1 text-sm leading-relaxed text-ink/60">
-            {CHECKOUT_UNAVAILABLE.body}
-          </p>
+        <div className="mt-5 rounded-[16px] border border-coral/30 bg-white px-4 py-4 text-center" role="alert">
+          <p className="font-display text-base font-semibold text-ink">{CHECKOUT_UNAVAILABLE.title}</p>
+          <p className="mt-1 text-sm leading-relaxed text-ink/60">{CHECKOUT_UNAVAILABLE.body}</p>
         </div>
       ) : null}
 
-      <div className="mt-6 grid gap-3">
+      <div className="mt-6 grid gap-2.5">
         <Button onClick={startCheckout} disabled={submitting}>
-          {submitting ? "Opening checkout..." : CHECKOUT_CTA}
+          {submitting ? "Opening checkout..." : TRIAL_DAYS > 0 ? `Start ${TRIAL_DAYS} days free` : "Build my workday"}
         </Button>
-        <Button variant="ghost" onClick={continueFree}>
-          Keep using DeskBreak free
+        <Button variant="tertiary" onClick={continueFree}>
+          Continue free
         </Button>
       </div>
 
-      <p className="mt-4 text-center text-xs text-ink/45">Cancel anytime.</p>
+      <p className="mt-4 text-center text-xs text-ink/45">Cancel anytime from You. No support email needed.</p>
     </div>
   );
 }

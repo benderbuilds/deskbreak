@@ -1,170 +1,229 @@
 # DeskBreak
 
-DeskBreak keeps your desk day from catching up with your body.
+The workout for people who sit all day.
 
-Tiny guided movement breaks for stiff necks, tight backs, tired shoulders and
-desk-brain. Free proves that two minutes makes you feel better. Pro removes the
-work of remembering what to do and when.
+Short, guided workouts made for computer workers. No equipment. No planning.
+Open DeskBreak, press Start, follow a three-minute reset, feel better, get back
+to work. Underneath, DeskBreak learns which movements, lengths and times help
+this specific person and increasingly makes the decision for them.
 
 ## Run locally
 
 ```bash
 npm install
-cp .env.example .env.local   # optional; everything below is opt-in
+cp .env.example .env.local   # optional; everything in it is opt-in
 npm run dev
 ```
 
-Open http://localhost:3000 at a phone-width viewport (~390px). Mobile is the
-primary design target.
+Desktop and phone are both first-class targets: the app uses a left rail at
+wide widths and a bottom bar on phones, and never simply stretches the mobile
+layout.
 
 ```bash
 npm run lint
+npx tsc --noEmit
 npm run build
-npm test          # Playwright, mobile + desktop
-npm run test:unit # content and art checks only, no server needed
+npm test          # Playwright, mobile + desktop, against a production build
+npm run test:unit # engine, planner, migration and art checks; no server needed
+npm run art:audit # fails if a free routine uses a move with no artwork
+npm run push:keys # prints a VAPID key pair for Web Push
 ```
 
 ## The shape of the app
 
-There are two halves, and they are deliberately separate.
+**Public, server-rendered, indexable**: `/`, the intent pages (`/desk-exercises`,
+`/office-workout`, `/desk-workout`, `/neck-shoulder-exercises`,
+`/back-stretches-desk-workers`, `/wrist-exercises-desk-workers`,
+`/standing-desk-exercises`, `/workplace-stretching`), the older
+`/desk-exercises/*` and `/guides/*` pages, one page per movement at `/moves/*`,
+`/science`, and the legal pages. Nothing here reads local storage. Every page
+ends in a button that starts the matching guided reset, with the need and
+length preloaded, so a visitor from a search result is moving within a second.
 
-**Public, server-rendered, indexable** (`/`, `/desk-exercises/*`, `/guides/*`,
-`/privacy`, `/terms`, `/support`). Nothing here reads local storage, so a
-first-time visitor gets static HTML. Every SEO page ends in a button that starts
-the matching guided reset rather than just describing one.
+**The app** (`/app/*`), excluded from the index, with four destinations:
 
-**The app** (`/app/*`). Personal state, excluded from the index.
+- **Today**: one recommended reset and a Start button, four targeted overrides
+  (neck + shoulders, back + hips, wrists + hands, energy), a Change control for
+  length and position, the next planned break, today's activity and a soft
+  weekly summary. Two columns on desktop.
+- **Explore**: recommended, by body area, by goal, by time, routines, every
+  movement (searchable) and favourites. Each movement has a detail page.
+- **Progress**: resets, active workdays, what helped, and patterns drawn only
+  from the person's own answers. No XP.
+- **You**: account, default reset, movements to avoid, workday plan,
+  notifications, subscription, app preferences, science and help.
 
-### The activation funnel
+### The core loop
 
 ```
-/                       landing
-  -> /app/start         "What needs attention right now?"  (one tap)
-  -> (only if needed)   "Can you stand right now?"
-  -> /app/workout/:id   the reset starts immediately
-  -> /app/done          "Did that help?" -> email -> personalised Pro offer
-  -> /app               home recommends what to do next
+Today recommends a reset -> user presses Start -> guided workout
+  -> "How do you feel?" (Better / About the same / Worse)
+  -> DeskBreak learns -> next reset improves -> DeskBreak reminds them later
 ```
 
-No account before the first reset, and at most two decisions to get moving.
+No account before the first workout. No questionnaire. The first time only,
+after the first reset, DeskBreak asks where desk work usually lands and offers
+to remember what works (a magic link by email).
+
+## Content
+
+Content lives in four JSON files under `data/`, never in components:
+
+- `exercises.json`: the movement library. Each move carries its body areas,
+  movement type (mobility, strength, isometric, aerobic, breathing, position
+  change, eye break), the routine phases it can fill, functional constraints it
+  conflicts with, a safer swap, cue, what you should feel, common mistake, make
+  it easier, avoid-if, rationale and evidence category.
+- `programs.json`: hand-authored routines, including the free 3-minute Desk
+  Reset (seated and standing), the targeted 3-minute resets, the micro-breaks
+  the planner uses, and the Pro 5- and 10-minute workouts.
+- `templates.json`: routine templates by need and length, with phases (reset,
+  mobilize, activate, move, return) and per-slot seconds.
+- `evidence.json`: the curated reference list behind `/science`.
+
+Content bugs fail at import: a free program using a Pro move, a move with a
+constraint but no safer swap, a template whose seconds do not add up.
+
+Character art resolves by exercise id from `data/art-manifest.json`. Run
+`npm run art:manifest` after adding an SVG. Free routines must have dedicated
+art; the audit enforces it.
+
+## Recommendation engine
+
+`src/lib/recommendation.ts` is the one place that decides what a user should do
+next, and it is pure: no network, no storage. The same engine runs on the
+server (`POST /api/recommendations`) and in the browser as the offline
+fallback, so a reset never depends on a round trip.
+
+For each slot in the template it scores eligible moves:
+
+| Signal | Weight |
+| --- | --- |
+| Body-area / need relevance | 30% |
+| Historical helpfulness | 25% |
+| Routine structure fit | 15% |
+| Preferences (position, intensity) | 10% |
+| Avoiding repetition | 10% |
+| Time of day | 5% |
+| Variety | 5% |
+
+Hard constraints override score: a move the user has asked to avoid, a
+standing move for a seated user, a Pro move for a free user, or a move they
+reported as uncomfortable is never shown. Routines are then sequenced so nobody
+stands up, sits down and stands up again, scaled to the advertised length, and
+validated (time, constraints, position, sequence, repetition, balance, access,
+safety). If validation fails, an authored routine is used instead. The first
+couple of resets use an authored routine on purpose: those are illustrated and
+hand-sequenced, and there is nothing to personalize yet.
+
+Every recommendation carries an id, `algorithm_version` (`3.0.0`), its inputs
+and its exercises, stored locally and in `recommendations` +
+`recommendation_exercises`, so a later outcome can be attributed to it.
+
+### What it learns from
+
+`src/lib/personalization.ts` turns history into signals: per-move completed,
+skipped, swapped, discomfort, and how often sessions containing it were rated
+better or worse; outcomes by position, need and time of day; the length a
+person actually does; when they move. "Better" credits every completed move;
+"Worse" debits them, twice for anything skipped or swapped. Two swaps or one
+"doesn't feel right" suppresses a move. When someone clearly does better
+standing, the engine says so on Today, occasionally.
+
+## Workout
+
+`src/lib/use-workout-engine.ts` keeps time against wall-clock timestamps, so a
+throttled tab or a locked phone comes back to the right second. The screen
+supports pause, next, previous, skip, swap, "Doesn't feel right" (swaps to the
+safer alternative immediately, then optionally asks why), countdown tones,
+spoken cues, optional auto-advance, Screen Wake Lock, reduced motion and the
+desktop shortcuts Space, arrows and S. Every move's outcome is recorded in
+`session_exercises`.
+
+## Workday planner and reminders
+
+Pro. The user gives their hours and how much help they want (minimal,
+balanced, active); the planner turns that into a day of movement opportunities
+in 30-minute windows: Desk Resets, stand breaks, walk breaks, eye breaks and an
+afternoon energy reset. A reset done near a window satisfies it. Windows drift
+toward the times a person actually responds and away from ones they ignore.
+Skipping is a normal action.
+
+Reminders are real Web Push: `public/sw.js` handles push and notification
+actions (Start, 15 min, Skip); `POST /api/push/subscribe` stores subscriptions;
+`GET /api/push/send` is the scheduler, meant to run every 15 minutes with
+`Authorization: Bearer $CRON_SECRET` (`vercel.json` wires it up). It needs
+VAPID keys from `npm run push:keys`. While the app is open, an in-tab runner
+covers the same windows. Email remains the daily fallback.
+
+## Accounts and sync
+
+"Save my progress" sends a one-time sign-in link (`/api/auth/magic-link`,
+`/api/auth/verify`). Opening it sets an HMAC-signed session cookie; there is no
+password anywhere. On sign-in the anonymous browser is merged into the profile
+and history is pulled down (`/api/auth/me`). For anonymous users the browser is
+the source of truth; for signed-in users the server is, and local storage
+becomes a cache. Requires `AUTH_SECRET`.
+
+Local state is versioned (`APP_STATE_VERSION = 3`). The V2 blob migrates in
+place, keeping history, feedback (mapped to better / same / worse), the plan
+and the challenge, and rebuilds the personalization signals from history.
 
 ## Free vs Pro
 
 | | Free | Pro |
 | --- | --- | --- |
-| 2-minute resets for every problem area | Unlimited | Unlimited |
-| Movement library | 23 moves | Full catalog |
-| Longer programs (3, 4, 5, 10 min) | Locked but visible | Included |
-| Workday plan | - | Yes |
-| Reminders | One daily | Scheduled around your plan |
-| Progress history | Last 7 days | Full |
-| 7-Day Desk Reset | - | Yes |
+| 2-minute Quick Resets | Unlimited | Unlimited |
+| 3-minute Daily Desk Reset | Yes | Fully adaptive |
+| Targeted resets | Yes | Yes |
+| 5- and 10-minute workouts | Visible, locked | Included |
+| Movement library | Free moves | Full |
+| Workday plan + Web Push | - | Yes |
+| Reminders | One daily | Around your plan |
+| Progress insights | Last 14 days | Full, synced |
+| Favourites, 5-Day Desk Reset | Yes | Yes |
 
-Pricing lives in exactly one place: `src/lib/pricing.ts`, fed by env. Launch
-prices are **$5.99/month** and **$39/year** (founding). Do not hardcode a price
-anywhere else.
+The paywall appears after DeskBreak has demonstrated something (three sessions
+rated Better), leads with the person's own numbers, and sells automation and
+personalization rather than locked stretches. Pricing lives in
+`src/lib/pricing.ts`, fed by env. Subscription management goes through the
+Stripe Customer Portal (`/api/billing/portal`), not a support email.
 
 ## Entitlement
 
-Pro is server-backed. The flow is:
+Unchanged from V2 and deliberately so. `POST /api/checkout` creates the Stripe
+session, `POST /api/stripe/webhook` is the only writer of `subscriptions`, and
+`GET /api/entitlement` is what the client asks on load. Local storage caches
+the answer with a short grace window and never decides it.
 
-1. `POST /api/checkout` creates a Stripe Checkout Session and attaches the
-   profile id.
-2. `POST /api/stripe/webhook` writes `subscriptions` from Stripe's own status
-   and period end. **Nothing else writes that table**, and no code path invents
-   an expiry date.
-3. `GET /api/entitlement` is what the client asks on load.
+## Data
 
-Local storage caches the answer for a fast first paint. It is never the source
-of truth, and a v1 `plan: "pro"` blob is explicitly not carried forward by the
-state migration. Settings has **Restore Pro** for a new device.
-
-`SUPABASE_URL` and `SUPABASE_SECRET_KEY` are injected by the Supabase
-integration for Vercel, so there is nothing to copy by hand on a deploy. Set them
-in `.env.local` only to develop against a real project.
-
-Without them the store falls back to an in-process map so local dev and CI work
-with no credentials. That is not durable, `isDurable()` reports it, and the
-webhook logs loudly about it. Production needs Supabase; apply
-`supabase/schema.sql` once from the SQL editor.
-
-Without Stripe keys, checkout returns 503 and the paywall shows "Pro checkout is
-temporarily unavailable." Customers never see an environment variable name.
-
-## Recommendation engine
-
-One module decides what a user should do next: `src/lib/recommendation.ts`.
-
-```ts
-getRecommendedProgram({ need, setup, durationMinutes, recentExerciseIds, timeOfDay, pro })
-```
-
-Deterministic rules, no machine learning. It prefers a hand-authored catalog
-program when one matches the context exactly, and otherwise assembles one from
-the exercise pool. It will not hand a seated user a standing-only move, will not
-hand a free user a Pro move, and keeps most of a routine on the topic the user
-actually picked. All of that is enforced in `tests/recommendation.spec.ts`.
-
-Feedback ("Did that help?") is stored per session in `sessions`. V2 only
-collects it; a later version can rank routines by what worked for whom.
-
-## Content
-
-One canonical file: `data/exercises-and-programs.json`. Types in
-`src/lib/types.ts`. Content bugs fail at import: a free program that references a
-Pro exercise, or a step pointing at a missing exercise, throws during the build.
-
-## Character art (Stretch)
-
-`public/character/{exerciseId}.svg`, with an optional `{exerciseId}-b.svg`
-second frame and an optional `{exerciseId}-standing.svg` for moves that read
-differently on your feet.
-
-Art resolves **by exercise id, from `data/art-manifest.json`**, which is
-generated from the files actually on disk. There are exactly two outcomes: the
-exercise's own artwork, or the neutral `stretch-fallback.svg`. It never borrows
-another exercise's pose, because a wrong picture teaches a wrong movement.
-
-```bash
-npm run art:manifest   # after adding or removing any SVG
-npm run art:audit      # lists moves with no dedicated art
-```
-
-The audit fails if a move used by a *free* program has no artwork. Free is the
-product's proof; a generic blob there costs conversions. Pro-only gaps are
-listed for an illustrator and fall back gracefully in the meantime.
-
-Keep new art at 512x512 in brand colors: `#F7F4EF` paper, `#FF5A36` coral,
-`#2DD4A8` mint, `#1C1917` ink. Stretch is a helpful adult coworker, not a
-cartoon mascot.
+`supabase/schema.sql` is additive and idempotent over V2. Tables: profiles,
+subscriptions, sessions, session_exercises, recommendations,
+recommendation_exercises, functional_constraints, workday_preferences,
+planned_breaks, favorites, push_subscriptions, login_tokens. Without Supabase
+credentials everything falls back to an in-memory store so local dev and CI
+work with no secrets.
 
 ## Analytics
 
-`src/lib/analytics.ts` is the only place that talks to PostHog. Components call
-`track("reset_started", {...})`. If PostHog is not configured, events queue
-briefly and then drop; analytics never blocks a reset.
+`src/lib/analytics.ts` is the only place that talks to PostHog. Every
+recommendation-level event carries recommendation id, algorithm version, need,
+duration, position, program, source, anonymous/authenticated, free/pro and
+generated/authored. The north-star metric is helpful DeskBreaks per active
+user per week.
 
-The funnel to watch:
+## Claims and safety
 
-```
-landing_viewed -> primary_cta_clicked -> reset_started -> reset_completed
-  -> reset_feedback_submitted -> paywall_viewed -> checkout_started -> checkout_completed
-```
-
-First-touch UTM attribution is written once and never overwritten, because that
-is the number a channel experiment is judged on. Latest touch is tracked
-separately.
-
-## Reminders
-
-Level 1 is email, because a browser tab is not open at 3 PM. `POST
-/api/reminders/send` is meant to be called hourly by a scheduler with
-`Authorization: Bearer $CRON_SECRET`, and sends through Resend.
-
-DeskBreak does not claim to know you have been sitting, because it cannot.
+DeskBreak is general movement guidance for healthy desk workers. It does not
+diagnose, does not treat, and does not say "fix your posture" or "clinically
+proven". The science page and every movement page say what the evidence
+looked at, not what DeskBreak does to your body. A licensed physical therapist
+review of the library is planned before DeskBreak describes itself as
+clinically reviewed; until then it does not.
 
 ## Stack
 
 Next.js App Router, TypeScript, Tailwind CSS. Stripe for billing, Supabase for
-persistence, PostHog for measurement, Resend for email. Every one of those is
-optional in development.
+persistence, PostHog for measurement, Resend for email, web-push for
+notifications. Every one of those is optional in development.
