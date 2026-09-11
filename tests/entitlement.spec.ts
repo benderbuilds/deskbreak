@@ -130,8 +130,26 @@ test.describe("pro entitlement", () => {
     await expect(page.getByLabel("DeskBreak Pro subscriber")).toHaveCount(0);
   });
 
-  test("a Pro user sees Manage subscription instead of a support address", async ({ page }) => {
+  test("a signed-out Pro device is told to sign in to manage billing, never a support address", async ({ page }) => {
     await clearAppState(page);
+    await grantPro(page);
+    await page.goto("/app/you");
+    await expect(page.getByText(/sign in above with the email you used at checkout/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /manage subscription/i })).toHaveCount(0);
+    const body = await page.locator("body").innerText();
+    expect(body).not.toMatch(/mailto/);
+  });
+
+  test("a signed-in Pro user sees Manage subscription instead of a support address", async ({ page }) => {
+    await clearAppState(page);
+    // Sign in through the real link flow; the server hands the link back
+    // because the test server runs with AUTH_DEV_LINKS=1.
+    const response = await page.request.post("/api/auth/magic-link", {
+      data: { email: `pro-${Date.now()}@example.com`, next: "/app/you" },
+    });
+    const { devLink } = (await response.json()) as { devLink?: string };
+    expect(devLink).toBeTruthy();
+    await page.goto(devLink as string);
     await grantPro(page);
     await page.goto("/app/you");
     await expect(page.getByRole("button", { name: /manage subscription/i })).toBeVisible();

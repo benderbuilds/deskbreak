@@ -347,12 +347,21 @@ export function SettingsView() {
                     ? `Renews ${new Date(state.entitlement.proExpiresAt).toLocaleDateString()}.`
                     : "Active."}
               </p>
-              <div className="mt-3">
-                <Button size="sm" variant="secondary" block={false} onClick={openPortal} disabled={busy === "portal"}>
-                  {busy === "portal" ? "Opening..." : "Manage subscription"}
-                </Button>
-              </div>
-              <p className="mt-2 text-xs text-ink/45">Cancel, change your card, or see invoices.</p>
+              {signedIn ? (
+                <>
+                  <div className="mt-3">
+                    <Button size="sm" variant="secondary" block={false} onClick={openPortal} disabled={busy === "portal"}>
+                      {busy === "portal" ? "Opening..." : "Manage subscription"}
+                    </Button>
+                  </div>
+                  <p className="mt-2 text-xs text-ink/45">Cancel, change your card, or see invoices.</p>
+                </>
+              ) : (
+                <p className="mt-3 text-sm leading-relaxed text-ink/60">
+                  To cancel, change your card or see invoices, sign in above with the email you used at checkout.
+                  Billing only opens for a signed-in account.
+                </p>
+              )}
             </>
           ) : (
             <ButtonLink href="/app/pro?from=you" size="sm" block={false}>
