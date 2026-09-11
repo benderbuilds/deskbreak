@@ -74,13 +74,28 @@ export async function POST(request: Request) {
   try {
     const origin = originFrom(request);
     const session = await getStripe().checkout.sessions.create({
+      // Configured in Checkout Studio. Change these there, not here.
+      ui_mode: "hosted_page",
+      billing_address_collection: "auto",
+      phone_number_collection: { enabled: false },
+      automatic_tax: { enabled: false },
+      allow_promotion_codes: false,
+      payment_method_collection: "always",
+      submit_type: "auto",
+      integration_identifier: "hosted_web_0001",
+      origin_context: "web",
+
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      client_reference_id: profile.id,
-      customer_email: profile.email ? normalizeEmail(profile.email) : undefined,
       success_url: `${origin}/app/welcome?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/app/pro?checkout=cancelled`,
-      allow_promotion_codes: true,
+
+      // Identity wiring, not Checkout Studio settings. The webhook resolves a
+      // subscription back to a DeskBreak profile through subscription_data
+      // .metadata.user_id, falling back to client_reference_id. Drop these and
+      // a customer is charged and never granted Pro, so they stay.
+      client_reference_id: profile.id,
+      customer_email: profile.email ? normalizeEmail(profile.email) : undefined,
       metadata: {
         user_id: profile.id,
         anonymous_id: body.anonymousId ?? "",
