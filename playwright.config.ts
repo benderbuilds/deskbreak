@@ -42,6 +42,11 @@ export default defineConfig({
       // production; the server ignores it there anyway.
       AUTH_SECRET: "playwright-only-signing-secret",
       AUTH_DEV_LINKS: "1",
+      // Every test comes from one IP and some re-request the same address
+      // within seconds; keep the per-address cap so it can be asserted.
+      AUTH_LINK_COOLDOWN_SECONDS: "0",
+      AUTH_LINK_HOURLY_CAP: "5",
+      AUTH_LINK_IP_HOURLY_CAP: "100000",
     },
   },
 });

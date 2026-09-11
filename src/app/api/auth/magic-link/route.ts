@@ -9,7 +9,8 @@ import {
   type PendingPreferences,
 } from "@/lib/server/auth";
 import { emailConfigured, magicLinkEmail, sendEmail } from "@/lib/server/email";
-import { isValidEmail } from "@/lib/server/entitlements";
+import { isValidEmail, normalizeEmail } from "@/lib/server/entitlements";
+import { emailHash, judgeLinkRequest, pruneLinkRequests, requesterHash } from "@/lib/server/rate-limit";
 import { devLinksEnabled, durableOrNotProduction } from "@/lib/server/runtime";
 import { originFrom } from "@/lib/server/stripe";
 import { isDurable } from "@/lib/server/store";
@@ -59,6 +60,21 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Limits are judged on hashes, before any profile is looked up or made,
+    // and answer identically for known and unknown addresses. A throttled
+    // request creates nothing and leaves every existing link as it was.
+    const verdict = await judgeLinkRequest({
+      emailHash: emailHash(normalizeEmail(body.email)),
+      requesterHash: requesterHash(request),
+    });
+    if (!verdict.allowed) {
+      return NextResponse.json(
+        { ok: false, error: "rate_limited", retryAfterSeconds: verdict.retryAfterSeconds },
+        { status: 429, headers: { "Retry-After": String(verdict.retryAfterSeconds) } },
+      );
+    }
+    if (Math.random() < 0.05) void pruneLinkRequests().catch(() => {});
+
     const profile = await profileForEmail(body.email);
 
     const pending: PendingPreferences = {
@@ -68,7 +84,7 @@ export async function POST(request: Request) {
       constraints: Array.isArray(body.constraints) ? body.constraints.filter(isFunctionalConstraint) : undefined,
       attribution: body.attribution ?? null,
     };
-    const { token, nonce } = await createLoginToken(profile, {
+    const { id: tokenId, token, nonce } = await createLoginToken(profile, {
       nextPath: typeof body.next === "string" ? body.next : "/app",
       anonymousId: typeof body.anonymousId === "string" ? body.anonymousId : null,
       pending,
@@ -79,7 +95,11 @@ export async function POST(request: Request) {
 
     let delivered = false;
     if (emailConfigured()) {
-      const result = await sendEmail({ to: profile.email as string, ...magicLinkEmail({ link, minutes }) });
+      const result = await sendEmail({
+        to: profile.email as string,
+        ...magicLinkEmail({ link, minutes }),
+        idempotencyKey: `deskbreak-login-${tokenId}`,
+      });
       delivered = result.delivered;
       if (!delivered && !devLinksEnabled()) {
         return NextResponse.json({ ok: false, error: "send_failed" }, { status: 503 });

@@ -150,7 +150,7 @@ test("account A cannot read or modify account B's data", async () => {
   expect(bBreaks.breaks[0].status).toBe("planned");
 
   // B's session is B's: A cannot rate it, overwrite it, or list it.
-  const sessionB = uid("session");
+  const sessionB = crypto.randomUUID();
   expect((await recordSession(b, sessionB)).ok()).toBe(true);
   expect(
     (await a.post("/api/sessions", { data: { sessionId: sessionB, programId: "desk-reset-3min", perceivedEffect: "worse" } })).status(),
@@ -180,7 +180,7 @@ test("a login-link request cannot change an existing account's restrictions or o
   // Someone else asks for a link to the owner's address with different settings.
   const stranger = await browser();
   const strangerAnon = uid("stranger");
-  await recordSession(stranger, uid("s"), strangerAnon);
+  await recordSession(stranger, crypto.randomUUID(), strangerAnon);
   const link = await requestLink(stranger, email, {
     constraints: [],
     primaryNeed: "energy",
@@ -236,7 +236,7 @@ test("anonymous-to-account migration keeps this browser's history and nothing el
   // Another account exists with its own history.
   const other = await browser();
   const otherAnon = uid("other-anon");
-  const otherSession = uid("other-session");
+  const otherSession = crypto.randomUUID();
   await recordSession(other, otherSession, otherAnon);
   await signIn(other, `${uid("other")}@example.com`, { anonymousId: otherAnon });
   expect((await me(other)).sessions?.map((entry) => entry.sessionId)).toEqual([otherSession]);
@@ -244,8 +244,8 @@ test("anonymous-to-account migration keeps this browser's history and nothing el
   // A fresh anonymous browser does two resets, then saves its progress.
   const mine = await browser();
   const myAnon = uid("my-anon");
-  const first = uid("mine-1");
-  const second = uid("mine-2");
+  const first = crypto.randomUUID();
+  const second = crypto.randomUUID();
   expect((await recordSession(mine, first, myAnon)).ok()).toBe(true);
   expect((await recordSession(mine, second, myAnon)).ok()).toBe(true);
   const link = await requestLink(mine, `${uid("mine")}@example.com`, { anonymousId: myAnon, constraints: ["floor"] });
@@ -280,5 +280,31 @@ test("health reports capabilities as booleans only", async () => {
   expect(Object.values(body.configured).every((value) => typeof value === "boolean")).toBe(true);
   expect(body.scheduler.vercelCron).toBe(false);
   expect(await response.text()).not.toMatch(/playwright-only-signing-secret/);
+  await ctx.dispose();
+});
+
+test("sign-in link requests are capped per address, and an earlier link survives the cap", async () => {
+  const ctx = await browser();
+  const email = `${uid("capped")}@example.com`;
+  const first = await requestLink(ctx, email);
+  for (let i = 0; i < 4; i += 1) await requestLink(ctx, email);
+
+  const sixth = await ctx.post("/api/auth/magic-link", { data: { email, next: "/app" } });
+  expect(sixth.status()).toBe(429);
+  expect(sixth.headers()["retry-after"]).toMatch(/^\d+$/);
+  const body = (await sixth.json()) as { ok: boolean; error: string; retryAfterSeconds: number; devLink?: string };
+  expect(body).toMatchObject({ ok: false, error: "rate_limited" });
+  expect(body.devLink).toBeUndefined();
+
+  // The same shape for an address nobody has ever used.
+  const fresh = `${uid("never")}@example.com`;
+  for (let i = 0; i < 5; i += 1) await requestLink(ctx, fresh);
+  const freshSixth = await ctx.post("/api/auth/magic-link", { data: { email: fresh, next: "/app" } });
+  expect(freshSixth.status()).toBe(429);
+  expect(Object.keys((await freshSixth.json()) as object).sort()).toEqual(Object.keys(body).sort());
+
+  // The first link still signs in.
+  expect(await openLink(ctx, first)).toContain("signed_in=1");
+  expect((await me(ctx)).profile?.email).toBe(email);
   await ctx.dispose();
 });

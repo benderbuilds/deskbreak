@@ -1,6 +1,14 @@
 import "server-only";
 
-import { claimDelivery, emailDedupeKey, emailTarget, markDelivered, markFailed } from "./deliveries";
+import {
+  claimDelivery,
+  deliveryPayload,
+  emailDedupeKey,
+  emailIdempotencyKey,
+  emailTarget,
+  markDelivered,
+  markFailed,
+} from "./deliveries";
 import { reminderEmail, sendEmail } from "./email";
 import { emailDecision, type EmailDecision } from "./scheduler";
 import { findMany, findOne, type WorkdayPreferencesRow } from "./store";
@@ -83,12 +91,20 @@ export async function runEmailScheduler(
       continue;
     }
 
-    const message = reminderEmail({
-      line: reminderLineFor(decision.localDate),
-      need: profile.primary_need ?? null,
-      appUrl,
+    // Rendered once per delivery record; a retry reuses the stored message
+    // under the same idempotency key, so the provider sees one logical send.
+    const message = await deliveryPayload(claim.row, () =>
+      reminderEmail({
+        line: reminderLineFor(decision.localDate),
+        need: profile.primary_need ?? null,
+        appUrl,
+      }),
+    );
+    const result = await sendEmail({
+      to: profile.email as string,
+      ...message,
+      idempotencyKey: emailIdempotencyKey(claim.row.id),
     });
-    const result = await sendEmail({ to: profile.email as string, ...message });
     if (result.delivered) {
       summary.sent += 1;
       await markDelivered(claim.row.id, now);

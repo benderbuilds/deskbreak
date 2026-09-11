@@ -217,6 +217,21 @@ export type NotificationDeliveryRow = {
   delivered_at: string | null;
   error: string | null;
   retry_after: string | null;
+  /**
+   * The rendered message, captured on the first attempt so a retry sends the
+   * identical payload under the same provider idempotency key.
+   */
+  payload?: Record<string, unknown> | null;
+};
+
+/** One sign-in link request. Hashes only: no address, no IP. */
+export type AuthRequestRow = {
+  id: string;
+  email_hash: string;
+  requester_hash: string;
+  /** Whether the request passed the limits and produced a link. */
+  allowed: boolean;
+  created_at: string;
 };
 
 export type Tables = {
@@ -233,6 +248,7 @@ export type Tables = {
   push_subscriptions: PushSubscriptionRow;
   login_tokens: LoginTokenRow;
   notification_deliveries: NotificationDeliveryRow;
+  auth_requests: AuthRequestRow;
 };
 
 const memory: { [K in keyof Tables]: Tables[K][] } = {
@@ -249,6 +265,7 @@ const memory: { [K in keyof Tables]: Tables[K][] } = {
   push_subscriptions: [],
   login_tokens: [],
   notification_deliveries: [],
+  auth_requests: [],
 };
 
 async function rest<T>(
@@ -510,6 +527,35 @@ export async function remove<K extends keyof Tables>(
     return;
   }
   await rest<Tables[K]>(table, { method: "DELETE", query: encode(where as Record<string, unknown>) });
+}
+
+/** Deletes rows matching a comparison filter, e.g. everything older than a date. */
+export async function removeWhere<K extends keyof Tables>(
+  table: K,
+  filter: { column: keyof Tables[K] & string; op: "lt" | "lte" | "gt" | "gte"; value: string | number },
+): Promise<void> {
+  if (!isDurable()) {
+    const rows = memory[table] as Tables[K][];
+    memory[table] = rows.filter((row) => {
+      const actual = (row as Record<string, unknown>)[filter.column] as string | number | null;
+      if (actual === null || actual === undefined) return true;
+      switch (filter.op) {
+        case "lt":
+          return !(actual < filter.value);
+        case "lte":
+          return !(actual <= filter.value);
+        case "gt":
+          return !(actual > filter.value);
+        case "gte":
+          return !(actual >= filter.value);
+      }
+    }) as never;
+    return;
+  }
+  await rest<Tables[K]>(table, {
+    method: "DELETE",
+    query: `?${filter.column}=${filter.op}.${encodeURIComponent(String(filter.value))}`,
+  });
 }
 
 /** Test seam: drops everything held in the in-memory store. */

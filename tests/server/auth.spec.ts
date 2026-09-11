@@ -1,4 +1,5 @@
 import "./setup";
+import { resetStore } from "./setup";
 import { expect, test } from "@playwright/test";
 import { setTestCookies } from "./setup";
 import {
@@ -20,16 +21,21 @@ import {
   findMany,
   findOne,
   insert,
-  resetMemoryStore,
   type SessionRow,
   type Subscription,
 } from "../../src/lib/server/store";
 
 const MINUTE = 60_000;
+const ids = new Map<string, string>();
+/** Stable uuid per label, since session ids are uuids in the database. */
+const id = (label: string) => {
+  if (!ids.has(label)) ids.set(label, crypto.randomUUID());
+  return ids.get(label) as string;
+};
 
-function session(id: string, owner: { userId?: string | null; anonymousId?: string | null }): SessionRow {
+function session(label: string, owner: { userId?: string | null; anonymousId?: string | null }): SessionRow {
   return {
-    id,
+    id: id(label),
     user_id: owner.userId ?? null,
     anonymous_id: owner.anonymousId ?? null,
     program_id: "desk-reset-3min",
@@ -57,8 +63,8 @@ function subscription(userId: string): Subscription {
   };
 }
 
-test.beforeEach(() => {
-  resetMemoryStore();
+test.beforeEach(async () => {
+  await resetStore();
   setTestCookies({});
 });
 
@@ -181,13 +187,13 @@ test.describe("anonymous merge", () => {
     const summary = await mergeAnonymousInto(alice, "alice-browser", { includeSubscriptions: true });
     expect(summary.sessions).toBe(2);
     expect(summary.blocked).toBe(false);
-    expect((await findMany("sessions", { user_id: alice.id })).map((r) => r.id).sort()).toEqual(["mine-1", "mine-2"]);
+    expect((await findMany("sessions", { user_id: alice.id })).map((r) => r.id).sort()).toEqual([id("mine-1"), id("mine-2")].sort());
 
     // Alice presents Bob's browser id: nothing crosses.
     const blocked = await mergeAnonymousInto(alice, "bob-browser", { includeSubscriptions: true });
     expect(blocked.blocked).toBe(true);
     expect(blocked.sessions).toBe(0);
-    expect((await findOne("sessions", { id: "bobs" }))?.user_id).toBe(bob.id);
+    expect((await findOne("sessions", { id: id("bobs") }))?.user_id).toBe(bob.id);
     expect((await findOne("profiles", { id: bob.id }))?.anonymous_id).toBe("bob-browser");
   });
 

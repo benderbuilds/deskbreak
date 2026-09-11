@@ -39,6 +39,7 @@ export type AccountError =
   | "store_not_configured"
   | "email_not_configured"
   | "send_failed"
+  | "rate_limited"
   | "network"
   | "unavailable";
 
@@ -55,6 +56,8 @@ export function describeAccountError(error: string): string {
       return "Email delivery isn't set up on this deployment, so we can't send a sign-in link.";
     case "send_failed":
       return "We couldn't send that email just now. Try again shortly.";
+    case "rate_limited":
+      return "We sent a link to that address recently. Check your inbox and spam folder, or try again in a few minutes.";
     case "network":
       return "You look offline. Try again when you're connected.";
     default:

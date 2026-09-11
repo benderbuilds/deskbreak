@@ -1,4 +1,5 @@
 import "./setup";
+import { resetStore } from "./setup";
 import { expect, test } from "@playwright/test";
 
 // The mailer reads its key at module load, so set it before importing.
@@ -6,13 +7,13 @@ process.env.RESEND_API_KEY = "re_test_only";
 
 import { runEmailScheduler } from "../../src/lib/server/email-scheduler";
 import { ensureProfile } from "../../src/lib/server/entitlements";
-import { findMany, resetMemoryStore, update, upsert } from "../../src/lib/server/store";
+import { findMany, update, upsert } from "../../src/lib/server/store";
 
 const sent: string[] = [];
 const realFetch = globalThis.fetch;
 
-test.beforeEach(() => {
-  resetMemoryStore();
+test.beforeEach(async () => {
+  await resetStore();
   sent.length = 0;
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
@@ -119,8 +120,10 @@ test("a failed send is retried later in the window, but never doubled", async ()
   let calls = 0;
   const flaky = globalThis.fetch;
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-    calls += 1;
-    if (calls === 1) return new Response("provider hiccup", { status: 500 });
+    if (String(input).startsWith("https://api.resend.com/")) {
+      calls += 1;
+      if (calls === 1) return new Response("provider hiccup", { status: 500 });
+    }
     return flaky(input, init);
   }) as typeof fetch;
 

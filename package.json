@@ -10,6 +10,8 @@
     "test": "playwright test",
     "test:unit": "playwright test tests/recommendation.spec.ts tests/art.spec.ts tests/workday.spec.ts tests/migration.spec.ts --project=mobile",
     "test:server": "playwright test -c playwright.server.config.ts",
+    "test:server:postgres": "DESKBREAK_TEST_STORE=postgres playwright test -c playwright.server.config.ts",
+    "postgres:shim": "node tests/postgres/postgrest-shim.mjs",
     "test:security": "playwright test tests/api-security.spec.ts --project=mobile",
     "push:keys": "node scripts/generate-vapid.mjs",
     "art:manifest": "node scripts/build-art-manifest.mjs",
@@ -32,6 +34,7 @@
     "@types/web-push": "^3.6.4",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "pg": "^8.23.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

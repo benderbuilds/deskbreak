@@ -21,6 +21,12 @@ export async function sendEmail(input: {
   subject: string;
   text: string;
   html: string;
+  /**
+   * Stable per logical send. Resend deduplicates on it for 24 hours, so a
+   * retry of the same delivery record (same key, identical payload) cannot
+   * produce a second email even if the first attempt's response was lost.
+   */
+  idempotencyKey?: string;
 }): Promise<SendResult> {
   if (!RESEND_KEY) {
     console.warn(`[deskbreak] email not configured; skipping send to ${input.to}`);
@@ -33,6 +39,7 @@ export async function sendEmail(input: {
       headers: {
         Authorization: `Bearer ${RESEND_KEY}`,
         "Content-Type": "application/json",
+        ...(input.idempotencyKey ? { "Idempotency-Key": input.idempotencyKey } : {}),
       },
       body: JSON.stringify({
         from: FROM,

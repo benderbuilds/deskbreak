@@ -239,8 +239,25 @@ create table if not exists notification_deliveries (
   retry_after timestamptz
 );
 
+-- The rendered message, so a retry resends identical bytes under the same
+-- provider idempotency key.
+alter table notification_deliveries add column if not exists payload jsonb;
+
 create index if not exists notification_deliveries_profile_id_idx on notification_deliveries (profile_id);
 create index if not exists notification_deliveries_attempted_at_idx on notification_deliveries (attempted_at);
+
+-- Sign-in link requests, for abuse limits that hold across server instances.
+-- Hashes only; rows older than a day are pruned by the endpoint itself.
+create table if not exists auth_requests (
+  id uuid primary key,
+  email_hash text not null,
+  requester_hash text not null,
+  allowed boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists auth_requests_email_hash_idx on auth_requests (email_hash, created_at);
+create index if not exists auth_requests_requester_hash_idx on auth_requests (requester_hash, created_at);
 
 -- Everything is reached through the service role from route handlers, so no
 -- anon policies are granted here.
@@ -257,3 +274,4 @@ alter table favorites enable row level security;
 alter table push_subscriptions enable row level security;
 alter table login_tokens enable row level security;
 alter table notification_deliveries enable row level security;
+alter table auth_requests enable row level security;

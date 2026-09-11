@@ -87,7 +87,7 @@ export async function createLoginToken(
     pending: PendingPreferences | null;
   },
   now = Date.now(),
-): Promise<{ token: string; nonce: string; expiresAt: string }> {
+): Promise<{ id: string; token: string; nonce: string; expiresAt: string }> {
   const token = randomBytes(24).toString("base64url");
   const nonce = randomBytes(18).toString("base64url");
   const expiresAt = new Date(now + linkMinutes() * 60_000).toISOString();
@@ -104,7 +104,7 @@ export async function createLoginToken(
     pending: input.pending ? (input.pending as Record<string, unknown>) : null,
   };
   await insert("login_tokens", row);
-  return { token, nonce, expiresAt };
+  return { id: row.id, token, nonce, expiresAt };
 }
 
 export type ConsumedToken = {
@@ -384,10 +384,13 @@ export async function absorbBillingProfiles(profile: Profile): Promise<number> {
     await updateMany("push_subscriptions", { profile_id: shell.id }, { profile_id: profile.id });
     await updateMany("recommendations", { profile_id: shell.id }, { profile_id: profile.id });
     // The device that paid keeps its Pro: it is now the account's device.
-    if (shell.anonymous_id && !profile.anonymous_id) {
-      await update("profiles", { id: profile.id }, { anonymous_id: shell.anonymous_id });
-    }
+    // The shell gives the id up first; anonymous_id is unique in the database.
+    const deviceId = shell.anonymous_id;
     await update("profiles", { id: shell.id }, { anonymous_id: null, billing_email: null });
+    if (deviceId && !profile.anonymous_id) {
+      await update("profiles", { id: profile.id }, { anonymous_id: deviceId });
+      profile.anonymous_id = deviceId;
+    }
   }
   if (moved && !profile.billing_email) {
     await update("profiles", { id: profile.id }, { billing_email: profile.email });

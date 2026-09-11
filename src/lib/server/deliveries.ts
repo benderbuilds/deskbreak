@@ -61,6 +61,7 @@ export async function claimDelivery(
     delivered_at: null,
     error: null,
     retry_after: null,
+    payload: null,
   };
   const inserted = await insertUnique("notification_deliveries", row, "dedupe_key");
   if (inserted) return { claimed: true, row: inserted };
@@ -82,6 +83,25 @@ export async function claimDelivery(
     if (taken === 1) return { claimed: true, row: { ...existing, status: "sending" } };
   }
   return { claimed: false, reason: "in_progress" };
+}
+
+/** The provider idempotency key for a delivery record. Stable across retries. */
+export function emailIdempotencyKey(deliveryId: string): string {
+  return `deskbreak-email-${deliveryId}`;
+}
+
+/**
+ * The message for a delivery: whatever was rendered on the first attempt, or
+ * `render()` now, stored for any retry. Same key, same bytes, every time.
+ */
+export async function deliveryPayload<T extends Record<string, unknown>>(
+  row: NotificationDeliveryRow,
+  render: () => T,
+): Promise<T> {
+  if (row.payload && Object.keys(row.payload).length) return row.payload as T;
+  const payload = render();
+  await update("notification_deliveries", { id: row.id }, { payload });
+  return payload;
 }
 
 export async function markDelivered(id: string, now = new Date()): Promise<void> {

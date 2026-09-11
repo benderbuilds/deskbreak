@@ -1,4 +1,5 @@
 import "./setup";
+import { resetStore } from "./setup";
 import { expect, test } from "@playwright/test";
 import {
   EMAIL_WINDOW_END,

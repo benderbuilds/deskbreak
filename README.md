@@ -182,6 +182,13 @@ zone, never the runner's, so a delayed workflow inside the window still sends
 and one outside it does not. Failed sends retry after a delay inside the same
 record; a dead push endpoint is marked and never retried.
 
+Reminder emails also carry a Resend `Idempotency-Key` derived from the
+delivery record (`deskbreak-email-<id>`), and the rendered message is stored
+on the record on the first attempt so a retry sends identical bytes under the
+same key. Resend honours a key for 24 hours; retries are confined to the same
+local-day window, well inside that. Sign-in emails use `deskbreak-login-<token
+row id>` the same way.
+
 ## Accounts and sync
 
 "Save my progress" sends a one-time sign-in link (`/api/auth/magic-link`,
@@ -220,9 +227,20 @@ account.
   sign-in with that address; typing an address never unlocks anything.
 - Outside production, `AUTH_DEV_LINKS=1` returns the link in the API response
   so the flow can be tested without email. Production ignores it.
+- Link requests are rate limited through the database (`auth_requests`, hashes
+  only), so the limits hold across instances: a resend cooldown per address
+  measured from the last link actually sent (`AUTH_LINK_COOLDOWN_SECONDS`,
+  default 60), an hourly cap per address (`AUTH_LINK_HOURLY_CAP`, default 5)
+  and a more generous hourly cap per requester IP (`AUTH_LINK_IP_HOURLY_CAP`,
+  default 30). A throttled request gets 429 `rate_limited` with `Retry-After`,
+  identical for known and unknown addresses, creates nothing, and leaves
+  existing links valid.
 
 `tests/api-security.spec.ts` and `tests/server/*.spec.ts` are the regression
-suite for all of the above.
+suite for all of the above. Both can run against a real Postgres instead of
+the in-memory store (`tests/postgres/README.md`), which is how the unique
+constraints and atomic claims were verified. `docs/acceptance-checklist.md` is
+the staging pass with real Resend, Stripe test mode and push.
 
 Local state is versioned (`APP_STATE_VERSION = 3`). The V2 blob migrates in
 place, keeping history, feedback (mapped to better / same / worse), the plan
