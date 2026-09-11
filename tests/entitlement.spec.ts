@@ -51,6 +51,30 @@ test.describe("free user", () => {
     expect(body).not.toMatch(/STRIPE_|SUPABASE_|PRICE_ID|env/i);
   });
 
+  test("a 503 names the reason for operators but not for customers", async ({
+    page,
+  }) => {
+    await clearAppState(page);
+    // Stand in for a deploy with no price id configured.
+    await page.route("**/api/checkout", (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "unavailable", reason: "price_not_configured" }),
+      }),
+    );
+
+    await page.goto("/app/pro");
+    await page.getByRole("button", { name: /start deskbreak pro/i }).click();
+
+    // The operator's reason code must never reach the page.
+    await expect(appAlert(page)).toContainText(
+      /pro checkout is temporarily unavailable/i,
+    );
+    const body = await page.locator("body").innerText();
+    expect(body).not.toMatch(/price_not_configured|identity_unavailable|provider_rejected/i);
+  });
+
   test("both billing periods are offered with the configured prices", async ({
     page,
   }) => {
