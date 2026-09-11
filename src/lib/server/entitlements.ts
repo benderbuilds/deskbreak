@@ -65,12 +65,24 @@ export async function getEntitlementForEmail(
   return getEntitlementForUser(profile.id);
 }
 
+/**
+ * Pro for a device that has not signed in.
+ *
+ * The device's own profile answers first. A device that paid anonymously and
+ * whose purchase has since been claimed by a verified sign-in with the address
+ * Stripe collected keeps its Pro through that account: the payment came from
+ * this device, and the account proved it owns the address the payer gave.
+ */
 export async function getEntitlementForAnonymousId(
   anonymousId: string,
 ): Promise<ServerEntitlement> {
   const profile = await findOne("profiles", { anonymous_id: anonymousId });
   if (!profile) return FREE_ENTITLEMENT;
-  return getEntitlementForUser(profile.id);
+  const own = await getEntitlementForUser(profile.id);
+  if (own.pro || profile.email || !profile.billing_email) return own;
+  const claimant = await findOne("profiles", { email: profile.billing_email });
+  if (!claimant) return own;
+  return getEntitlementForUser(claimant.id);
 }
 
 /**

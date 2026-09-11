@@ -9,7 +9,7 @@ import {
   type RecommendationExerciseRow,
   type RecommendationRow,
 } from "@/lib/server/store";
-import { getEntitlementForUser } from "@/lib/server/entitlements";
+import { getEntitlementForAnonymousId, getEntitlementForUser } from "@/lib/server/entitlements";
 import { emptySignals, type PersonalizationSignals } from "@/lib/personalization";
 import { recommend, timeOfDayNow } from "@/lib/recommendation";
 import {
@@ -56,8 +56,13 @@ export async function POST(request: Request) {
   const anonymousId = typeof body.anonymousId === "string" ? body.anonymousId : null;
 
   try {
-    const profile = (await currentProfile()) ?? (anonymousId ? await findOne("profiles", { anonymous_id: anonymousId }) : null);
-    const pro = profile ? (await getEntitlementForUser(profile.id)).pro : false;
+    const signedIn = await currentProfile();
+    const profile = signedIn ?? (anonymousId ? await findOne("profiles", { anonymous_id: anonymousId }) : null);
+    const pro = signedIn
+      ? (await getEntitlementForUser(signedIn.id)).pro
+      : anonymousId
+        ? (await getEntitlementForAnonymousId(anonymousId)).pro
+        : false;
 
     const storedConstraints = profile
       ? (await findMany("functional_constraints", { profile_id: profile.id })).map((row) => row.constraint_key)

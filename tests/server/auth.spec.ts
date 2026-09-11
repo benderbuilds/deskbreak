@@ -16,11 +16,12 @@ import {
   sessionCookieValue,
   verifySessionCookie,
 } from "../../src/lib/server/auth";
-import { ensureProfile } from "../../src/lib/server/entitlements";
+import { ensureProfile, getEntitlementForAnonymousId, getEntitlementForUser } from "../../src/lib/server/entitlements";
 import {
   findMany,
   findOne,
   insert,
+  update,
   type SessionRow,
   type Subscription,
 } from "../../src/lib/server/store";
@@ -221,7 +222,6 @@ test.describe("anonymous merge", () => {
   test("a purchase under a billing address attaches only after that address signs in", async () => {
     const paid = await ensureProfile({ anonymousId: "checkout-device" });
     await insert("subscriptions", subscription(paid.id));
-    const { update } = await import("../../src/lib/server/store");
     await update("profiles", { id: paid.id }, { billing_email: "buyer@example.com" });
 
     const stranger = await profileForEmail("stranger@example.com");
@@ -231,6 +231,33 @@ test.describe("anonymous merge", () => {
     const buyer = await profileForEmail("buyer@example.com");
     expect(await absorbBillingProfiles(buyer)).toBe(1);
     expect((await findOne("subscriptions", { user_id: buyer.id }))).not.toBeNull();
+    // The account had no device, so it adopts the one that paid.
     expect((await findOne("profiles", { id: buyer.id }))?.anonymous_id).toBe("checkout-device");
+    expect((await getEntitlementForAnonymousId("checkout-device")).pro).toBe(true);
+  });
+
+  test("the device that paid keeps Pro after another device claims the purchase", async () => {
+    const paid = await ensureProfile({ anonymousId: "phone-that-paid" });
+    await insert("subscriptions", subscription(paid.id));
+    await update("profiles", { id: paid.id }, { billing_email: "buyer@example.com" });
+    expect((await getEntitlementForAnonymousId("phone-that-paid")).pro).toBe(true);
+
+    // The buyer signs in on a laptop that already has its own anonymous id.
+    const buyer = await ensureProfile({ email: "buyer@example.com", anonymousId: "laptop" });
+    expect(await absorbBillingProfiles(buyer)).toBe(1);
+    expect((await findOne("subscriptions", { user_id: buyer.id }))).not.toBeNull();
+
+    // Laptop is Pro through the account; the phone is still Pro through the
+    // address it paid with; the laptop keeps its own id.
+    expect((await getEntitlementForUser(buyer.id)).pro).toBe(true);
+    expect((await getEntitlementForAnonymousId("phone-that-paid")).pro).toBe(true);
+    expect((await findOne("profiles", { id: buyer.id }))?.anonymous_id).toBe("laptop");
+    expect((await findOne("profiles", { id: paid.id }))?.anonymous_id).toBe("phone-that-paid");
+
+    // A stranger's device with the same billing address but no verified
+    // account behind it gets nothing extra.
+    const stranger = await ensureProfile({ anonymousId: "stranger-device" });
+    await update("profiles", { id: stranger.id }, { billing_email: "nobody@example.com" });
+    expect((await getEntitlementForAnonymousId("stranger-device")).pro).toBe(false);
   });
 });

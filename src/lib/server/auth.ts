@@ -383,11 +383,13 @@ export async function absorbBillingProfiles(profile: Profile): Promise<number> {
     await updateMany("sessions", { user_id: shell.id }, { user_id: profile.id });
     await updateMany("push_subscriptions", { profile_id: shell.id }, { profile_id: profile.id });
     await updateMany("recommendations", { profile_id: shell.id }, { profile_id: profile.id });
-    // The device that paid keeps its Pro: it is now the account's device.
-    // The shell gives the id up first; anonymous_id is unique in the database.
-    const deviceId = shell.anonymous_id;
-    await update("profiles", { id: shell.id }, { anonymous_id: null, billing_email: null });
-    if (deviceId && !profile.anonymous_id) {
+    // The shell keeps its anonymous id and billing address: the device that
+    // paid stays recognisable, and entitlement lookups for that device follow
+    // the billing address to this account (see getEntitlementForAnonymousId).
+    // If the account has no device of its own yet, it adopts this one.
+    if (shell.anonymous_id && !profile.anonymous_id) {
+      const deviceId = shell.anonymous_id;
+      await update("profiles", { id: shell.id }, { anonymous_id: null });
       await update("profiles", { id: profile.id }, { anonymous_id: deviceId });
       profile.anonymous_id = deviceId;
     }
