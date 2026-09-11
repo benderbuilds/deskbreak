@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch - Short walk, right foot forward">
+  <title>DeskBreak Stretch - Short walk, right foot forward</title>
+  <rect width="512" height="512" fill="none"/>
+  <ellipse cx="256" cy="470" rx="110" ry="10" fill="#E7E2DA" opacity="0.5"/>
+  <path d="M110,300 L124,300 M118,330 L134,330 M112,360 L128,360" fill="none" stroke="#FF5A36" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <g>
+    <path d="M244,318 L208,392 L176,440" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M244,318 L208,392 L176,440" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="170" cy="446" rx="18" ry="8" fill="#1C1917" transform="rotate(25 170 446)"/>
+    <path d="M270,318 L318,400 L338,452" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M270,318 L318,400 L338,452" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="342" cy="456" rx="18" ry="8" fill="#1C1917"/>
+  </g>
+  <g transform="rotate(-4 256 250)"><rect x="228" y="190" width="56" height="110" rx="22" fill="#FFFFFF" stroke="#1C1917" stroke-width="3.0"/></g>
+  <g>
+    <path d="M236,215 L196,262 L214,320" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M236,215 L196,262 L214,320" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="214" cy="320" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+  <g>
+    <path d="M280,215 L308,270 L286,330" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M280,215 L308,270 L286,330" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="286" cy="330" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+  </g>
+  <g>
+    <circle cx="262" cy="148" r="34" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
+    <path d="M230,142 Q242,110 262,112 Q282,110 294,142" fill="#1C1917"/>
+    <circle cx="252" cy="148" r="3" fill="#1C1917"/>
+    <circle cx="274" cy="148" r="3" fill="#1C1917"/>
+    <path d="M252,160 Q262,168 272,160" fill="none" stroke="#1C1917" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</svg>

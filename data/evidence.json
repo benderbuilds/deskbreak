@@ -1,0 +1,95 @@
+{
+  "note": "Curated references behind the science page and the evidenceCategories on exercises. Summaries describe what the research looked at; they are not treatment claims.",
+  "references": [
+    {
+      "id": "dunstan-2012",
+      "category": "sitting_interruption",
+      "title": "Breaking up prolonged sitting reduces postprandial glucose and insulin responses",
+      "source": "Diabetes Care",
+      "year": 2012,
+      "url": "https://doi.org/10.2337/dc11-1931",
+      "summary": "Short, regular activity breaks during prolonged sitting were associated with better blood glucose and insulin responses than sitting uninterrupted."
+    },
+    {
+      "id": "buckley-2015",
+      "category": "sitting_interruption",
+      "title": "The sedentary office: an expert statement on the growing case for change towards better health and productivity",
+      "source": "British Journal of Sports Medicine",
+      "year": 2015,
+      "url": "https://doi.org/10.1136/bjsports-2015-094618",
+      "summary": "An expert statement recommending that desk-based workers progressively accumulate more standing and light activity across the workday, and break up prolonged sitting."
+    },
+    {
+      "id": "ekelund-2016",
+      "category": "sitting_interruption",
+      "title": "Does physical activity attenuate, or even eliminate, the detrimental association of sitting time with mortality?",
+      "source": "The Lancet",
+      "year": 2016,
+      "url": "https://doi.org/10.1016/S0140-6736(16)30370-1",
+      "summary": "A large harmonised meta-analysis finding that higher daily physical activity substantially weakened the association between long sitting time and mortality."
+    },
+    {
+      "id": "waongenngarm-2018",
+      "category": "movement_breaks",
+      "title": "The effects of breaks on low back pain, discomfort, and work productivity in office workers: a systematic review",
+      "source": "Applied Ergonomics",
+      "year": 2018,
+      "url": "https://doi.org/10.1016/j.apergo.2017.11.003",
+      "summary": "A systematic review of workplace break interventions, finding that active breaks were associated with less discomfort in office workers without reducing productivity."
+    },
+    {
+      "id": "andersen-2011",
+      "category": "strengthening",
+      "title": "Effectiveness of small daily amounts of progressive resistance training for frequent neck/shoulder pain: randomised controlled trial",
+      "source": "Pain",
+      "year": 2011,
+      "url": "https://doi.org/10.1016/j.pain.2010.11.016",
+      "summary": "In office workers with frequent neck and shoulder pain, as little as two minutes of daily resistance exercise was associated with reduced pain over ten weeks."
+    },
+    {
+      "id": "louw-2017",
+      "category": "strengthening",
+      "title": "Effectiveness of exercise in office workers with neck pain: a systematic review and meta-analysis",
+      "source": "South African Journal of Physiotherapy",
+      "year": 2017,
+      "url": "https://doi.org/10.4102/sajp.v73i1.392",
+      "summary": "A review of exercise programmes for office workers with neck pain, finding that strengthening and combined exercise were associated with reduced pain and disability."
+    },
+    {
+      "id": "van-eerd-2016",
+      "category": "mobility",
+      "title": "Effectiveness of workplace interventions in the prevention of upper extremity musculoskeletal disorders and symptoms: an update of the evidence",
+      "source": "Occupational and Environmental Medicine",
+      "year": 2016,
+      "url": "https://doi.org/10.1136/oemed-2015-102992",
+      "summary": "A systematic review finding moderate evidence that workplace resistance training and combined programmes were associated with fewer upper-limb symptoms."
+    },
+    {
+      "id": "slater-2019",
+      "category": "posture_variability",
+      "title": "\"Sit Up Straight\": time to re-evaluate",
+      "source": "Journal of Orthopaedic & Sports Physical Therapy",
+      "year": 2019,
+      "url": "https://doi.org/10.2519/jospt.2019.0610",
+      "summary": "An editorial reviewing evidence that no single sitting posture prevents pain, and that changing position and moving regularly matters more than holding a 'correct' posture."
+    },
+    {
+      "id": "zaccaro-2018",
+      "category": "breathing",
+      "title": "How breath-control can change your life: a systematic review on psycho-physiological correlates of slow breathing",
+      "source": "Frontiers in Human Neuroscience",
+      "year": 2018,
+      "url": "https://doi.org/10.3389/fnhum.2018.00353",
+      "summary": "A systematic review associating slow breathing techniques with increased parasympathetic activity and reports of relaxation and reduced anxiety in healthy adults."
+    },
+    {
+      "id": "sheppard-2018",
+      "category": "eye_strain",
+      "title": "Digital eye strain: prevalence, measurement and amelioration",
+      "source": "BMJ Open Ophthalmology",
+      "year": 2018,
+      "url": "https://doi.org/10.1136/bmjophth-2018-000146",
+      "summary": "A review of digital eye strain in screen users, discussing regular breaks from near work, blinking and distance viewing among the practical measures."
+    }
+  ]
+}

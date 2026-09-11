@@ -21,6 +21,12 @@ export async function sendEmail(input: {
   subject: string;
   text: string;
   html: string;
+  /**
+   * Stable per logical send. Resend deduplicates on it for 24 hours, so a
+   * retry of the same delivery record (same key, identical payload) cannot
+   * produce a second email even if the first attempt's response was lost.
+   */
+  idempotencyKey?: string;
 }): Promise<SendResult> {
   if (!RESEND_KEY) {
     console.warn(`[deskbreak] email not configured; skipping send to ${input.to}`);
@@ -33,6 +39,7 @@ export async function sendEmail(input: {
       headers: {
         Authorization: `Bearer ${RESEND_KEY}`,
         "Content-Type": "application/json",
+        ...(input.idempotencyKey ? { "Idempotency-Key": input.idempotencyKey } : {}),
       },
       body: JSON.stringify({
         from: FROM,
@@ -53,6 +60,16 @@ export async function sendEmail(input: {
   }
 }
 
+function shell(inner: string): string {
+  return `<div style="font-family:ui-sans-serif,system-ui,sans-serif;background:#F7F4EF;color:#1C1917;padding:32px 20px">
+  <div style="max-width:420px;margin:0 auto">${inner}</div>
+</div>`;
+}
+
+function button(href: string, label: string): string {
+  return `<a href="${href}" style="display:inline-block;background:#FF5A36;color:#fff;text-decoration:none;font-weight:600;padding:14px 22px;border-radius:14px">${escapeHtml(label)}</a>`;
+}
+
 /** Plain, single-purpose reminder. One link, one job. */
 export function reminderEmail(input: {
   line: string;
@@ -60,20 +77,31 @@ export function reminderEmail(input: {
   appUrl: string;
 }): { subject: string; text: string; html: string } {
   const link = input.need
-    ? `${input.appUrl}/app/start?need=${input.need}&utm_source=deskbreak&utm_medium=email&utm_campaign=daily_reminder`
-    : `${input.appUrl}/app/start?utm_source=deskbreak&utm_medium=email&utm_campaign=daily_reminder`;
+    ? `${input.appUrl}/app/start?need=${input.need}&source=push&utm_source=deskbreak&utm_medium=email&utm_campaign=daily_reminder`
+    : `${input.appUrl}/app/start?source=push&utm_source=deskbreak&utm_medium=email&utm_campaign=daily_reminder`;
 
-  const text = `${input.line}\n\nTwo minutes: ${link}\n\nNot useful? Turn reminders off in Settings.`;
-
-  const html = `<div style="font-family:ui-sans-serif,system-ui,sans-serif;background:#F7F4EF;color:#1C1917;padding:32px 20px">
-  <div style="max-width:420px;margin:0 auto">
+  const text = `${input.line}\n\nStart your reset: ${link}\n\nNot useful? Turn reminders off under You.`;
+  const html = shell(`
     <p style="font-size:20px;line-height:1.35;font-weight:600;margin:0 0 20px">${escapeHtml(input.line)}</p>
-    <a href="${link}" style="display:inline-block;background:#FF5A36;color:#fff;text-decoration:none;font-weight:600;padding:14px 22px;border-radius:18px">Start a 2-minute DeskBreak</a>
-    <p style="font-size:13px;color:#1C191799;margin:24px 0 0">Not useful? Turn reminders off in Settings.</p>
-  </div>
-</div>`;
+    ${button(link, "Start my reset")}
+    <p style="font-size:13px;color:#1C191799;margin:24px 0 0">Not useful? Turn reminders off under You.</p>`);
 
   return { subject: input.line, text, html };
+}
+
+/** The sign-in link. No password, no account form. */
+export function magicLinkEmail(input: { link: string; minutes: number }): {
+  subject: string;
+  text: string;
+  html: string;
+} {
+  const text = `Here is your DeskBreak sign-in link. It works once and expires in ${input.minutes} minutes.\n\n${input.link}\n\nIf you didn't ask for this, you can ignore it.`;
+  const html = shell(`
+    <p style="font-size:20px;line-height:1.35;font-weight:600;margin:0 0 8px">Save what works for you.</p>
+    <p style="font-size:15px;line-height:1.5;color:#1C1917B3;margin:0 0 20px">This link signs you in on any device. It works once and expires in ${input.minutes} minutes.</p>
+    ${button(input.link, "Sign in to DeskBreak")}
+    <p style="font-size:13px;color:#1C191799;margin:24px 0 0">If you didn't ask for this, you can ignore it.</p>`);
+  return { subject: "Your DeskBreak sign-in link", text, html };
 }
 
 function escapeHtml(value: string): string {
