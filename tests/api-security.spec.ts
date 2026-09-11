@@ -308,3 +308,12 @@ test("sign-in link requests are capped per address, and an earlier link survives
   expect((await me(ctx)).profile?.email).toBe(email);
   await ctx.dispose();
 });
+
+test("a session id that is not a uuid is refused up front, not at the database", async () => {
+  const ctx = await browser();
+  const response = await recordSession(ctx, "db_k3j4h5g6lq9x", uid("anon"));
+  expect(response.status()).toBe(400);
+  expect(((await response.json()) as { error: string }).error).toBe("invalid_session_id");
+  expect((await recordSession(ctx, crypto.randomUUID(), uid("anon"))).ok()).toBe(true);
+  await ctx.dispose();
+});

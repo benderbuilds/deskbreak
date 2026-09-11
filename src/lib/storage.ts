@@ -1,4 +1,5 @@
 import { shiftDay, todayKey } from "./dates";
+import { randomUuid } from "./ids";
 import {
   applyFeedbackToSignals,
   applySessionToSignals,
@@ -137,8 +138,10 @@ function canUseStorage(): boolean {
 }
 
 export function newId(): string {
-  if (canUseStorage() && window.crypto?.randomUUID) return window.crypto.randomUUID();
-  return `db_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+  // Always a real uuid: session ids are uuid columns on the server, and a
+  // browser without crypto.randomUUID (older engines, plain http) must not
+  // produce ids the database refuses.
+  return randomUuid();
 }
 
 /* ------------------------------------------------------------------ *

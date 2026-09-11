@@ -10,6 +10,7 @@ import {
   type SessionExerciseRow,
   type SessionRow,
 } from "@/lib/server/store";
+import { isUuid } from "@/lib/ids";
 import { isPerceivedEffect } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -74,6 +75,10 @@ export async function POST(request: Request) {
 
   if (!body.sessionId || !body.programId) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  }
+  // The column is a uuid; say so up front instead of failing at the database.
+  if (!isUuid(body.sessionId)) {
+    return NextResponse.json({ error: "invalid_session_id" }, { status: 400 });
   }
   const anonymousId = typeof body.anonymousId === "string" ? body.anonymousId : null;
 
