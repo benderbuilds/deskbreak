@@ -61,6 +61,11 @@ function toSession(row: SessionRow, exercises: SessionExerciseRow[]): WorkoutSes
   };
 }
 
+/**
+ * Sessions for an identity. Anonymous-id rows that already belong to an
+ * account are included only when that account is the profile asked for, so an
+ * anonymous id on its own never reads another account's history.
+ */
 export async function sessionsFor(identity: {
   profileId?: string | null;
   anonymousId?: string | null;
@@ -71,7 +76,10 @@ export async function sessionsFor(identity: {
   }
   if (identity.anonymousId) {
     const anon = await findMany("sessions", { anonymous_id: identity.anonymousId }, { orderBy: "started_at", descending: true, limit });
-    for (const row of anon) if (!rows.some((r) => r.id === row.id)) rows.push(row);
+    for (const row of anon) {
+      if (row.user_id && row.user_id !== identity.profileId) continue;
+      if (!rows.some((r) => r.id === row.id)) rows.push(row);
+    }
   }
   if (!rows.length) return [];
   const exercises = await findMany("session_exercises", {}, {

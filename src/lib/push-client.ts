@@ -69,7 +69,7 @@ export async function unsubscribeFromPush(): Promise<void> {
       await fetch("/api/push/subscribe", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endpoint: subscription.endpoint }),
+        body: JSON.stringify({ endpoint: subscription.endpoint, anonymousId: ensureAnonymousId() }),
       }).catch(() => {});
       await subscription.unsubscribe().catch(() => {});
     }

@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
 import { currentProfile, mergeAnonymousInto } from "@/lib/server/auth";
+import { getEntitlementForUser } from "@/lib/server/entitlements";
 import { sessionsFor } from "@/lib/server/signals";
 import { findMany } from "@/lib/server/store";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Who is this browser? For a signed-in user, also the history the server holds
- * and the preferences stored against the profile, so a new device fills in.
+ * Who is this browser? Answered only from the session cookie.
+ *
+ * A signed-in browser may also name its own anonymous id so history it
+ * recorded before signing in on this device joins the account. That merge
+ * takes ownerless rows only; it never takes rows from another signed-in
+ * account, and it never moves a paid subscription (that needs the sign-in link
+ * flow, which proves the browser).
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -18,10 +24,11 @@ export async function GET(request: Request) {
 
     if (anonymousId) await mergeAnonymousInto(profile, anonymousId).catch(() => {});
 
-    const [constraints, favorites, sessions] = await Promise.all([
+    const [constraints, favorites, sessions, entitlement] = await Promise.all([
       findMany("functional_constraints", { profile_id: profile.id }),
       findMany("favorites", { profile_id: profile.id }),
       sessionsFor({ profileId: profile.id }, 200),
+      getEntitlementForUser(profile.id),
     ]);
 
     return NextResponse.json({
@@ -33,7 +40,9 @@ export async function GET(request: Request) {
         favorites: favorites.map((row) => row.item_id),
         preferredDuration: profile.preferred_duration ?? null,
         preferredSetup: profile.preferred_setup ?? null,
+        reminderFrequency: profile.reminder_frequency ?? null,
       },
+      entitlement,
       sessions,
     });
   } catch (error) {

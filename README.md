@@ -25,9 +25,15 @@ npx tsc --noEmit
 npm run build
 npm test          # Playwright, mobile + desktop, against a production build
 npm run test:unit # engine, planner, migration and art checks; no server needed
+npm run test:server   # sign-in tokens, ownership merges, delivery records, scheduler decisions
+npm run test:security # ownership at the HTTP boundary, against the built server
 npm run art:audit # fails if a free routine uses a move with no artwork
 npm run push:keys # prints a VAPID key pair for Web Push
 ```
+
+`GET /api/health` says which capabilities a deployment has (store, auth,
+email, Stripe, push, cron) as booleans, and in production returns 503 with
+`missingForProduction` until all of them are set. Nothing in it is secret.
 
 ## The shape of the app
 
@@ -151,21 +157,72 @@ Skipping is a normal action.
 
 Reminders are real Web Push: `public/sw.js` handles push and notification
 actions (Start, 15 min, Skip); `POST /api/push/subscribe` stores subscriptions;
-`/api/push/send` is the scheduler, meant to run every 15 minutes with
-`Authorization: Bearer $CRON_SECRET`. `.github/workflows/scheduler.yml` calls
-it (and the hourly reminder mailer) from GitHub Actions, since Vercel's Hobby
-plan only allows daily cron jobs; set the `APP_URL` and `CRON_SECRET`
-repository secrets to turn it on. It needs VAPID keys from `npm run push:keys`. While the app is open, an in-tab runner
-covers the same windows. Email remains the daily fallback.
+`POST /api/push/send` is the scheduler and `POST /api/reminders/send` the
+daily email mailer, both behind `Authorization: Bearer $CRON_SECRET`. Push
+needs VAPID keys from `npm run push:keys`. While the app is open, an in-tab
+runner covers the same windows. Email is opt-in (the "Daily reminder" toggle
+under You, for signed-in users) and goes out once per local day in the
+14:00-16:00 window of the person's own time zone, on their working days.
+
+### One scheduler
+
+`.github/workflows/scheduler.yml` is the only scheduler. It calls both
+endpoints every 15 minutes from GitHub Actions; set the `APP_URL` and
+`CRON_SECRET` repository secrets to turn it on. Vercel Cron is not configured
+(there is no `vercel.json` crons entry) and must not be added alongside it:
+the Hobby plan only allows daily jobs, and two drivers for the same endpoints
+is one too many.
+
+The endpoints do not care when or how often they are called. Every send is
+first claimed as a row in `notification_deliveries` with a unique dedupe key
+(push: break, day, device and snooze attempt; email: profile and local day).
+An overlapping run, a retried run, a run that fires late, or a run that fires
+twice finds the claim and skips. Decisions are made in the profile's time
+zone, never the runner's, so a delayed workflow inside the window still sends
+and one outside it does not. Failed sends retry after a delay inside the same
+record; a dead push endpoint is marked and never retried.
 
 ## Accounts and sync
 
 "Save my progress" sends a one-time sign-in link (`/api/auth/magic-link`,
 `/api/auth/verify`). Opening it sets an HMAC-signed session cookie; there is no
-password anywhere. On sign-in the anonymous browser is merged into the profile
-and history is pulled down (`/api/auth/me`). For anonymous users the browser is
-the source of truth; for signed-in users the server is, and local storage
-becomes a cache. Requires `AUTH_SECRET`.
+password anywhere. For anonymous users the browser is the source of truth; for
+signed-in users the server is, and local storage becomes a cache. Requires
+`AUTH_SECRET`; in production also a durable store and an email provider, and
+the API says which is missing (`store_not_configured`, `email_not_configured`)
+rather than pretending a link was sent.
+
+### Who may touch what
+
+The rule for every endpoint: a caller-supplied email address, profile id or
+anonymous id is not authentication. Only the signed session cookie names an
+account.
+
+- Requesting a link never changes an existing account. Preferences, movements
+  to avoid and the browser's anonymous id travel on the token row and are
+  applied only when the link is opened by the browser that asked for it,
+  which proves that with a short-lived nonce cookie. Opened anywhere else, the
+  link signs in and merges nothing.
+- Merging moves only ownerless data (anonymous sessions, push subscriptions,
+  recommendations, or a profile that never signed in). Rows that belong to
+  another signed-in account never move. A device-bound Pro purchase moves only
+  in the nonce-verified flow.
+- Tokens are single-use, expire (`AUTH_LINK_TTL_MINUTES`, default 30), and are
+  claimed atomically so two opens of the same link admit one.
+- `/api/auth/me`, `/api/profile` (GET), `/api/planned-breaks` and the Stripe
+  Customer Portal (`/api/billing/portal`) require a session. Anonymous
+  browsers may write to their own shell profile only; an anonymous id that
+  belongs to a signed-in account gets nothing.
+- `/api/sessions` records ownership from the cookie alone; feedback and
+  rewrites are accepted only from the row's owner.
+- "Restore Pro" is a sign-in link. The address Stripe collected at checkout is
+  kept as `billing_email` on the profile that paid and is claimed by a verified
+  sign-in with that address; typing an address never unlocks anything.
+- Outside production, `AUTH_DEV_LINKS=1` returns the link in the API response
+  so the flow can be tested without email. Production ignores it.
+
+`tests/api-security.spec.ts` and `tests/server/*.spec.ts` are the regression
+suite for all of the above.
 
 Local state is versioned (`APP_STATE_VERSION = 3`). The V2 blob migrates in
 place, keeping history, feedback (mapped to better / same / worse), the plan
@@ -203,9 +260,12 @@ the answer with a short grace window and never decides it.
 `supabase/schema.sql` is additive and idempotent over V2. Tables: profiles,
 subscriptions, sessions, session_exercises, recommendations,
 recommendation_exercises, functional_constraints, workday_preferences,
-planned_breaks, favorites, push_subscriptions, login_tokens. Without Supabase
-credentials everything falls back to an in-memory store so local dev and CI
-work with no secrets.
+planned_breaks, favorites, push_subscriptions, login_tokens,
+notification_deliveries. Without Supabase credentials everything falls back to
+an in-memory store so local dev and CI work with no secrets. Production is
+different: with `VERCEL_ENV=production` (or `DESKBREAK_ENV=production`) and no
+store, sign-in and checkout refuse with `store_not_configured` instead of
+saving to memory, and `/api/health` reports it.
 
 ## Analytics
 

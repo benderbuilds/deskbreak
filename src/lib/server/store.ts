@@ -23,6 +23,12 @@ export type Profile = {
   id: string;
   email: string | null;
   anonymous_id: string | null;
+  /**
+   * The address Stripe collected at checkout, for a profile that has never
+   * signed in. Not a login identity: it is only used to attach the purchase to
+   * an account once that address is verified by a magic link.
+   */
+  billing_email?: string | null;
   created_at: string;
   updated_at?: string;
   display_name?: string | null;
@@ -190,6 +196,27 @@ export type LoginTokenRow = {
   expires_at: string;
   used_at: string | null;
   created_at: string;
+  /** The requesting browser, applied only if that browser opens the link. */
+  anonymous_id: string | null;
+  /** Hash of the nonce cookie set on the requesting browser. */
+  nonce_hash: string | null;
+  /** Preferences captured at request time, applied only after verification. */
+  pending: Record<string, unknown> | null;
+};
+
+export type NotificationDeliveryRow = {
+  id: string;
+  profile_id: string | null;
+  kind: string;
+  /** One row per logical send. Uniqueness is what makes retries safe. */
+  dedupe_key: string;
+  /** Endpoint for push; a hash of the address for email. Never the address. */
+  target: string | null;
+  status: string;
+  attempted_at: string;
+  delivered_at: string | null;
+  error: string | null;
+  retry_after: string | null;
 };
 
 export type Tables = {
@@ -205,6 +232,7 @@ export type Tables = {
   favorites: FavoriteRow;
   push_subscriptions: PushSubscriptionRow;
   login_tokens: LoginTokenRow;
+  notification_deliveries: NotificationDeliveryRow;
 };
 
 const memory: { [K in keyof Tables]: Tables[K][] } = {
@@ -220,6 +248,7 @@ const memory: { [K in keyof Tables]: Tables[K][] } = {
   favorites: [],
   push_subscriptions: [],
   login_tokens: [],
+  notification_deliveries: [],
 };
 
 async function rest<T>(
@@ -345,6 +374,72 @@ export async function insert<K extends keyof Tables>(table: K, row: Tables[K]): 
   }
   const rows = await rest<Tables[K]>(table, { method: "POST", body: JSON.stringify(row) });
   return rows[0] ?? row;
+}
+
+/**
+ * Inserts a row unless one already exists with the same value in
+ * `uniqueColumn`; returns null when it does. This is the claim primitive the
+ * scheduler relies on: two overlapping runs can both try, only one wins.
+ *
+ * In memory the check and the push happen in one synchronous step, so
+ * concurrent claims within a process cannot both succeed. Against Postgres the
+ * unique constraint decides, and a 409 means someone else got there first.
+ */
+export async function insertUnique<K extends keyof Tables>(
+  table: K,
+  row: Tables[K],
+  uniqueColumn: keyof Tables[K] & string,
+): Promise<Tables[K] | null> {
+  if (!isDurable()) {
+    const rows = memory[table] as Tables[K][];
+    if (rows.some((existing) => existing[uniqueColumn] === row[uniqueColumn])) return null;
+    rows.push(row);
+    return row;
+  }
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      apikey: SUPABASE_KEY as string,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify(row),
+  });
+  if (response.status === 409) return null;
+  if (!response.ok) {
+    throw new Error(`supabase ${table} ${response.status}: ${await response.text()}`);
+  }
+  const text = await response.text();
+  const rows = text ? (JSON.parse(text) as Tables[K][]) : [];
+  return rows[0] ?? row;
+}
+
+/** Updates every matching row and returns how many matched. */
+export async function updateMany<K extends keyof Tables>(
+  table: K,
+  where: Partial<Tables[K]>,
+  patch: Partial<Tables[K]>,
+): Promise<number> {
+  if (!Object.keys(where).length) throw new Error("refusing to update without a filter");
+  if (!isDurable()) {
+    const rows = memory[table] as Tables[K][];
+    let count = 0;
+    rows.forEach((row, index) => {
+      if (matches(row as Record<string, unknown>, where)) {
+        rows[index] = { ...rows[index], ...patch };
+        count += 1;
+      }
+    });
+    return count;
+  }
+  const rows = await rest<Tables[K]>(table, {
+    method: "PATCH",
+    query: encode(where as Record<string, unknown>),
+    body: JSON.stringify(patch),
+  });
+  return rows.length;
 }
 
 export async function insertMany<K extends keyof Tables>(table: K, rows: Tables[K][]): Promise<void> {

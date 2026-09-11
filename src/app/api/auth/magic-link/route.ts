@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
-import { authConfigured, createLoginToken, profileForEmail } from "@/lib/server/auth";
+import {
+  authConfigured,
+  createLoginToken,
+  LINK_NONCE_COOKIE,
+  linkMinutes,
+  linkNonceCookieOptions,
+  profileForEmail,
+  type PendingPreferences,
+} from "@/lib/server/auth";
 import { emailConfigured, magicLinkEmail, sendEmail } from "@/lib/server/email";
 import { isValidEmail } from "@/lib/server/entitlements";
+import { devLinksEnabled, durableOrNotProduction } from "@/lib/server/runtime";
 import { originFrom } from "@/lib/server/stripe";
-import { findMany, insert, isDurable, remove, update, type FunctionalConstraintRow } from "@/lib/server/store";
+import { isDurable } from "@/lib/server/store";
 import { isFunctionalConstraint } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -16,21 +25,17 @@ type Body = {
   preferredSetup?: string | null;
   preferredDuration?: number | null;
   constraints?: unknown;
-  attribution?: {
-    source?: string | null;
-    medium?: string | null;
-    campaign?: string | null;
-    content?: string | null;
-    landingPath?: string | null;
-  };
+  attribution?: PendingPreferences["attribution"];
 };
 
 /**
  * "Save my progress": emails a one-time sign-in link.
  *
- * The profile is created (or found) immediately and linked to the anonymous
- * browser, so even before the link is opened, tomorrow's reminder has somewhere
- * to go and the browser's history has an owner.
+ * Asking for a link changes nothing about an existing account. Whatever this
+ * browser wants to bring along (preferences, movements to avoid, its anonymous
+ * history) rides in the token row and is applied only when the link is opened
+ * by the same browser, which proves it with a cookie set here. Anyone can type
+ * anyone's address; that must never be enough to alter the account behind it.
  */
 export async function POST(request: Request) {
   let body: Body;
@@ -45,57 +50,53 @@ export async function POST(request: Request) {
   if (!authConfigured()) {
     return NextResponse.json({ ok: false, error: "auth_not_configured" }, { status: 503 });
   }
+  if (!durableOrNotProduction()) {
+    // An account saved to memory is lost on the next deploy. Say so instead.
+    return NextResponse.json({ ok: false, error: "store_not_configured" }, { status: 503 });
+  }
+  if (!emailConfigured() && !devLinksEnabled()) {
+    return NextResponse.json({ ok: false, error: "email_not_configured" }, { status: 503 });
+  }
 
   try {
-    const profile = await profileForEmail(body.email, body.anonymousId ?? null);
-    const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
-    if (body.primaryNeed) patch.primary_need = body.primaryNeed;
-    if (body.preferredSetup) patch.preferred_setup = body.preferredSetup;
-    if (body.preferredDuration) patch.preferred_duration = body.preferredDuration;
-    if (body.attribution && !profile.first_utm_source) {
-      patch.first_utm_source = body.attribution.source ?? null;
-      patch.first_utm_medium = body.attribution.medium ?? null;
-      patch.first_utm_campaign = body.attribution.campaign ?? null;
-      patch.first_utm_content = body.attribution.content ?? null;
-      patch.first_landing_path = body.attribution.landingPath ?? null;
-    }
-    await update("profiles", { id: profile.id }, patch);
+    const profile = await profileForEmail(body.email);
 
-    if (Array.isArray(body.constraints)) {
-      const wanted = body.constraints.filter(isFunctionalConstraint);
-      const existing = await findMany("functional_constraints", { profile_id: profile.id });
-      for (const row of existing) {
-        if (!wanted.includes(row.constraint_key as never)) await remove("functional_constraints", { id: row.id });
-      }
-      for (const key of wanted) {
-        if (!existing.some((row) => row.constraint_key === key)) {
-          const row: FunctionalConstraintRow = {
-            id: crypto.randomUUID(),
-            profile_id: profile.id,
-            constraint_key: key,
-            created_at: new Date().toISOString(),
-          };
-          await insert("functional_constraints", row);
-        }
-      }
-    }
-
-    const { token } = await createLoginToken(profile, body.next ?? "/app");
-    const origin = originFrom(request);
-    const link = `${origin}/api/auth/verify?token=${encodeURIComponent(token)}`;
-    const message = magicLinkEmail({ link, minutes: 30 });
-    const result = await sendEmail({ to: profile.email as string, ...message });
-
-    // Without an email provider (local dev, previews) the link is handed back so
-    // the flow can still be exercised end to end. Never in production.
-    const devLink = !emailConfigured() && process.env.NODE_ENV !== "production" ? link : undefined;
-
-    return NextResponse.json({
-      ok: true,
-      delivered: result.delivered,
-      durable: isDurable(),
-      devLink,
+    const pending: PendingPreferences = {
+      primaryNeed: body.primaryNeed ?? null,
+      preferredSetup: body.preferredSetup ?? null,
+      preferredDuration: body.preferredDuration ?? null,
+      constraints: Array.isArray(body.constraints) ? body.constraints.filter(isFunctionalConstraint) : undefined,
+      attribution: body.attribution ?? null,
+    };
+    const { token, nonce } = await createLoginToken(profile, {
+      nextPath: typeof body.next === "string" ? body.next : "/app",
+      anonymousId: typeof body.anonymousId === "string" ? body.anonymousId : null,
+      pending,
     });
+
+    const link = `${originFrom(request)}/api/auth/verify?token=${encodeURIComponent(token)}`;
+    const minutes = linkMinutes();
+
+    let delivered = false;
+    if (emailConfigured()) {
+      const result = await sendEmail({ to: profile.email as string, ...magicLinkEmail({ link, minutes }) });
+      delivered = result.delivered;
+      if (!delivered && !devLinksEnabled()) {
+        return NextResponse.json({ ok: false, error: "send_failed" }, { status: 503 });
+      }
+    }
+
+    const response = NextResponse.json({
+      ok: true,
+      delivered,
+      minutes,
+      durable: isDurable(),
+      // Outside production, with AUTH_DEV_LINKS=1, the link comes back in the
+      // response so the flow can be exercised without an email provider.
+      devLink: !delivered && devLinksEnabled() ? link : undefined,
+    });
+    response.cookies.set(LINK_NONCE_COOKIE, nonce, linkNonceCookieOptions());
+    return response;
   } catch (error) {
     console.error("[deskbreak] magic link failed:", error);
     return NextResponse.json({ ok: false, error: "unavailable" }, { status: 503 });

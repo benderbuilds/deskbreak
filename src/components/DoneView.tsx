@@ -7,7 +7,7 @@ import { Button } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { WeekSummary } from "@/components/WeekSummary";
-import { requestMagicLink } from "@/lib/account-client";
+import { describeAccountError, requestMagicLink } from "@/lib/account-client";
 import { track } from "@/lib/analytics";
 import {
   CHALLENGE_OFFER_AFTER_SESSIONS,
@@ -120,7 +120,7 @@ export function DoneView() {
     const result = await requestMagicLink(trimmed, { next: "/app?saved=1" });
     setSubmitting(false);
     if (!result.ok) {
-      setEmailError("We couldn't send that just now. You can try again from You.");
+      setEmailError(describeAccountError(result.error));
       return;
     }
     saveEmail(trimmed);

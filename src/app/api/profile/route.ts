@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { currentProfile } from "@/lib/server/auth";
-import { ensureProfile } from "@/lib/server/entitlements";
+import { currentProfile, replaceConstraints } from "@/lib/server/auth";
+import { anonymousProfile } from "@/lib/server/entitlements";
 import {
   findMany,
   findOne,
@@ -9,7 +9,7 @@ import {
   update,
   upsert,
   type FavoriteRow,
-  type FunctionalConstraintRow,
+  type Profile,
   type WorkdayPreferencesRow,
 } from "@/lib/server/store";
 import { isFunctionalConstraint, type WorkdayPreferences } from "@/lib/types";
@@ -24,16 +24,25 @@ type Body = {
   constraints?: unknown;
   favorites?: unknown;
   notificationLevel?: string | null;
+  reminderFrequency?: string | null;
   workday?: WorkdayPreferences | null;
   timezone?: string | null;
 };
 
 /**
- * PATCH /api/profile: the client's preferences, pushed to the server.
+ * Whose preferences is this request allowed to write?
  *
- * Anonymous browsers may call this too (constraints matter for server-side
- * recommendations); the row is keyed on the anonymous id until sign-in merges it.
+ * A session cookie names an account. Without one, an anonymous id reaches only
+ * the shell profile keyed on it; if that id belongs to an account that has
+ * signed in, the caller has to sign in too.
  */
+async function writableProfile(anonymousId: string | undefined): Promise<Profile | null> {
+  const signedIn = await currentProfile();
+  if (signedIn) return signedIn;
+  if (!anonymousId) return null;
+  return anonymousProfile(anonymousId);
+}
+
 export async function PATCH(request: Request) {
   let body: Body;
   try {
@@ -43,19 +52,24 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    const profile =
-      (await currentProfile()) ??
-      (body.anonymousId ? await ensureProfile({ anonymousId: body.anonymousId }) : null);
+    const profile = await writableProfile(body.anonymousId);
     if (!profile) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+    const reminderFrequency =
+      body.reminderFrequency === "daily" || body.reminderFrequency === "off"
+        ? body.reminderFrequency
+        : undefined;
 
     await update(
       "profiles",
       { id: profile.id },
       {
         primary_need: body.primaryNeed ?? profile.primary_need,
-        preferred_setup: body.preferredSetup ?? null,
-        preferred_duration: body.preferredDuration ?? null,
+        preferred_setup: body.preferredSetup === undefined ? profile.preferred_setup : body.preferredSetup,
+        preferred_duration:
+          body.preferredDuration === undefined ? (profile.preferred_duration ?? null) : body.preferredDuration,
         notification_level: body.notificationLevel ?? profile.notification_level ?? null,
+        reminder_frequency: reminderFrequency ?? profile.reminder_frequency,
         timezone: body.timezone ?? profile.timezone,
         workday_start: body.workday?.startMinutes ?? profile.workday_start,
         workday_end: body.workday?.endMinutes ?? profile.workday_end,
@@ -64,22 +78,7 @@ export async function PATCH(request: Request) {
     );
 
     if (Array.isArray(body.constraints)) {
-      const wanted = body.constraints.filter(isFunctionalConstraint) as string[];
-      const existing = await findMany("functional_constraints", { profile_id: profile.id });
-      for (const row of existing) {
-        if (!wanted.includes(row.constraint_key)) await remove("functional_constraints", { id: row.id });
-      }
-      for (const key of wanted) {
-        if (!existing.some((row) => row.constraint_key === key)) {
-          const row: FunctionalConstraintRow = {
-            id: crypto.randomUUID(),
-            profile_id: profile.id,
-            constraint_key: key,
-            created_at: new Date().toISOString(),
-          };
-          await insert("functional_constraints", row);
-        }
-      }
+      await replaceConstraints(profile.id, body.constraints.filter(isFunctionalConstraint));
     }
 
     if (Array.isArray(body.favorites)) {
@@ -129,20 +128,25 @@ export async function PATCH(request: Request) {
   }
 }
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const anonymousId = searchParams.get("anonymousId");
+/** The signed-in account's stored preferences. Nothing for anonymous callers. */
+export async function GET() {
   try {
-    const profile =
-      (await currentProfile()) ?? (anonymousId ? await findOne("profiles", { anonymous_id: anonymousId }) : null);
-    if (!profile) return NextResponse.json({ profile: null });
-    const workday = await findOne("workday_preferences", { profile_id: profile.id });
+    const profile = await currentProfile();
+    if (!profile) return NextResponse.json({ profile: null }, { status: 401 });
+    const [workday, constraints] = await Promise.all([
+      findOne("workday_preferences", { profile_id: profile.id }),
+      findMany("functional_constraints", { profile_id: profile.id }),
+    ]);
     return NextResponse.json({
       profile: {
         id: profile.id,
         email: profile.email,
         preferredDuration: profile.preferred_duration ?? null,
         preferredSetup: profile.preferred_setup ?? null,
+        primaryNeed: profile.primary_need ?? null,
+        reminderFrequency: profile.reminder_frequency ?? null,
+        timezone: profile.timezone ?? null,
+        constraints: constraints.map((row) => row.constraint_key),
         workday: workday
           ? {
               startMinutes: workday.workday_start,

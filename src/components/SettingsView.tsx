@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button, ButtonLink, Chip } from "@/components/Button";
 import { ProBadge } from "@/components/ProBadge";
-import { pushPreferences, requestMagicLink, signOut } from "@/lib/account-client";
+import { describeAccountError, pushPreferences, requestMagicLink, signOut } from "@/lib/account-client";
 import { track } from "@/lib/analytics";
 import {
   CONSTRAINT_OPTIONS,
@@ -14,13 +14,11 @@ import {
   SUPPORT_EMAIL,
 } from "@/lib/constants";
 import { formatMinutes } from "@/lib/dates";
-import { canAccessDuration, isProEntitlement, toEntitlement } from "@/lib/entitlements";
+import { canAccessDuration, isProEntitlement } from "@/lib/entitlements";
 import { canSpeak } from "@/lib/audio-cues";
 import { pushSupported, subscribeToPush, unsubscribeFromPush } from "@/lib/push-client";
 import { defaultDailyReminder, requestNotificationPermission } from "@/lib/reminders";
 import {
-  cacheEntitlement,
-  ensureAnonymousId,
   saveEmail,
   saveReminders,
   saveSettings,
@@ -49,70 +47,67 @@ export function SettingsView() {
   const reminders = state.settings.reminders;
   const daily = reminders.find((entry) => entry.kind === "daily");
 
-  async function sendLink() {
+  async function sendLink(next = "/app/you") {
     const trimmed = email.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) {
       setNotice("That doesn't look like an email address.");
-      return;
+      return null;
     }
     setBusy("link");
-    const result = await requestMagicLink(trimmed, { next: "/app/you" });
+    const result = await requestMagicLink(trimmed, { next });
     setBusy(null);
     if (!result.ok) {
-      setNotice(
-        result.error === "auth_not_configured"
-          ? "Sign-in isn't set up on this deployment yet."
-          : "We couldn't send that just now. Try again shortly.",
-      );
-      return;
+      setNotice(describeAccountError(result.error));
+      return null;
     }
     saveEmail(trimmed);
+    return result;
+  }
+
+  async function sendSignInLink() {
+    const result = await sendLink("/app/you");
+    if (!result) return;
     setNotice(
       result.devLink
         ? `Email isn't configured here. Open this link to sign in: ${result.devLink}`
-        : `Check ${trimmed} for your sign-in link.`,
+        : `Check ${trimmedEmail()} for your sign-in link.`,
     );
   }
 
+  /**
+   * Restoring Pro is signing in. The link proves the address; opening it on
+   * this device attaches any subscription bought under that address, without
+   * ever letting a typed address alone unlock someone else's plan.
+   */
   async function restorePro() {
-    const trimmed = email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) {
-      setNotice("That doesn't look like an email address.");
-      return;
-    }
-    setBusy("restore");
-    try {
-      const response = await fetch("/api/restore", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, anonymousId: ensureAnonymousId() }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error("restore_failed");
-      cacheEntitlement(toEntitlement(data));
-      saveEmail(trimmed);
-      setNotice(
-        data.pro
-          ? "Pro restored on this device."
-          : "No active subscription on that email. If you just paid, give it a minute and try again.",
-      );
-    } catch {
-      setNotice("We couldn't check that just now. Try again shortly.");
-    } finally {
-      setBusy(null);
-    }
+    const result = await sendLink("/app/you?restored=1");
+    if (!result) return;
+    setNotice(
+      result.devLink
+        ? `Email isn't configured here. Open this link to sign in and restore Pro: ${result.devLink}`
+        : `Check ${trimmedEmail()} for a sign-in link. If that email has a subscription, opening the link restores Pro on this device.`,
+    );
+  }
+
+  function trimmedEmail() {
+    return email.trim();
   }
 
   async function openPortal() {
+    if (!signedIn) {
+      setNotice("Sign in with your checkout email first, then manage billing from here.");
+      return;
+    }
     setBusy("portal");
     track("billing_portal_opened");
     try {
-      const response = await fetch("/api/billing/portal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: state.account.email ?? state.email, anonymousId: ensureAnonymousId() }),
-      });
-      const data = (await response.json().catch(() => ({}))) as { url?: string };
+      const response = await fetch("/api/billing/portal", { method: "POST" });
+      const data = (await response.json().catch(() => ({}))) as { url?: string; error?: string };
+      if (response.status === 401) {
+        setNotice("Sign in with your checkout email first, then manage billing from here.");
+        setBusy(null);
+        return;
+      }
       if (!response.ok || !data.url) throw new Error("portal");
       window.location.href = data.url;
     } catch {
@@ -144,18 +139,21 @@ export function SettingsView() {
   async function toggleDaily() {
     if (daily?.enabled) {
       saveReminders(reminders.filter((entry) => entry.id !== daily.id));
+      // Email reminders are opt-in on the server; turning off here turns them off there.
+      void pushPreferences();
       setNotice("Daily reminder off.");
       return;
     }
     const permission = await requestNotificationPermission();
     saveReminders([...reminders.filter((entry) => entry.kind !== "daily"), defaultDailyReminder()]);
-    track("reminder_created", { kind: "daily", channel: state.email ? "email" : "browser" });
+    track("reminder_created", { kind: "daily", channel: signedIn ? "email" : "browser" });
+    void pushPreferences();
     setNotice(
-      state.email || state.account.email
-        ? "We'll email you once a day, mid-afternoon."
+      signedIn
+        ? "We'll email you once a day, mid-afternoon on your workdays."
         : permission === "granted"
-          ? "We'll nudge you while DeskBreak is open. Save your progress with an email for reminders that reach you anywhere."
-          : "Saved. Add an email so reminders reach you when DeskBreak isn't open.",
+          ? "We'll nudge you while DeskBreak is open. Sign in above for reminders by email that reach you anywhere."
+          : "Saved. Sign in above so reminders reach you by email when DeskBreak isn't open.",
     );
   }
 
@@ -219,11 +217,11 @@ export function SettingsView() {
               className="mt-3 min-h-12 w-full rounded-[14px] border border-ink/12 bg-white px-4 text-base text-ink outline-none focus-visible:border-coral"
             />
             <div className="mt-2.5 flex flex-wrap gap-2">
-              <Button size="sm" block={false} onClick={sendLink} disabled={busy === "link"}>
+              <Button size="sm" block={false} onClick={sendSignInLink} disabled={busy === "link"}>
                 {busy === "link" ? "Sending..." : "Send sign-in link"}
               </Button>
-              <Button size="sm" variant="tertiary" block={false} onClick={restorePro} disabled={busy === "restore"}>
-                {busy === "restore" ? "Checking..." : "Restore Pro"}
+              <Button size="sm" variant="tertiary" block={false} onClick={restorePro} disabled={busy === "link"}>
+                Restore Pro
               </Button>
             </div>
           </Field>

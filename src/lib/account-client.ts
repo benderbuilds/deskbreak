@@ -28,12 +28,42 @@ type MeResponse = {
     favorites?: string[];
     preferredDuration?: number | null;
     preferredSetup?: string | null;
+    reminderFrequency?: string | null;
   };
   sessions?: Array<Record<string, unknown>>;
 };
 
+export type AccountError =
+  | "invalid_email"
+  | "auth_not_configured"
+  | "store_not_configured"
+  | "email_not_configured"
+  | "send_failed"
+  | "network"
+  | "unavailable";
+
+/** What to tell the person when a sign-in link could not be sent. */
+export function describeAccountError(error: string): string {
+  switch (error) {
+    case "invalid_email":
+      return "That doesn't look like an email address.";
+    case "auth_not_configured":
+      return "Sign-in isn't set up on this deployment yet.";
+    case "store_not_configured":
+      return "Accounts aren't available on this deployment yet: nothing would be saved.";
+    case "email_not_configured":
+      return "Email delivery isn't set up on this deployment, so we can't send a sign-in link.";
+    case "send_failed":
+      return "We couldn't send that email just now. Try again shortly.";
+    case "network":
+      return "You look offline. Try again when you're connected.";
+    default:
+      return "We couldn't send that just now. Try again shortly.";
+  }
+}
+
 export async function requestMagicLink(email: string, options: { next?: string } = {}): Promise<
-  { ok: true; delivered: boolean; devLink?: string } | { ok: false; error: string }
+  { ok: true; delivered: boolean; devLink?: string } | { ok: false; error: AccountError }
 > {
   const state = getAppState();
   try {
@@ -63,7 +93,7 @@ export async function requestMagicLink(email: string, options: { next?: string }
       devLink?: string;
       error?: string;
     };
-    if (!response.ok || !data.ok) return { ok: false, error: data.error ?? "unavailable" };
+    if (!response.ok || !data.ok) return { ok: false, error: (data.error as AccountError) ?? "unavailable" };
     track("account_started", { channel: "magic_link" });
     return { ok: true, delivered: Boolean(data.delivered), devLink: data.devLink };
   } catch {
@@ -84,7 +114,11 @@ function toSession(row: Record<string, unknown>): WorkoutSession | null {
 export async function syncAccount(): Promise<boolean> {
   if (typeof window === "undefined" || !navigator.onLine) return false;
   try {
-    const response = await fetch("/api/auth/me", { cache: "no-store" });
+    // The anonymous id lets the server fold this browser's earlier, ownerless
+    // history into the account. It cannot reach anything another account owns.
+    const response = await fetch(`/api/auth/me?anonymousId=${encodeURIComponent(ensureAnonymousId())}`, {
+      cache: "no-store",
+    });
     if (!response.ok) return false;
     const data = (await response.json()) as MeResponse;
     if (!data.signedIn || !data.profile) {
@@ -119,6 +153,7 @@ export async function syncAccount(): Promise<boolean> {
 export async function pushPreferences(): Promise<void> {
   const state = getAppState();
   if (!state.account.profileId) return;
+  const daily = state.settings.reminders.find((entry) => entry.kind === "daily");
   try {
     await fetch("/api/profile", {
       method: "PATCH",
@@ -131,6 +166,7 @@ export async function pushPreferences(): Promise<void> {
         constraints: state.constraints,
         favorites: state.favorites,
         notificationLevel: state.plan?.preferences.level ?? null,
+        reminderFrequency: daily?.enabled ? "daily" : "off",
         workday: state.plan?.preferences ?? null,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone ?? null,
       }),

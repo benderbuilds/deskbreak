@@ -1,7 +1,17 @@
 name: Scheduler
 
-# Triggers the push scheduler every 15 minutes and the reminder mailer hourly.
-# Vercel Hobby only allows daily cron jobs, so the schedule lives here instead.
+# The one and only scheduler for DeskBreak's background jobs.
+#
+# Every 15 minutes it calls the push scheduler and the reminder mailer. Both
+# endpoints are idempotent: each decides what is due in every profile's own
+# time zone and records every send in `notification_deliveries`, so calling
+# them early, late, twice, or after a missed run never produces a duplicate.
+# Nothing here depends on the runner's clock.
+#
+# Vercel Cron is deliberately not configured (there is no vercel.json crons
+# entry): the Hobby plan only allows daily jobs, and two schedulers for the
+# same endpoints would be one too many. Do not enable both.
+#
 # Set two repository secrets: APP_URL (e.g. https://deskbreak.app) and
 # CRON_SECRET (the same value the deployment has). Without them the runs skip.
 on:
@@ -9,11 +19,15 @@ on:
     - cron: "*/15 * * * *"
   workflow_dispatch:
 
+concurrency:
+  group: deskbreak-scheduler
+  cancel-in-progress: false
+
 jobs:
-  push:
+  run:
     runs-on: ubuntu-latest
     steps:
-      - name: Send due push reminders
+      - name: Push reminders
         env:
           APP_URL: ${{ secrets.APP_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
@@ -24,10 +38,8 @@ jobs:
           fi
           curl -sS -f -X POST "$APP_URL/api/push/send" -H "Authorization: Bearer $CRON_SECRET"
 
-  email:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send daily reminder emails (hourly, once per local afternoon)
+      - name: Email reminders
+        if: always()
         env:
           APP_URL: ${{ secrets.APP_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
@@ -36,10 +48,4 @@ jobs:
             echo "APP_URL or CRON_SECRET not set; skipping."
             exit 0
           fi
-          # The mailer itself picks recipients whose local time is 2 PM, so
-          # calling it every 15 minutes is safe; keep it hourly to be polite.
-          if [ "$(date -u +%M)" -lt 15 ]; then
-            curl -sS -f -X POST "$APP_URL/api/reminders/send" -H "Authorization: Bearer $CRON_SECRET"
-          else
-            echo "Not the top of the hour; skipping email run."
-          fi
+          curl -sS -f -X POST "$APP_URL/api/reminders/send" -H "Authorization: Bearer $CRON_SECRET"

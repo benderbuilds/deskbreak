@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { currentProfile } from "@/lib/server/auth";
-import { ensureProfile } from "@/lib/server/entitlements";
 import { sessionsFor } from "@/lib/server/signals";
 import {
   findOne,
@@ -31,7 +30,6 @@ type ExerciseBody = {
 type Body = {
   sessionId?: string;
   anonymousId?: string;
-  email?: string;
   programId?: string;
   programName?: string;
   primaryNeed?: string;
@@ -50,6 +48,19 @@ type Body = {
 };
 
 /**
+ * May this caller write this session row?
+ *
+ * A signed-in account owns its rows. An anonymous browser owns rows that have
+ * no account and carry its anonymous id. Nothing else: an email in the body,
+ * or someone else's anonymous id, gives no access.
+ */
+function owns(existing: SessionRow, profileId: string | null, anonymousId: string | null): boolean {
+  if (profileId && existing.user_id === profileId) return true;
+  if (!existing.user_id && anonymousId && existing.anonymous_id === anonymousId) return true;
+  return false;
+}
+
+/**
  * Records a completed reset with everything that happened inside it, and later
  * its "how do you feel?" answer. This is the table the engine learns from.
  */
@@ -64,34 +75,31 @@ export async function POST(request: Request) {
   if (!body.sessionId || !body.programId) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
+  const anonymousId = typeof body.anonymousId === "string" ? body.anonymousId : null;
 
   try {
+    const profile = await currentProfile();
+    const existing = await findOne("sessions", { id: body.sessionId });
+    if (existing && !owns(existing, profile?.id ?? null, anonymousId)) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
+
     // A feedback-only call updates the row the completion already wrote.
     if (body.perceivedEffect && !body.startedAt) {
       if (!isPerceivedEffect(body.perceivedEffect)) {
         return NextResponse.json({ error: "bad_request" }, { status: 400 });
       }
+      if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
       await update("sessions", { id: body.sessionId }, { perceived_effect: body.perceivedEffect });
       return NextResponse.json({ ok: true });
     }
 
-    const signedIn = await currentProfile();
-    const profile =
-      signedIn ??
-      (body.email || body.anonymousId
-        ? await ensureProfile({
-            email: body.email ?? null,
-            anonymousId: body.anonymousId ?? null,
-            primaryNeed: body.primaryNeed ?? null,
-            preferredSetup: body.setup ?? null,
-          })
-        : null);
-
-    const existing = await findOne("sessions", { id: body.sessionId });
     const row: SessionRow = {
       id: body.sessionId,
+      // Ownership comes from the session cookie alone. Anonymous rows stay
+      // ownerless until a verified sign-in merges them.
       user_id: profile?.id ?? existing?.user_id ?? null,
-      anonymous_id: body.anonymousId ?? existing?.anonymous_id ?? null,
+      anonymous_id: anonymousId ?? existing?.anonymous_id ?? null,
       program_id: body.programId,
       program_name: body.programName ?? null,
       primary_need: body.primaryNeed ?? "general",
@@ -145,14 +153,18 @@ export async function POST(request: Request) {
   }
 }
 
-/** History for sync: the signed-in profile's sessions, or an anonymous id's. */
+/**
+ * History for sync: the signed-in account's sessions, or for an anonymous
+ * browser, the ownerless rows carrying its id. Rows that belong to an account
+ * are only ever returned to that account's session.
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const anonymousId = searchParams.get("anonymousId");
   try {
     const profile = await currentProfile();
     if (!profile && !anonymousId) return NextResponse.json({ sessions: [] });
-    const sessions = await sessionsFor({ profileId: profile?.id, anonymousId: profile ? null : anonymousId });
+    const sessions = await sessionsFor(profile ? { profileId: profile.id } : { anonymousId });
     return NextResponse.json({ sessions });
   } catch (error) {
     console.error("[deskbreak] session history failed:", error);

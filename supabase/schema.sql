@@ -35,6 +35,10 @@ alter table profiles add column if not exists preferred_duration integer;
 alter table profiles add column if not exists intensity_preference text;
 alter table profiles add column if not exists notification_level text;
 alter table profiles add column if not exists onboarding_completed_at timestamptz;
+-- The address Stripe collected at checkout for a profile that has never signed
+-- in. Not a login identity; a verified sign-in with the same address claims it.
+alter table profiles add column if not exists billing_email text;
+create index if not exists profiles_billing_email_idx on profiles (billing_email);
 
 create table if not exists subscriptions (
   id uuid primary key,
@@ -214,6 +218,30 @@ create table if not exists login_tokens (
   created_at timestamptz not null default now()
 );
 
+-- V3 hardening: what a link brings with it is stored on the token and applied
+-- only when the link is opened by the browser that asked for it.
+alter table login_tokens add column if not exists anonymous_id text;
+alter table login_tokens add column if not exists nonce_hash text;
+alter table login_tokens add column if not exists pending jsonb;
+
+-- One row per logical notification send. The unique dedupe key is what makes
+-- overlapping, late or retried scheduler runs safe: only one insert wins.
+create table if not exists notification_deliveries (
+  id uuid primary key,
+  profile_id uuid references profiles (id) on delete cascade,
+  kind text not null,                 -- push | email
+  dedupe_key text not null unique,
+  target text,                        -- push endpoint, or a hash of the address
+  status text not null,               -- sending | delivered | failed | skipped
+  attempted_at timestamptz not null default now(),
+  delivered_at timestamptz,
+  error text,
+  retry_after timestamptz
+);
+
+create index if not exists notification_deliveries_profile_id_idx on notification_deliveries (profile_id);
+create index if not exists notification_deliveries_attempted_at_idx on notification_deliveries (attempted_at);
+
 -- Everything is reached through the service role from route handlers, so no
 -- anon policies are granted here.
 alter table profiles enable row level security;
@@ -228,3 +256,4 @@ alter table planned_breaks enable row level security;
 alter table favorites enable row level security;
 alter table push_subscriptions enable row level security;
 alter table login_tokens enable row level security;
+alter table notification_deliveries enable row level security;

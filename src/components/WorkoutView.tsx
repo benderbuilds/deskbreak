@@ -313,7 +313,6 @@ export function WorkoutView({
       body: JSON.stringify({
         sessionId: session.sessionId,
         anonymousId: ensureAnonymousId(),
-        email: state.account.email ?? state.email,
         programId: session.programId,
         programName: session.programName,
         primaryNeed: session.primaryNeed,

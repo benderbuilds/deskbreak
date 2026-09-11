@@ -70,14 +70,17 @@ export function toEntitlement(response: ServerEntitlementResponse): Entitlement 
   };
 }
 
+/**
+ * Asks the server. Identity is the session cookie (sent automatically) or the
+ * anonymous id of a device that paid; an email address is never sent, because
+ * the server would not accept it as proof of anything.
+ */
 export async function fetchEntitlement(params: {
   anonymousId?: string | null;
-  email?: string | null;
   sessionId?: string | null;
 }): Promise<ServerEntitlementResponse | null> {
   const query = new URLSearchParams();
   if (params.anonymousId) query.set("anonymousId", params.anonymousId);
-  if (params.email) query.set("email", params.email);
   if (params.sessionId) query.set("sessionId", params.sessionId);
   if (![...query.keys()].length) return null;
 

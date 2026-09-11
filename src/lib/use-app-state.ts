@@ -28,7 +28,7 @@ export function useIsPro(): boolean {
  */
 export function useEntitlementSync(sessionId?: string | null): void {
   const state = useAppState();
-  const email = state.account.email ?? state.email;
+  const profileId = state.account.profileId;
   const checked = useRef(false);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export function useEntitlementSync(sessionId?: string | null): void {
     const anonymousId = ensureAnonymousId();
 
     void (async () => {
-      const response = await fetchEntitlement({ anonymousId, email, sessionId });
+      const response = await fetchEntitlement({ anonymousId, sessionId });
       if (cancelled || !response) return;
       cacheEntitlement(toEntitlement(response));
     })();
@@ -47,7 +47,7 @@ export function useEntitlementSync(sessionId?: string | null): void {
     return () => {
       cancelled = true;
     };
-  }, [email, sessionId]);
+  }, [profileId, sessionId]);
 }
 
 /**

@@ -9,6 +9,8 @@
     "lint": "eslint",
     "test": "playwright test",
     "test:unit": "playwright test tests/recommendation.spec.ts tests/art.spec.ts tests/workday.spec.ts tests/migration.spec.ts --project=mobile",
+    "test:server": "playwright test -c playwright.server.config.ts",
+    "test:security": "playwright test tests/api-security.spec.ts --project=mobile",
     "push:keys": "node scripts/generate-vapid.mjs",
     "art:manifest": "node scripts/build-art-manifest.mjs",
     "art:audit": "node scripts/audit-art.mjs"

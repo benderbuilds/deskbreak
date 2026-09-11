@@ -102,27 +102,32 @@ test.describe("pro entitlement", () => {
     await expect(page).toHaveURL(/\/app\/pro/);
   });
 
-  test("can be restored from You with the checkout email", async ({ page }) => {
+  test("restoring Pro from You sends a sign-in link instead of trusting the address", async ({ page }) => {
     await clearAppState(page);
-    await page.route("**/api/restore", (route) =>
-      route.fulfill({
+    let restoreBody: Record<string, unknown> | null = null;
+    await page.route("**/api/auth/magic-link", async (route) => {
+      restoreBody = route.request().postDataJSON() as Record<string, unknown>;
+      await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({
-          pro: true,
-          status: "active",
-          currentPeriodEnd: new Date(Date.now() + 86_400_000).toISOString(),
-          cancelAtPeriodEnd: false,
-          email: "paid@work.com",
-        }),
-      }),
-    );
+        body: JSON.stringify({ ok: true, delivered: true, minutes: 30 }),
+      });
+    });
+    // The typed address alone must never produce an entitlement.
+    const entitlementQueries: string[] = [];
+    await page.route("**/api/entitlement**", (route) => {
+      entitlementQueries.push(route.request().url());
+      return route.continue();
+    });
 
     await page.goto("/app/you");
     await page.getByLabel(/email address/i).fill("paid@work.com");
     await page.getByRole("button", { name: /^restore pro$/i }).click();
 
-    await expect(page.getByRole("status")).toContainText(/pro restored/i);
+    await expect(page.getByRole("status")).toContainText(/sign-in link/i);
+    expect(restoreBody).toMatchObject({ email: "paid@work.com", next: "/app/you?restored=1" });
+    expect(entitlementQueries.every((url) => !url.includes("email="))).toBe(true);
+    await expect(page.getByLabel("DeskBreak Pro subscriber")).toHaveCount(0);
   });
 
   test("a Pro user sees Manage subscription instead of a support address", async ({ page }) => {

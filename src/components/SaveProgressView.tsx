@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button, ButtonLink } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
-import { requestMagicLink } from "@/lib/account-client";
+import { describeAccountError, requestMagicLink } from "@/lib/account-client";
 import { track } from "@/lib/analytics";
 import { saveEmail } from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
@@ -49,11 +49,7 @@ export function SaveProgressView() {
     const result = await requestMagicLink(trimmed, { next: params.get("next") ?? "/app" });
     setBusy(false);
     if (!result.ok) {
-      setError(
-        result.error === "auth_not_configured"
-          ? "Sign-in isn't set up on this deployment yet."
-          : "We couldn't send that just now. Try again shortly.",
-      );
+      setError(describeAccountError(result.error));
       return;
     }
     saveEmail(trimmed);

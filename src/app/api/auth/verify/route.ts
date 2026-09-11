@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import {
+  absorbBillingProfiles,
+  applyPendingPreferences,
   consumeLoginToken,
+  LINK_NONCE_COOKIE,
+  linkNonceCookieOptions,
   mergeAnonymousInto,
+  nonceMatches,
   SESSION_COOKIE,
   sessionCookieOptions,
   sessionCookieValue,
@@ -11,11 +17,15 @@ import { originFrom } from "@/lib/server/stripe";
 export const dynamic = "force-dynamic";
 
 /**
- * Where the magic link lands. Sets the session cookie and sends the user on.
+ * Where the magic link lands.
  *
- * The anonymous browser id is not known here (the link may open in a different
- * browser), so the merge happens on the next /api/auth/me call, which the app
- * makes with its anonymous id as soon as it loads.
+ * The token is consumed exactly once. Then, and only then:
+ * - the browser that asked for the link (it still holds the nonce cookie) has
+ *   its pending preferences applied and its anonymous history merged in,
+ *   including a device-bound Pro purchase;
+ * - any other browser is simply signed in, and merges nothing, because a link
+ *   forwarded elsewhere must not carry a stranger's data into the account;
+ * - purchases made under this now-verified address are attached.
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -27,12 +37,28 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/app/save?error=expired`);
   }
 
-  const anonymousId = searchParams.get("anonymousId");
-  if (anonymousId) await mergeAnonymousInto(result.profile, anonymousId).catch(() => {});
+  const jar = await cookies();
+  const sameBrowser = nonceMatches(result.nonceHash, jar.get(LINK_NONCE_COOKIE)?.value);
+  let merged = 0;
+  if (sameBrowser) {
+    await applyPendingPreferences(result.profile, result.pending).catch((error) => {
+      console.error("[deskbreak] pending preferences failed:", error);
+    });
+    const summary = await mergeAnonymousInto(result.profile, result.anonymousId, {
+      includeSubscriptions: true,
+    }).catch(() => null);
+    merged = summary ? summary.sessions : 0;
+  }
+  await absorbBillingProfiles(result.profile).catch((error) => {
+    console.error("[deskbreak] billing merge failed:", error);
+  });
 
   const next = result.nextPath.startsWith("/") ? result.nextPath : "/app";
   const separator = next.includes("?") ? "&" : "?";
-  const response = NextResponse.redirect(`${origin}${next}${separator}signed_in=1`);
+  const response = NextResponse.redirect(
+    `${origin}${next}${separator}signed_in=1${merged ? `&merged=${merged}` : ""}`,
+  );
   response.cookies.set(SESSION_COOKIE, sessionCookieValue(result.profile.id), sessionCookieOptions());
+  response.cookies.set(LINK_NONCE_COOKIE, "", { ...linkNonceCookieOptions(), maxAge: 0 });
   return response;
 }
