@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentProfile, mergeAnonymousInto } from "@/lib/server/auth";
+import { absorbBillingProfiles, currentProfile, mergeAnonymousInto } from "@/lib/server/auth";
 import { getEntitlementForUser } from "@/lib/server/entitlements";
 import { sessionsFor } from "@/lib/server/signals";
 import { findMany } from "@/lib/server/store";
@@ -23,6 +23,8 @@ export async function GET(request: Request) {
     if (!profile) return NextResponse.json({ signedIn: false });
 
     if (anonymousId) await mergeAnonymousInto(profile, anonymousId).catch(() => {});
+    // Purchases made under this verified address, on any device, belong here.
+    await absorbBillingProfiles(profile).catch(() => {});
 
     const [constraints, favorites, sessions, entitlement] = await Promise.all([
       findMany("functional_constraints", { profile_id: profile.id }),

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentProfile } from "@/lib/server/auth";
+import { absorbBillingProfiles, currentProfile } from "@/lib/server/auth";
 import {
   FREE_ENTITLEMENT,
   anonymousProfile,
@@ -37,6 +37,8 @@ export async function GET(request: Request) {
 
     const profile = await currentProfile();
     if (profile) {
+      // A verified account claims purchases made under its address.
+      await absorbBillingProfiles(profile).catch(() => {});
       return NextResponse.json(await getEntitlementForUser(profile.id));
     }
     if (anonymousId) {
