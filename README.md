@@ -151,9 +151,11 @@ Skipping is a normal action.
 
 Reminders are real Web Push: `public/sw.js` handles push and notification
 actions (Start, 15 min, Skip); `POST /api/push/subscribe` stores subscriptions;
-`GET /api/push/send` is the scheduler, meant to run every 15 minutes with
-`Authorization: Bearer $CRON_SECRET` (`vercel.json` wires it up). It needs
-VAPID keys from `npm run push:keys`. While the app is open, an in-tab runner
+`/api/push/send` is the scheduler, meant to run every 15 minutes with
+`Authorization: Bearer $CRON_SECRET`. `.github/workflows/scheduler.yml` calls
+it (and the hourly reminder mailer) from GitHub Actions, since Vercel's Hobby
+plan only allows daily cron jobs; set the `APP_URL` and `CRON_SECRET`
+repository secrets to turn it on. It needs VAPID keys from `npm run push:keys`. While the app is open, an in-tab runner
 covers the same windows. Email remains the daily fallback.
 
 ## Accounts and sync
