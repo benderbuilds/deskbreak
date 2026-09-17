@@ -56,7 +56,7 @@ export async function runEmailScheduler(
     failed: 0,
     skipped: { no_email: 0, opted_out: 0, not_workday: 0, outside_window: 0 },
   };
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.app").replace(/\/$/, "");
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co").replace(/\/$/, "");
 
   const profiles = await findMany("profiles", { reminder_frequency: "daily" }, { limit: 5000 });
   for (const profile of profiles) {

@@ -108,7 +108,7 @@ async function ensureTodaysBreaks(
 export async function runPushScheduler(now = new Date()): Promise<PushRunSummary> {
   const summary: PushRunSummary = { sent: 0, considered: 0, duplicates: 0, failed: 0 };
   const preferences = await findMany("workday_preferences", {});
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.app").replace(/\/$/, "");
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co").replace(/\/$/, "");
 
   for (const prefs of preferences) {
     if (!(await hasProAccess(prefs.profile_id))) continue;

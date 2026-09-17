@@ -15,7 +15,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co"),
   title: {
     default: `DeskBreak. ${PRODUCT_PROMISE}`,
     template: "%s | DeskBreak",

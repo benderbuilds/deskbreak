@@ -12,7 +12,7 @@ name: Scheduler
 # entry): the Hobby plan only allows daily jobs, and two schedulers for the
 # same endpoints would be one too many. Do not enable both.
 #
-# Set two repository secrets: APP_URL (e.g. https://deskbreak.app) and
+# Set two repository secrets: APP_URL (e.g. https://deskbreak.co) and
 # CRON_SECRET (the same value the deployment has). Without them the runs skip.
 on:
   schedule:

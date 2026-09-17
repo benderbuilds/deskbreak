@@ -29,7 +29,7 @@ export const MOVEMENT_DISCLAIMER =
 export const SAFETY_LINE =
   "Stop this movement if it causes sharp or worsening pain, numbness, weakness or dizziness.";
 
-export const SUPPORT_EMAIL = "hello@deskbreak.app";
+export const SUPPORT_EMAIL = "hello@deskbreak.co";
 
 export type NeedOption = {
   id: PrimaryNeed;

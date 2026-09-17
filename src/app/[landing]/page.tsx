@@ -7,7 +7,7 @@ import { LandingViewTracker, StartResetButton } from "@/components/marketing/Lan
 import { getExercise } from "@/lib/content";
 import { LANDING_PAGES, findLandingPage } from "@/lib/seo-content";
 
-const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.app").replace(/\/$/, "");
+const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co").replace(/\/$/, "");
 
 export const dynamicParams = false;
 

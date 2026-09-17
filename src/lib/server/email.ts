@@ -8,7 +8,7 @@ import "server-only";
  * delivered, so nothing pretends a reminder went out that did not.
  */
 const RESEND_KEY = process.env.RESEND_API_KEY;
-const FROM = process.env.REMINDER_FROM_EMAIL || "DeskBreak <hello@deskbreak.app>";
+const FROM = process.env.REMINDER_FROM_EMAIL || "DeskBreak <hello@deskbreak.co>";
 
 export function emailConfigured(): boolean {
   return Boolean(RESEND_KEY);

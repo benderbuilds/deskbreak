@@ -24,7 +24,7 @@ function setup(): boolean {
   const publicKey = process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
   if (!publicKey || !privateKey) return false;
-  const subject = process.env.VAPID_SUBJECT || "mailto:hello@deskbreak.app";
+  const subject = process.env.VAPID_SUBJECT || "mailto:hello@deskbreak.co";
   webpush.setVapidDetails(subject, publicKey, privateKey);
   configured = true;
   return true;

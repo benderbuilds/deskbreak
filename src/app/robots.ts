@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.app").replace(
+const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co").replace(
   /\/$/,
   "",
 );

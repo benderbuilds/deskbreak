@@ -5,7 +5,7 @@ import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker } from "@/components/marketing/LandingCta";
 import { getExercise, getExercises } from "@/lib/content";
 
-const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.app").replace(/\/$/, "");
+const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co").replace(/\/$/, "");
 
 export const dynamicParams = false;
 

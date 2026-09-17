@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getExercises } from "@/lib/content";
 import { AREA_PAGES, GUIDE_PAGES, LANDING_PAGES } from "@/lib/seo-content";
 
-const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.app").replace(/\/$/, "");
+const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co").replace(/\/$/, "");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
