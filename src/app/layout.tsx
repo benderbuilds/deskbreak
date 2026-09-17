@@ -49,6 +49,9 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+/** Google Analytics 4. Set NEXT_PUBLIC_GA_MEASUREMENT_ID to "" to turn it off. */
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-XT7CP73ZBL";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -63,6 +66,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Suspense fallback={null}>
           <AnalyticsProvider />
         </Suspense>
+        {GA_MEASUREMENT_ID ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA_MEASUREMENT_ID}');`}
+            </Script>
+          </>
+        ) : null}
       </body>
     </html>
   );
