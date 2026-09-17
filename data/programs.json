@@ -1,0 +1,922 @@
+{
+  "note": "Hand-authored routines. The engine prefers these when one fits and falls back to them when a generated routine fails validation.",
+  "programs": [
+    {
+      "id": "desk-reset-2min",
+      "access": "free",
+      "name": "2-Minute Desk Reset",
+      "shortLabel": "Desk Reset",
+      "durationMin": 2,
+      "durationTargetSec": 120,
+      "primaryNeed": "general",
+      "setup": "seated",
+      "tagline": "Two minutes. Still at your desk. Actually feel better.",
+      "promise": "Undo the shape your chair has been putting you in.",
+      "steps": [
+        {
+          "exerciseId": "chin-tuck"
+        },
+        {
+          "exerciseId": "shoulder-rolls"
+        },
+        {
+          "exerciseId": "seated-cat-cow"
+        },
+        {
+          "exerciseId": "wrist-flexor-stretch"
+        },
+        {
+          "exerciseId": "seated-figure-4"
+        },
+        {
+          "exerciseId": "long-exhale-reset"
+        }
+      ]
+    },
+    {
+      "id": "desk-reset-2min-standing",
+      "access": "free",
+      "name": "2-Minute Standing Reset",
+      "shortLabel": "Standing Reset",
+      "durationMin": 2,
+      "durationTargetSec": 120,
+      "primaryNeed": "general",
+      "setup": "standing",
+      "tagline": "Two minutes on your feet. No mat, no changing clothes.",
+      "promise": "Undo the shape your chair has been putting you in.",
+      "steps": [
+        {
+          "exerciseId": "standing-posture-reset"
+        },
+        {
+          "exerciseId": "chin-tuck"
+        },
+        {
+          "exerciseId": "unshrug"
+        },
+        {
+          "exerciseId": "standing-hip-flexor"
+        },
+        {
+          "exerciseId": "calf-raise"
+        },
+        {
+          "exerciseId": "long-exhale-reset"
+        }
+      ]
+    },
+    {
+      "id": "neck-reset-2min",
+      "access": "free",
+      "name": "2-Minute Neck + Shoulder Reset",
+      "shortLabel": "Neck Reset",
+      "durationMin": 2,
+      "durationTargetSec": 120,
+      "primaryNeed": "neck_shoulders",
+      "setup": "seated",
+      "tagline": "Undo the laptop hunch.",
+      "promise": "Give your neck a break from holding your head forward.",
+      "steps": [
+        {
+          "exerciseId": "chin-tuck"
+        },
+        {
+          "exerciseId": "shoulder-rolls"
+        },
+        {
+          "exerciseId": "neck-side-stretch"
+        },
+        {
+          "exerciseId": "seated-scap-squeeze"
+        },
+        {
+          "exerciseId": "long-exhale-reset"
+        }
+      ]
+    },
+    {
+      "id": "back-reset-2min",
+      "access": "free",
+      "name": "2-Minute Back + Hip Reset",
+      "shortLabel": "Back Reset",
+      "durationMin": 2,
+      "durationTargetSec": 120,
+      "primaryNeed": "back_hips",
+      "setup": "seated",
+      "tagline": "Loosen up after sitting.",
+      "promise": "Move the parts of you that have not moved since your first meeting.",
+      "steps": [
+        {
+          "exerciseId": "seated-cat-cow"
+        },
+        {
+          "exerciseId": "seated-pelvic-tilts"
+        },
+        {
+          "exerciseId": "seated-figure-4"
+        },
+        {
+          "exerciseId": "sit-bones-find"
+        },
+        {
+          "exerciseId": "long-exhale-reset"
+        }
+      ]
+    },
+    {
+      "id": "back-reset-2min-standing",
+      "access": "free",
+      "name": "2-Minute Back + Hip Reset",
+      "shortLabel": "Back Reset",
+      "durationMin": 2,
+      "durationTargetSec": 120,
+      "primaryNeed": "back_hips",
+      "setup": "standing",
+      "tagline": "Loosen up after sitting.",
+      "promise": "Move the parts of you that have not moved since your first meeting.",
+      "steps": [
+        {
+          "exerciseId": "standing-hip-flexor"
+        },
+        {
+          "exerciseId": "standing-glute-squeeze"
+        },
+        {
+          "exerciseId": "sit-to-stand-glute"
+        },
+        {
+          "exerciseId": "standing-posture-reset"
+        },
+        {
+          "exerciseId": "long-exhale-reset"
+        }
+      ]
+    },
+    {
+      "id": "wrist-reset-2min",
+      "access": "free",
+      "name": "2-Minute Wrist + Hand Reset",
+      "shortLabel": "Wrist Reset",
+      "durationMin": 2,
+      "durationTargetSec": 120,
+      "primaryNeed": "wrists_hands",
+      "setup": "seated",
+      "tagline": "Give keyboard hands a break.",
+      "promise": "Open your hands back up after a few hundred emails.",
+      "steps": [
+        {
+          "exerciseId": "wrist-circles"
+        },
+        {
+          "exerciseId": "wrist-flexor-stretch"
+        },
+        {
+          "exerciseId": "wrist-extensor-stretch"
+        },
+        {
+          "exerciseId": "finger-fans"
+        },
+        {
+          "exerciseId": "shoulder-rolls"
+        }
+      ]
+    },
+    {
+      "id": "energy-reset-2min",
+      "access": "free",
+      "name": "2-Minute Energy Reset",
+      "shortLabel": "Energy Reset",
+      "durationMin": 2,
+      "durationTargetSec": 120,
+      "primaryNeed": "energy",
+      "setup": "standing",
+      "tagline": "Wake yourself up without another coffee.",
+      "promise": "Get your blood moving before the slump wins.",
+      "steps": [
+        {
+          "exerciseId": "standing-posture-reset"
+        },
+        {
+          "exerciseId": "shoulder-rolls"
+        },
+        {
+          "exerciseId": "calf-raise"
+        },
+        {
+          "exerciseId": "standing-overhead-reach"
+        },
+        {
+          "exerciseId": "long-exhale-reset"
+        }
+      ]
+    },
+    {
+      "id": "energy-reset-2min-seated",
+      "access": "free",
+      "name": "2-Minute Energy Reset",
+      "shortLabel": "Energy Reset",
+      "durationMin": 2,
+      "durationTargetSec": 120,
+      "primaryNeed": "energy",
+      "setup": "seated",
+      "tagline": "Wake yourself up without another coffee.",
+      "promise": "Get your blood moving without leaving the chair.",
+      "steps": [
+        {
+          "exerciseId": "seated-march"
+        },
+        {
+          "exerciseId": "shoulder-rolls"
+        },
+        {
+          "exerciseId": "seated-thoracic-rotation"
+        },
+        {
+          "exerciseId": "seated-cat-cow"
+        },
+        {
+          "exerciseId": "long-exhale-reset"
+        }
+      ]
+    },
+    {
+      "id": "calm-reset-2min",
+      "access": "free",
+      "name": "2-Minute Calm Reset",
+      "shortLabel": "Calm Reset",
+      "durationMin": 2,
+      "durationTargetSec": 120,
+      "primaryNeed": "stress",
+      "setup": "seated",
+      "tagline": "Slow things down for two minutes.",
+      "promise": "Drop your shoulders before the next thing starts.",
+      "steps": [
+        {
+          "exerciseId": "long-exhale-reset"
+        },
+        {
+          "exerciseId": "unshrug"
+        },
+        {
+          "exerciseId": "chin-tuck"
+        },
+        {
+          "exerciseId": "seated-cat-cow"
+        },
+        {
+          "exerciseId": "box-breathing"
+        }
+      ]
+    },
+    {
+      "id": "neck-rescue-3min",
+      "access": "pro",
+      "name": "Neck Rescue",
+      "shortLabel": "Neck Rescue",
+      "durationMin": 3,
+      "durationTargetSec": 180,
+      "primaryNeed": "neck_shoulders",
+      "setup": "seated",
+      "tagline": "For the days your neck is genuinely done.",
+      "promise": "A longer pass at the neck, shoulders and upper back.",
+      "steps": [
+        {
+          "exerciseId": "chin-tuck"
+        },
+        {
+          "exerciseId": "suboccipital-nod"
+        },
+        {
+          "exerciseId": "neck-side-stretch"
+        },
+        {
+          "exerciseId": "upper-trap-release"
+        },
+        {
+          "exerciseId": "seated-scap-squeeze"
+        },
+        {
+          "exerciseId": "chest-opener"
+        },
+        {
+          "exerciseId": "long-exhale-reset"
+        }
+      ]
+    },
+    {
+      "id": "lower-back-reset-4min",
+      "access": "pro",
+      "name": "Lower Back Reset",
+      "shortLabel": "Lower Back",
+      "durationMin": 4,
+      "durationTargetSec": 240,
+      "primaryNeed": "back_hips",
+      "setup": "seated",
+      "tagline": "For the low back that has been in a chair since nine.",
+      "promise": "Hips, low back and glutes, in one pass.",
+      "steps": [
+        {
+          "exerciseId": "seated-cat-cow"
+        },
+        {
+          "exerciseId": "seated-pelvic-tilts"
+        },
+        {
+          "exerciseId": "seated-figure-4"
+        },
+        {
+          "exerciseId": "seated-hip-opener"
+        },
+        {
+          "exerciseId": "standing-hip-flexor"
+        },
+        {
+          "exerciseId": "standing-glute-squeeze"
+        },
+        {
+          "exerciseId": "long-exhale-reset"
+        }
+      ]
+    },
+    {
+      "id": "afternoon-energy-2min",
+      "access": "pro",
+      "name": "Afternoon Energy",
+      "shortLabel": "Afternoon Energy",
+      "durationMin": 2,
+      "durationTargetSec": 120,
+      "primaryNeed": "energy",
+      "setup": "standing",
+      "tagline": "For the 3 PM part of the day.",
+      "promise": "Two minutes of real movement instead of a fourth coffee.",
+      "steps": [
+        {
+          "exerciseId": "standing-posture-reset"
+        },
+        {
+          "exerciseId": "calf-raise"
+        },
+        {
+          "exerciseId": "standing-overhead-reach"
+        },
+        {
+          "exerciseId": "walk-to-water-march"
+        },
+        {
+          "exerciseId": "long-exhale-reset"
+        }
+      ]
+    },
+    {
+      "id": "between-meetings-3min",
+      "access": "pro",
+      "name": "Between Meetings",
+      "shortLabel": "Between Meetings",
+      "durationMin": 3,
+      "durationTargetSec": 180,
+      "primaryNeed": "general",
+      "setup": "seated",
+      "tagline": "Reset before the next call starts.",
+      "promise": "Enough movement to arrive at the next meeting as a person.",
+      "steps": [
+        {
+          "exerciseId": "shoulder-rolls"
+        },
+        {
+          "exerciseId": "chin-tuck"
+        },
+        {
+          "exerciseId": "seated-thoracic-rotation"
+        },
+        {
+          "exerciseId": "wrist-circles"
+        },
+        {
+          "exerciseId": "seated-figure-4"
+        },
+        {
+          "exerciseId": "box-breathing"
+        }
+      ]
+    },
+    {
+      "id": "lunch-reset-5min",
+      "access": "pro",
+      "name": "Lunch Reset",
+      "shortLabel": "Lunch Reset",
+      "durationMin": 5,
+      "durationTargetSec": 300,
+      "primaryNeed": "general",
+      "setup": "standing",
+      "tagline": "Midday unkink for the whole desk chain.",
+      "promise": "Undo the morning before the afternoon starts.",
+      "steps": [
+        {
+          "exerciseId": "standing-posture-reset"
+        },
+        {
+          "exerciseId": "neck-side-stretch"
+        },
+        {
+          "exerciseId": "chest-opener"
+        },
+        {
+          "exerciseId": "standing-hip-flexor"
+        },
+        {
+          "exerciseId": "calf-raise"
+        },
+        {
+          "exerciseId": "seated-cat-cow"
+        },
+        {
+          "exerciseId": "seated-figure-4"
+        },
+        {
+          "exerciseId": "box-breathing"
+        }
+      ]
+    },
+    {
+      "id": "busy-day-circuit-10min",
+      "access": "pro",
+      "name": "Busy-Day Circuit",
+      "shortLabel": "Busy-Day Circuit",
+      "durationMin": 10,
+      "durationTargetSec": 600,
+      "primaryNeed": "general",
+      "setup": "standing",
+      "tagline": "Neck to calves in one pass, for the heavy sit days.",
+      "promise": "The full cleanup when the day got away from you.",
+      "steps": [
+        {
+          "exerciseId": "chin-tuck"
+        },
+        {
+          "exerciseId": "thoracic-extension"
+        },
+        {
+          "exerciseId": "wall-angels"
+        },
+        {
+          "exerciseId": "wrist-flexor-stretch"
+        },
+        {
+          "exerciseId": "wrist-extensor-stretch"
+        },
+        {
+          "exerciseId": "wrist-circles"
+        },
+        {
+          "exerciseId": "seated-figure-4"
+        },
+        {
+          "exerciseId": "standing-hip-flexor"
+        },
+        {
+          "exerciseId": "calf-raise"
+        },
+        {
+          "exerciseId": "desk-plank-lean"
+        },
+        {
+          "exerciseId": "seated-march"
+        },
+        {
+          "exerciseId": "box-breathing"
+        },
+        {
+          "exerciseId": "standing-posture-reset"
+        }
+      ]
+    },
+    {
+      "id": "desk-reset-3min",
+      "access": "free",
+      "name": "3-Minute Desk Reset",
+      "shortLabel": "Desk Reset",
+      "durationMin": 3,
+      "durationTargetSec": 180,
+      "primaryNeed": "general",
+      "setup": "seated",
+      "tagline": "Full-body movement for your workday.",
+      "promise": "Neck, shoulders, back, wrists, hips and legs in three minutes.",
+      "steps": [
+        {
+          "exerciseId": "chin-tuck",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "seated-scap-squeeze",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "wrist-circles",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "seated-thoracic-rotation",
+          "durationSec": 45
+        },
+        {
+          "exerciseId": "seated-march",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "long-exhale-reset",
+          "durationSec": 15
+        }
+      ]
+    },
+    {
+      "id": "desk-reset-3min-standing",
+      "access": "free",
+      "name": "3-Minute Desk Reset",
+      "shortLabel": "Desk Reset",
+      "durationMin": 3,
+      "durationTargetSec": 180,
+      "primaryNeed": "general",
+      "setup": "standing",
+      "tagline": "Full-body movement for your workday.",
+      "promise": "Neck, shoulders, back, wrists, hips and legs in three minutes, on your feet.",
+      "steps": [
+        {
+          "exerciseId": "shoulder-rolls",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "unshrug",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "wrist-circles",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "standing-hip-flexor",
+          "durationSec": 45
+        },
+        {
+          "exerciseId": "calf-raise",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "standing-posture-reset",
+          "durationSec": 15
+        }
+      ]
+    },
+    {
+      "id": "neck-shoulder-reset-3min",
+      "access": "free",
+      "name": "3-Minute Neck + Shoulder Reset",
+      "shortLabel": "Neck + Shoulder Reset",
+      "durationMin": 3,
+      "durationTargetSec": 180,
+      "primaryNeed": "neck_shoulders",
+      "setup": "seated",
+      "tagline": "Undo the laptop lean.",
+      "promise": "Mobility, then activation, for the neck and upper back.",
+      "steps": [
+        {
+          "exerciseId": "chin-tuck",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "shoulder-rolls",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "neck-side-stretch",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "seated-scap-squeeze",
+          "durationSec": 35
+        },
+        {
+          "exerciseId": "unshrug",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "long-exhale-reset",
+          "durationSec": 15
+        }
+      ]
+    },
+    {
+      "id": "back-hip-reset-3min",
+      "access": "free",
+      "name": "3-Minute Back + Hip Reset",
+      "shortLabel": "Back + Hip Reset",
+      "durationMin": 3,
+      "durationTargetSec": 180,
+      "primaryNeed": "back_hips",
+      "setup": "seated",
+      "tagline": "Loosen up after sitting.",
+      "promise": "Spine, hips and a little leg movement.",
+      "steps": [
+        {
+          "exerciseId": "seated-cat-cow",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "seated-pelvic-tilts",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "seated-thoracic-rotation",
+          "durationSec": 35
+        },
+        {
+          "exerciseId": "seated-figure-4",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "seated-march",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "sit-bones-find",
+          "durationSec": 15
+        }
+      ]
+    },
+    {
+      "id": "wrist-hand-reset-3min",
+      "access": "free",
+      "name": "3-Minute Wrist + Hand Reset",
+      "shortLabel": "Wrist + Hand Reset",
+      "durationMin": 3,
+      "durationTargetSec": 180,
+      "primaryNeed": "wrists_hands",
+      "setup": "seated",
+      "tagline": "Give keyboard hands a break.",
+      "promise": "Wrists, forearms and hands, then the shoulders that carry them.",
+      "steps": [
+        {
+          "exerciseId": "wrist-circles",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "wrist-flexor-stretch",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "wrist-extensor-stretch",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "finger-fans",
+          "durationSec": 25
+        },
+        {
+          "exerciseId": "shoulder-rolls",
+          "durationSec": 25
+        },
+        {
+          "exerciseId": "seated-scap-squeeze",
+          "durationSec": 20
+        }
+      ]
+    },
+    {
+      "id": "energy-reset-3min",
+      "access": "free",
+      "name": "3-Minute Energy Reset",
+      "shortLabel": "Energy Reset",
+      "durationMin": 3,
+      "durationTargetSec": 180,
+      "primaryNeed": "energy",
+      "setup": "standing",
+      "tagline": "Wake yourself up without another coffee.",
+      "promise": "Standing, larger movement, and a little leg work.",
+      "steps": [
+        {
+          "exerciseId": "standing-posture-reset",
+          "durationSec": 25
+        },
+        {
+          "exerciseId": "shoulder-rolls",
+          "durationSec": 25
+        },
+        {
+          "exerciseId": "calf-raise",
+          "durationSec": 35
+        },
+        {
+          "exerciseId": "sit-to-stand-glute",
+          "durationSec": 35
+        },
+        {
+          "exerciseId": "standing-overhead-reach",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "standing-glute-squeeze",
+          "durationSec": 30
+        }
+      ]
+    },
+    {
+      "id": "desk-reset-5min",
+      "access": "pro",
+      "name": "5-Minute Deeper Reset",
+      "shortLabel": "Deeper Reset",
+      "durationMin": 5,
+      "durationTargetSec": 300,
+      "primaryNeed": "general",
+      "setup": "seated",
+      "tagline": "Long enough to get to everything.",
+      "promise": "A fuller pass at the neck, shoulders, wrists, spine, hips and legs.",
+      "steps": [
+        {
+          "exerciseId": "chin-tuck",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "neck-side-stretch",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "seated-scap-squeeze",
+          "durationSec": 35
+        },
+        {
+          "exerciseId": "chest-opener",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "wrist-flexor-stretch",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "seated-thoracic-rotation",
+          "durationSec": 35
+        },
+        {
+          "exerciseId": "seated-figure-4",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "seated-march",
+          "durationSec": 25
+        },
+        {
+          "exerciseId": "long-exhale-reset",
+          "durationSec": 15
+        }
+      ]
+    },
+    {
+      "id": "desk-workout-10min",
+      "access": "pro",
+      "name": "10-Minute Full Desk Workout",
+      "shortLabel": "Full Desk Workout",
+      "durationMin": 10,
+      "durationTargetSec": 600,
+      "primaryNeed": "general",
+      "setup": "standing",
+      "tagline": "An intentional exercise break.",
+      "promise": "Mobility, strength and movement for the whole desk chain.",
+      "steps": [
+        {
+          "exerciseId": "chin-tuck",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "shoulder-rolls",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "seated-scap-squeeze",
+          "durationSec": 45
+        },
+        {
+          "exerciseId": "chest-opener",
+          "durationSec": 50
+        },
+        {
+          "exerciseId": "wrist-flexor-stretch",
+          "durationSec": 50
+        },
+        {
+          "exerciseId": "wrist-extensor-stretch",
+          "durationSec": 50
+        },
+        {
+          "exerciseId": "seated-thoracic-rotation",
+          "durationSec": 45
+        },
+        {
+          "exerciseId": "standing-hip-flexor",
+          "durationSec": 50
+        },
+        {
+          "exerciseId": "sit-to-stand-glute",
+          "durationSec": 50
+        },
+        {
+          "exerciseId": "calf-raise",
+          "durationSec": 45
+        },
+        {
+          "exerciseId": "standing-glute-squeeze",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "short-walk",
+          "durationSec": 60
+        },
+        {
+          "exerciseId": "box-breathing",
+          "durationSec": 35
+        }
+      ]
+    },
+    {
+      "id": "stand-break-1min",
+      "access": "free",
+      "name": "1-Minute Stand Break",
+      "shortLabel": "Stand Break",
+      "durationMin": 1,
+      "durationTargetSec": 60,
+      "primaryNeed": "general",
+      "setup": "standing",
+      "tagline": "Get out of the chair for a minute.",
+      "promise": "A change of position. That is the whole point.",
+      "steps": [
+        {
+          "exerciseId": "stand-and-shift",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "standing-posture-reset",
+          "durationSec": 30
+        }
+      ]
+    },
+    {
+      "id": "walk-break-2min",
+      "access": "free",
+      "name": "2-Minute Walk Break",
+      "shortLabel": "Walk Break",
+      "durationMin": 2,
+      "durationTargetSec": 120,
+      "primaryNeed": "energy",
+      "setup": "standing",
+      "tagline": "Walk away from the screen.",
+      "promise": "The best-evidenced desk break there is.",
+      "steps": [
+        {
+          "exerciseId": "short-walk",
+          "durationSec": 90
+        },
+        {
+          "exerciseId": "long-exhale-reset",
+          "durationSec": 30
+        }
+      ]
+    },
+    {
+      "id": "eye-break-1min",
+      "access": "free",
+      "name": "1-Minute Eye Break",
+      "shortLabel": "Eye Break",
+      "durationMin": 1,
+      "durationTargetSec": 60,
+      "primaryNeed": "stress",
+      "setup": "seated",
+      "tagline": "Give your eyes somewhere else to look.",
+      "promise": "A screen never lets your eyes rest. This does.",
+      "steps": [
+        {
+          "exerciseId": "screen-distance-blink",
+          "durationSec": 40
+        },
+        {
+          "exerciseId": "long-exhale-reset",
+          "durationSec": 20
+        }
+      ]
+    }
+  ],
+  "durationBenefits": {
+    "2": {
+      "cardLine": "Two minutes is enough to interrupt the sitting.",
+      "detail": "Brief movement breaks can help reduce the discomfort that builds up from staying in one position too long. Doing them often matters more than doing them for long.",
+      "doneLine": "Two minutes well spent. Your joints just got a meeting break."
+    },
+    "5": {
+      "cardLine": "Long enough for hips, chest and upper back.",
+      "detail": "Five minutes covers more of the desk chain, and a bit of standing work helps after a long sit block.",
+      "doneLine": "Midday unkink complete. Back to it."
+    },
+    "10": {
+      "cardLine": "A full pass from neck to calves.",
+      "detail": "A longer circuit works through the whole desk chain in one go, for days that got away from you.",
+      "doneLine": "Full cleanup done. The chair can have you back, briefly."
+    }
+  },
+  "disclaimer": "General movement guidance, not medical care. Move comfortably and stop if something hurts."
+}

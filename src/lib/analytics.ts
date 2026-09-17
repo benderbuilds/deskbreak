@@ -1,27 +1,58 @@
 "use client";
 
 import { getAppState, patchAppState } from "./storage";
+import { isProEntitlement } from "./entitlements";
 
 /**
  * The only place the app talks to PostHog.
  *
- * Components call `track("reset_started", {...})`. If PostHog is not configured
- * (local dev, a preview build, an ad blocker) events queue briefly and then drop
- * silently: analytics must never block or break a reset.
+ * Components call `track("recommendation_started", {...})`. If PostHog is not
+ * configured (local dev, a preview build, an ad blocker) events queue briefly
+ * and then drop silently: analytics must never block or break a reset.
  */
 export type AnalyticsEvent =
+  // Landing and acquisition
   | "landing_viewed"
+  | "seo_landing_viewed"
+  | "seo_workout_started"
   | "primary_cta_clicked"
   | "need_selected"
   | "setup_selected"
-  | "reset_started"
+  // Recommendation loop
+  | "recommendation_viewed"
+  | "recommendation_started"
+  | "recommendation_changed"
+  | "recommendation_completed"
   | "exercise_started"
+  | "exercise_completed"
   | "exercise_skipped"
-  | "reset_completed"
-  | "reset_feedback_submitted"
+  | "exercise_swapped"
+  | "exercise_uncomfortable"
+  | "session_feedback_submitted"
+  | "session_abandoned"
+  | "session_resumed"
+  // Planner and reminders
+  | "workday_plan_created"
+  | "planned_break_created"
+  | "planned_break_started"
+  | "planned_break_completed"
+  | "planned_break_snoozed"
+  | "planned_break_skipped"
+  | "reminder_created"
+  | "reminder_clicked"
+  | "push_subscribed"
+  | "push_unsubscribed"
+  | "push_delivered"
+  | "push_opened"
+  // Account and sync
   | "email_prompt_viewed"
   | "email_submitted"
   | "email_skipped"
+  | "account_started"
+  | "account_created"
+  | "account_signed_out"
+  | "history_synced"
+  // Monetization
   | "paywall_viewed"
   | "pricing_period_selected"
   | "checkout_started"
@@ -29,16 +60,27 @@ export type AnalyticsEvent =
   | "checkout_failed"
   | "free_continued"
   | "locked_program_clicked"
-  | "workday_plan_created"
-  | "reminder_created"
-  | "reminder_clicked"
-  | "reset_snoozed"
-  | "reset_skipped"
+  | "subscription_started"
+  | "subscription_cancelled"
+  | "billing_portal_opened"
+  // Progress and retention
+  | "progress_viewed"
+  | "favorite_added"
+  | "favorite_removed"
+  | "install_prompt_viewed"
+  | "install_accepted"
   | "day_1_return"
   | "third_reset_completed"
   | "challenge_started"
   | "challenge_completed"
-  | "app_error";
+  | "constraints_updated"
+  | "app_error"
+  // Older names, still emitted for existing dashboards.
+  | "reset_started"
+  | "reset_completed"
+  | "reset_feedback_submitted"
+  | "reset_snoozed"
+  | "reset_skipped";
 
 export type EventProperties = Record<string, string | number | boolean | null | undefined>;
 
@@ -76,13 +118,16 @@ export function flushAnalytics(): void {
   }
 }
 
+/** Properties every event carries, so any funnel can be cut by plan or need. */
 function baseProperties(): Record<string, unknown> {
   if (typeof window === "undefined") return {};
   const state = getAppState();
   return {
-    plan: state.entitlement.plan,
+    plan: isProEntitlement(state.entitlement) ? "pro" : "free",
+    identity: state.account.profileId ? "authenticated" : "anonymous",
     primary_need: state.primaryNeed ?? undefined,
-    setup: state.preferredSetup ?? undefined,
+    setup: state.preferredSetup ?? "either",
+    preferred_duration: state.preferredDuration ?? undefined,
     total_resets: state.progress.totalWorkouts,
     utm_source: state.attribution.firstUtmSource ?? undefined,
     utm_medium: state.attribution.firstUtmMedium ?? undefined,
@@ -113,6 +158,29 @@ export function analyticsReady(): boolean {
   return ready;
 }
 
+/** The properties every recommendation-level event should carry. */
+export function recommendationProperties(input: {
+  recommendationId?: string | null;
+  algorithmVersion?: string | null;
+  need: string;
+  duration: number;
+  setup: string;
+  programId: string;
+  source?: string | null;
+  generated?: boolean;
+}): EventProperties {
+  return {
+    recommendation_id: input.recommendationId ?? undefined,
+    algorithm_version: input.algorithmVersion ?? undefined,
+    body_need: input.need,
+    duration: input.duration,
+    setup: input.setup,
+    program_id: input.programId,
+    source: input.source ?? undefined,
+    routine_kind: input.generated ? "generated" : "authored",
+  };
+}
+
 /**
  * Records where this visitor came from.
  *
@@ -140,9 +208,7 @@ export function captureAttribution(pathname: string, search: string): void {
       firstUtmCampaign: isFirstTouch ? campaign : state.attribution.firstUtmCampaign,
       firstUtmContent: isFirstTouch ? content : state.attribution.firstUtmContent,
       firstLandingPath: isFirstTouch ? pathname : state.attribution.firstLandingPath,
-      firstSeenAt: isFirstTouch
-        ? new Date().toISOString()
-        : state.attribution.firstSeenAt,
+      firstSeenAt: isFirstTouch ? new Date().toISOString() : state.attribution.firstSeenAt,
       latestUtmSource: source ?? state.attribution.latestUtmSource,
       latestUtmMedium: medium ?? state.attribution.latestUtmMedium,
       latestUtmCampaign: campaign ?? state.attribution.latestUtmCampaign,

@@ -2,38 +2,82 @@
 
 :root {
   --paper: #f7f4ef;
+  --surface: #ffffff;
   --coral: #ff5a36;
+  --coral-deep: #e04420;
   --mint: #2dd4a8;
+  --mint-deep: #1baf8a;
   --ink: #1c1917;
+  --line: rgba(28, 25, 23, 0.08);
+  --radius-card: 22px;
+  --radius-control: 14px;
+  --motion: 200ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @theme inline {
   --color-paper: var(--paper);
+  --color-surface: var(--surface);
   --color-coral: var(--coral);
+  --color-coral-deep: var(--coral-deep);
   --color-mint: var(--mint);
+  --color-mint-deep: var(--mint-deep);
   --color-ink: var(--ink);
   --font-sans: var(--font-inter);
   --font-display: var(--font-fraunces);
+  --radius-card: var(--radius-card);
+  --radius-control: var(--radius-control);
 }
 
 html {
   background: var(--paper);
+  color-scheme: light;
 }
 
 body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
   background: color-mix(in srgb, var(--coral) 28%, transparent);
 }
 
+/* Visible focus for keyboard users, everywhere, without touching mouse users. */
+:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* --- Surfaces: three levels, no floating-card-everywhere. ---------------- */
+
+.surface {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+.surface-elevated {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04), 0 8px 24px -16px rgba(28, 25, 23, 0.18);
+}
+
+.tonal {
+  background: rgba(28, 25, 23, 0.04);
+  border-radius: var(--radius-card);
+}
+
+/* --- Motion ------------------------------------------------------------- */
+
 @keyframes stepIn {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.96);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -41,16 +85,21 @@ body {
   }
 }
 
-@keyframes timerIn {
-  0% {
+@keyframes fadeIn {
+  from {
     opacity: 0;
-    transform: scale(0.86) translateY(8px);
   }
-  68% {
+  to {
     opacity: 1;
-    transform: scale(1.045) translateY(-2px);
   }
-  100% {
+}
+
+@keyframes sheetUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
     opacity: 1;
     transform: none;
   }
@@ -59,7 +108,7 @@ body {
 @keyframes popIn {
   from {
     opacity: 0;
-    transform: scale(0.72);
+    transform: scale(0.94);
   }
   to {
     opacity: 1;
@@ -72,7 +121,7 @@ body {
     transform: scale(1);
   }
   40% {
-    transform: scale(0.94) translateY(5px);
+    transform: scale(0.96) translateY(3px);
   }
   100% {
     transform: scale(1);
@@ -90,6 +139,18 @@ body {
   }
 }
 
+.animate-step-in {
+  animation: stepIn 220ms var(--ease);
+}
+
+.animate-fade-in {
+  animation: fadeIn 180ms var(--ease);
+}
+
+.animate-sheet-up {
+  animation: sheetUp 220ms var(--ease);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -97,5 +158,6 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

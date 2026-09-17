@@ -11,6 +11,8 @@ const BASE_URL = `http://127.0.0.1:${PORT}`;
  */
 export default defineConfig({
   testDir: "./tests",
+  // Server-side unit tests have their own config (playwright.server.config.ts).
+  testIgnore: ["**/server/**", "**/stubs/**"],
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
@@ -35,6 +37,16 @@ export default defineConfig({
       NEXT_PUBLIC_PRO_MONTHLY_PRICE: "5.99",
       NEXT_PUBLIC_PRO_ANNUAL_PRICE: "39",
       NEXT_PUBLIC_APP_URL: BASE_URL,
+      // Sign-in under test: a throwaway signing secret, and links returned in
+      // the API response instead of emailed. Never set AUTH_DEV_LINKS in
+      // production; the server ignores it there anyway.
+      AUTH_SECRET: "playwright-only-signing-secret",
+      AUTH_DEV_LINKS: "1",
+      // Every test comes from one IP and some re-request the same address
+      // within seconds; keep the per-address cap so it can be asserted.
+      AUTH_LINK_COOLDOWN_SECONDS: "0",
+      AUTH_LINK_HOURLY_CAP: "5",
+      AUTH_LINK_IP_HOURLY_CAP: "100000",
     },
   },
 });

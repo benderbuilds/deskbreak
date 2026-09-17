@@ -7,8 +7,6 @@ import { appAlert, clearAppState } from "./helpers";
  * The parts that can be exercised for real are: the checkout call carries the
  * right period and identity, the return leg reads entitlement from the server,
  * and Pro then survives a reload. The Stripe-hosted page itself is Stripe's.
- *
- * Point STRIPE_TEST_MODE at a test-mode key to run the live variant instead.
  */
 test.describe("checkout", () => {
   test("sends the selected period and lands on the Stripe URL", async ({ page }) => {
@@ -20,14 +18,10 @@ test.describe("checkout", () => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({
-          url: "/app/welcome?session_id=cs_test_123",
-          userId: "user_1",
-        }),
+        body: JSON.stringify({ url: "/app/welcome?session_id=cs_test_123", userId: "user_1" }),
       });
     });
 
-    // The return leg: this is what the webhook will have written.
     await page.route("**/api/entitlement**", (route) =>
       route.fulfill({
         status: 200,
@@ -44,7 +38,7 @@ test.describe("checkout", () => {
 
     await page.goto("/app/pro?from=done&need=neck_shoulders");
     await page.getByRole("radio", { name: /monthly/i }).click();
-    await page.getByRole("button", { name: /start deskbreak pro/i }).click();
+    await page.getByRole("button", { name: /build my workday/i }).click();
 
     await page.waitForURL(/\/app\/welcome/);
     expect(requestBody).toMatchObject({
@@ -56,7 +50,6 @@ test.describe("checkout", () => {
 
     await expect(page.getByRole("heading", { name: /you're in/i })).toBeVisible();
 
-    // Refresh: still Pro, because the server said so, not local storage.
     await page.goto("/app");
     await expect(page.getByLabel("DeskBreak Pro subscriber")).toBeVisible();
   });
@@ -72,10 +65,10 @@ test.describe("checkout", () => {
     );
 
     await page.goto("/app/pro");
-    await page.getByRole("button", { name: /start deskbreak pro/i }).click();
+    await page.getByRole("button", { name: /build my workday/i }).click();
     await expect(appAlert(page)).toBeVisible();
 
-    await page.getByRole("button", { name: /keep using deskbreak free/i }).click();
+    await page.getByRole("button", { name: /^continue free$/i }).click();
     await expect(page).toHaveURL(/\/app$/);
     await expect(page.getByText(/recommended now/i)).toBeVisible();
   });

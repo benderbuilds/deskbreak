@@ -19,5 +19,8 @@ jobs:
       - run: npx tsc --noEmit
       # Fails if a move used by a free program has no artwork.
       - run: npm run art:audit
+      # Server-side unit tests: sign-in tokens, ownership merges, delivery
+      # records, scheduler decisions. No browser, no server.
+      - run: npm run test:server
       - run: npx playwright install --with-deps chromium
       - run: npm test

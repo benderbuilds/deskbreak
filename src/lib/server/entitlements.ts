@@ -65,12 +65,41 @@ export async function getEntitlementForEmail(
   return getEntitlementForUser(profile.id);
 }
 
+/**
+ * Pro for a device that has not signed in.
+ *
+ * The device's own profile answers first. A device that paid anonymously and
+ * whose purchase has since been claimed by a verified sign-in with the address
+ * Stripe collected keeps its Pro through that account: the payment came from
+ * this device, and the account proved it owns the address the payer gave.
+ */
 export async function getEntitlementForAnonymousId(
   anonymousId: string,
 ): Promise<ServerEntitlement> {
   const profile = await findOne("profiles", { anonymous_id: anonymousId });
   if (!profile) return FREE_ENTITLEMENT;
-  return getEntitlementForUser(profile.id);
+  const own = await getEntitlementForUser(profile.id);
+  if (own.pro || profile.email || !profile.billing_email) return own;
+  const claimant = await findOne("profiles", { email: profile.billing_email });
+  if (!claimant) return own;
+  return getEntitlementForUser(claimant.id);
+}
+
+/**
+ * The profile an anonymous browser may write to without a session.
+ *
+ * Either the shell profile already keyed on this anonymous id, or a new one.
+ * A profile that has signed in is never returned: an anonymous id alone does
+ * not prove the caller is that account, so its rows stay ownerless until a
+ * verified sign-in merges them.
+ */
+export async function anonymousProfile(
+  anonymousId: string,
+  seed: Pick<ProfileSeed, "primaryNeed" | "preferredSetup"> = {},
+): Promise<Profile | null> {
+  const existing = await findOne("profiles", { anonymous_id: anonymousId });
+  if (existing) return existing.email ? null : existing;
+  return ensureProfile({ anonymousId, ...seed });
 }
 
 export function normalizeEmail(email: string): string {
@@ -128,6 +157,7 @@ export async function ensureProfile(seed: ProfileSeed): Promise<Profile> {
     id: crypto.randomUUID(),
     email,
     anonymous_id: seed.anonymousId ?? null,
+    billing_email: null,
     created_at: new Date().toISOString(),
     primary_need: seed.primaryNeed ?? null,
     preferred_setup: seed.preferredSetup ?? null,

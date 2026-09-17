@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe, logCheckoutFailure } from "@/lib/server/stripe";
-import { ensureProfile } from "@/lib/server/entitlements";
-import { findOne, isDurable, upsert, type Subscription } from "@/lib/server/store";
+import { ensureProfile, normalizeEmail } from "@/lib/server/entitlements";
+import { findOne, isDurable, update, upsert, type Subscription } from "@/lib/server/store";
 
 /**
  * Stripe is the source of truth for entitlement; this is where it lands.
@@ -46,12 +46,19 @@ async function resolveUserId(
   });
   if (existing) return existing.user_id;
 
-  // Last resort: match on the customer's email so a purchase is never orphaned.
+  // Last resort: the customer's address, so a purchase is never orphaned. The
+  // address is Stripe's record, not a verified login: it attaches to the
+  // account that already uses it, or to a profile that only carries it as a
+  // billing address until someone signs in with it.
   try {
     const customer = await getStripe().customers.retrieve(customerId);
-    const email = "deleted" in customer ? null : customer.email;
+    const email = "deleted" in customer || !customer.email ? null : normalizeEmail(customer.email);
     if (!email) return null;
-    const profile = await ensureProfile({ email });
+    const existing =
+      (await findOne("profiles", { email })) ?? (await findOne("profiles", { billing_email: email }));
+    if (existing) return existing.id;
+    const profile = await ensureProfile({});
+    await update("profiles", { id: profile.id }, { billing_email: email });
     return profile.id;
   } catch (error) {
     logCheckoutFailure("customer lookup", error);
@@ -140,11 +147,18 @@ export async function POST(request: Request) {
             user_id: session.client_reference_id,
           };
         }
-        if (session.customer_details?.email) {
-          await ensureProfile({
-            email: session.customer_details.email,
-            anonymousId: session.metadata?.anonymous_id || null,
-          });
+        // Remember the address Stripe collected on the profile that paid, so a
+        // later sign-in with that address can claim the purchase. It does not
+        // become the login email: only a verified link does that.
+        const paidProfileId = session.client_reference_id ?? session.metadata?.user_id ?? null;
+        const collected = session.customer_details?.email
+          ? normalizeEmail(session.customer_details.email)
+          : null;
+        if (paidProfileId && collected) {
+          const paid = await findOne("profiles", { id: paidProfileId });
+          if (paid && !paid.email && paid.billing_email !== collected) {
+            await update("profiles", { id: paid.id }, { billing_email: collected });
+          }
         }
         await persist(subscription);
         break;

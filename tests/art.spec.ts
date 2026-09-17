@@ -49,7 +49,10 @@ test.describe("exercise art", () => {
     // Free is the product's proof. A generic blob there costs conversions.
     for (const program of getPrograms().filter((entry) => entry.access === "free")) {
       for (const step of program.steps) {
-        const art = resolveExerciseArt(step.exerciseId, program.setup);
+        const art = resolveExerciseArt(
+          step.exerciseId,
+          program.setup === "either" ? "seated" : program.setup,
+        );
         expect(
           art.isFallback,
           `free program ${program.id} falls back for ${step.exerciseId}`,

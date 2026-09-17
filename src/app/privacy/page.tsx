@@ -25,10 +25,28 @@ export default function PrivacyPage() {
 
         <h2>What we store on our servers</h2>
         <ul>
-          <li>An email address, if you give us one, so we can send reminders.</li>
+          <li>
+            An email address, if you give us one, so we can sign you in with a link,
+            sync your progress between devices and, only if you turn it on, send a
+            daily reminder.
+          </li>
           <li>
             A random anonymous id for your browser, so a purchase can be matched back
             to the device that made it.
+          </li>
+          <li>
+            Sign-in links are single use and expire within the hour. We keep only a
+            hash of each one, plus a short record of how often links were requested
+            so the sign-in form cannot be abused.
+          </li>
+          <li>
+            If you turn on push notifications, the subscription your browser hands
+            us, so we can nudge you at the break times you chose. Turning push off
+            removes it.
+          </li>
+          <li>
+            Your workday plan: the hours you work, the days, and which breaks you
+            snoozed or skipped, so the next nudge lands at a better time.
           </li>
           <li>
             Completed resets: which routine, how long, and your answer to

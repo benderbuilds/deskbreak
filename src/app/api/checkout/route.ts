@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { currentProfile } from "@/lib/server/auth";
 import {
   getStripe,
   logCheckoutFailure,
@@ -6,9 +7,11 @@ import {
   stripeConfigured,
   stripePriceId,
 } from "@/lib/server/stripe";
-import { ensureProfile, isValidEmail, normalizeEmail } from "@/lib/server/entitlements";
+import { anonymousProfile, ensureProfile, isValidEmail, normalizeEmail } from "@/lib/server/entitlements";
+import { durableOrNotProduction } from "@/lib/server/runtime";
 import { TRIAL_DAYS } from "@/lib/pricing";
 import type { BillingPeriod } from "@/lib/types";
+import type { Profile } from "@/lib/server/store";
 
 type Body = {
   period?: BillingPeriod;
@@ -28,12 +31,30 @@ type Body = {
  */
 type UnavailableReason =
   | "price_not_configured"
+  | "store_not_configured"
   | "identity_unavailable"
   | "provider_rejected"
   | "no_checkout_url";
 
 function unavailable(reason: UnavailableReason) {
   return NextResponse.json({ error: "unavailable", reason }, { status: 503 });
+}
+
+/**
+ * The profile a purchase attaches to: the signed-in account, else the shell
+ * profile for this anonymous browser. An email in the body is only ever a
+ * prefill for Stripe's form; it never selects or alters a profile here.
+ */
+async function purchasingProfile(body: Body): Promise<Profile> {
+  const signedIn = await currentProfile();
+  if (signedIn) return signedIn;
+  if (body.anonymousId) {
+    const shell = await anonymousProfile(body.anonymousId, { primaryNeed: body.primaryNeed ?? null });
+    if (shell) return shell;
+  }
+  // The anonymous id belongs to an account that has signed in, or there is no
+  // id at all: a fresh profile keeps the purchase separate until sign-in.
+  return ensureProfile({ primaryNeed: body.primaryNeed ?? null });
 }
 
 export async function POST(request: Request) {
@@ -54,22 +75,29 @@ export async function POST(request: Request) {
     );
     return unavailable("price_not_configured");
   }
+  if (!durableOrNotProduction()) {
+    // Charging someone and storing their entitlement in memory would lose the
+    // purchase on the next deploy. Refuse rather than pretend.
+    logCheckoutFailure("configuration", "no durable store in production; refusing to start checkout");
+    return unavailable("store_not_configured");
+  }
 
   // Create the identity up front so the webhook has something to attach to even
   // if the customer closes the tab before returning. Kept in its own try so a
   // database problem is never reported as a payment problem: the two have
   // completely different fixes and used to look identical from outside.
-  let profile;
+  let profile: Profile;
   try {
-    profile = await ensureProfile({
-      email: body.email && isValidEmail(body.email) ? body.email : null,
-      anonymousId: body.anonymousId ?? null,
-      primaryNeed: body.primaryNeed ?? null,
-    });
+    profile = await purchasingProfile(body);
   } catch (error) {
     logCheckoutFailure("identity", error);
     return unavailable("identity_unavailable");
   }
+
+  const prefillEmail =
+    profile.email ??
+    profile.billing_email ??
+    (body.email && isValidEmail(body.email) ? normalizeEmail(body.email) : undefined);
 
   try {
     const origin = originFrom(request);
@@ -95,7 +123,7 @@ export async function POST(request: Request) {
       // .metadata.user_id, falling back to client_reference_id. Drop these and
       // a customer is charged and never granted Pro, so they stay.
       client_reference_id: profile.id,
-      customer_email: profile.email ? normalizeEmail(profile.email) : undefined,
+      customer_email: prefillEmail ?? undefined,
       metadata: {
         user_id: profile.id,
         anonymous_id: body.anonymousId ?? "",
