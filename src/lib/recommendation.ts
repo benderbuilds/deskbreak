@@ -133,7 +133,7 @@ const NEED_PROMISE: Record<PrimaryNeed, string> = {
   neck_shoulders: "Undo the laptop lean.",
   back_hips: "Loosen up after sitting.",
   wrists_hands: "Give keyboard hands a break.",
-  energy: "Wake yourself up without another coffee.",
+  energy: "A few minutes of movement to wake you up.",
   stress: "Slow things down for a few minutes.",
   // A change of position, not a correction: there is no one correct posture.
   posture: "Change position and open up your upper back.",

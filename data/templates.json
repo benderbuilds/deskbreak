@@ -1303,7 +1303,7 @@
       "durationMin": 2,
       "name": "2-Minute Energy Reset",
       "shortLabel": "Energy Reset",
-      "tagline": "Wake yourself up without another coffee.",
+      "tagline": "A few minutes of movement to wake you up.",
       "slots": [
         {
           "phase": "reset",
@@ -1366,7 +1366,7 @@
       "durationMin": 3,
       "name": "3-Minute Energy Reset",
       "shortLabel": "Energy Reset",
-      "tagline": "Wake yourself up without another coffee.",
+      "tagline": "A few minutes of movement to wake you up.",
       "slots": [
         {
           "phase": "reset",

@@ -169,7 +169,7 @@
       "durationTargetSec": 120,
       "primaryNeed": "energy",
       "setup": "standing",
-      "tagline": "Wake yourself up without another coffee.",
+      "tagline": "A few minutes of movement to wake you up.",
       "promise": "Get your blood moving before the slump wins.",
       "steps": [
         {
@@ -198,7 +198,7 @@
       "durationTargetSec": 120,
       "primaryNeed": "energy",
       "setup": "seated",
-      "tagline": "Wake yourself up without another coffee.",
+      "tagline": "A few minutes of movement to wake you up.",
       "promise": "Get your blood moving without leaving the chair.",
       "steps": [
         {
@@ -662,7 +662,7 @@
       "durationTargetSec": 180,
       "primaryNeed": "energy",
       "setup": "standing",
-      "tagline": "Wake yourself up without another coffee.",
+      "tagline": "A few minutes of movement to wake you up.",
       "promise": "Standing, larger movement, and a little leg work.",
       "steps": [
         {
@@ -913,7 +913,7 @@
       "primaryNeed": "energy",
       "setup": "standing",
       "tagline": "Walk away from the screen.",
-      "promise": "The best-evidenced desk break there is.",
+      "promise": "Among the best-studied desk breaks.",
       "steps": [
         {
           "exerciseId": "short-walk",
