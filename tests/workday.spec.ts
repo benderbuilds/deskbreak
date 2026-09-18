@@ -25,6 +25,16 @@ import {
   STAND_NUDGE_INTERVAL_MINUTES,
 } from "../src/lib/reminders";
 import { todayKey } from "../src/lib/dates";
+import {
+  activeSecondsFor,
+  activityOn,
+  formatActiveTime,
+  isHelpfulEnough,
+  patternsReady,
+  ratingsUntilPatterns,
+  sessionMovedLabel,
+  totalActiveSeconds,
+} from "../src/lib/insights";
 import type { WorkdayPreferences, WorkoutSession } from "../src/lib/types";
 
 const prefs: WorkdayPreferences = {
@@ -251,5 +261,42 @@ test.describe("free stand-up nudge", () => {
       lastActiveAt({ history: [{ finishedAt: at(9).toISOString() }], microBreaks: [at(9, 50).toISOString()] }),
     ).toEqual(at(9, 50));
     expect(lastActiveAt({ history: [], microBreaks: [] })).toBeNull();
+  });
+});
+
+test.describe("honest numbers", () => {
+  test("time moved is what was actually done, not the routine's length", async () => {
+    const quit = {
+      ...session(600),
+      durationMin: 3 as const,
+      elapsedSec: 41,
+      exercises: [
+        { exerciseId: "chin-tuck", sequence: 0, plannedSec: 30, actualSec: 30, completed: true, skipped: false, swapped: false, swappedToExerciseId: null, discomfortReported: false, discomfortReason: null },
+        { exerciseId: "shoulder-rolls", sequence: 1, plannedSec: 30, actualSec: 11, completed: false, skipped: true, swapped: false, swappedToExerciseId: null, discomfortReported: false, discomfortReason: null },
+      ],
+    };
+    expect(activeSecondsFor(quit)).toBe(41);
+    expect(sessionMovedLabel(quit)).toBe("41 seconds moved");
+    // Older sessions without records use the measured time.
+    expect(activeSecondsFor({ exercises: [], elapsedSec: 175 })).toBe(175);
+    expect(formatActiveTime(179)).toBe("2 minutes");
+    expect(totalActiveSeconds([quit, { ...session(700), elapsedSec: 180 }])).toBe(221);
+  });
+
+  test("patterns wait for five rated sessions, and 'most helpful' needs to have helped half the time", async () => {
+    const rated = (n: number) => Array.from({ length: n }, (_, i) => ({ ...session(600 + i), perceivedEffect: "better" as const }));
+    expect(patternsReady(rated(4))).toBe(false);
+    expect(ratingsUntilPatterns(rated(4))).toBe(1);
+    expect(patternsReady([...rated(5), session(900)])).toBe(true);
+    expect(isHelpfulEnough(1, 4)).toBe(false);
+    expect(isHelpfulEnough(2, 4)).toBe(true);
+    expect(isHelpfulEnough(1, 1)).toBe(false);
+  });
+
+  test("a day's activity counts resets and micro-breaks", async () => {
+    const day = activityOn([session(600), session(700)], [new Date(2026, 8, 9, 11).toISOString(), new Date(2026, 8, 8, 11).toISOString()], DATE);
+    expect(day.resets).toBe(2);
+    expect(day.microBreaks).toBe(1);
+    expect(day.activeSeconds).toBe(360);
   });
 });
