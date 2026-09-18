@@ -66,7 +66,8 @@ export function describeAccountError(error: string): string {
 }
 
 export async function requestMagicLink(email: string, options: { next?: string } = {}): Promise<
-  { ok: true; delivered: boolean; devLink?: string } | { ok: false; error: AccountError }
+  | { ok: true; delivered: boolean; devLink?: string }
+  | { ok: false; error: AccountError; retryAfterSeconds?: number }
 > {
   const state = getAppState();
   try {
@@ -95,8 +96,15 @@ export async function requestMagicLink(email: string, options: { next?: string }
       delivered?: boolean;
       devLink?: string;
       error?: string;
+      retryAfterSeconds?: number;
     };
-    if (!response.ok || !data.ok) return { ok: false, error: (data.error as AccountError) ?? "unavailable" };
+    if (!response.ok || !data.ok) {
+      return {
+        ok: false,
+        error: (data.error as AccountError) ?? "unavailable",
+        retryAfterSeconds: typeof data.retryAfterSeconds === "number" ? data.retryAfterSeconds : undefined,
+      };
+    }
     track("account_started", { channel: "magic_link" });
     return { ok: true, delivered: Boolean(data.delivered), devLink: data.devLink };
   } catch {

@@ -1,6 +1,7 @@
 "use client";
 
 import { track } from "./analytics";
+import { isIosDevice, isStandaloneDisplay } from "./pwa-install";
 import { ensureAnonymousId, setPushState } from "./storage";
 
 /**
@@ -17,6 +18,29 @@ export function pushSupported(): boolean {
     "Notification" in window &&
     Boolean(PUBLIC_KEY)
   );
+}
+
+/**
+ * Why push can or can't be turned on here, so the UI can show the next step
+ * instead of a disabled button.
+ *
+ * - ios_install: iPhone and iPad Safari only allow Web Push for a site added
+ *   to the Home Screen and opened from that icon.
+ * - unsupported: the browser has no Web Push at all.
+ * - blocked: the person (or a policy) denied notifications for this site.
+ * - not_configured: this deployment has no VAPID key, so nothing could send.
+ */
+export type PushReadiness = "ready" | "ios_install" | "unsupported" | "blocked" | "not_configured";
+
+export function pushReadiness(): PushReadiness {
+  if (typeof window === "undefined") return "unsupported";
+  if (isIosDevice() && !isStandaloneDisplay()) return "ios_install";
+  if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+    return "unsupported";
+  }
+  if (Notification.permission === "denied") return "blocked";
+  if (!PUBLIC_KEY) return "not_configured";
+  return "ready";
 }
 
 function urlBase64ToUint8Array(base64: string): Uint8Array {
