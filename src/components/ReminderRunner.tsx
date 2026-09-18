@@ -217,14 +217,14 @@ function NudgeCard({
       <div className="surface-elevated mx-auto max-w-[488px] px-4 py-4 shadow-lg">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-display text-base font-semibold text-ink">{title}</p>
-            <p className="mt-0.5 text-sm leading-relaxed text-ink/65">{body}</p>
+            <p className="font-display font-extrabold text-base text-ink">{title}</p>
+            <p className="mt-0.5 text-sm leading-relaxed text-muted">{body}</p>
           </div>
           <button
             type="button"
             onClick={onDismiss}
             aria-label={dismissLabel}
-            className="-mr-2 -mt-1 grid min-h-11 min-w-11 place-items-center rounded-full text-lg text-ink/50 hover:bg-ink/5 hover:text-ink"
+            className="-mr-2 -mt-1 grid min-h-11 min-w-11 place-items-center rounded-full text-lg text-muted hover:bg-ink/5 hover:text-ink"
           >
             ×
           </button>

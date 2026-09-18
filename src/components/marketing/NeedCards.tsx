@@ -14,7 +14,7 @@ import { attributionProperties, startHref, useStartLink } from "./LandingCta";
  */
 export function NeedCards({ source = "landing" }: { source?: string }) {
   return (
-    <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+    <ul className="flex flex-wrap gap-2">
       {TARGETED_OPTIONS.map((option) => (
         <li key={option.id}>
           <NeedLink need={option.id} source={source} />
@@ -31,7 +31,7 @@ function NeedLink({ need, source }: { need: PrimaryNeed; source: string }) {
       href={href}
       prefetch={false}
       onClick={() => track("primary_cta_clicked", { cta: "need_card", need, source, ...attributionProperties(attribution) })}
-      className="surface flex min-h-14 w-full items-center justify-center px-4 text-center text-sm font-semibold text-ink transition-colors hover:bg-ink/3"
+      className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full border border-line-strong bg-sheet px-4 text-sm font-semibold text-ink transition-colors hover:border-ink"
     >
       {LANDING_TARGETED_LABELS[need]}
     </Link>

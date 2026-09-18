@@ -128,7 +128,7 @@ export function StartFlow() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-3 px-5" role="status">
       <CharacterArt pose="ready" size={150} alt="Stretch, ready to go" />
-      <p className="text-sm font-semibold text-ink/50">Building your reset...</p>
+      <p className="text-sm font-semibold text-muted">Building your reset...</p>
     </div>
   );
 }

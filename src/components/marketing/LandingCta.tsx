@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { buttonClassName } from "@/components/Button";
 import { useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
 
@@ -131,15 +132,12 @@ export function StartResetButton({
   variant?: "primary" | "ink";
 }) {
   const { href, attribution } = useStartLink(startHref({ need, minutes, setup, program, seo }));
-  const base =
-    "inline-flex min-h-13 w-full items-center justify-center rounded-[16px] px-6 text-center text-base font-semibold tracking-tight transition-[transform,background-color] duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] active:scale-[0.985] sm:w-auto";
-  const skin = variant === "ink" ? "bg-ink text-paper hover:bg-ink/90" : "bg-coral text-white hover:bg-coral-deep";
-
+  const base = buttonClassName(variant, true, "px-6 text-center sm:w-auto");
   return (
     <Link
       href={href}
       prefetch={false}
-      className={`${base} ${skin}`}
+      className={base}
       onClick={() => {
         track("primary_cta_clicked", {
           cta: source,

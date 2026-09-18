@@ -48,7 +48,7 @@ export default function TermsPage() {
 
         <h2>Questions</h2>
         <p>
-          <a className="font-semibold text-coral" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+          <a className="font-semibold text-pen" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
         </p>
       </Prose>
     </MarketingShell>

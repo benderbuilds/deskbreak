@@ -59,15 +59,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <LandingViewTracker page={`blog_${post.slug}`} seo />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <article className="py-10">
-        <nav aria-label="Breadcrumb" className="text-sm font-semibold text-ink/50">
+        <nav aria-label="Breadcrumb" className="text-sm font-semibold text-muted">
           <Link href="/blog" className="hover:text-ink">
             Blog
           </Link>
         </nav>
-        <h1 className="mt-3 max-w-[42rem] font-display text-[2.1rem] font-semibold leading-tight tracking-tight text-ink sm:text-[2.5rem]">
+        <h1 className="mt-3 max-w-[42rem] font-display font-extrabold text-[2.1rem] leading-tight text-ink sm:text-[2.5rem]">
           {post.title}
         </h1>
-        <p className="mt-3 text-sm text-ink/50">
+        <p className="mt-3 text-sm text-muted">
           <time dateTime={post.published}>{formatDate(post.published)}</time> · {minutesToRead} min read ·{" "}
           {sources.length} studies cited
         </p>
@@ -81,8 +81,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
 
         <div className="surface-elevated mt-10 max-w-[34rem] px-5 py-6 sm:px-7">
-          <p className="font-display text-lg font-semibold text-ink">Try the {routine}</p>
-          <p className="mt-1 text-sm text-ink/60">{post.cta.body}</p>
+          <p className="font-display font-extrabold text-lg text-ink">Try the {routine}</p>
+          <p className="mt-1 text-sm text-muted">{post.cta.body}</p>
           <div className="mt-4">
             <StartResetButton {...cta} source={`blog_${post.slug}`} seo>
               {`Start the ${routine}`}
@@ -91,38 +91,38 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
 
         <section className="mt-12 max-w-[42rem]" aria-labelledby="references">
-          <h2 id="references" className="font-display text-xl font-semibold text-ink">
+          <h2 id="references" className="font-display font-extrabold text-xl text-ink">
             References
           </h2>
           <ol className="mt-4 grid gap-3 text-sm leading-relaxed text-ink/70">
             {sources.map((source) => (
               <li key={source.id} className="pl-8 -indent-8">
                 {(source.citation ?? source.title).replace(source.url, "").trim()}{" "}
-                <a href={source.url} target="_blank" rel="noreferrer" className="break-all font-semibold text-coral">
+                <a href={source.url} target="_blank" rel="noreferrer" className="break-all font-semibold text-pen">
                   {source.url}
                 </a>
               </li>
             ))}
           </ol>
-          <aside className="mt-6 rounded-[16px] border border-ink/10 bg-white px-5 py-4 text-sm leading-relaxed text-ink/65">
+          <aside className="mt-6 rounded-[16px] border border-line bg-white px-5 py-4 text-sm leading-relaxed text-muted">
             <p className="font-semibold text-ink/80">Sources and how we use them</p>
             <p className="mt-1">
               Every study cited here is checked against its PubMed record and DOI. Quotes are the authors&apos; own words
               from the published abstract, and we keep the limits each study states. Findings describe the research,
               not what DeskBreak will do for you. DeskBreak is general movement guidance, not medical care.{" "}
-              <Link href="/science#how-we-use-sources" className="font-semibold text-coral">
+              <Link href="/science#how-we-use-sources" className="font-semibold text-pen">
                 How DeskBreak uses research
               </Link>
             </p>
           </aside>
         </section>
 
-        <nav className="mt-12 text-sm text-ink/55" aria-label="More posts">
+        <nav className="mt-12 text-sm text-muted" aria-label="More posts">
           <p className="font-semibold text-ink/70">More from the blog</p>
           <ul className="mt-2 grid gap-2">
             {BLOG_POSTS.filter((entry) => entry.slug !== post.slug).map((entry) => (
               <li key={entry.slug}>
-                <Link href={`/blog/${entry.slug}`} className="font-semibold text-coral">
+                <Link href={`/blog/${entry.slug}`} className="font-semibold text-pen">
                   {entry.title}
                 </Link>
               </li>
@@ -137,7 +137,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 function Block({ block }: { block: BlogBlock }) {
   switch (block.type) {
     case "h2":
-      return <h2 className="pt-4 font-display text-xl font-semibold text-ink">{block.text}</h2>;
+      return <h2 className="pt-4 font-display font-extrabold text-xl text-ink">{block.text}</h2>;
     case "list":
       return (
         <ul className="space-y-2">
@@ -151,10 +151,10 @@ function Block({ block }: { block: BlogBlock }) {
     case "quote": {
       const source = getSource(block.sourceId);
       return (
-        <figure className="border-l-4 border-coral/60 pl-4">
+        <figure className="border-l-4 border-pen pl-4">
           <blockquote className="text-ink/85">&ldquo;{source.quote}&rdquo;</blockquote>
-          <figcaption className="mt-1.5 text-sm text-ink/50">
-            <a href={source.url} target="_blank" rel="noreferrer" className="text-coral hover:underline">
+          <figcaption className="mt-1.5 text-sm text-muted">
+            <a href={source.url} target="_blank" rel="noreferrer" className="text-pen underline underline-offset-2">
               {shortCitation(source.id)}
             </a>
             {source.quoteLocation ? `, ${source.quoteLocation.split(" (")[0].toLowerCase()}` : null}

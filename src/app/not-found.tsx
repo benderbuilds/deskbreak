@@ -16,10 +16,10 @@ export default function NotFound() {
         <div className="flex justify-center">
           <CharacterArt pose="idle" size={140} alt="Stretch" />
         </div>
-        <h1 className="mt-4 font-display text-[1.6rem] font-semibold leading-tight text-ink">
+        <h1 className="mt-4 font-display font-extrabold text-[1.6rem] leading-tight text-ink">
           That page took a break
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-ink/60">
+        <p className="mt-2 text-sm leading-relaxed text-muted">
           It isn&apos;t here. You could take one too.
         </p>
         <ul className="mt-6 grid gap-2">
@@ -28,7 +28,7 @@ export default function NotFound() {
               <Link
                 href={reset.href}
                 prefetch={false}
-                className="flex min-h-12 items-center justify-center rounded-[14px] border border-ink/10 bg-white px-4 text-sm font-semibold text-ink transition-colors hover:bg-ink/3"
+                className="flex min-h-12 items-center justify-center rounded-[14px] border border-line-strong bg-white px-4 text-sm font-semibold text-ink transition-colors hover:border-ink"
               >
                 {reset.label}
               </Link>

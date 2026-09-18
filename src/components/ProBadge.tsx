@@ -5,7 +5,7 @@ export function ProBadge({ className = "" }: { className?: string }) {
       // reading a bare word out of context.
       aria-label="DeskBreak Pro subscriber"
       className={[
-        "inline-flex items-center rounded-full bg-ink px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-mint",
+        "inline-flex items-center rounded-full bg-ink px-2 py-0.5 text-[11px] font-bold text-note",
         className,
       ].join(" ")}
     >

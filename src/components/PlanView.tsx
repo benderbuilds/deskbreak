@@ -82,10 +82,10 @@ export function PlanView() {
   if (!pro) {
     return (
       <div className="flex flex-1 flex-col justify-center px-5 py-10">
-        <h1 className="font-display text-[1.8rem] font-semibold leading-tight text-ink">
+        <h1 className="font-display font-extrabold text-[1.8rem] leading-tight text-ink">
           Let DeskBreak manage your workday.
         </h1>
-        <p className="mt-3 leading-relaxed text-ink/65">
+        <p className="mt-3 leading-relaxed text-muted">
           Tell DeskBreak your hours and it puts the right movement breaks into your
           day, then reminds you before you&apos;ve been sitting all afternoon.
         </p>
@@ -184,8 +184,8 @@ export function PlanView() {
     const progress = planProgress(plan);
     return (
       <div className="flex flex-1 flex-col px-5 py-6 lg:px-0">
-        <h1 className="font-display text-[1.8rem] font-semibold leading-tight text-ink">Today&apos;s plan</h1>
-        <p className="mt-2 text-sm text-ink/55">
+        <h1 className="font-display font-extrabold text-[1.8rem] leading-tight text-ink">Today&apos;s plan</h1>
+        <p className="mt-2 text-sm text-muted">
           {formatMinutes(plan.preferences.startMinutes)} to {formatMinutes(plan.preferences.endMinutes)} ·{" "}
           {REMINDER_LEVELS[plan.preferences.level].label}
           {progress.total ? ` · ${progress.done} of ${progress.total} done` : ""}
@@ -193,18 +193,18 @@ export function PlanView() {
 
         {justBuilt ? (
           <div className="surface-elevated mt-5 px-4 py-4">
-            <p className="font-display text-base font-semibold text-ink">Your workday is set.</p>
-            <p className="mt-1 text-sm leading-relaxed text-ink/60">
+            <p className="font-display font-extrabold text-base text-ink">Your workday is set.</p>
+            <p className="mt-1 text-sm leading-relaxed text-muted">
               DeskBreak reminds you while it&apos;s open. Turn on notifications to get breaks when it isn&apos;t.
             </p>
-            <div className="mt-3 border-t border-ink/8 pt-3">
+            <div className="mt-3 border-t border-line pt-3">
               <PushSetup context="plan" />
             </div>
           </div>
         ) : null}
 
         {!plan.breaks.length ? (
-          <p className="surface mt-5 px-4 py-4 text-sm text-ink/60">
+          <p className="surface mt-5 px-4 py-4 text-sm text-muted">
             Not a workday. Your plan picks up on the next one.
           </p>
         ) : null}
@@ -217,22 +217,22 @@ export function PlanView() {
             return (
               <li key={entry.id} className={[due ? "surface-elevated" : "surface", "px-4 py-4"].join(" ")}>
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="font-display text-lg font-semibold tabular-nums text-ink">
+                  <p className="font-display font-extrabold text-lg tabular-nums text-ink">
                     {formatMinutes(effectiveStart(entry))}
-                    <span className="ml-1 text-sm font-normal text-ink/45">to {formatMinutes(entry.endMinutes)}</span>
+                    <span className="ml-1 text-sm font-normal text-muted">to {formatMinutes(entry.endMinutes)}</span>
                   </p>
-                  <p className="text-sm text-ink/50">{due ? "Due now" : `${entry.durationMin} min`}</p>
+                  <p className="text-sm text-muted">{due ? "Due now" : `${entry.durationMin} min`}</p>
                 </div>
                 <p className="mt-0.5 text-sm text-ink/70">
                   {micro ? `${breakTitle(entry, copy.label)} · 1 min. ${copy.blurb}` : `${copy.label} · ${copy.blurb}`}
                 </p>
 
                 {entry.status === "completed" ? (
-                  <p className="mt-3 text-sm font-semibold text-mint-deep">{BREAK_ACTION_COPY.done}</p>
+                  <p className="mt-3 text-sm font-semibold text-pen">{BREAK_ACTION_COPY.done}</p>
                 ) : entry.status === "skipped" ? (
-                  <p className="mt-3 text-sm font-semibold text-ink/40">{BREAK_ACTION_COPY.skipped}</p>
+                  <p className="mt-3 text-sm font-semibold text-muted">{BREAK_ACTION_COPY.skipped}</p>
                 ) : entry.status === "expired" ? (
-                  <p className="mt-3 text-sm font-semibold text-ink/40">{BREAK_ACTION_COPY.missed}. No big deal.</p>
+                  <p className="mt-3 text-sm font-semibold text-muted">{BREAK_ACTION_COPY.missed}. No big deal.</p>
                 ) : isOpen(entry) ? (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {micro ? (
@@ -301,7 +301,7 @@ export function PlanView() {
 
         <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 mt-6 lg:bottom-4">
           <div className="surface-elevated flex flex-wrap items-center gap-3 px-4 py-3">
-            <p className="min-w-0 flex-1 text-sm text-ink/60" role="status">
+            <p className="min-w-0 flex-1 text-sm text-muted" role="status">
               {draft ? "Unsaved changes" : saved ? "Saved" : "No changes"}
             </p>
             <Button variant="ink" size="sm" block={false} onClick={saveDraft} disabled={!draft}>
@@ -329,33 +329,33 @@ export function PlanView() {
 
   return (
     <div className="flex flex-1 flex-col px-5 py-6 lg:max-w-[560px] lg:px-0">
-      <h1 className="font-display text-[1.8rem] font-semibold leading-tight text-ink">
+      <h1 className="font-display font-extrabold text-[1.8rem] leading-tight text-ink">
         When do you normally work?
       </h1>
 
       <div className="mt-6 grid grid-cols-2 gap-3">
-        <label className="text-sm font-semibold text-ink/60">
+        <label className="text-sm font-semibold text-muted">
           Start
           <input
             type="time"
             value={start}
             onChange={(event) => setStart(event.target.value)}
-            className="mt-1.5 min-h-13 w-full rounded-[14px] border border-ink/12 bg-white px-4 text-base text-ink outline-none focus-visible:border-coral"
+            className="mt-1.5 min-h-13 w-full rounded-[14px] border border-line-strong bg-white px-4 text-base text-ink"
           />
         </label>
-        <label className="text-sm font-semibold text-ink/60">
+        <label className="text-sm font-semibold text-muted">
           Finish
           <input
             type="time"
             value={end}
             onChange={(event) => setEnd(event.target.value)}
-            className="mt-1.5 min-h-13 w-full rounded-[14px] border border-ink/12 bg-white px-4 text-base text-ink outline-none focus-visible:border-coral"
+            className="mt-1.5 min-h-13 w-full rounded-[14px] border border-line-strong bg-white px-4 text-base text-ink"
           />
         </label>
       </div>
 
       <fieldset className="mt-6">
-        <legend className="text-sm font-semibold text-ink/60">Workdays</legend>
+        <legend className="text-sm font-semibold text-muted">Workdays</legend>
         <div className="mt-2 flex gap-1.5" role="group">
           {DAY_LABELS.map((label, day) => (
             <Chip
@@ -370,7 +370,7 @@ export function PlanView() {
       </fieldset>
 
       <fieldset className="mt-7">
-        <legend className="font-display text-lg font-semibold text-ink">How much help do you want?</legend>
+        <legend className="font-display font-extrabold text-lg text-ink">How much help do you want?</legend>
         <div className="mt-3 grid gap-2">
           {(Object.keys(REMINDER_LEVELS) as ReminderLevel[]).map((key) => {
             const option = REMINDER_LEVELS[key];
@@ -383,11 +383,11 @@ export function PlanView() {
                 onClick={() => setLevel(key)}
                 className={[
                   "flex min-h-13 items-center justify-between rounded-[14px] px-4 text-left transition-colors",
-                  active ? "bg-ink text-paper" : "surface text-ink hover:bg-ink/3",
+                  active ? "bg-ink text-paper" : "surface text-ink hover:border-ink",
                 ].join(" ")}
               >
                 <span className="font-semibold">{option.label}</span>
-                <span className={active ? "text-paper/70" : "text-ink/50"}>{option.hint}</span>
+                <span className={active ? "text-paper/70" : "text-muted"}>{option.hint}</span>
               </button>
             );
           })}
@@ -395,7 +395,7 @@ export function PlanView() {
       </fieldset>
 
       {error ? (
-        <p className="mt-4 text-sm font-semibold text-coral" role="alert">
+        <p className="mt-4 text-sm font-semibold text-pen" role="alert">
           {error}
         </p>
       ) : null}
@@ -406,7 +406,7 @@ export function PlanView() {
             <Button onClick={buildFromForm} disabled={!formChanged}>
               Save plan
             </Button>
-            <p className="text-center text-xs text-ink/50">Saving rebuilds today&apos;s breaks around your new hours.</p>
+            <p className="text-center text-xs text-muted">Saving rebuilds today&apos;s breaks around your new hours.</p>
             <Button
               variant="tertiary"
               onClick={() => {

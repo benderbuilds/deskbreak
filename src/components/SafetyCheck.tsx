@@ -48,13 +48,13 @@ export function SafetyCheck({ onContinue }: { onContinue: () => void }) {
     // Bottom padding clears the fixed start bar (its height plus the safe area),
     // so the last options can always be scrolled into view and tapped.
     <div className="mx-auto w-full max-w-[560px] px-5 pb-[calc(8.5rem+env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))]">
-      <h1 className="font-display text-[2rem] font-semibold leading-tight text-ink">Before you start</h1>
+      <h1 className="font-display font-extrabold text-[2rem] leading-tight text-ink">Before you start</h1>
       <p className="mt-3 text-[1.05rem] font-semibold leading-snug text-ink">{STOP_RULE}</p>
-      <p className="mt-2 text-sm leading-relaxed text-ink/65">{FIRST_RUN_SAFETY_NOTE}</p>
+      <p className="mt-2 text-sm leading-relaxed text-muted">{FIRST_RUN_SAFETY_NOTE}</p>
 
       <fieldset className="mt-6">
-        <legend className="font-display text-lg font-semibold text-ink">Go easy on (optional)</legend>
-        <p className="mt-1 text-sm text-ink/60">Tick anything that applies. It stays on this device.</p>
+        <legend className="font-display font-extrabold text-lg text-ink">Go easy on (optional)</legend>
+        <p className="mt-1 text-sm text-muted">Tick anything that applies. It stays on this device.</p>
         <div className="mt-3 grid gap-1.5">
           {SAFETY_FLAG_OPTIONS.map((option) => {
             const checked = state.safetyFlags.includes(option.id);
@@ -67,11 +67,11 @@ export function SafetyCheck({ onContinue }: { onContinue: () => void }) {
                   type="checkbox"
                   checked={checked}
                   onChange={() => toggleSafetyFlag(option.id)}
-                  className="mt-0.5 h-5 w-5 shrink-0 accent-coral"
+                  className="mt-0.5 h-5 w-5 shrink-0 accent-pen"
                 />
                 <span className="min-w-0">
                   <span className="block text-[0.95rem] text-ink">{option.label}</span>
-                  {checked ? <span className="block text-xs text-ink/60">{option.hint}</span> : null}
+                  {checked ? <span className="block text-xs text-muted">{option.hint}</span> : null}
                 </span>
               </label>
             );
@@ -84,18 +84,18 @@ export function SafetyCheck({ onContinue }: { onContinue: () => void }) {
           type="checkbox"
           checked={state.allowFloorWork}
           onChange={(event) => setAllowFloorWork(event.target.checked)}
-          className="mt-0.5 h-5 w-5 shrink-0 accent-coral"
+          className="mt-0.5 h-5 w-5 shrink-0 accent-pen"
         />
         <span className="min-w-0">
           <span className="block text-[0.95rem] text-ink">{FLOOR_WORK_OPTION.label}</span>
-          <span className="block text-xs text-ink/60">{FLOOR_WORK_OPTION.hint}</span>
+          <span className="block text-xs text-muted">{FLOOR_WORK_OPTION.hint}</span>
         </span>
       </label>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ink/8 bg-paper/95 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-[2px]">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-paper px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
         <div className="mx-auto w-full max-w-[520px]">
           <Button onClick={start}>Start my reset</Button>
-          <p className="mt-2 text-center text-xs text-ink/60">You can change these any time in You.</p>
+          <p className="mt-2 text-center text-xs text-muted">You can change these any time in You.</p>
         </div>
       </div>
     </div>

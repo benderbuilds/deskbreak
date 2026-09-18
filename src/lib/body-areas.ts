@@ -39,7 +39,7 @@ export const MOVEMENT_TYPE_LABELS: Record<MovementType, string> = {
   eye_break: "Eye break",
 };
 
-/** "Neck · shoulders · back · wrists · hips · legs" from a list of areas. */
+/** "Neck, shoulders, back, wrists, hips, legs" from a list of areas. */
 export function areaLine(areas: string[], limit = 6): string {
   const order: BodyArea[] = ["neck", "shoulders", "upperBack", "wrists", "hips", "legs", "core", "posture", "breathing", "eyes"];
   const seen = new Set<string>();
@@ -48,5 +48,5 @@ export function areaLine(areas: string[], limit = 6): string {
     .map((area) => BODY_AREA_SHORT[area])
     .filter((label) => (seen.has(label) ? false : (seen.add(label), true)))
     .slice(0, limit)
-    .join(" · ");
+    .join(", ");
 }

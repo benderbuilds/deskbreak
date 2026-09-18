@@ -144,7 +144,7 @@ export function TodayView() {
       <header className="flex min-h-8 items-center justify-between">
         <div className="flex items-center gap-2 lg:hidden">
           <LogoMark size={30} />
-          <span className="font-display text-lg font-semibold tracking-tight">DeskBreak</span>
+          <span className="font-display font-extrabold text-lg">DeskBreak</span>
         </div>
         <span className="hidden lg:block" aria-hidden />
         {pro ? <ProBadge /> : null}
@@ -152,10 +152,10 @@ export function TodayView() {
 
       <div className="lg:grid lg:grid-cols-[3fr_2fr] lg:gap-10">
         <div>
-          <p className="mt-5 text-sm font-semibold text-ink/50 lg:mt-2">
+          <p className="mt-5 text-sm font-semibold text-muted lg:mt-2">
             {greetingForHour(hour)}
           </p>
-          <h1 className="mt-1 font-display text-[1.7rem] font-semibold leading-tight tracking-tight text-ink lg:text-[2.1rem]">
+          <h1 className="mt-1 font-display font-extrabold text-[1.7rem] leading-tight text-ink lg:text-[2.1rem]">
             {state.progress.totalWorkouts === 0 ? "Sitting all day? Do this." : "Time for a quick reset."}
           </h1>
 
@@ -171,20 +171,20 @@ export function TodayView() {
           >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-coral">
+                <p className="text-sm font-semibold text-muted">
                   {dueBreak ? "Or a full reset" : recommendation?.personalized ? "Recommended for you" : "Recommended now"}
                 </p>
-                <h2 id="reset-title" className="mt-1.5 font-display text-[1.55rem] font-semibold leading-tight text-ink lg:text-[1.8rem]">
+                <h2 id="reset-title" className="mt-1.5 font-display font-extrabold text-[1.55rem] leading-tight text-ink lg:text-[1.8rem]">
                   {title}
                 </h2>
-                <p className="mt-1 text-sm font-semibold text-ink/55">
+                <p className="mt-1 text-sm font-semibold text-muted">
                   {duration} minutes · {recommendation?.exerciseIds.length ?? 0} movements
                 </p>
                 <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/70">{subline}</p>
                 {areas ? (
-                  <p className="mt-2 text-sm text-ink/50">{areas}</p>
+                  <p className="mt-2 text-sm text-muted">{areas}</p>
                 ) : null}
-                <p className="mt-2 text-xs text-ink/45">No equipment · Office-friendly</p>
+                <p className="mt-2 text-sm text-muted">No equipment. Office-friendly.</p>
               </div>
               <CharacterArt pose="ready" setup={setup === "standing" ? "standing" : "seated"} size={96} alt="" className="hidden sm:block" />
             </div>
@@ -210,8 +210,8 @@ export function TodayView() {
             </div>
 
             {changing ? (
-              <div id="change-reset" className="animate-sheet-up mt-4 border-t border-ink/8 pt-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">Focus</p>
+              <div id="change-reset" className="animate-sheet-up mt-4 border-t border-line pt-4">
+                <p className="text-sm font-semibold text-muted">Focus</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {(["general", ...TARGETED_OPTIONS.map((option) => option.id)] as PrimaryNeed[]).map((id) => (
                     <Chip
@@ -222,7 +222,7 @@ export function TodayView() {
                     />
                   ))}
                 </div>
-                <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">Length</p>
+                <p className="mt-4 text-sm font-semibold text-muted">Length</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {DURATION_OPTIONS.map((option) => (
                     <Chip
@@ -230,7 +230,7 @@ export function TodayView() {
                       label={
                         <>
                           {option.label} {option.minutes} min
-                          {option.pro && !pro ? <span className="text-[10px] uppercase tracking-wide text-ink/50">Pro</span> : null}
+                          {option.pro && !pro ? <span className="text-xs font-semibold text-muted">Pro</span> : null}
                         </>
                       }
                       active={duration === option.minutes}
@@ -238,7 +238,7 @@ export function TodayView() {
                     />
                   ))}
                 </div>
-                <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">Position</p>
+                <p className="mt-4 text-sm font-semibold text-muted">Position</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {(["either", "seated", "standing"] as SetupRequest[]).map((value) => (
                     <Chip
@@ -254,7 +254,7 @@ export function TodayView() {
           </section>
 
           <section className="mt-6" aria-labelledby="specific">
-            <h2 id="specific" className="text-sm font-semibold text-ink/60">
+            <h2 id="specific" className="text-sm font-semibold text-muted">
               Need something specific?
             </h2>
             <div className="mt-2.5 grid grid-cols-2 gap-2">
@@ -269,7 +269,7 @@ export function TodayView() {
                     className={[
                       "min-h-12 rounded-[14px] px-4 text-left text-sm font-semibold transition-colors duration-200",
                       TARGETED_OPTIONS.length % 2 && index === TARGETED_OPTIONS.length - 1 ? "col-span-2" : "",
-                      active ? "bg-ink text-paper" : "surface text-ink hover:bg-ink/3",
+                      active ? "border border-ink bg-ink text-paper" : "border border-line-strong bg-sheet text-ink hover:border-ink",
                     ].join(" ")}
                   >
                     {option.label}
@@ -281,7 +281,7 @@ export function TodayView() {
         </div>
 
         <aside className="mt-8 lg:mt-2">
-          <h2 className="font-display text-lg font-semibold text-ink">Today</h2>
+          <h2 className="font-display font-extrabold text-lg text-ink">Today</h2>
           <TodayTimeline />
           <div className="mt-6">
             <WeekSummary compact />
@@ -289,10 +289,10 @@ export function TodayView() {
           {state.progress.totalWorkouts >= 1 && !state.challenge.startedOn ? (
             <Link
               href="/app/challenge"
-              className="surface mt-6 block px-4 py-4 transition-colors hover:bg-ink/3"
+              className="surface mt-6 block px-4 py-4 transition-colors hover:border-ink"
             >
-              <p className="font-display text-base font-semibold text-ink">Try the 5-Day Desk Reset</p>
-              <p className="mt-1 text-sm leading-relaxed text-ink/60">
+              <p className="font-display font-extrabold text-base text-ink">Try the 5-Day Desk Reset</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted">
                 See how a workweek of moving more feels.
               </p>
             </Link>

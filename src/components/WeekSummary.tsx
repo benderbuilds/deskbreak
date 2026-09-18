@@ -37,7 +37,7 @@ export function WeekSummary({ compact = false }: { compact?: boolean }) {
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">This week</p>
+      <p className="text-sm font-semibold text-muted">This week</p>
       <dl className={["mt-2 grid gap-3", compact ? "grid-cols-3" : "grid-cols-3"].join(" ")}>
         <Stat value={String(stats.resets)} label={stats.resets === 1 ? "reset" : "resets"} />
         <Stat
@@ -59,7 +59,7 @@ export function WeekSummary({ compact = false }: { compact?: boolean }) {
               key={key}
               className={[
                 "grid h-8 flex-1 place-items-center rounded-[10px] text-xs font-semibold",
-                done ? "bg-mint text-ink" : isToday ? "border border-coral/60 text-ink/70" : "bg-ink/5 text-ink/35",
+                done ? "bg-note text-ink" : isToday ? "border border-pen text-ink/70" : "bg-ink/5 text-muted",
                 future ? "opacity-50" : "",
               ].join(" ")}
               aria-label={`${["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"][index]}${done ? ", reset done" : ""}`}
@@ -77,8 +77,8 @@ function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div>
       <dt className="sr-only">{label}</dt>
-      <dd className="font-display text-xl font-semibold leading-none text-ink">
-        {value} <span className="font-sans text-xs font-semibold text-ink/50">{label}</span>
+      <dd className="font-display font-extrabold text-xl leading-none text-ink">
+        {value} <span className="font-sans text-xs font-semibold text-muted">{label}</span>
       </dd>
     </div>
   );

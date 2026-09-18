@@ -47,7 +47,7 @@ export function SwapSheet({
 
   return (
     <div
-      className="fixed inset-0 z-30 flex items-end justify-center bg-ink/30 backdrop-blur-[2px] sm:items-center"
+      className="fixed inset-0 z-30 flex items-end justify-center bg-ink/40 sm:items-center"
       role="presentation"
       onClick={onClose}
     >
@@ -60,14 +60,14 @@ export function SwapSheet({
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 id="swap-title" className="font-display text-xl font-semibold text-ink">
+            <h2 id="swap-title" className="font-display font-extrabold text-xl text-ink">
               {mode === "swap"
                 ? "Swap this move"
                 : replacement
                   ? "No problem. Let's switch it."
                   : "No problem. Let's skip it."}
             </h2>
-            <p className="mt-1 text-sm text-ink/65">
+            <p className="mt-1 text-sm text-muted">
               {mode === "swap"
                 ? `Instead of ${current.name}.`
                 : replacement
@@ -110,7 +110,7 @@ export function SwapSheet({
                 {PAINFUL_RESPONSE}
               </p>
             ) : (
-              <p className="mt-4 text-xs leading-relaxed text-ink/60">{SAFETY_LINE}</p>
+              <p className="mt-4 text-xs leading-relaxed text-muted">{SAFETY_LINE}</p>
             )}
             <div className="mt-5">
               <Button onClick={onClose}>Continue</Button>
@@ -124,21 +124,21 @@ export function SwapSheet({
                   <button
                     type="button"
                     onClick={() => onSwap(candidate)}
-                    className="surface flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-ink/3"
+                    className="surface flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:border-ink"
                   >
                     <CharacterArt pose="exercise" exerciseId={candidate.id} size={56} alt="" />
                     <span className="min-w-0">
                       <span className="block font-semibold text-ink">{candidate.name}</span>
-                      <span className="block text-sm text-ink/55">{candidate.tagline ?? candidate.cue}</span>
+                      <span className="block text-sm text-muted">{candidate.tagline ?? candidate.cue}</span>
                     </span>
                   </button>
                 </li>
               ))}
               {!candidates.length ? (
-                <li className="text-sm text-ink/55">Nothing else fits this slot. Skip it instead.</li>
+                <li className="text-sm text-muted">Nothing else fits this slot. Skip it instead.</li>
               ) : null}
             </ul>
-            <p className="mt-4 text-xs leading-relaxed text-ink/50">{SAFETY_LINE}</p>
+            <p className="mt-4 text-xs leading-relaxed text-muted">{SAFETY_LINE}</p>
           </>
         )}
       </div>

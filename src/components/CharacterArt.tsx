@@ -138,7 +138,7 @@ function ArtFrames({
         setBounce(true);
       }}
       aria-label={label}
-      className="relative z-0 rounded-[28px] outline-none focus-visible:ring-2 focus-visible:ring-coral"
+      className="relative z-0 rounded-[28px]"
     >
       {graphic}
     </button>

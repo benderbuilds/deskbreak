@@ -16,9 +16,9 @@ export function MarketingShell({ children }: { children: ReactNode }) {
       <header className="mx-auto flex w-full max-w-[64rem] items-center justify-between px-5 py-5">
         <Link href="/" className="flex items-center gap-2" aria-label="DeskBreak home">
           <LogoMark size={34} />
-          <span className="font-display text-lg font-semibold tracking-tight">DeskBreak</span>
+          <span className="font-display font-extrabold text-lg">DeskBreak</span>
         </Link>
-        <nav className="flex items-center gap-4 text-sm font-semibold text-ink/60" aria-label="Site">
+        <nav className="flex items-center gap-4 text-sm font-semibold text-muted" aria-label="Site">
           <Link href="/science" className="hidden hover:text-ink sm:inline">
             Why it works
           </Link>
@@ -34,8 +34,8 @@ export function MarketingShell({ children }: { children: ReactNode }) {
 
       <main className="mx-auto w-full max-w-[64rem] px-5 pb-20">{children}</main>
 
-      <footer className="border-t border-ink/8">
-        <div className="mx-auto w-full max-w-[64rem] px-5 py-8 text-sm text-ink/55">
+      <footer className="border-t border-line">
+        <div className="mx-auto w-full max-w-[64rem] px-5 py-8 text-sm text-muted">
           <p className="max-w-[42rem] leading-relaxed">{MOVEMENT_DISCLAIMER}</p>
           <nav className="mt-5 flex flex-wrap gap-x-6 gap-y-2 font-semibold" aria-label="Footer">
             <Link href="/desk-exercises" className="hover:text-ink">
@@ -63,7 +63,7 @@ export function MarketingShell({ children }: { children: ReactNode }) {
               Support
             </Link>
           </nav>
-          <p className="mt-5 text-xs text-ink/40">&copy; {new Date().getFullYear()} DeskBreak</p>
+          <p className="mt-5 text-xs text-muted">&copy; {new Date().getFullYear()} DeskBreak</p>
         </div>
       </footer>
     </div>

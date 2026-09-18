@@ -96,10 +96,10 @@ export function ReminderAsk() {
 
   return (
     <div className="surface px-4 py-4">
-      <p className="font-display text-base font-semibold text-ink">Same time tomorrow?</p>
+      <p className="font-display font-extrabold text-base text-ink">Same time tomorrow?</p>
       {needsInstall ? (
         <>
-          <p className="mt-1 text-sm leading-relaxed text-ink/65">
+          <p className="mt-1 text-sm leading-relaxed text-muted">
             Add DeskBreak to your Home Screen to get reminders.
           </p>
           <details className="mt-2 text-sm text-ink/70">
@@ -118,7 +118,7 @@ export function ReminderAsk() {
         </>
       ) : (
         <>
-          <p className="mt-1 text-sm leading-relaxed text-ink/65">
+          <p className="mt-1 text-sm leading-relaxed text-muted">
             A nudge around {time} on weekdays.
           </p>
           <div className="mt-3 flex items-center gap-2">

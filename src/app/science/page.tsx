@@ -64,7 +64,7 @@ export default function SciencePage() {
     <MarketingShell>
       <LandingViewTracker page="science" />
       <article className="py-10">
-        <h1 className="max-w-[40rem] font-display text-[2.2rem] font-semibold leading-tight tracking-tight text-ink sm:text-[2.6rem]">
+        <h1 className="max-w-[40rem] font-display font-extrabold text-[2.2rem] leading-tight text-ink sm:text-[2.6rem]">
           Why DeskBreak works the way it does
         </h1>
         <p className="mt-4 max-w-[42rem] text-lg leading-relaxed text-ink/70">
@@ -75,7 +75,7 @@ export default function SciencePage() {
         <div className="mt-10 max-w-[42rem] space-y-9">
           {SECTIONS.map((section) => (
             <section key={section.heading}>
-              <h2 className="font-display text-xl font-semibold text-ink">{section.heading}</h2>
+              <h2 className="font-display font-extrabold text-xl text-ink">{section.heading}</h2>
               {section.body.map((paragraph) => (
                 <p key={paragraph.slice(0, 40)} className="mt-3 leading-relaxed text-ink/70">
                   <RichText text={paragraph} />
@@ -86,17 +86,17 @@ export default function SciencePage() {
         </div>
 
         <section className="mt-12 max-w-[42rem]" aria-labelledby="references">
-          <h2 id="references" className="font-display text-xl font-semibold text-ink">
+          <h2 id="references" className="font-display font-extrabold text-xl text-ink">
             References
           </h2>
-          <p className="mt-2 text-sm text-ink/55">
+          <p className="mt-2 text-sm text-muted">
             A curated list, not an exhaustive one. Summaries describe what each study looked at, not what DeskBreak does to you.
           </p>
           <ol className="mt-4 grid gap-5">
             {references.map((reference, index) => (
               <li key={reference.id} id={reference.id} className="scroll-mt-6 text-sm leading-relaxed text-ink/70">
                 <p>
-                  <span className="mr-2 font-semibold text-ink/40">{index + 1}.</span>
+                  <span className="mr-2 font-semibold text-muted">{index + 1}.</span>
                   {reference.citation ? (
                     reference.citation.replace(reference.url, "").trim()
                   ) : (
@@ -104,18 +104,18 @@ export default function SciencePage() {
                       {reference.title}. <em>{reference.source}</em>, {reference.year}.
                     </>
                   )}{" "}
-                  <a href={reference.url} target="_blank" rel="noreferrer" className="break-all font-semibold text-coral">
+                  <a href={reference.url} target="_blank" rel="noreferrer" className="break-all font-semibold text-pen">
                     doi:{reference.doi}
                   </a>
                 </p>
-                <p className="mt-1 text-ink/55">{reference.summary}</p>
+                <p className="mt-1 text-muted">{reference.summary}</p>
               </li>
             ))}
           </ol>
         </section>
 
         <section id="how-we-use-sources" className="mt-12 max-w-[42rem] scroll-mt-6" aria-labelledby="sources-heading">
-          <h2 id="sources-heading" className="font-display text-xl font-semibold text-ink">
+          <h2 id="sources-heading" className="font-display font-extrabold text-xl text-ink">
             Sources and how we use them
           </h2>
           <p className="mt-3 leading-relaxed text-ink/70">
@@ -131,8 +131,8 @@ export default function SciencePage() {
         </section>
 
         <div className="surface-elevated mt-12 max-w-[34rem] px-5 py-6 sm:px-7">
-          <p className="font-display text-lg font-semibold text-ink">Try the guided version</p>
-          <p className="mt-1 text-sm text-ink/60">3-Minute Desk Reset. No equipment. No signup.</p>
+          <p className="font-display font-extrabold text-lg text-ink">Try the guided version</p>
+          <p className="mt-1 text-sm text-muted">3-Minute Desk Reset. No equipment. No signup.</p>
           <div className="mt-4">
             <StartResetButton minutes={3} source="science">
               Start DeskBreak
@@ -140,9 +140,9 @@ export default function SciencePage() {
           </div>
         </div>
 
-        <p className="mt-8 text-xs text-ink/45">
+        <p className="mt-8 text-xs text-muted">
           Every movement page explains why it&apos;s in a reset. Browse them from{" "}
-          <Link href="/desk-exercises" className="font-semibold text-coral">
+          <Link href="/desk-exercises" className="font-semibold text-pen">
             desk exercises
           </Link>
           .

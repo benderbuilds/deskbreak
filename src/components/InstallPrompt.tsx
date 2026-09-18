@@ -101,7 +101,7 @@ export function InstallPrompt() {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-ink">Keep DeskBreak one click away</p>
-          <p className="mt-0.5 text-xs leading-relaxed text-ink/55">
+          <p className="mt-0.5 text-xs leading-relaxed text-muted">
             {desktop ? "Add DeskBreak to your desktop." : "Add DeskBreak to your home screen."}
           </p>
         </div>
@@ -109,7 +109,7 @@ export function InstallPrompt() {
           <button
             type="button"
             onClick={dismiss}
-            className="min-h-11 rounded-full px-3 text-sm font-semibold text-ink/45"
+            className="min-h-11 rounded-full px-3 text-sm font-semibold text-muted"
           >
             Later
           </button>
@@ -134,7 +134,7 @@ export function installPlatform(): InstallPlatform {
 /** How to add DeskBreak to the home screen or desktop, per platform. */
 export function InstallSteps({ platform, className = "" }: { platform: InstallPlatform; className?: string }) {
   return (
-    <ol className={`space-y-1.5 text-xs leading-relaxed text-ink/65 ${className}`}>
+    <ol className={`space-y-1.5 text-xs leading-relaxed text-muted ${className}`}>
       {platform === "ios" ? (
         <>
           <li>1. Tap Share (the square with the arrow) in Safari.</li>

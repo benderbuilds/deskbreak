@@ -33,7 +33,7 @@ export function SwitchRow({
       <span className="min-w-0">
         <span className="block text-sm font-semibold text-ink">{label}</span>
         {hint ? (
-          <span id={hintId} className="mt-0.5 block text-xs leading-relaxed text-ink/55">
+          <span id={hintId} className="mt-0.5 block text-xs leading-relaxed text-muted">
             {hint}
           </span>
         ) : null}

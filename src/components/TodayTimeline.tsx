@@ -87,17 +87,17 @@ export function TodayTimeline() {
   if (!entries.length && !plan) {
     return (
       <div className="mt-3">
-        <p className="text-sm leading-relaxed text-ink/55">
+        <p className="text-sm leading-relaxed text-muted">
           {state.progress.totalWorkouts === 0
             ? "Nothing yet. Your first reset takes three minutes."
             : "No resets yet today."}
         </p>
         {!pro ? (
-          <Link href="/app/pro?from=today_planner" className="mt-3 block text-sm font-semibold text-coral">
+          <Link href="/app/pro?from=today_planner" className="mt-3 block text-sm font-semibold text-pen">
             Want DeskBreak to remind you before you&apos;ve been sitting all afternoon?
           </Link>
         ) : (
-          <Link href="/app/plan" className="mt-3 block text-sm font-semibold text-coral">
+          <Link href="/app/plan" className="mt-3 block text-sm font-semibold text-pen">
             Set up your workday plan
           </Link>
         )}
@@ -108,7 +108,7 @@ export function TodayTimeline() {
   return (
     <div className="mt-3">
       {progress && progress.total ? (
-        <p className="text-sm text-ink/55">
+        <p className="text-sm text-muted">
           {progress.done} of {progress.total} breaks done
           {progress.microTotal ? `, ${progress.microDone} of ${progress.microTotal} stand-ups` : ""}
         </p>
@@ -116,14 +116,14 @@ export function TodayTimeline() {
 
       {preview ? (
         <div className="surface mt-3 px-4 py-3.5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/45">Next break</p>
+          <p className="text-sm font-semibold text-muted">Next break</p>
           <div className="mt-1 flex items-baseline justify-between gap-3">
-            <p className="font-display text-xl font-semibold text-ink tabular-nums">
+            <p className="font-display font-extrabold text-xl text-ink tabular-nums">
               {formatMinutes(effectiveStart(preview))}
             </p>
-            <p className="text-sm text-ink/55">{formatRelativeMinutes(effectiveStart(preview) - now)}</p>
+            <p className="text-sm text-muted">{formatRelativeMinutes(effectiveStart(preview) - now)}</p>
           </div>
-          <p className="mt-0.5 text-sm text-ink/60">
+          <p className="mt-0.5 text-sm text-muted">
             {breakTitle(preview, BREAK_TYPE_COPY[preview.type].label)} · {preview.durationMin} min
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -169,13 +169,13 @@ export function TodayTimeline() {
           return (
             <li
               key={key}
-              className={["flex items-center gap-3 px-1 py-1.5 text-sm", status ? "text-ink/40" : "text-ink/75"].join(" ")}
+              className={["flex items-center gap-3 px-1 py-1.5 text-sm", status ? "text-muted" : "text-ink/75"].join(" ")}
             >
               <span
                 aria-hidden
                 className={[
                   "grid h-5 w-5 place-items-center rounded-full text-[11px] font-bold",
-                  done ? "bg-mint text-ink" : current ? "border-2 border-coral text-coral" : "border border-ink/25",
+                  done ? "bg-note text-ink" : current ? "border-2 border-pen text-pen" : "border border-line-strong",
                 ].join(" ")}
               >
                 {done ? "✓" : current ? "●" : ""}
@@ -191,7 +191,7 @@ export function TodayTimeline() {
         })}
       </ul>
       {plan ? (
-        <Link href="/app/plan" className="mt-3 inline-block text-sm font-semibold text-coral">
+        <Link href="/app/plan" className="mt-3 inline-block text-sm font-semibold text-pen">
           Change plan
         </Link>
       ) : null}

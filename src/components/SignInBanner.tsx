@@ -54,17 +54,17 @@ export function SignInBanner() {
 
   return (
     <div className="surface mt-4 flex items-start gap-3 px-4 py-3.5" role="status">
-      <span aria-hidden className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-mint text-[11px] font-bold text-ink">
+      <span aria-hidden className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-note text-[11px] font-bold text-ink">
         ✓
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-ink">{message}</p>
-        {detail ? <p className="mt-0.5 text-sm leading-relaxed break-words text-ink/60">{detail}</p> : null}
+        {detail ? <p className="mt-0.5 text-sm leading-relaxed break-words text-muted">{detail}</p> : null}
       </div>
       <button
         type="button"
         onClick={() => setArrival(null)}
-        className="-mr-2 -mt-1 grid min-h-11 min-w-11 place-items-center rounded-full text-lg text-ink/50 hover:bg-ink/5 hover:text-ink"
+        className="-mr-2 -mt-1 grid min-h-11 min-w-11 place-items-center rounded-full text-lg text-muted hover:bg-ink/5 hover:text-ink"
         aria-label="Dismiss"
       >
         ×

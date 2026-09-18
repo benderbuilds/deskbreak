@@ -174,7 +174,7 @@ export function SettingsView() {
   return (
     <div className="flex flex-1 flex-col px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))] lg:max-w-[640px] lg:px-0">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-[2rem] font-semibold leading-tight text-ink">You</h1>
+        <h1 className="font-display font-extrabold text-[2rem] leading-tight text-ink">You</h1>
         {pro ? <ProBadge /> : null}
       </div>
 
@@ -185,18 +185,18 @@ export function SettingsView() {
       <Section title="Account">
         {signedIn ? (
           <Field label="Signed in">
-            <p className="text-sm break-words text-ink/60">{state.account.email}</p>
-            <p className="mt-1 text-xs text-ink/45">Your resets sync across devices.</p>
+            <p className="text-sm break-words text-muted">{state.account.email}</p>
+            <p className="mt-1 text-xs text-muted">Your resets sync across devices.</p>
             {pro ? (
-              <div className="mt-4 border-t border-ink/8 pt-4">
+              <div className="mt-4 border-t border-line pt-4">
                 <p className="text-sm font-semibold text-ink">DeskBreak Pro</p>
-                <p className="mt-0.5 text-sm text-ink/60">{renewalLine(state.entitlement)}</p>
+                <p className="mt-0.5 text-sm text-muted">{renewalLine(state.entitlement)}</p>
                 <div className="mt-3">
                   <Button size="sm" variant="secondary" block={false} onClick={openPortal} disabled={busy === "portal"}>
                     {busy === "portal" ? "Opening..." : "Manage subscription"}
                   </Button>
                 </div>
-                <p className="mt-2 text-xs text-ink/45">Cancel, change your card, or see invoices.</p>
+                <p className="mt-2 text-xs text-muted">Cancel, change your card, or see invoices.</p>
                 {billingNotice ? (
                   <p className="mt-2 text-sm leading-relaxed text-ink/70" role="status">
                     {billingNotice}
@@ -221,7 +221,7 @@ export function SettingsView() {
           </Field>
         ) : (
           <Field label="Save what works for you">
-            <p className="text-sm leading-relaxed text-ink/60">
+            <p className="text-sm leading-relaxed text-muted">
               A sign-in link by email. No password. Your history so far comes with you.
             </p>
             <label htmlFor="you-email" className="sr-only">
@@ -237,7 +237,7 @@ export function SettingsView() {
               onChange={(event) => setEmail(event.target.value)}
               aria-describedby={accountNotice ? emailNoticeId : undefined}
               aria-invalid={accountNotice?.tone === "error" && !retryUntil ? true : undefined}
-              className="mt-3 min-h-12 w-full rounded-[14px] border border-ink/12 bg-white px-4 text-base text-ink outline-none focus-visible:border-coral"
+              className="mt-3 min-h-12 w-full rounded-[14px] border border-line-strong bg-white px-4 text-base text-ink"
             />
             {accountNotice ? (
               <p
@@ -305,7 +305,7 @@ export function SettingsView() {
           </div>
         </Field>
         <Field label="Movements to avoid">
-          <p className="text-sm leading-relaxed text-ink/60">
+          <p className="text-sm leading-relaxed text-muted">
             Anything you&apos;d prefer DeskBreak not include? These are never shown, whatever the routine.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -330,11 +330,11 @@ export function SettingsView() {
       </Section>
 
       <Section title="Go easy on">
-        <div className="surface px-4 py-3">
-          <p className="py-1 text-sm leading-relaxed text-ink/60">
+        <div className="px-4 py-3">
+          <p className="py-1 text-sm leading-relaxed text-muted">
             Anything DeskBreak should go easy on? Moves that don&apos;t suit it are left out of every routine.
           </p>
-          <ul className="divide-y divide-ink/8">
+          <ul className="divide-y divide-line">
             {SAFETY_FLAG_OPTIONS.map((option) => (
               <li key={option.id}>
                 <SwitchRow
@@ -354,7 +354,7 @@ export function SettingsView() {
               />
             </li>
           </ul>
-          <p className="py-2 text-xs leading-relaxed text-ink/50">
+          <p className="py-2 text-xs leading-relaxed text-muted">
             These answers stay on this device. They aren&apos;t saved to your account.
           </p>
         </div>
@@ -363,10 +363,10 @@ export function SettingsView() {
       <Section title="Workday">
         <Field label={pro ? "Workday plan" : "Workday plan · Pro"}>
           {pro && state.plan ? (
-            <p className="text-sm text-ink/60">
+            <p className="text-sm text-muted">
               {formatMinutes(state.plan.preferences.startMinutes)} to {formatMinutes(state.plan.preferences.endMinutes)} ·{" "}
               {REMINDER_LEVELS[state.plan.preferences.level].label} ·{" "}
-              <Link href="/app/plan" className="font-semibold text-coral">
+              <Link href="/app/plan" className="font-semibold text-pen">
                 Edit
               </Link>
             </p>
@@ -375,7 +375,7 @@ export function SettingsView() {
               Build my workday
             </ButtonLink>
           ) : (
-            <p className="text-sm leading-relaxed text-ink/60">
+            <p className="text-sm leading-relaxed text-muted">
               Pro puts movement breaks into your workday and reminds you before you&apos;ve been sitting all afternoon.
             </p>
           )}
@@ -383,8 +383,8 @@ export function SettingsView() {
       </Section>
 
       <Section title="Reminders">
-        <div className="surface px-4 py-3">
-          <ul className="divide-y divide-ink/8">
+        <div className="px-4 py-3">
+          <ul className="divide-y divide-line">
             <li>
               <SwitchRow
                 label="Stand-up nudge"
@@ -423,13 +423,13 @@ export function SettingsView() {
         <Field label={pro ? "DeskBreak Pro" : "DeskBreak Free"}>
           {pro ? (
             signedIn ? (
-              <p className="text-sm text-ink/60">
+              <p className="text-sm text-muted">
                 {renewalLine(state.entitlement)} Manage it from Account above.
               </p>
             ) : (
               <>
-                <p className="text-sm text-ink/60">{renewalLine(state.entitlement)}</p>
-                <p className="mt-3 text-sm leading-relaxed text-ink/60">
+                <p className="text-sm text-muted">{renewalLine(state.entitlement)}</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
                   To cancel, change your card or see invoices, sign in above with the email you used at checkout.
                   Billing only opens for a signed-in account.
                 </p>
@@ -437,7 +437,7 @@ export function SettingsView() {
             )
           ) : (
             <>
-              <p className="text-sm leading-relaxed text-ink/60">
+              <p className="text-sm leading-relaxed text-muted">
                 A workday plan, reminders around it, 5- and 10-minute workouts and your full history.
               </p>
               <div className="mt-3">
@@ -451,9 +451,9 @@ export function SettingsView() {
       </Section>
 
       <Section title="App">
-        <div className="surface px-4 py-3">
+        <div className="px-4 py-3">
           <p className="py-1 text-sm font-semibold text-ink">During a reset</p>
-          <ul className="divide-y divide-ink/8">
+          <ul className="divide-y divide-line">
             <li>
               <SwitchRow
                 label="Sound"
@@ -480,20 +480,20 @@ export function SettingsView() {
               />
             </li>
           </ul>
-          <p className="py-2 text-xs text-ink/45">
+          <p className="py-2 text-xs text-muted">
             Keyboard: Space pauses, arrows move between exercises, S swaps. Reduced motion follows your system setting.
           </p>
         </div>
       </Section>
 
-      <Section title="About">
-        <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-coral">
+      <Section title="About" plain>
+        <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-pen underline underline-offset-4">
           <Link href="/science">Why this works</Link>
           <Link href="/support">Help</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
         </nav>
-        <p className="mt-3 text-xs leading-relaxed text-ink/45">{MOVEMENT_DISCLAIMER}</p>
+        <p className="mt-3 text-xs leading-relaxed text-muted">{MOVEMENT_DISCLAIMER}</p>
       </Section>
     </div>
   );
@@ -509,18 +509,19 @@ function formatCountdown(seconds: number): string {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+/** One sheet per section, its fields split by hairlines. `plain` sits on the page. */
+function Section({ title, plain = false, children }: { title: string; plain?: boolean; children: React.ReactNode }) {
   return (
-    <section className="mt-7">
-      <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">{title}</h2>
-      <div className="mt-3 grid gap-3">{children}</div>
+    <section className="mt-8">
+      <h2 className="font-display text-xl font-extrabold text-ink">{title}</h2>
+      <div className={plain ? "mt-3" : "mt-3 divide-y divide-line rounded-card border border-line bg-sheet"}>{children}</div>
     </section>
   );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="surface px-4 py-4">
+    <div className="px-4 py-4">
       <p className="text-sm font-semibold text-ink">{label}</p>
       <div className="mt-2.5">{children}</div>
     </div>

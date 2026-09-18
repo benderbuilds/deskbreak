@@ -28,8 +28,8 @@ export function SaveProgressView() {
   if (state.account.profileId) {
     return (
       <div className="flex min-h-dvh flex-col justify-center px-5">
-        <h1 className="text-center font-display text-[2rem] font-semibold text-ink">You&apos;re signed in.</h1>
-        <p className="mt-3 text-center text-ink/60">{state.account.email}</p>
+        <h1 className="text-center font-display font-extrabold text-[2rem] text-ink">You&apos;re signed in.</h1>
+        <p className="mt-3 text-center text-muted">{state.account.email}</p>
         <div className="mt-8">
           <ButtonLink href="/app">Back to Today</ButtonLink>
         </div>
@@ -65,16 +65,16 @@ export function SaveProgressView() {
       </div>
       {sent ? (
         <>
-          <h1 className="mt-4 text-center font-display text-[2rem] font-semibold leading-tight text-ink">
+          <h1 className="mt-4 text-center font-display font-extrabold text-[2rem] leading-tight text-ink">
             Check your inbox.
           </h1>
-          <p className="mt-3 text-center text-ink/60">
+          <p className="mt-3 text-center text-muted">
             We sent a sign-in link to {email.trim()}. It works once and expires in 30 minutes.
           </p>
           {devLink ? (
-            <p className="mt-3 text-center text-xs text-ink/50">
+            <p className="mt-3 text-center text-xs text-muted">
               Email isn&apos;t configured here:{" "}
-              <a href={devLink} className="font-semibold text-coral">
+              <a href={devLink} className="font-semibold text-pen">
                 open the link
               </a>
             </p>
@@ -87,10 +87,10 @@ export function SaveProgressView() {
         </>
       ) : (
         <form onSubmit={submit}>
-          <h1 className="mt-4 text-center font-display text-[2rem] font-semibold leading-tight text-ink">
+          <h1 className="mt-4 text-center font-display font-extrabold text-[2rem] leading-tight text-ink">
             Save what works for you.
           </h1>
-          <p className="mt-3 text-center text-ink/60">
+          <p className="mt-3 text-center text-muted">
             A sign-in link by email. No password. Your resets so far come with you, on every device.
           </p>
           <label htmlFor="save-email" className="sr-only">
@@ -104,10 +104,10 @@ export function SaveProgressView() {
             placeholder="you@work.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="mt-6 min-h-13 w-full rounded-[16px] border border-ink/12 bg-white px-4 text-base text-ink outline-none focus-visible:border-coral"
+            className="mt-6 min-h-13 w-full rounded-[14px] border border-line-strong bg-white px-4 text-base text-ink"
           />
           {error ? (
-            <p className="mt-2 text-sm font-semibold text-coral" role="alert">
+            <p className="mt-2 text-sm font-semibold text-pen" role="alert">
               {error}
             </p>
           ) : null}

@@ -23,11 +23,11 @@ export function RichText({ text }: { text: string }) {
       const href = match[3];
       parts.push(
         href.startsWith("/") ? (
-          <Link key={index} href={href} className="font-semibold text-coral underline-offset-2 hover:underline">
+          <Link key={index} href={href} className="font-semibold text-pen underline underline-offset-2 hover:decoration-2">
             {match[2]}
           </Link>
         ) : (
-          <a key={index} href={href} target="_blank" rel="noreferrer" className="font-semibold text-coral underline-offset-2 hover:underline">
+          <a key={index} href={href} target="_blank" rel="noreferrer" className="font-semibold text-pen underline underline-offset-2 hover:decoration-2">
             {match[2]}
           </a>
         ),
@@ -53,7 +53,7 @@ export function Citation({ ids }: { ids: string[] }) {
               target="_blank"
               rel="noreferrer"
               title={source.title}
-              className="text-coral underline-offset-2 hover:underline"
+              className="text-pen underline underline-offset-2 hover:decoration-2"
             >
               {shortCitation(id)}
             </a>
@@ -70,9 +70,9 @@ export function PainNote({ className = "" }: { className?: string }) {
   return (
     <aside
       aria-labelledby="pain-note-heading"
-      className={`max-w-[42rem] rounded-[16px] border border-ink/12 bg-white px-5 py-4 ${className}`}
+      className={`max-w-[42rem] rounded-[16px] border border-line bg-white px-5 py-4 ${className}`}
     >
-      <h2 id="pain-note-heading" className="font-display text-base font-semibold text-ink">
+      <h2 id="pain-note-heading" className="font-display font-extrabold text-base text-ink">
         If you have pain…
       </h2>
       <p className="mt-1.5 text-sm leading-relaxed text-ink/70">{PAIN_NOTE}</p>

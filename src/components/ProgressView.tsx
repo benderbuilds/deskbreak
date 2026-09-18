@@ -50,19 +50,19 @@ export function ProgressView() {
 
   return (
     <div className="flex flex-1 flex-col px-5 py-6 lg:max-w-[640px] lg:px-0">
-      <h1 className="font-display text-[1.8rem] font-semibold leading-tight text-ink">Progress</h1>
+      <h1 className="font-display font-extrabold text-[1.8rem] leading-tight text-ink">Progress</h1>
       {state.account.profileId && state.account.email ? (
-        <p className="mt-1 text-sm break-words text-ink/55">Synced as {state.account.email}</p>
+        <p className="mt-1 text-sm break-words text-muted">Synced as {state.account.email}</p>
       ) : null}
 
       {empty ? (
         <div className="mt-8 text-center">
           <CharacterArt pose="idle" size={150} alt="" />
-          <p className="mt-4 font-display text-lg font-semibold text-ink">Nothing here yet.</p>
-          <p className="mt-1 text-sm text-ink/60">Do one DeskBreak and this page starts meaning something.</p>
+          <p className="mt-4 font-display font-extrabold text-lg text-ink">Nothing here yet.</p>
+          <p className="mt-1 text-sm text-muted">Do one DeskBreak and this page starts meaning something.</p>
           <Link
             href="/app"
-            className="mt-5 inline-flex min-h-12 items-center rounded-[14px] bg-coral px-5 font-semibold text-white"
+            className="mt-5 inline-flex min-h-12 items-center rounded-[14px] bg-pen px-5 font-semibold text-white"
           >
             Start a reset
           </Link>
@@ -75,13 +75,13 @@ export function ProgressView() {
 
           {ready && insights.mostHelpful ? (
             <section className="mt-6" aria-labelledby="most-helpful">
-              <h2 id="most-helpful" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+              <h2 id="most-helpful" className="font-display text-xl font-extrabold text-ink">
                 What helps you
               </h2>
               <div className="surface mt-2 px-4 py-4">
-                <p className="text-sm text-ink/55">Most helpful</p>
-                <p className="mt-0.5 font-display text-lg font-semibold text-ink">{insights.mostHelpful.name}</p>
-                <p className="mt-1 text-sm text-ink/60">
+                <p className="text-sm text-muted">Most helpful</p>
+                <p className="mt-0.5 font-display font-extrabold text-lg text-ink">{insights.mostHelpful.name}</p>
+                <p className="mt-1 text-sm text-muted">
                   Helped {insights.mostHelpful.helped} of {insights.mostHelpful.rated} times
                 </p>
               </div>
@@ -90,7 +90,7 @@ export function ProgressView() {
 
           {ready && insights.patterns.length ? (
             <section className="mt-6" aria-labelledby="patterns">
-              <h2 id="patterns" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+              <h2 id="patterns" className="font-display text-xl font-extrabold text-ink">
                 Patterns
               </h2>
               <ul className="mt-2 grid gap-2">
@@ -102,7 +102,7 @@ export function ProgressView() {
               </ul>
             </section>
           ) : (
-            <p className="mt-6 text-sm leading-relaxed text-ink/55">
+            <p className="mt-6 text-sm leading-relaxed text-muted">
               {remaining > 0
                 ? `${remaining} more rated ${remaining === 1 ? "reset" : "resets"} to see your patterns. Answer "How do you feel?" after a reset to count it.`
                 : "Patterns show up here once your answers point somewhere."}
@@ -110,31 +110,31 @@ export function ProgressView() {
           )}
 
           <section className="mt-6" aria-labelledby="totals">
-            <h2 id="totals" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+            <h2 id="totals" className="font-display text-xl font-extrabold text-ink">
               All time
             </h2>
-            <dl className="mt-2 grid grid-cols-2 gap-3">
+            <dl className="mt-2 grid grid-cols-2 border-t border-line">
               <Stat label="Resets" value={String(state.progress.totalWorkouts)} />
               <Stat label="Active workdays" value={String(insights.activeDays)} />
               <Stat label="Helped" value={insights.rated ? `${insights.helped} of ${insights.rated}` : "–"} />
               <Stat label="Time moved" value={formatActiveTime(insights.activeSeconds)} />
             </dl>
             {state.microBreaks.length ? (
-              <p className="mt-3 text-sm text-ink/60">
+              <p className="mt-3 text-sm text-muted">
                 Plus {state.microBreaks.length} {state.microBreaks.length === 1 ? "stand-up" : "stand-ups"} between resets.
               </p>
             ) : null}
           </section>
 
           {!pro ? (
-            <Link href="/app/pro?from=progress" className="surface mt-6 block px-5 py-4 transition-colors hover:bg-ink/3">
-              <p className="font-display text-base font-semibold text-ink">
+            <Link href="/app/pro?from=progress" className="surface mt-6 block px-5 py-4 transition-colors hover:border-ink">
+              <p className="font-display font-extrabold text-base text-ink">
                 Insights cover the last {FREE_HISTORY_DAYS} days on Free.
               </p>
-              <p className="mt-1 text-sm leading-relaxed text-ink/60">
+              <p className="mt-1 text-sm leading-relaxed text-muted">
                 Pro keeps your full history, syncs it across devices and shows which resets help most.
               </p>
-              <p className="mt-2 text-sm font-semibold text-coral">See Pro &rarr;</p>
+              <p className="mt-2 text-sm font-semibold text-pen underline underline-offset-4">See Pro</p>
             </Link>
           ) : null}
         </>
@@ -145,9 +145,9 @@ export function ProgressView() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="surface px-4 py-4">
-      <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">{label}</dt>
-      <dd className="mt-1 font-display text-2xl font-semibold text-ink">{value}</dd>
+    <div className="border-b border-line py-3 pr-3">
+      <dt className="text-sm font-semibold text-muted">{label}</dt>
+      <dd className="mt-0.5 font-display font-extrabold text-[2rem] leading-tight text-ink tabular-nums">{value}</dd>
     </div>
   );
 }

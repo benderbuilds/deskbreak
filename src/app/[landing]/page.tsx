@@ -76,7 +76,7 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
       <LandingViewTracker page={`seo_${page.slug}`} seo />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <article className="py-10">
-        <h1 className="max-w-[40rem] font-display text-[2.2rem] font-semibold leading-tight tracking-tight text-ink sm:text-[2.6rem]">
+        <h1 className="max-w-[40rem] font-display font-extrabold text-[2.2rem] leading-tight text-ink sm:text-[2.6rem]">
           {page.title}
         </h1>
         <p className="mt-4 max-w-[42rem] text-lg leading-relaxed text-ink/70">
@@ -84,9 +84,9 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
         </p>
 
         <div className="surface-elevated mt-8 max-w-[34rem] px-5 py-6 sm:px-7">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-coral">{page.ctaTitle}</p>
-          <p className="mt-1 font-display text-xl font-semibold text-ink">{routine}</p>
-          <p className="mt-1 text-sm text-ink/60">
+          <p className="text-sm font-semibold text-muted">{page.ctaTitle}</p>
+          <p className="mt-1 font-display font-extrabold text-xl text-ink">{routine}</p>
+          <p className="mt-1 text-sm text-muted">
             {shorterThanArticle
               ? `Start with the free ${minutes}-minute version. The full ${page.durationMinutes}-minute workout is in Pro.`
               : "No equipment. No signup. Timed, cued and illustrated."}
@@ -100,26 +100,26 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
 
         {page.painNote ? <PainNote className="mt-6" /> : null}
 
-        <h2 className="mt-12 font-display text-[1.6rem] font-semibold tracking-tight text-ink">{page.movesHeading}</h2>
-        <ol className="mt-5 grid gap-4">
+        <h2 className="mt-12 font-display font-extrabold text-[1.6rem] text-ink">{page.movesHeading}</h2>
+        <ol className="mt-5 max-w-[46rem] border-b border-line">
           {moves.map((exercise, index) => (
-            <li key={exercise.id} className="surface flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center">
-              <CharacterArt pose="exercise" exerciseId={exercise.id} size={110} alt={`Stretch demonstrating ${exercise.name}`} />
+            <li key={exercise.id} className="grid grid-cols-[76px_1fr] items-start gap-4 border-t border-line py-5 sm:grid-cols-[120px_1fr] sm:gap-6">
+              <CharacterArt pose="exercise" exerciseId={exercise.id} size={120} alt={`Stretch demonstrating ${exercise.name}`} className="h-auto w-full" />
               <div className="min-w-0">
-                <h3 className="font-display text-lg font-semibold text-ink">
+                <h3 className="font-display font-extrabold text-lg text-ink">
                   {index + 1}.{" "}
-                  <Link href={`/moves/${exercise.id}`} className="hover:text-coral">
+                  <Link href={`/moves/${exercise.id}`} className="underline decoration-line-strong underline-offset-4 hover:text-pen hover:decoration-pen">
                     {exercise.name}
                   </Link>
                 </h3>
                 <p className="mt-1.5 leading-relaxed text-ink/70">{exercise.cue}</p>
                 {exercise.feelIt ? (
-                  <p className="mt-2 text-sm text-ink/55">
+                  <p className="mt-2 text-sm text-muted">
                     <strong className="font-semibold text-ink/70">Feel it:</strong> {exercise.feelIt}
                   </p>
                 ) : null}
                 {exercise.avoid ? (
-                  <p className="mt-1 text-sm text-ink/55">
+                  <p className="mt-1 text-sm text-muted">
                     <strong className="font-semibold text-ink/70">Common mistake:</strong> {exercise.avoid}
                   </p>
                 ) : null}
@@ -131,7 +131,7 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
         <div className="mt-10 max-w-[42rem] space-y-7">
           {page.sections.map((section) => (
             <section key={section.heading}>
-              <h2 className="font-display text-xl font-semibold text-ink">{section.heading}</h2>
+              <h2 className="font-display font-extrabold text-xl text-ink">{section.heading}</h2>
               <p className="mt-2 leading-relaxed text-ink/70">
                 <RichText text={section.body} />
               </p>
@@ -140,8 +140,8 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
         </div>
 
         <div className="surface-elevated mt-10 max-w-[34rem] px-5 py-6 sm:px-7">
-          <p className="font-display text-lg font-semibold text-ink">{routine}</p>
-          <p className="mt-1 text-sm text-ink/60">
+          <p className="font-display font-extrabold text-lg text-ink">{routine}</p>
+          <p className="mt-1 text-sm text-muted">
             {shorterThanArticle
               ? `Free, ${minutes} minutes. The full ${page.durationMinutes}-minute workout is in Pro.`
               : "No equipment, no signup."}
@@ -153,12 +153,12 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
           </div>
         </div>
 
-        <nav className="mt-12 text-sm text-ink/55" aria-label="More desk exercise guides">
+        <nav className="mt-12 text-sm text-muted" aria-label="More desk exercise guides">
           <p className="font-semibold text-ink/70">More guides</p>
           <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
             {LANDING_PAGES.filter((entry) => entry.slug !== page.slug).map((entry) => (
               <li key={entry.slug}>
-                <Link href={`/${entry.slug}`} className="font-semibold text-coral">
+                <Link href={`/${entry.slug}`} className="font-semibold text-pen underline underline-offset-4">
                   {entry.title}
                 </Link>
               </li>

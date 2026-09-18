@@ -27,13 +27,13 @@ export function DueBreakCard({ plan, entry }: { plan: WorkdayPlan; entry: Planne
 
   return (
     <section className="surface-elevated mt-5 px-5 py-5 lg:px-7" aria-labelledby="due-break">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-coral">
+      <p className="text-sm font-semibold text-pen">
         Due now
       </p>
-      <h2 id="due-break" className="mt-1.5 font-display text-[1.45rem] font-semibold leading-tight text-ink">
+      <h2 id="due-break" className="mt-1.5 font-display font-extrabold text-[1.45rem] leading-tight text-ink">
         {micro ? `${title} for a minute` : title}
       </h2>
-      <p className="mt-1 text-sm text-ink/60">
+      <p className="mt-1 text-sm text-muted">
         {micro ? "A change of position is enough." : `${entry.durationMin} minutes · ${BREAK_TYPE_COPY[entry.type].blurb}`}{" "}
         Open until {formatMinutes(until)}.
       </p>

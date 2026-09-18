@@ -134,7 +134,7 @@ function Paywall() {
         <CharacterArt pose="ready" size={110} alt="Stretch, ready to go" />
       </div>
 
-      <h1 className="mt-4 text-center font-display text-[1.85rem] font-semibold leading-tight tracking-tight text-ink">
+      <h1 className="mt-4 text-center font-display font-extrabold text-[1.85rem] leading-tight text-ink">
         {headline}
       </h1>
       <p className="mt-3 text-center leading-relaxed text-ink/70">
@@ -142,25 +142,25 @@ function Paywall() {
       </p>
 
       {stats.total > 0 ? (
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          <div className="surface px-4 py-4 text-center">
-            <p className="font-display text-2xl font-semibold text-ink">{stats.total}</p>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink/45">
+        <div className="mt-5 grid grid-cols-2 divide-x divide-line border-y border-line py-3">
+          <div className="px-4 text-center">
+            <p className="font-display font-extrabold text-[2rem] leading-none text-ink">{stats.total}</p>
+            <p className="text-sm font-semibold text-muted">
               {stats.total === 1 ? "Reset" : "Resets"}
             </p>
           </div>
-          <div className="surface px-4 py-4 text-center">
-            <p className="font-display text-2xl font-semibold text-ink">{stats.helped}</p>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink/45">helped</p>
+          <div className="px-4 text-center">
+            <p className="font-display font-extrabold text-[2rem] leading-none text-ink">{stats.helped}</p>
+            <p className="text-sm font-semibold text-muted">helped</p>
           </div>
         </div>
       ) : null}
 
-      <section className="surface mt-5 px-4 py-4" aria-labelledby="plan-preview">
-        <h2 id="plan-preview" className="text-sm font-semibold text-ink">
+      <section className="surface-elevated mt-5 px-4 py-4" aria-labelledby="plan-preview">
+        <h2 id="plan-preview" className="font-display text-lg font-extrabold text-ink">
           Your workday with Pro
         </h2>
-        <p className="mt-0.5 text-xs text-ink/55">
+        <p className="mt-0.5 text-xs text-muted">
           {formatMinutes(preview.preferences.startMinutes)} to {formatMinutes(preview.preferences.endMinutes)} ·{" "}
           {REMINDER_LEVELS[preview.preferences.level].label}. You set the hours.
         </p>
@@ -176,13 +176,13 @@ function Paywall() {
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-xs leading-relaxed text-ink/55">
+        <p className="mt-3 text-xs leading-relaxed text-muted">
           A reminder when each one opens. Also in Pro: 5- and 10-minute workouts, your full history and sync across
           devices.
         </p>
       </section>
 
-      <div className="mt-6 grid grid-cols-2 gap-2 rounded-[16px] bg-ink/5 p-1.5" role="radiogroup" aria-label="Billing period">
+      <div className="mt-6 grid grid-cols-2 gap-2 rounded-[16px] border border-line-strong bg-sheet p-1.5" role="radiogroup" aria-label="Billing period">
         {(["annual", "monthly"] as BillingPeriod[]).map((value) => {
           const active = period === value;
           return (
@@ -194,12 +194,12 @@ function Paywall() {
               onClick={() => choosePeriod(value)}
               className={[
                 "min-h-12 rounded-[12px] text-sm font-semibold transition-colors",
-                active ? "bg-white text-ink" : "text-ink/55",
+                active ? "bg-ink text-paper" : "text-ink hover:bg-paper",
               ].join(" ")}
             >
               {value === "annual" ? "Annual" : "Monthly"}
               {value === "annual" && PRICE_OPTIONS.annual.badge ? (
-                <span className="ml-1.5 text-[11px] font-semibold text-coral">{PRICE_OPTIONS.annual.badge}</span>
+                <span className={`ml-1.5 text-xs font-semibold ${period === "annual" ? "text-note" : "text-pen"}`}>{PRICE_OPTIONS.annual.badge}</span>
               ) : null}
             </button>
           );
@@ -207,9 +207,9 @@ function Paywall() {
       </div>
 
       {founding ? (
-        <div className="mt-4 rounded-[16px] border border-ink/12 bg-white px-4 py-3.5">
-          <p className="text-sm font-semibold text-ink">Founding member</p>
-          <p className="mt-0.5 text-sm leading-relaxed text-ink/65">
+        <div className="sticky-note mt-5 px-4 py-3.5">
+          <p className="font-display text-lg font-extrabold text-ink">Founding member</p>
+          <p className="mt-0.5 text-sm leading-relaxed text-ink/80">
             {formatUsd(ANNUAL_PRICE_USD)}/year instead of {formatUsd(ANNUAL_LIST_PRICE_USD)}, for DeskBreak&apos;s
             {FOUNDING_SPOTS ? ` first ${FOUNDING_SPOTS} members.` : " first members."}
           </p>
@@ -217,11 +217,11 @@ function Paywall() {
       ) : null}
 
       <div className="mt-5 text-center">
-        <p className="font-display text-[2.4rem] font-semibold leading-none tracking-tight text-ink">
+        <p className="font-display font-extrabold text-[2.4rem] leading-none text-ink">
           {option.amountLabel}
-          <span className="text-lg font-semibold text-ink/45">{option.cadenceLabel}</span>
+          <span className="text-lg font-semibold text-muted">{option.cadenceLabel}</span>
         </p>
-        <p className="mt-2 text-sm text-ink/55">
+        <p className="mt-2 text-sm text-muted">
           {founding ? (
             <>
               <span className="font-semibold text-ink/70">Founding price</span>{" "}
@@ -233,9 +233,9 @@ function Paywall() {
       </div>
 
       {failed ? (
-        <div className="mt-5 rounded-[16px] border border-coral/30 bg-white px-4 py-4 text-center" role="alert">
-          <p className="font-display text-base font-semibold text-ink">{CHECKOUT_UNAVAILABLE.title}</p>
-          <p className="mt-1 text-sm leading-relaxed text-ink/60">{CHECKOUT_UNAVAILABLE.body}</p>
+        <div className="mt-5 rounded-[16px] border border-pen bg-white px-4 py-4 text-center" role="alert">
+          <p className="font-display font-extrabold text-base text-ink">{CHECKOUT_UNAVAILABLE.title}</p>
+          <p className="mt-1 text-sm leading-relaxed text-muted">{CHECKOUT_UNAVAILABLE.body}</p>
         </div>
       ) : null}
 
@@ -243,7 +243,7 @@ function Paywall() {
         <Button onClick={startCheckout} disabled={submitting}>
           {submitting ? "Opening checkout..." : checkoutCta(period)}
         </Button>
-        <p className="text-center text-xs text-ink/55">{CHECKOUT_TRUST_LINE}</p>
+        <p className="text-center text-xs text-muted">{CHECKOUT_TRUST_LINE}</p>
         <Button variant="tertiary" onClick={continueFree}>
           Continue free
         </Button>
@@ -276,10 +276,10 @@ function ProActiveView() {
       <div className="flex justify-center">
         <CharacterArt pose="ready" size={110} alt="Stretch, ready to go" />
       </div>
-      <h1 className="mt-4 text-center font-display text-[2rem] font-semibold leading-tight tracking-tight text-ink">
+      <h1 className="mt-4 text-center font-display font-extrabold text-[2rem] leading-tight text-ink">
         You&apos;re Pro
       </h1>
-      <p className="mt-2 text-center text-sm text-ink/60">{renewalLine(state.entitlement)}</p>
+      <p className="mt-2 text-center text-sm text-muted">{renewalLine(state.entitlement)}</p>
 
       <section className="surface mt-6 px-4 py-4" aria-labelledby="included">
         <h2 id="included" className="text-sm font-semibold text-ink">
@@ -288,7 +288,7 @@ function ProActiveView() {
         <ul className="mt-3 grid gap-2">
           {PRO_FEATURES.map((feature) => (
             <li key={feature} className="flex items-center gap-2.5 text-sm font-semibold text-ink/80">
-              <span aria-hidden className="grid h-5 w-5 place-items-center rounded-full bg-mint text-[11px] font-bold text-ink">
+              <span aria-hidden className="grid h-5 w-5 place-items-center rounded-full bg-note text-[11px] font-bold text-ink">
                 ✓
               </span>
               {feature}
@@ -304,7 +304,7 @@ function ProActiveView() {
             {busy ? "Opening..." : "Manage subscription"}
           </Button>
         ) : (
-          <p className="text-center text-sm leading-relaxed text-ink/60">
+          <p className="text-center text-sm leading-relaxed text-muted">
             To cancel, change your card or see invoices, sign in on You with the email you used at checkout.
           </p>
         )}

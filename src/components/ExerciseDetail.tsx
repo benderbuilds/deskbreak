@@ -42,7 +42,7 @@ export function ExerciseDetail({
   return (
     <article className={inApp ? "px-5 py-6 lg:max-w-[640px] lg:px-0" : "py-10"}>
       {inApp ? (
-        <Link href="/app/explore" className="text-sm font-semibold text-coral">
+        <Link href="/app/explore" className="text-sm font-semibold text-pen">
           &larr; Explore
         </Link>
       ) : null}
@@ -55,13 +55,13 @@ export function ExerciseDetail({
           alt={`Stretch demonstrating ${exercise.name}`}
         />
       </div>
-      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-coral">
+      <p className="mt-4 text-sm font-semibold text-muted">
         {exercise.bodyAreas.map((area) => BODY_AREA_LABELS[area]).join(" · ")}
       </p>
-      <h1 className="mt-1 font-display text-[2rem] font-semibold leading-tight tracking-tight text-ink">
+      <h1 className="mt-1 font-display font-extrabold text-[2rem] leading-tight text-ink">
         {exercise.name}
       </h1>
-      <p className="mt-1 text-sm text-ink/55">
+      <p className="mt-1 text-sm text-muted">
         {MOVEMENT_TYPE_LABELS[exercise.movementType]} ·{" "}
         {SETUP_LABELS[exercise.setup]}
       </p>
@@ -77,28 +77,28 @@ export function ExerciseDetail({
         {exercise.avoidIf ? <Block title="Avoid this movement if" body={exercise.avoidIf} /> : null}
       </dl>
 
-      <p className="mt-6 text-xs leading-relaxed text-ink/50">{SAFETY_LINE}</p>
+      <p className="mt-6 text-xs leading-relaxed text-muted">{SAFETY_LINE}</p>
 
       <section className="mt-7" aria-labelledby="why-its-here">
-        <h2 id="why-its-here" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+        <h2 id="why-its-here" className="font-display text-xl font-extrabold text-ink">
           Why it&apos;s here
         </h2>
         <p className="mt-2 leading-relaxed text-ink/80">{exercise.rationale ?? WHY_BY_TYPE[exercise.movementType]}</p>
         {studies.length ? (
-          <ul className="mt-2 grid gap-1.5 text-sm text-ink/60">
+          <ul className="mt-2 grid gap-1.5 text-sm text-muted">
             {studies.map((study) => (
               <li key={study.id}>
-                <span className="text-ink/45">Studied: </span>
+                <span className="text-muted">Studied: </span>
                 {study.summary}{" "}
-                <a href={study.url} target="_blank" rel="noreferrer" className="font-semibold text-coral">
+                <a href={study.url} target="_blank" rel="noreferrer" className="font-semibold text-pen">
                   ({shortCitation(study.id)})
                 </a>
               </li>
             ))}
           </ul>
         ) : null}
-        <p className="mt-3 text-xs leading-relaxed text-ink/45">
-          <Link href="/science" className="font-semibold text-coral">
+        <p className="mt-3 text-xs leading-relaxed text-muted">
+          <Link href="/science" className="font-semibold text-pen">
             How DeskBreak uses research
           </Link>
         </p>
@@ -110,7 +110,7 @@ export function ExerciseDetail({
 function Block({ title, body }: { title: string; body: string }) {
   return (
     <div>
-      <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">{title}</dt>
+      <dt className="text-sm font-semibold text-muted">{title}</dt>
       <dd className="mt-1 leading-relaxed text-ink/80">{body}</dd>
     </div>
   );

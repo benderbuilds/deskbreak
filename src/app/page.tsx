@@ -66,21 +66,18 @@ export default function LandingPage() {
 
       <section className="grid items-center gap-8 py-6 lg:grid-cols-[1.05fr_0.95fr] lg:py-12">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-coral">
-            {PRODUCT_PROMISE}
-          </p>
-          <h1 className="mt-4 font-display text-[2.5rem] font-semibold leading-[1.05] tracking-tight text-ink sm:text-[3.3rem]">
+          <p className="text-base font-semibold text-ink">{PRODUCT_PROMISE}</p>
+          <h1 className="mt-3 font-display font-extrabold text-[3rem] leading-[0.95] text-balance text-ink sm:text-[4.4rem]">
             Sitting all day? Do this.
           </h1>
-          <p className="mt-5 max-w-[34rem] text-lg leading-relaxed text-ink/65">{HERO_SUBHEAD}</p>
+          <p className="mt-5 max-w-[34rem] text-lg leading-relaxed text-muted">{HERO_SUBHEAD}</p>
 
           <div className="surface-elevated mt-8 max-w-[30rem] px-5 py-5 sm:px-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-coral">Start here</p>
-            <p className="mt-1.5 font-display text-[1.6rem] font-semibold leading-tight text-ink">
+            <p className="font-display font-extrabold text-[1.6rem] leading-tight text-ink">
               3-Minute Desk Reset
             </p>
-            <p className="mt-1 text-sm text-ink/60">Neck · shoulders · back · wrists · hips · legs</p>
-            <p className="mt-1 text-xs text-ink/45">No equipment · Office-friendly · No signup</p>
+            <p className="mt-1 text-sm text-muted">Neck, shoulders, back, wrists, hips and legs.</p>
+            <p className="mt-1 text-sm text-muted">No equipment, no signup, fine to do in an office.</p>
             <div className="mt-4">
               <StartResetButton minutes={3} source="landing_hero">
                 Start my reset
@@ -88,7 +85,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <p className="mt-6 text-sm font-semibold text-ink/60">Need something specific?</p>
+          <p className="mt-6 text-sm font-semibold text-muted">Need something specific?</p>
           <div className="mt-2 max-w-[30rem]">
             <NeedCards />
           </div>
@@ -100,12 +97,12 @@ export default function LandingPage() {
       </section>
 
       <section className="py-8" aria-labelledby="research">
-        <h2 id="research" className="font-display text-[1.5rem] font-semibold tracking-tight text-ink">
+        <h2 id="research" className="font-display font-extrabold text-[1.5rem] text-ink">
           What the research says about short breaks
         </h2>
-        <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
           {PROOF_CALLOUTS.map((callout) => (
-            <li key={callout.sourceId} className="surface px-5 py-4 text-[0.95rem] leading-relaxed text-ink/80">
+            <li key={callout.sourceId} className="border-t-2 border-ink pt-3 text-[0.95rem] leading-relaxed text-ink/80">
               {callout.text}{" "}
               <span className="text-sm">
                 <Citation ids={[callout.sourceId]} />
@@ -113,65 +110,66 @@ export default function LandingPage() {
             </li>
           ))}
         </ul>
-        <p className="mt-4 max-w-[42rem] text-sm leading-relaxed text-ink/55">
+        <p className="mt-4 max-w-[42rem] text-sm leading-relaxed text-muted">
           These are findings from the studies, not promises about DeskBreak. DeskBreak is general movement
           guidance, not medical care.{" "}
-          <Link href="/science" className="font-semibold text-coral">
-            How we use research &rarr;
+          <Link href="/science" className="font-semibold text-pen underline underline-offset-4">
+            How we use research
           </Link>
         </p>
       </section>
 
       <section className="py-10" aria-labelledby="how-it-works">
-        <h2 id="how-it-works" className="font-display text-[1.9rem] font-semibold tracking-tight text-ink">
+        <h2 id="how-it-works" className="font-display font-extrabold text-[1.9rem] text-ink">
           How it works
         </h2>
-        <ol className="mt-6 grid gap-3 sm:grid-cols-3">
+        <ol className="mt-6 grid gap-6 sm:grid-cols-3 sm:gap-8">
           {steps.map((step) => (
-            <li key={step.n} className="surface px-5 py-6">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-coral text-sm font-semibold text-white">
+            <li key={step.n} className="grid grid-cols-[auto_1fr] gap-x-4 sm:block">
+              <span aria-hidden className="font-display text-[3.5rem] font-extrabold leading-[0.85] text-pen tabular-nums">
                 {step.n}
               </span>
-              <p className="mt-4 font-display text-lg font-semibold text-ink">{step.title}</p>
-              <p className="mt-1 text-sm leading-relaxed text-ink/60">{step.body}</p>
+              <div>
+                <p className="font-display font-extrabold text-xl text-ink sm:mt-3">{step.title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">{step.body}</p>
+              </div>
             </li>
           ))}
         </ol>
       </section>
-
       <section className="py-6" aria-labelledby="more-than-stretching">
-        <h2 id="more-than-stretching" className="font-display text-[1.9rem] font-semibold tracking-tight text-ink">
+        <h2 id="more-than-stretching" className="font-display font-extrabold text-[1.9rem] text-ink">
           More than stretching.
         </h2>
-        <p className="mt-3 max-w-[40rem] leading-relaxed text-ink/65">
+        <p className="mt-3 max-w-[40rem] leading-relaxed text-muted">
           Every Desk Reset mixes mobility, light activation and standing up, because the evidence for
           breaking up sitting is about moving, not holding a pose. It works offline, needs no account, and
           learns which moves help you.
         </p>
-        <Link href="/science" className="mt-4 inline-block text-sm font-semibold text-coral">
-          Why this works &rarr;
+        <Link href="/science" className="mt-4 inline-block text-sm font-semibold text-pen underline underline-offset-4">
+          Why this works
         </Link>
       </section>
 
-      <section className="mt-8 rounded-[24px] bg-ink px-6 py-10 text-paper sm:px-10" aria-labelledby="pro-teaser">
+      <section className="mt-8 rounded-[20px] bg-ink px-6 py-10 text-paper sm:px-10" aria-labelledby="pro-teaser">
         <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div>
-            <h2 id="pro-teaser" className="font-display text-[1.7rem] font-semibold leading-tight tracking-tight sm:text-[2rem]">
+            <h2 id="pro-teaser" className="font-display font-extrabold text-[1.7rem] leading-tight sm:text-[2rem]">
               Want DeskBreak to manage your workday?
             </h2>
-            <p className="mt-3 max-w-[36rem] leading-relaxed text-paper/70">
+            <p className="mt-3 max-w-[36rem] leading-relaxed text-paper/80">
               Pro learns which movements, lengths and times actually help you, then puts the right
               breaks into your day and reminds you before you&apos;ve been sitting all afternoon.
             </p>
-            <Link href="/app/pro?from=landing" className="mt-5 inline-block text-sm font-semibold text-mint">
-              See Pro &rarr;
+            <Link href="/app/pro?from=landing" className="mt-5 inline-block text-sm font-semibold text-white underline underline-offset-4">
+              See Pro
             </Link>
           </div>
           <ul className="grid gap-2">
             {PRO_EXAMPLES.map((item) => (
-              <li key={item.time} className="flex items-center justify-between rounded-[14px] bg-paper/10 px-4 py-3">
+              <li key={item.time} className="flex items-center justify-between border-b border-paper/20 px-1 py-3 last:border-b-0">
                 <span className="font-semibold tabular-nums">{item.time}</span>
-                <span className="text-paper/70">{item.label}</span>
+                <span className="text-paper/80">{item.label}</span>
               </li>
             ))}
           </ul>
@@ -179,33 +177,33 @@ export default function LandingPage() {
       </section>
 
       <section className="py-12" aria-labelledby="guides">
-        <h2 id="guides" className="font-display text-[1.5rem] font-semibold tracking-tight text-ink">
+        <h2 id="guides" className="font-display font-extrabold text-[1.5rem] text-ink">
           Desk exercises, written out
         </h2>
-        <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-4 grid border-t border-line sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-3">
           {LANDING_PAGES.map((page) => (
-            <li key={page.slug}>
-              <Link href={`/${page.slug}`} className="surface block px-4 py-4 text-sm font-semibold text-ink transition-colors hover:bg-ink/3">
+            <li key={page.slug} className="border-b border-line">
+              <Link href={`/${page.slug}`} className="block py-3.5 font-semibold text-ink underline-offset-4 hover:text-pen hover:underline">
                 {page.title}
               </Link>
             </li>
           ))}
         </ul>
 
-        <h2 id="blog" className="mt-10 font-display text-[1.5rem] font-semibold tracking-tight text-ink">
+        <h2 id="blog" className="mt-10 font-display font-extrabold text-[1.5rem] text-ink">
           What the research says
         </h2>
-        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+        <ul className="mt-4 grid border-t border-line sm:grid-cols-2 sm:gap-x-8">
           {BLOG_POSTS.slice(0, 4).map((post) => (
-            <li key={post.slug}>
-              <Link href={`/blog/${post.slug}`} className="surface block px-4 py-4 text-sm font-semibold text-ink transition-colors hover:bg-ink/3">
+            <li key={post.slug} className="border-b border-line">
+              <Link href={`/blog/${post.slug}`} className="block py-3.5 font-semibold text-ink underline-offset-4 hover:text-pen hover:underline">
                 {post.title}
               </Link>
             </li>
           ))}
         </ul>
-        <Link href="/blog" className="mt-4 inline-block text-sm font-semibold text-coral">
-          All posts &rarr;
+        <Link href="/blog" className="mt-4 inline-block text-sm font-semibold text-pen underline underline-offset-4">
+          All posts
         </Link>
       </section>
     </MarketingShell>

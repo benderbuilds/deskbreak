@@ -64,11 +64,11 @@ export function PushSetup({ context }: { context: "you" | "plan" }) {
     return (
       <div>
         <p className="text-sm font-semibold text-ink">Add DeskBreak to your Home Screen first</p>
-        <p className="mt-1 text-sm leading-relaxed text-ink/60">
+        <p className="mt-1 text-sm leading-relaxed text-muted">
           On iPhone and iPad, Safari only sends notifications to apps on your Home Screen.
         </p>
         <InstallSteps platform="ios" className="mt-3 text-sm" />
-        <p className="mt-1.5 text-sm leading-relaxed text-ink/65">
+        <p className="mt-1.5 text-sm leading-relaxed text-muted">
           4. Open DeskBreak from the new icon and turn on reminders under You.
         </p>
       </div>
@@ -85,7 +85,7 @@ export function PushSetup({ context }: { context: "you" | "plan" }) {
   return (
     <div>
       <p className="text-sm font-semibold text-ink">Push reminders aren&apos;t available here</p>
-      <p className="mt-1 text-sm leading-relaxed text-ink/60">
+      <p className="mt-1 text-sm leading-relaxed text-muted">
         {reason} {fallback}
       </p>
     </div>
