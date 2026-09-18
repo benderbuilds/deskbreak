@@ -28,7 +28,7 @@ export function DueBreakCard({ plan, entry }: { plan: WorkdayPlan; entry: Planne
   return (
     <section className="surface-elevated mt-5 px-5 py-5 lg:px-7" aria-labelledby="due-break">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-coral">
-        {micro ? "Stand break" : BREAK_TYPE_COPY[entry.type].label}, due now
+        Due now
       </p>
       <h2 id="due-break" className="mt-1.5 font-display text-[1.45rem] font-semibold leading-tight text-ink">
         {micro ? `${title} for a minute` : title}
@@ -39,11 +39,11 @@ export function DueBreakCard({ plan, entry }: { plan: WorkdayPlan; entry: Planne
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {micro ? (
-          <Button block={false} className="min-w-40 flex-1 sm:flex-none" onClick={() => completeMicroBreak(entry, "today")}>
+          <Button block={false} onClick={() => completeMicroBreak(entry, "today")}>
             {microActionLabel(entry)}
           </Button>
         ) : (
-          <Button block={false} className="min-w-40 flex-1 sm:flex-none" onClick={() => router.push(startBreakHref(entry, "today"))}>
+          <Button block={false} onClick={() => router.push(startBreakHref(entry, "today"))}>
             {BREAK_ACTION_COPY.start}
           </Button>
         )}
