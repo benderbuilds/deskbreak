@@ -22,6 +22,7 @@ export type PrimaryNeed =
   | "wrists_hands"
   | "energy"
   | "stress"
+  | "posture"
   | "general";
 
 export const PRIMARY_NEEDS: PrimaryNeed[] = [
@@ -30,15 +31,22 @@ export const PRIMARY_NEEDS: PrimaryNeed[] = [
   "wrists_hands",
   "energy",
   "stress",
+  "posture",
   "general",
 ];
 
-/** The needs a user can pick from the Today screen. */
+/**
+ * The needs a user can pick from the Today screen.
+ *
+ * "posture" means a change of position and some upper-back opening. It never
+ * means "fixing" or "correcting" posture: there is no one correct posture.
+ */
 export const TARGETED_NEEDS: PrimaryNeed[] = [
   "neck_shoulders",
   "back_hips",
   "wrists_hands",
   "energy",
+  "posture",
 ];
 
 export function isPrimaryNeed(value: unknown): value is PrimaryNeed {
@@ -46,8 +54,12 @@ export function isPrimaryNeed(value: unknown): value is PrimaryNeed {
 }
 
 export type SetupId = "seated" | "standing";
-/** "either" on content means the move works in both positions. */
-export type ExerciseSetup = SetupId | "either";
+/**
+ * "either" on content means the move works in both positions. "floor" moves
+ * (lying down) are never served in a desk routine unless the person has opted
+ * in to floor work.
+ */
+export type ExerciseSetup = SetupId | "either" | "floor";
 /** What the user asked for. "either" lets the engine mix positions. */
 export type SetupRequest = SetupId | "either";
 
@@ -76,7 +88,12 @@ export type MovementType =
   | "position_change"
   | "eye_break";
 
-/** Movements a user can ask DeskBreak to leave out. Never a diagnosis. */
+/**
+ * Movements a user can ask DeskBreak to leave out. Never a diagnosis.
+ *
+ * "floor" is kept for stored state: floor work is now opt-in (see
+ * AppState.allowFloorWork), so nobody needs to opt out of it.
+ */
 export type FunctionalConstraint =
   | "overhead"
   | "weight_through_wrists"
@@ -100,6 +117,39 @@ export function isFunctionalConstraint(value: unknown): value is FunctionalConst
   return (
     typeof value === "string" && (FUNCTIONAL_CONSTRAINTS as string[]).includes(value)
   );
+}
+
+/**
+ * "Go easy on" answers. Plain-language labels and the exclusions each one
+ * implies live in safety.ts. Never a diagnosis; always the person's own words.
+ */
+export type SafetyFlag =
+  | "neck"
+  | "dizziness"
+  | "arm_tingling"
+  | "wrist"
+  | "low_back"
+  | "shoulder"
+  | "knee_hip"
+  | "pregnancy"
+  | "osteoporosis"
+  | "balance";
+
+export const SAFETY_FLAGS: SafetyFlag[] = [
+  "neck",
+  "dizziness",
+  "arm_tingling",
+  "wrist",
+  "low_back",
+  "shoulder",
+  "knee_hip",
+  "pregnancy",
+  "osteoporosis",
+  "balance",
+];
+
+export function isSafetyFlag(value: unknown): value is SafetyFlag {
+  return typeof value === "string" && (SAFETY_FLAGS as string[]).includes(value);
 }
 
 export type EvidenceCategory =
@@ -168,12 +218,23 @@ export type Exercise = {
   setup: ExerciseSetup;
   intensity: Intensity;
   defaultDose: Dose;
+  /** Screening tags. SAFETY_FLAG_RULES in safety.ts maps "Go easy on" answers onto these. */
   skipIf: string[];
   saferSwapId: string | null;
   constraints: FunctionalConstraint[];
   evidenceCategories: EvidenceCategory[];
   evidenceLevel: EvidenceLevel;
   stretchView?: StretchView;
+  /**
+   * Shortest time, in seconds (per side for each-side holds), the move can be
+   * done properly. The engine drops a move rather than squeeze it below this.
+   * Defaults to MIN_STEP_SEC.
+   */
+  minSec?: number;
+  /** Longest useful time per step. Stops "stand still" moves turning into filler. */
+  maxSec?: number;
+  /** Never the first move of a routine (a static end-range stretch on a cold body). */
+  notFirst?: boolean;
   setupVariants?: Partial<Record<SetupId, SetupVariant>>;
   media?: { thumbnail?: string; animation?: string };
 };
@@ -198,7 +259,7 @@ export type Program = {
   tagline: string;
   promise?: string;
   primaryNeed: PrimaryNeed;
-  setup: ExerciseSetup;
+  setup: SetupRequest;
   steps: ProgramStep[];
   /** Set when the program was assembled on the fly by the recommendation engine. */
   generated?: boolean;
@@ -233,6 +294,13 @@ export type RoutineTemplate = {
   shortLabel: string;
   tagline: string;
   slots: TemplateSlot[];
+  /**
+   * Leave out static holds (held stretches, seated stillness). Energy resets
+   * are aerobic, strength and dynamic mobility only.
+   */
+  excludeStaticHolds?: boolean;
+  /** Moves this template never uses, whatever they score. */
+  excludeExerciseIds?: string[];
 };
 
 export type EvidenceReference = {
@@ -271,6 +339,7 @@ export type DiscomfortReason =
 
 /** What happened to one move inside one session. */
 export type SessionExerciseRecord = {
+  /** The move that was planned, even when it was swapped for another. */
   exerciseId: string;
   sequence: number;
   plannedSec: number;
@@ -308,6 +377,8 @@ export type WorkoutSession = {
   startedAt: string;
   finishedAt: string;
   perceivedEffect?: PerceivedEffect;
+  /** After "Worse": the areas the person said felt worse. Drives area avoidance. */
+  worseAreas?: BodyArea[];
   recommendationId: string | null;
   algorithmVersion: string | null;
   source: SessionSource;
@@ -425,6 +496,17 @@ export type Attribution = {
   latestUtmContent: string | null;
 };
 
+/** The free, in-app "time to stand up" nudge. Logic lives in reminders.ts. */
+export type StandNudgeSettings = {
+  enabled: boolean;
+  /** Minutes of sitting before a nudge. */
+  intervalMinutes: number;
+  /** ISO time; no nudge before this. */
+  snoozedUntil: string | null;
+  /** ISO time of the last nudge shown. */
+  lastNudgeAt: string | null;
+};
+
 export type AppSettings = {
   soundEnabled: boolean;
   spokenCues: boolean;
@@ -432,6 +514,7 @@ export type AppSettings = {
   celebrationTheme: CelebrationTheme;
   reminders: Reminder[];
   lastReminderDate: string | null;
+  standNudge: StandNudgeSettings;
 };
 
 /** Everything the engine learns about one move from one person's behaviour. */
@@ -487,6 +570,10 @@ export type AppState = {
   preferredSetup: SetupId | null;
   preferredDuration: DurationMinutes | null;
   constraints: FunctionalConstraint[];
+  /** "Go easy on" answers. Health information: kept on this device only. */
+  safetyFlags: SafetyFlag[];
+  /** Floor exercises are off unless the person asks for them. */
+  allowFloorWork: boolean;
   favorites: string[];
   firstResetComplete: boolean;
   paywallSeen: boolean;
@@ -504,4 +591,6 @@ export type AppState = {
   push: PushState;
   /** Rolling counter that decides when to ask "How do you feel?" again. */
   resetsSinceFeedback: number;
+  /** ISO times of one-minute stand or walk breaks taken outside a workout, newest first. */
+  microBreaks: string[];
 };

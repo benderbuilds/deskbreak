@@ -3,6 +3,7 @@
 import { isProEntitlement } from "./entitlements";
 import {
   ALGORITHM_VERSION,
+  isExerciseEligible,
   recommend,
   timeOfDayNow,
   toStoredRecommendation,
@@ -100,6 +101,18 @@ export async function serverRecommendation(
     if (!response.ok) return null;
     const data = (await response.json()) as ServerResponse;
     if (!data?.recommendationId || !data.program?.steps?.length) return null;
+    // Belt and braces: the local engine has the final say on safety. A server
+    // answer with any move this device's answers, pain reports or floor
+    // setting rule out is dropped, and the local recommendation stands.
+    const local = {
+      need: request.need,
+      setup: request.setup,
+      durationMinutes: request.durationMinutes,
+      pro: true,
+      constraints: state.constraints,
+      signals: personalizationSignals(state),
+    };
+    if (data.program.steps.some((step) => !isExerciseEligible(step.exerciseId, local))) return null;
     const stored: StoredRecommendation = {
       id: data.recommendationId,
       algorithmVersion: data.algorithmVersion ?? ALGORITHM_VERSION,

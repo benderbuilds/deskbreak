@@ -17,16 +17,13 @@
           "exerciseId": "chin-tuck"
         },
         {
-          "exerciseId": "shoulder-rolls"
-        },
-        {
           "exerciseId": "seated-cat-cow"
         },
         {
-          "exerciseId": "wrist-flexor-stretch"
+          "exerciseId": "wrist-circles"
         },
         {
-          "exerciseId": "seated-figure-4"
+          "exerciseId": "seated-march"
         },
         {
           "exerciseId": "long-exhale-reset"
@@ -46,9 +43,6 @@
       "promise": "Undo the shape your chair has been putting you in.",
       "steps": [
         {
-          "exerciseId": "standing-posture-reset"
-        },
-        {
           "exerciseId": "chin-tuck"
         },
         {
@@ -59,9 +53,6 @@
         },
         {
           "exerciseId": "calf-raise"
-        },
-        {
-          "exerciseId": "long-exhale-reset"
         }
       ]
     },
@@ -84,13 +75,10 @@
           "exerciseId": "shoulder-rolls"
         },
         {
-          "exerciseId": "neck-side-stretch"
-        },
-        {
           "exerciseId": "seated-scap-squeeze"
         },
         {
-          "exerciseId": "long-exhale-reset"
+          "exerciseId": "neck-side-stretch"
         }
       ]
     },
@@ -116,9 +104,6 @@
           "exerciseId": "seated-figure-4"
         },
         {
-          "exerciseId": "sit-bones-find"
-        },
-        {
           "exerciseId": "long-exhale-reset"
         }
       ]
@@ -136,16 +121,13 @@
       "promise": "Move the parts of you that have not moved since your first meeting.",
       "steps": [
         {
-          "exerciseId": "standing-hip-flexor"
-        },
-        {
           "exerciseId": "standing-glute-squeeze"
         },
         {
           "exerciseId": "sit-to-stand-glute"
         },
         {
-          "exerciseId": "standing-posture-reset"
+          "exerciseId": "standing-hip-flexor"
         },
         {
           "exerciseId": "long-exhale-reset"
@@ -175,9 +157,6 @@
         },
         {
           "exerciseId": "finger-fans"
-        },
-        {
-          "exerciseId": "shoulder-rolls"
         }
       ]
     },
@@ -287,16 +266,13 @@
           "exerciseId": "suboccipital-nod"
         },
         {
+          "exerciseId": "seated-scap-squeeze"
+        },
+        {
           "exerciseId": "neck-side-stretch"
         },
         {
           "exerciseId": "upper-trap-release"
-        },
-        {
-          "exerciseId": "seated-scap-squeeze"
-        },
-        {
-          "exerciseId": "chest-opener"
         },
         {
           "exerciseId": "long-exhale-reset"
@@ -360,10 +336,7 @@
           "exerciseId": "standing-overhead-reach"
         },
         {
-          "exerciseId": "walk-to-water-march"
-        },
-        {
-          "exerciseId": "long-exhale-reset"
+          "exerciseId": "short-walk"
         }
       ]
     },
@@ -512,19 +485,19 @@
         },
         {
           "exerciseId": "wrist-circles",
-          "durationSec": 30
+          "durationSec": 25
         },
         {
           "exerciseId": "seated-thoracic-rotation",
-          "durationSec": 45
+          "durationSec": 35
         },
         {
-          "exerciseId": "seated-march",
+          "exerciseId": "sit-to-stand-glute",
           "durationSec": 30
         },
         {
           "exerciseId": "long-exhale-reset",
-          "durationSec": 15
+          "durationSec": 30
         }
       ]
     },
@@ -550,7 +523,7 @@
         },
         {
           "exerciseId": "wrist-circles",
-          "durationSec": 30
+          "durationSec": 25
         },
         {
           "exerciseId": "standing-hip-flexor",
@@ -562,7 +535,7 @@
         },
         {
           "exerciseId": "standing-posture-reset",
-          "durationSec": 15
+          "durationSec": 20
         }
       ]
     },
@@ -587,20 +560,20 @@
           "durationSec": 30
         },
         {
-          "exerciseId": "neck-side-stretch",
-          "durationSec": 40
-        },
-        {
           "exerciseId": "seated-scap-squeeze",
-          "durationSec": 35
+          "durationSec": 30
         },
         {
           "exerciseId": "unshrug",
           "durationSec": 30
         },
         {
+          "exerciseId": "neck-side-stretch",
+          "durationSec": 30
+        },
+        {
           "exerciseId": "long-exhale-reset",
-          "durationSec": 15
+          "durationSec": 30
         }
       ]
     },
@@ -626,7 +599,7 @@
         },
         {
           "exerciseId": "seated-thoracic-rotation",
-          "durationSec": 35
+          "durationSec": 30
         },
         {
           "exerciseId": "seated-figure-4",
@@ -638,7 +611,7 @@
         },
         {
           "exerciseId": "sit-bones-find",
-          "durationSec": 15
+          "durationSec": 20
         }
       ]
     },
@@ -719,6 +692,80 @@
       ]
     },
     {
+      "id": "posture-reset-3min",
+      "access": "free",
+      "name": "3-Minute Posture Reset",
+      "shortLabel": "Posture Reset",
+      "durationMin": 3,
+      "tagline": "Change position and open up your upper back.",
+      "promise": "There's no one correct posture. The best one is your next one.",
+      "primaryNeed": "posture",
+      "setup": "seated",
+      "steps": [
+        {
+          "exerciseId": "shoulder-rolls",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "chin-tuck",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "seated-thoracic-rotation",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "seated-scap-squeeze",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "seated-cat-cow",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "stand-and-shift",
+          "durationSec": 30
+        }
+      ]
+    },
+    {
+      "id": "posture-reset-3min-standing",
+      "access": "free",
+      "name": "3-Minute Posture Reset",
+      "shortLabel": "Posture Reset",
+      "durationMin": 3,
+      "tagline": "Change position and open up your upper back.",
+      "promise": "There's no one correct posture. The best one is your next one.",
+      "primaryNeed": "posture",
+      "setup": "standing",
+      "steps": [
+        {
+          "exerciseId": "stand-and-shift",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "shoulder-rolls",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "chin-tuck",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "standing-overhead-reach",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "unshrug",
+          "durationSec": 30
+        },
+        {
+          "exerciseId": "standing-posture-reset",
+          "durationSec": 30
+        }
+      ]
+    },
+    {
       "id": "desk-reset-5min",
       "access": "pro",
       "name": "5-Minute Deeper Reset",
@@ -736,19 +783,19 @@
         },
         {
           "exerciseId": "neck-side-stretch",
-          "durationSec": 40
-        },
-        {
-          "exerciseId": "seated-scap-squeeze",
           "durationSec": 35
         },
         {
+          "exerciseId": "seated-scap-squeeze",
+          "durationSec": 30
+        },
+        {
           "exerciseId": "chest-opener",
-          "durationSec": 40
+          "durationSec": 35
         },
         {
           "exerciseId": "wrist-flexor-stretch",
-          "durationSec": 40
+          "durationSec": 35
         },
         {
           "exerciseId": "seated-thoracic-rotation",
@@ -756,15 +803,15 @@
         },
         {
           "exerciseId": "seated-figure-4",
-          "durationSec": 40
+          "durationSec": 35
         },
         {
           "exerciseId": "seated-march",
-          "durationSec": 25
+          "durationSec": 35
         },
         {
           "exerciseId": "long-exhale-reset",
-          "durationSec": 15
+          "durationSec": 30
         }
       ]
     },
@@ -892,11 +939,11 @@
       "steps": [
         {
           "exerciseId": "screen-distance-blink",
-          "durationSec": 40
+          "durationSec": 30
         },
         {
           "exerciseId": "long-exhale-reset",
-          "durationSec": 20
+          "durationSec": 30
         }
       ]
     }
@@ -904,7 +951,7 @@
   "durationBenefits": {
     "2": {
       "cardLine": "Two minutes is enough to interrupt the sitting.",
-      "detail": "Brief movement breaks can help reduce the discomfort that builds up from staying in one position too long. Doing them often matters more than doing them for long.",
+      "detail": "Brief movement breaks can help with the discomfort that builds up from staying in one position too long. Short breaks you actually take add up, and they're easier to repeat than a long session.",
       "doneLine": "Two minutes well spent. Your joints just got a meeting break."
     },
     "5": {

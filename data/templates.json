@@ -1354,6 +1354,10 @@
           ],
           "preferStanding": true
         }
+      ],
+      "excludeStaticHolds": true,
+      "excludeExerciseIds": [
+        "glute-bridge"
       ]
     },
     {
@@ -1436,6 +1440,10 @@
           ],
           "preferStanding": true
         }
+      ],
+      "excludeStaticHolds": true,
+      "excludeExerciseIds": [
+        "glute-bridge"
       ]
     },
     {
@@ -1534,6 +1542,10 @@
             "position_change"
           ]
         }
+      ],
+      "excludeStaticHolds": true,
+      "excludeExerciseIds": [
+        "glute-bridge"
       ]
     },
     {
@@ -1664,6 +1676,10 @@
             "position_change"
           ]
         }
+      ],
+      "excludeStaticHolds": true,
+      "excludeExerciseIds": [
+        "glute-bridge"
       ]
     },
     {
@@ -1970,6 +1986,351 @@
         {
           "phase": "return",
           "seconds": 50,
+          "movementTypes": [
+            "breathing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "posture-2",
+      "need": "posture",
+      "durationMin": 2,
+      "name": "2-Minute Posture Reset",
+      "shortLabel": "Posture Reset",
+      "tagline": "Change position and open up your upper back.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 25,
+          "bodyAreas": [
+            "posture"
+          ],
+          "movementTypes": [
+            "position_change"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 30,
+          "bodyAreas": [
+            "upperBack",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 30,
+          "bodyAreas": [
+            "neck",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "posture-3",
+      "need": "posture",
+      "durationMin": 3,
+      "name": "3-Minute Posture Reset",
+      "shortLabel": "Posture Reset",
+      "tagline": "Change position and open up your upper back.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 30,
+          "bodyAreas": [
+            "posture"
+          ],
+          "movementTypes": [
+            "position_change"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 30,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 30,
+          "bodyAreas": [
+            "upperBack",
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 25,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "return",
+          "seconds": 30,
+          "bodyAreas": [
+            "posture"
+          ],
+          "movementTypes": [
+            "position_change",
+            "breathing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "posture-5",
+      "need": "posture",
+      "durationMin": 5,
+      "name": "5-Minute Posture Reset",
+      "shortLabel": "Posture Reset",
+      "tagline": "Change position and open up your upper back.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 35,
+          "bodyAreas": [
+            "posture"
+          ],
+          "movementTypes": [
+            "position_change"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 40,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 40,
+          "bodyAreas": [
+            "upperBack"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 35,
+          "bodyAreas": [
+            "core",
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 40,
+          "bodyAreas": [
+            "posture",
+            "legs"
+          ],
+          "movementTypes": [
+            "position_change",
+            "aerobic"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "return",
+          "seconds": 35,
+          "movementTypes": [
+            "breathing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "posture-10",
+      "need": "posture",
+      "durationMin": 10,
+      "name": "10-Minute Posture Reset",
+      "shortLabel": "Posture Reset",
+      "tagline": "Change position and open up your upper back.",
+      "slots": [
+        {
+          "phase": "reset",
+          "seconds": 50,
+          "bodyAreas": [
+            "posture"
+          ],
+          "movementTypes": [
+            "position_change"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "shoulders",
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 55,
+          "bodyAreas": [
+            "upperBack"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "activate",
+          "seconds": 55,
+          "bodyAreas": [
+            "shoulders"
+          ],
+          "movementTypes": [
+            "isometric",
+            "strength"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 50,
+          "bodyAreas": [
+            "neck"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "core",
+            "upperBack"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "mobilize",
+          "seconds": 55,
+          "bodyAreas": [
+            "hips"
+          ],
+          "movementTypes": [
+            "mobility"
+          ]
+        },
+        {
+          "phase": "move",
+          "seconds": 60,
+          "bodyAreas": [
+            "legs",
+            "posture"
+          ],
+          "movementTypes": [
+            "aerobic",
+            "position_change"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "move",
+          "seconds": 55,
+          "bodyAreas": [
+            "posture"
+          ],
+          "movementTypes": [
+            "position_change"
+          ],
+          "preferStanding": true
+        },
+        {
+          "phase": "return",
+          "seconds": 55,
           "movementTypes": [
             "breathing"
           ]

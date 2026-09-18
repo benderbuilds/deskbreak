@@ -6,6 +6,7 @@ import {
   signalsFromHistory,
   type PersonalizationSignals,
 } from "../personalization";
+import { normalizeSafetyFlags } from "../safety";
 import { isPerceivedEffect, type DurationMinutes, type ExerciseSignal, type WorkoutSession } from "../types";
 import { findMany, type SessionExerciseRow, type SessionRow } from "./store";
 
@@ -103,19 +104,43 @@ export async function signalsFor(identity: {
   return signalsFromHistory(history, exercises);
 }
 
-/** Combines the server's view with what the client sent, preferring the larger record. */
+function union<T>(a: T[] | undefined, b: T[] | undefined): T[] {
+  return [...new Set([...(a ?? []), ...(b ?? [])])];
+}
+
+/**
+ * Combines the server's view with what the client sent, preferring the larger
+ * record. Safety is never lost in the merge: areas either side says to leave
+ * alone stay avoided, and the client's "Go easy on" answers (which only the
+ * device holds) always come through.
+ */
 export function mergeSignals(
   server: PersonalizationSignals,
   client: PersonalizationSignals | null | undefined,
 ): PersonalizationSignals {
   if (!client) return server;
-  if (client.sessionCount > server.sessionCount) {
-    const exercises = { ...client.exercises };
-    for (const [id, signal] of Object.entries(server.exercises)) {
-      const existing = exercises[id];
-      if (!existing || signal.completed + signal.skipped > existing.completed + existing.skipped) exercises[id] = signal;
-    }
-    return { ...client, exercises };
-  }
-  return server;
+  const base =
+    client.sessionCount > server.sessionCount
+      ? (() => {
+          const exercises = { ...client.exercises };
+          for (const [id, signal] of Object.entries(server.exercises)) {
+            const existing = exercises[id];
+            if (!existing || signal.completed + signal.skipped > existing.completed + existing.skipped) exercises[id] = signal;
+          }
+          return { ...client, exercises };
+        })()
+      : server;
+  const avoidAreas = union(server.avoidAreas, client.avoidAreas);
+  return {
+    ...base,
+    avoidAreas,
+    painfulAreas: union(server.painfulAreas, client.painfulAreas),
+    easeAreas: union(server.easeAreas, client.easeAreas).filter((area) => !avoidAreas.includes(area)),
+    screening: client.screening
+      ? {
+          safetyFlags: normalizeSafetyFlags(client.screening.safetyFlags),
+          allowFloorWork: client.screening.allowFloorWork === true,
+        }
+      : undefined,
+  };
 }

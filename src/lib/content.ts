@@ -2,7 +2,8 @@ import exercisesJson from "../../data/exercises.json";
 import programsJson from "../../data/programs.json";
 import templatesJson from "../../data/templates.json";
 import evidenceJson from "../../data/evidence.json";
-import { doseToDurationSec, storedDose } from "./dose";
+import { doseToDurationSec, scaleStepsToTarget, stepBounds, storedDose } from "./dose";
+import { EXERCISE_ALIASES, canonicalExerciseId } from "./exercise-aliases";
 import type {
   Catalog,
   DurationBenefit,
@@ -29,15 +30,24 @@ type RawStep = {
 };
 type RawProgram = Omit<Program, "steps"> & { steps: RawStep[] };
 
-function normalizeProgram(program: RawProgram): Program {
-  const steps: ProgramStep[] = program.steps.map((step) => ({
+function normalizeProgram(program: RawProgram, exercises: Map<string, Exercise>): Program {
+  const targetSec = program.durationTargetSec ?? program.durationMin * 60;
+  const raw: ProgramStep[] = program.steps.map((step) => ({
     exerciseId: step.exerciseId,
-    durationSec: step.durationSec ?? doseToDurationSec(step.dose),
+    durationSec:
+      step.durationSec ??
+      doseToDurationSec(step.dose ?? exercises.get(step.exerciseId)?.defaultDose),
     dose: storedDose(step.dose),
   }));
+  // Steps timed from their doses rarely add up to the advertised length; fit
+  // them to it, within each move's minimum and maximum.
+  const timedByDose = program.steps.some((step) => step.durationSec === undefined);
+  const steps = timedByDose
+    ? scaleStepsToTarget(raw, targetSec, (step) => stepBounds(exercises.get(step.exerciseId)))
+    : raw;
   return {
     ...program,
-    durationTargetSec: program.durationTargetSec ?? program.durationMin * 60,
+    durationTargetSec: targetSec,
     steps,
   };
 }
@@ -53,9 +63,11 @@ const rawTemplates = (templatesJson as unknown as { templates: RoutineTemplate[]
 const rawEvidence = (evidenceJson as unknown as { references: EvidenceReference[] })
   .references;
 
+const rawExerciseById = new Map(rawExercises.map((exercise) => [exercise.id, exercise]));
+
 const catalog: Catalog = {
   exercises: rawExercises,
-  programs: rawPrograms.programs.map(normalizeProgram),
+  programs: rawPrograms.programs.map((program) => normalizeProgram(program, rawExerciseById)),
   templates: rawTemplates,
   evidence: rawEvidence,
   durationBenefits: rawPrograms.durationBenefits,
@@ -86,6 +98,21 @@ for (const exercise of catalog.exercises) {
   // A constrained move needs somewhere to go when the constraint is on.
   if (exercise.constraints.length && !exercise.saferSwapId) {
     throw new Error(`Exercise ${exercise.id} has constraints but no saferSwapId`);
+  }
+  if (exercise.saferSwapId === exercise.id) {
+    throw new Error(`Exercise ${exercise.id} is its own saferSwapId`);
+  }
+  if (exercise.id in EXERCISE_ALIASES) {
+    throw new Error(`Exercise ${exercise.id} is a retired id; remove the alias or the move`);
+  }
+  if (exercise.minSec !== undefined && exercise.maxSec !== undefined && exercise.maxSec < exercise.minSec) {
+    throw new Error(`Exercise ${exercise.id} has maxSec below minSec`);
+  }
+}
+
+for (const [retired, current] of Object.entries(EXERCISE_ALIASES)) {
+  if (!exerciseById.has(current)) {
+    throw new Error(`Alias ${retired} points at missing exercise ${current}`);
   }
 }
 
@@ -140,8 +167,9 @@ export function getEvidence(): EvidenceReference[] {
   return catalog.evidence;
 }
 
+/** Resolves retired ids too, so old history and links keep working. */
 export function getExercise(id: string): Exercise | undefined {
-  return exerciseById.get(id);
+  return exerciseById.get(id) ?? exerciseById.get(canonicalExerciseId(id));
 }
 
 export function getProgram(id: string): Program | undefined {
@@ -161,14 +189,29 @@ export function getProgramDurationSec(program: Program): number {
   return program.steps.reduce((sum, step) => sum + step.durationSec, 0);
 }
 
-/** Whether a move can be done in the position the user is actually in. */
+/** A move done lying on the floor. Never part of a desk routine unless opted in. */
+export function isFloorMove(exercise: Exercise): boolean {
+  return exercise.setup === "floor" || exercise.constraints.includes("floor");
+}
+
+/**
+ * Whether a move can be done in the position the user is actually in.
+ *
+ * Floor moves fit no desk position; the engine lets them in only for people
+ * who opted in to floor work (see floorAllowed in recommendation.ts).
+ */
 export function fitsSetup(exercise: Exercise, setup: SetupRequest): boolean {
+  if (exercise.setup === "floor") return false;
   if (setup === "either") return true;
   return exercise.setup === "either" || exercise.setup === setup;
 }
 
-/** The position a move is actually performed in, given what the user asked for. */
+/**
+ * The position a move is actually performed in, given what the user asked for.
+ * Floor moves count as "not standing" for sequencing.
+ */
 export function effectiveSetup(exercise: Exercise, setup: SetupRequest): SetupId {
+  if (exercise.setup === "floor") return "seated";
   if (exercise.setup !== "either") return exercise.setup;
   return setup === "either" ? "seated" : setup;
 }
@@ -179,7 +222,7 @@ export function cueForSetup(exercise: Exercise, setup: SetupRequest): string {
 }
 
 export function requireExercise(id: string): Exercise {
-  const exercise = exerciseById.get(id);
+  const exercise = getExercise(id);
   if (!exercise) throw new Error(`Unknown exercise id: ${id}`);
   return exercise;
 }
@@ -188,7 +231,7 @@ export function requireExercise(id: string): Exercise {
 export function programBodyAreas(program: Program): string[] {
   const areas: string[] = [];
   for (const step of program.steps) {
-    const exercise = exerciseById.get(step.exerciseId);
+    const exercise = getExercise(step.exerciseId);
     if (!exercise) continue;
     for (const area of exercise.bodyAreas) {
       if (!areas.includes(area)) areas.push(area);

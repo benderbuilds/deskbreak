@@ -1,5 +1,11 @@
 import { REMINDER_LINES } from "./constants";
-import type { Reminder } from "./types";
+import type {
+  PlannedBreak,
+  Reminder,
+  StandNudgeSettings,
+  WorkdayPreferences,
+  WorkoutSession,
+} from "./types";
 
 export function formatReminderTime(minutes: number): string {
   const hour = Math.floor(minutes / 60);
@@ -61,4 +67,145 @@ export function pingLocalNotification(title: string, body: string, href?: string
   } catch {
     /* some browsers block this outside a secure context */
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * The free "time to stand up" nudge.
+ *
+ * Breaking up sitting is the health mechanic, so it is not paywalled: while
+ * DeskBreak is open, anyone gets a nudge after about 50 minutes without
+ * moving, inside their working hours only. Pro's planner and Web Push are
+ * separate and unchanged; the nudge steps aside when a planned break is due.
+ * ------------------------------------------------------------------ */
+
+/** Micro-breaks every 45 to 60 minutes; 50 sits in the middle. */
+export const STAND_NUDGE_INTERVAL_MINUTES = 50;
+export const STAND_NUDGE_MIN_INTERVAL = 30;
+export const STAND_NUDGE_MAX_INTERVAL = 90;
+export const STAND_NUDGE_SNOOZE_MINUTES = 15;
+
+export const STAND_NUDGE_COPY = {
+  title: "Time to stand up",
+  body: "You've been sitting a while. A minute on your feet is enough.",
+  action: "I stood up",
+  snooze: "Later",
+};
+
+export function defaultStandNudge(): StandNudgeSettings {
+  return {
+    enabled: true,
+    intervalMinutes: STAND_NUDGE_INTERVAL_MINUTES,
+    snoozedUntil: null,
+    lastNudgeAt: null,
+  };
+}
+
+/** Outside these hours and days the nudge stays quiet. */
+export type NudgeHours = Pick<WorkdayPreferences, "startMinutes" | "endMinutes" | "enabledDays">;
+
+export const DEFAULT_NUDGE_HOURS: NudgeHours = {
+  startMinutes: 8 * 60 + 30,
+  endMinutes: 17 * 60,
+  enabledDays: [1, 2, 3, 4, 5],
+};
+
+function atMinutes(day: Date, minutes: number): Date {
+  const date = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+  date.setMinutes(minutes);
+  return date;
+}
+
+function laterOf(...dates: (Date | null | undefined)[]): Date | null {
+  const valid = dates.filter((date): date is Date => Boolean(date) && !Number.isNaN(date!.getTime()));
+  if (!valid.length) return null;
+  return valid.reduce((latest, date) => (date > latest ? date : latest));
+}
+
+function parseDate(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/** When the person last moved: the latest finished session or micro-break. */
+export function lastActiveAt(input: {
+  history?: Pick<WorkoutSession, "finishedAt">[];
+  microBreaks?: string[];
+}): Date | null {
+  return laterOf(
+    parseDate(input.history?.[0]?.finishedAt),
+    ...(input.microBreaks ?? []).slice(0, 1).map(parseDate),
+  );
+}
+
+/**
+ * When the next stand-up nudge is due, or null when it is switched off.
+ *
+ * The interval runs from whichever is latest: the last time they moved, the
+ * last nudge, or the start of today's working hours (nobody is nudged at
+ * 8:31 for sitting since yesterday). A snooze pushes it back. Outside working
+ * hours it rolls to the next working day. A planned break (Pro) that is due
+ * around the same time takes precedence.
+ */
+export function nextStandNudgeAt(input: {
+  settings: StandNudgeSettings;
+  now: Date;
+  lastActiveAt?: Date | null;
+  hours?: NudgeHours | null;
+  plannedBreaks?: Pick<PlannedBreak, "date" | "startMinutes" | "endMinutes" | "status">[];
+}): Date | null {
+  const { settings, now } = input;
+  if (!settings.enabled) return null;
+  const hours = input.hours ?? DEFAULT_NUDGE_HOURS;
+  if (!hours.enabledDays.length || hours.endMinutes <= hours.startMinutes) return null;
+  const interval = Math.min(
+    STAND_NUDGE_MAX_INTERVAL,
+    Math.max(STAND_NUDGE_MIN_INTERVAL, settings.intervalMinutes || STAND_NUDGE_INTERVAL_MINUTES),
+  );
+
+  let day = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    if (hours.enabledDays.includes(day.getDay())) {
+      const opens = atMinutes(day, hours.startMinutes);
+      const closes = atMinutes(day, hours.endMinutes);
+      const anchor = laterOf(opens, input.lastActiveAt, parseDate(settings.lastNudgeAt))!;
+      let candidate = new Date(anchor.getTime() + interval * 60_000);
+      const snoozed = parseDate(settings.snoozedUntil);
+      if (snoozed && snoozed > candidate) candidate = snoozed;
+
+      // Step past any open planned break that covers the candidate time.
+      for (const entry of input.plannedBreaks ?? []) {
+        const open = entry.status === "planned" || entry.status === "delivered" || entry.status === "snoozed";
+        if (!open) continue;
+        const [y, m, d] = entry.date.split("-").map(Number);
+        const breakDay = new Date(y, m - 1, d);
+        if (breakDay.getTime() !== day.getTime()) continue;
+        const from = atMinutes(breakDay, entry.startMinutes - 20);
+        const to = atMinutes(breakDay, entry.endMinutes + 5);
+        if (candidate >= from && candidate <= to) candidate = to;
+      }
+
+      if (candidate < closes) return candidate;
+    }
+    day = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1);
+  }
+  return null;
+}
+
+/** True when a nudge should show right now. */
+export function isStandNudgeDue(input: Parameters<typeof nextStandNudgeAt>[0]): boolean {
+  const next = nextStandNudgeAt(input);
+  return Boolean(next && next <= input.now);
+}
+
+export function snoozeStandNudge(
+  settings: StandNudgeSettings,
+  now: Date,
+  minutes = STAND_NUDGE_SNOOZE_MINUTES,
+): StandNudgeSettings {
+  return { ...settings, snoozedUntil: new Date(now.getTime() + minutes * 60_000).toISOString() };
+}
+
+export function markStandNudgeShown(settings: StandNudgeSettings, now: Date): StandNudgeSettings {
+  return { ...settings, lastNudgeAt: now.toISOString(), snoozedUntil: null };
 }

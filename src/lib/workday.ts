@@ -26,20 +26,37 @@ export const REMINDER_LEVELS: Record<
 > = {
   minimal: { label: "Minimal", hint: "A few important reminders." },
   balanced: { label: "Balanced", hint: "Recommended.", recommended: true },
-  active: { label: "Active", hint: "Keep me moving throughout the day." },
+  active: { label: "Active", hint: "A one-minute stand about every hour, plus full resets." },
 };
 
 /**
  * What each level puts into a day, in order across the workday.
  *
  * The user never sees a break count; they pick how much help they want and the
- * planner decides what that means.
+ * planner decides what that means. "Active" is built differently (see
+ * generateActiveBreaks): a one-minute stand every 45 to 60 minutes, which is
+ * what the evidence on breaking up sitting points at, plus three full resets.
  */
-const LEVEL_SHAPES: Record<ReminderLevel, BreakType[]> = {
+const LEVEL_SHAPES: Record<Exclude<ReminderLevel, "active">, BreakType[]> = {
   minimal: ["move", "move"],
   balanced: ["move", "walk", "move", "energy"],
-  active: ["move", "stand", "walk", "move", "energy", "eyes"],
 };
+
+/** Active level: micro-breaks this far apart, in minutes. */
+export const MICRO_BREAK_SPACING = { min: 45, target: 50, max: 60 } as const;
+/** A one-minute stand needs a shorter window than a full reset. */
+export const MICRO_WINDOW_MINUTES = 15;
+/** The full resets inside an Active day, and roughly where they fall (share of the day). */
+const ACTIVE_FULL_RESETS: { type: BreakType; at: number }[] = [
+  { type: "move", at: 0.2 },
+  { type: "move", at: 0.5 },
+  { type: "energy", at: 0.8 },
+];
+
+/** One-minute stand or walk breaks. They count as activity like any reset. */
+export function isMicroBreak(entry: Pick<PlannedBreak, "type">): boolean {
+  return entry.type === "stand" || entry.type === "eyes";
+}
 
 export const BREAK_TYPE_COPY: Record<
   BreakType,
@@ -113,15 +130,82 @@ function adaptStart(
   return roundToFive(Math.max(bounds.start + 45, Math.min(latest, next)));
 }
 
-export function generateBreaks(input: {
+type GenerateInput = {
   preferences: WorkdayPreferences;
   date: string;
   plan?: Pick<WorkdayPlan, "responseMinutes" | "ignoredMinutes"> | null;
   signals?: PersonalizationSignals | null;
   preferredDuration?: DurationMinutes | null;
-}): PlannedBreak[] {
+};
+
+function plannedBreak(
+  input: GenerateInput,
+  index: number,
+  type: BreakType,
+  startMinutes: number,
+  windowMinutes: number,
+): PlannedBreak {
+  const copy = BREAK_TYPE_COPY[type];
+  const durationMin: DurationMinutes =
+    type === "move" && input.preferredDuration && input.preferredDuration <= 3
+      ? input.preferredDuration
+      : copy.durationMin;
+  return {
+    id: `${input.date}-${index + 1}-${type}`,
+    date: input.date,
+    startMinutes,
+    endMinutes: startMinutes + windowMinutes,
+    type,
+    need: copy.need,
+    durationMin,
+    status: "planned",
+    snoozedUntilMinutes: null,
+    completedSessionId: null,
+    recommendationId: null,
+  };
+}
+
+/**
+ * The Active day: an even grid of breaks 45 to 60 minutes apart across the
+ * workday. Three of them are full resets (morning, midday, afternoon energy);
+ * the rest are one-minute stands. Full resets drift toward when the person
+ * actually moves, by at most 15 minutes so the spacing holds.
+ */
+function generateActiveBreaks(input: GenerateInput): PlannedBreak[] {
+  const { preferences } = input;
+  const first = preferences.startMinutes + 45;
+  const last = preferences.endMinutes - 30;
+  const span = Math.max(0, last - first);
+  let count = Math.max(1, Math.round(span / MICRO_BREAK_SPACING.target) + 1);
+  if (count > 1 && span / (count - 1) > MICRO_BREAK_SPACING.max) count += 1;
+  if (count > 2 && span / (count - 1) < MICRO_BREAK_SPACING.min) count -= 1;
+  const spacing = count > 1 ? span / (count - 1) : 0;
+  const starts = Array.from({ length: count }, (_, index) => roundToFive(first + spacing * index));
+
+  const fullAt = new Map<number, BreakType>();
+  for (const reset of ACTIVE_FULL_RESETS.slice(0, count)) {
+    let index = Math.round(reset.at * (count - 1));
+    while (fullAt.has(index) && index < count - 1) index += 1;
+    while (fullAt.has(index) && index > 0) index -= 1;
+    fullAt.set(index, reset.type);
+  }
+
+  return starts.map((nominal, index) => {
+    const full = fullAt.get(index);
+    if (!full) return plannedBreak(input, index, "stand", nominal, MICRO_WINDOW_MINUTES);
+    const adapted = adaptStart(nominal, input.plan ?? null, input.signals ?? null, {
+      start: preferences.startMinutes,
+      end: preferences.endMinutes,
+    });
+    const start = roundToFive(Math.max(nominal - 15, Math.min(nominal + 15, adapted)));
+    return plannedBreak(input, index, full, start, Math.min(WINDOW_MINUTES, preferences.endMinutes - start));
+  });
+}
+
+export function generateBreaks(input: GenerateInput): PlannedBreak[] {
   const { preferences, date } = input;
   if (!preferences.enabledDays.includes(weekdayOf(date))) return [];
+  if (preferences.level === "active") return generateActiveBreaks(input);
 
   const shape = LEVEL_SHAPES[preferences.level];
   const start = preferences.startMinutes + 45;
@@ -135,24 +219,7 @@ export function generateBreaks(input: {
       start: preferences.startMinutes,
       end: preferences.endMinutes,
     });
-    const copy = BREAK_TYPE_COPY[type];
-    const durationMin: DurationMinutes =
-      type === "move" && input.preferredDuration && input.preferredDuration <= 3
-        ? input.preferredDuration
-        : copy.durationMin;
-    return {
-      id: `${date}-${index + 1}-${type}`,
-      date,
-      startMinutes: windowStart,
-      endMinutes: windowStart + WINDOW_MINUTES,
-      type,
-      need: copy.need,
-      durationMin,
-      status: "planned",
-      snoozedUntilMinutes: null,
-      completedSessionId: null,
-      recommendationId: null,
-    };
+    return plannedBreak(input, index, type, windowStart, WINDOW_MINUTES);
   });
 }
 
@@ -240,10 +307,41 @@ export function isDue(entry: PlannedBreak, now = minutesNow()): boolean {
   return now >= start && now <= end + 15;
 }
 
-export function planProgress(plan: WorkdayPlan): { done: number; total: number } {
+/** Breaks done out of breaks planned. A one-minute stand counts like a full reset. */
+export function planProgress(plan: WorkdayPlan): {
+  done: number;
+  total: number;
+  microDone: number;
+  microTotal: number;
+} {
+  const micro = plan.breaks.filter(isMicroBreak);
   return {
     done: plan.breaks.filter((entry) => entry.status === "completed").length,
     total: plan.breaks.length,
+    microDone: micro.filter((entry) => entry.status === "completed").length,
+    microTotal: micro.length,
+  };
+}
+
+/**
+ * Credits a one-minute stand or walk taken outside a workout (the "I stood
+ * up" button) to the open micro-break it falls nearest, within 20 minutes.
+ */
+export function satisfyMicroBreak(plan: WorkdayPlan, at: Date): WorkdayPlan {
+  if (plan.generatedFor !== todayKey(at)) return plan;
+  const minute = at.getHours() * 60 + at.getMinutes();
+  const target = plan.breaks
+    .filter((entry) => isOpen(entry) && isMicroBreak(entry))
+    .map((entry) => ({ entry, distance: Math.abs(effectiveStart(entry) - minute) }))
+    .filter(({ distance }) => distance <= 20)
+    .sort((a, b) => a.distance - b.distance)[0]?.entry;
+  if (!target) return plan;
+  return {
+    ...plan,
+    responseMinutes: [minute, ...plan.responseMinutes].slice(0, 30),
+    breaks: plan.breaks.map((entry) =>
+      entry.id === target.id ? { ...entry, status: "completed" as const } : entry,
+    ),
   };
 }
 
