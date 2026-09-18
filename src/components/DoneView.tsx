@@ -16,6 +16,7 @@ import {
   CHALLENGE_OFFER_AFTER_SESSIONS,
   FEEDBACK_OPTIONS,
   FEEDBACK_RESPONSES,
+  PAINFUL_RESPONSE,
   TARGETED_OPTIONS,
   WORSE_AREA_PROMPT,
   WORSE_REPEAT_CLINICIAN_LINE,
@@ -77,6 +78,10 @@ export function DoneView() {
   const pro = isProEntitlement(state.entitlement);
   const signedIn = Boolean(state.account.profileId);
 
+  // "Painful" during the reset: no celebration, and the advice is repeated
+  // here in case the reset ended before it could be read.
+  const hurt = Boolean(session?.exercises?.some((record) => record.discomfortReason === "painful"));
+
   const askFeedback = useMemo(
     () => isClient && shouldAskForFeedback() && !session?.perceivedEffect,
     [isClient, session?.perceivedEffect],
@@ -106,10 +111,10 @@ export function DoneView() {
 
   // No question to answer (already rated, or not asked): the reset is its own reward.
   useEffect(() => {
-    if (!isClient || askFeedback || !session || session.perceivedEffect === "worse") return;
+    if (!isClient || askFeedback || !session || hurt || session.perceivedEffect === "worse") return;
     playTuneOnce();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isClient, askFeedback, session?.sessionId]);
+  }, [isClient, askFeedback, hurt, session?.sessionId]);
 
   if (!isClient) return null;
 
@@ -122,8 +127,8 @@ export function DoneView() {
 
   function submitFeedback(value: PerceivedEffect) {
     setEffect(value);
-    // Never celebrate a reset that made someone feel worse.
-    if (value !== "worse") playTuneOnce();
+    // Never celebrate a reset that hurt or made someone feel worse.
+    if (value !== "worse" && !hurt) playTuneOnce();
     if (session) {
       recordFeedback(session.sessionId, value);
       track("session_feedback_submitted", {
@@ -198,15 +203,17 @@ export function DoneView() {
   }
 
   const worse = effect === "worse";
+  // Worse, or painful along the way: no celebration and no asks.
+  const quiet = worse || hurt;
   const helpful = state.progress.history.filter((entry) => entry.perceivedEffect === "better").length;
   // Said out loud, on this screen, instead of hiding behind "Back to Today".
   const offerPro =
     !pro &&
-    !worse &&
+    !quiet &&
     helpful >= PAYWALL_AFTER_HELPFUL &&
     (!state.paywallSeen || state.progress.totalWorkouts % 5 === 0);
   const offerChallenge =
-    !worse &&
+    !quiet &&
     !offerPro &&
     state.progress.totalWorkouts >= CHALLENGE_OFFER_AFTER_SESSIONS &&
     !state.challenge.startedOn;
@@ -214,7 +221,7 @@ export function DoneView() {
   const activeSec = session ? activeSecondsFor(session) : 0;
   const heading = !session
     ? "Reset done."
-    : worse
+    : quiet
       ? `Done. ${capitalize(sessionMovedLabel(session))}.`
       : activeSec < 60
         ? "Short one. Still counts."
@@ -231,18 +238,23 @@ export function DoneView() {
     <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
       <div className="flex justify-center">
         <CharacterArt
-          pose={worse ? "idle" : "done"}
+          pose={quiet ? "idle" : "done"}
           setup={session?.setup === "standing" ? "standing" : "seated"}
           size={170}
-          alt={worse ? "Stretch" : "Stretch, done and noticeably less folded"}
+          alt={quiet ? "Stretch" : "Stretch, done and noticeably less folded"}
         />
       </div>
 
       <h1 className="mt-4 text-center font-display text-[2rem] font-semibold leading-tight tracking-tight text-ink">
         {heading}
       </h1>
-      {session && !worse && activeSec < 60 ? (
+      {session && !quiet && activeSec < 60 ? (
         <p className="mt-1 text-center text-sm text-ink/65">{capitalize(sessionMovedLabel(session))}.</p>
+      ) : null}
+      {hurt ? (
+        <p className="mt-4 rounded-[12px] bg-ink/5 px-4 py-3 text-sm leading-relaxed text-ink" role="status">
+          {PAINFUL_RESPONSE}
+        </p>
       ) : null}
 
       {stage === "feedback" ? (
@@ -404,7 +416,7 @@ export function DoneView() {
               </div>
             ) : null}
 
-            {!worse ? <ReminderAsk /> : null}
+            {!quiet ? <ReminderAsk /> : null}
 
             <div className="surface px-4 py-4">
               <WeekSummary />

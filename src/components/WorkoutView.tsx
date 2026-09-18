@@ -302,7 +302,9 @@ export function WorkoutView({
   }, [skippedCount, engine.skippedIds, programId, recommendationId]);
 
   useEffect(() => {
-    if (engine.status !== "complete" || !program || recordedRef.current) return;
+    // A reset that ends on "Doesn't feel right" waits for the sheet, so the
+    // reason (and the "Painful" advice) is seen and recorded first.
+    if (engine.status !== "complete" || !program || recordedRef.current || sheet) return;
     recordedRef.current = true;
 
     const session: WorkoutSession = {
@@ -379,6 +381,7 @@ export function WorkoutView({
     router.replace("/app/done");
   }, [
     engine.status,
+    sheet,
     engine.completedIds,
     engine.skippedIds,
     engine.records,

@@ -63,6 +63,18 @@ test.describe("safety", () => {
     expect(after).not.toBe(before);
   });
 
+  test("a reset with a painful move ends quietly, with the advice repeated on Done", async ({ page }) => {
+    await clearAppState(page);
+    await startReset(page, "neck_shoulders");
+    await page.getByRole("button", { name: /doesn.t feel right/i }).click();
+    await page.getByRole("button", { name: /^painful$/i }).click();
+    await page.getByRole("button", { name: /^continue$/i }).click();
+    await completeReset(page);
+
+    await expect(page.getByText(/let's leave that area alone today/i)).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/^Done\./);
+  });
+
   test("while paused, only Resume moves the reset on", async ({ page }) => {
     await clearAppState(page);
     await startReset(page);
