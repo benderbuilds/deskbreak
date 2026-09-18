@@ -8,6 +8,13 @@ import { track } from "@/lib/analytics";
 import { NEED_BY_ID } from "@/lib/constants";
 import { getExercise } from "@/lib/content";
 import { isProEntitlement } from "@/lib/entitlements";
+import {
+  formatActiveTime,
+  isHelpfulEnough,
+  patternsReady,
+  ratingsUntilPatterns,
+  totalActiveSeconds,
+} from "@/lib/insights";
 import { helpRate, signalsFromHistory } from "@/lib/personalization";
 import { useAppState } from "@/lib/use-app-state";
 import { useIsClient } from "@/lib/use-client";
@@ -38,10 +45,15 @@ export function ProgressView() {
   if (!isClient) return null;
 
   const empty = state.progress.totalWorkouts === 0;
+  const ready = patternsReady(state.progress.history);
+  const remaining = ratingsUntilPatterns(state.progress.history);
 
   return (
     <div className="flex flex-1 flex-col px-5 py-6 lg:max-w-[640px] lg:px-0">
       <h1 className="font-display text-[1.8rem] font-semibold leading-tight text-ink">Progress</h1>
+      {state.account.profileId && state.account.email ? (
+        <p className="mt-1 text-sm break-words text-ink/55">Synced as {state.account.email}</p>
+      ) : null}
 
       {empty ? (
         <div className="mt-8 text-center">
@@ -61,7 +73,7 @@ export function ProgressView() {
             <WeekSummary />
           </div>
 
-          {insights.mostHelpful ? (
+          {ready && insights.mostHelpful ? (
             <section className="mt-6" aria-labelledby="most-helpful">
               <h2 id="most-helpful" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
                 What helps you
@@ -76,7 +88,7 @@ export function ProgressView() {
             </section>
           ) : null}
 
-          {insights.patterns.length ? (
+          {ready && insights.patterns.length ? (
             <section className="mt-6" aria-labelledby="patterns">
               <h2 id="patterns" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
                 Patterns
@@ -91,7 +103,9 @@ export function ProgressView() {
             </section>
           ) : (
             <p className="mt-6 text-sm leading-relaxed text-ink/55">
-              Answer &quot;How do you feel?&quot; after a few more resets and patterns show up here.
+              {remaining > 0
+                ? `${remaining} more rated ${remaining === 1 ? "reset" : "resets"} to see your patterns. Answer "How do you feel?" after a reset to count it.`
+                : "Patterns show up here once your answers point somewhere."}
             </p>
           )}
 
@@ -103,8 +117,13 @@ export function ProgressView() {
               <Stat label="Resets" value={String(state.progress.totalWorkouts)} />
               <Stat label="Active workdays" value={String(insights.activeDays)} />
               <Stat label="Helped" value={insights.rated ? `${insights.helped} of ${insights.rated}` : "–"} />
-              <Stat label="Minutes moved" value={String(Math.round(insights.minutes))} />
+              <Stat label="Time moved" value={formatActiveTime(insights.activeSeconds)} />
             </dl>
+            {state.microBreaks.length ? (
+              <p className="mt-3 text-sm text-ink/60">
+                Plus {state.microBreaks.length} {state.microBreaks.length === 1 ? "stand-up" : "stand-ups"} between resets.
+              </p>
+            ) : null}
           </section>
 
           {!pro ? (
@@ -137,7 +156,7 @@ type Insights = {
   activeDays: number;
   helped: number;
   rated: number;
-  minutes: number;
+  activeSeconds: number;
   mostHelpful: { name: string; helped: number; rated: number } | null;
   patterns: string[];
 };
@@ -146,7 +165,8 @@ function buildInsights(history: WorkoutSession[], signals: Record<string, { bett
   const activeDays = new Set(history.map((session) => session.finishedAt.slice(0, 10))).size;
   const rated = history.filter((session) => session.perceivedEffect);
   const helped = rated.filter((session) => session.perceivedEffect === "better").length;
-  const minutes = history.reduce((sum, session) => sum + session.elapsedSec / 60, 0);
+  // Real time spent moving, never the routine's advertised length.
+  const activeSeconds = totalActiveSeconds(history);
 
   // Most helpful routine, by short label.
   const byProgram = new Map<string, { name: string; helped: number; rated: number }>();
@@ -159,7 +179,7 @@ function buildInsights(history: WorkoutSession[], signals: Record<string, { bett
   }
   const mostHelpful =
     [...byProgram.values()]
-      .filter((entry) => entry.rated >= 2)
+      .filter((entry) => isHelpfulEnough(entry.helped, entry.rated))
       .sort((a, b) => b.helped / b.rated - a.helped / a.rated || b.rated - a.rated)[0] ?? null;
 
   const patterns: string[] = [];
@@ -212,7 +232,7 @@ function buildInsights(history: WorkoutSession[], signals: Record<string, { bett
     patterns.push(`Most of your resets are ${durations[0][0]} minutes. DeskBreak defaults to that now.`);
   }
 
-  return { activeDays, helped, rated: rated.length, minutes, mostHelpful, patterns: patterns.slice(0, 4) };
+  return { activeDays, helped, rated: rated.length, activeSeconds, mostHelpful, patterns: patterns.slice(0, 4) };
 }
 
 function capitalize(value: string): string {
