@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { EXERCISE_ALIASES } from "./src/lib/exercise-aliases";
 
 const nextConfig = {
   agentRules: false,
@@ -7,6 +8,11 @@ const nextConfig = {
     return [
       { source: "/app/library", destination: "/app/explore", permanent: true },
       { source: "/app/settings", destination: "/app/you", permanent: true },
+      // Merged or renamed moves: old links keep working.
+      ...Object.entries(EXERCISE_ALIASES).flatMap(([from, to]) => [
+        { source: `/moves/${from}`, destination: `/moves/${to}`, permanent: true },
+        { source: `/app/explore/move/${from}`, destination: `/app/explore/move/${to}`, permanent: true },
+      ]),
     ];
   },
   async headers() {

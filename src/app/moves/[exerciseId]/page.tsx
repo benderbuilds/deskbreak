@@ -4,17 +4,14 @@ import { ExerciseDetail } from "@/components/ExerciseDetail";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker } from "@/components/marketing/LandingCta";
 import { getExercise, getExercises } from "@/lib/content";
-import { EXERCISE_ALIASES } from "@/lib/exercise-aliases";
 
 const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co").replace(/\/$/, "");
 
+// Retired ids never reach this page: next.config.ts redirects them (308).
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  // Retired ids are generated too, so old links reach the redirect below.
-  return [...getExercises().map((exercise) => exercise.id), ...Object.keys(EXERCISE_ALIASES)].map((exerciseId) => ({
-    exerciseId,
-  }));
+  return getExercises().map((exercise) => ({ exerciseId: exercise.id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ exerciseId: string }> }): Promise<Metadata> {
