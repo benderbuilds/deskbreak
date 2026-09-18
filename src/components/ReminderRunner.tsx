@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { track } from "@/lib/analytics";
+import { DAILY_REMINDER_SNOOZE_MINUTES, dailyReminderDecision } from "@/lib/daily-reminder";
+import { todayKey } from "@/lib/dates";
 import { isProEntitlement } from "@/lib/entitlements";
 import {
   STAND_NUDGE_COPY,
-  isDailyReminderDue,
   isStandNudgeDue,
   lastActiveAt,
   markStandNudgeShown,
@@ -15,14 +16,18 @@ import {
   reminderLineFor,
   snoozeStandNudge,
 } from "@/lib/reminders";
-import { todayKey } from "@/lib/dates";
-import { getAppState, recordMicroBreak, saveStandNudge, saveWorkdayPlan } from "@/lib/storage";
+import {
+  getAppState,
+  markReminderShown,
+  recordMicroBreak,
+  saveSettings,
+  saveStandNudge,
+  saveWorkdayPlan,
+} from "@/lib/storage";
 import { breakHref, isDue, markDelivered, planForToday, reminderCopy } from "@/lib/workday";
 import { personalizationSignals } from "@/lib/storage";
 
 const CHECK_MS = 60_000;
-const DAILY_FIRED_KEY = "deskbreak.dailyReminder.firedOn.v1";
-const DAILY_HREF = "/app/start?source=push";
 
 /** Screens where a nudge would interrupt: a reset in progress, its wrap-up, checkout. */
 const QUIET_ROUTES = ["/app/start", "/app/workout", "/app/done", "/app/pro", "/app/welcome", "/app/save"];
@@ -33,21 +38,21 @@ const QUIET_ROUTES = ["/app/start", "/app/workout", "/app/done", "/app/pro", "/a
  * in-tab version so a planned break never silently passes while the app is
  * sitting in a visible tab.
  *
- * It also runs the free stand-up nudge: after about 50 minutes without
+ * It also fires the free daily reminder at its chosen time (a browser
+ * notification when allowed, otherwise a card here), and runs the free
+ * stand-up nudge: after about 50 minutes without
  * moving, inside working hours, a small card asks them to stand up. Anyone
  * gets it, Pro or not; it steps aside when a planned break is due.
- *
- * And the daily reminder: at its time, once a day, as a notification when
- * the tab is in the background and a card when it is in view. Pro people
- * with a workday plan get planned breaks instead.
  */
 export function ReminderRunner() {
   const pathname = usePathname();
+  const router = useRouter();
   const notified = useRef<Set<string>>(new Set());
   const pinged = useRef(false);
-  const router = useRouter();
   const [standDue, setStandDue] = useState(false);
   const [dailyDue, setDailyDue] = useState(false);
+  // A snoozed daily reminder only needs to survive while this tab is open.
+  const dailySnooze = useRef<Date | null>(null);
   // All DeskBreak can vouch for is the time since it was opened: a first
   // visit at 2 pm is not told it has "been sitting a while".
   const [openedAt] = useState(() => new Date());
@@ -65,24 +70,26 @@ export function ReminderRunner() {
           : null;
 
       const now = new Date();
-      const moved = lastActiveAt({ history: state.progress.history, microBreaks: state.microBreaks });
-      if (
-        !quiet &&
-        !plan &&
-        isDailyReminderDue({
-          reminder: state.settings.reminders.find((entry) => entry.kind === "daily"),
-          now,
-          firedOn: readFiredOn(),
-          lastActiveAt: moved,
-        })
-      ) {
-        writeFiredOn(todayKey(now));
+      const lastActive = lastActiveAt({ history: state.progress.history, microBreaks: state.microBreaks });
+
+      const daily = quiet
+        ? "wait"
+        : dailyReminderDecision({
+            reminder: state.settings.reminders.find((entry) => entry.kind === "daily"),
+            now,
+            lastShownDate: state.settings.lastReminderDate,
+            workdays: plan?.preferences.enabledDays ?? null,
+            snoozedUntil: dailySnooze.current,
+            lastActiveAt: lastActive,
+          });
+      if (daily === "answered") markReminderShown(todayKey(now));
+      if (daily === "due") {
+        markReminderShown(todayKey(now));
+        dailySnooze.current = null;
         track("push_delivered", { channel: "daily_in_tab" });
-        if (document.visibilityState === "hidden" && "Notification" in window && Notification.permission === "granted") {
-          pingLocalNotification("Time for a reset", reminderLineFor(todayKey(now)), DAILY_HREF);
-        } else {
-          setDailyDue(true);
-        }
+        const allowed = "Notification" in window && Notification.permission === "granted";
+        if (allowed) pingLocalNotification(DAILY_TITLE, reminderLineFor(todayKey(now)), "/app");
+        else setDailyDue(true);
       }
 
       const nudgeDue =
@@ -90,7 +97,7 @@ export function ReminderRunner() {
         isStandNudgeDue({
           settings: state.settings.standNudge,
           now,
-          lastActiveAt: laterOf(moved, openedAt),
+          lastActiveAt: laterOf(lastActive, openedAt),
           hours: plan?.preferences ?? null,
           plannedBreaks: plan?.breaks ?? [],
         });
@@ -129,32 +136,36 @@ export function ReminderRunner() {
     };
   }, [pathname, quiet, openedAt]);
 
-  if (quiet) return null;
+  if (quiet || (!standDue && !dailyDue)) return null;
 
   if (dailyDue) {
-    const closeDaily = (action: "start" | "dismiss") => {
-      track("reminder_clicked", { kind: "daily", action });
+    const startDaily = () => {
+      track("reminder_clicked", { kind: "daily", action: "start" });
       setDailyDue(false);
-      if (action === "start") router.push(DAILY_HREF);
+      const minutes = getAppState().preferredDuration ?? 3;
+      router.push(`/app/start?need=general&minutes=${minutes}&source=today`);
+    };
+    const snoozeDaily = () => {
+      dailySnooze.current = new Date(Date.now() + DAILY_REMINDER_SNOOZE_MINUTES * 60_000);
+      // Let it fire once more today, when the snooze runs out.
+      saveSettings({ lastReminderDate: null });
+      track("reminder_clicked", { kind: "daily", action: "snooze" });
+      setDailyDue(false);
     };
     return (
-      <NudgeCard
-        title="Time for a reset"
+      <ReminderCard
+        title={DAILY_TITLE}
         body={reminderLineFor(todayKey())}
-        onDismiss={() => closeDaily("dismiss")}
+        primary={{ label: "Start reset", onClick: startDaily }}
+        secondary={{ label: `In ${DAILY_REMINDER_SNOOZE_MINUTES} min`, onClick: snoozeDaily }}
+        onDismiss={() => {
+          track("reminder_clicked", { kind: "daily", action: "dismiss" });
+          setDailyDue(false);
+        }}
         dismissLabel="Dismiss today's reminder"
-      >
-        <Button size="sm" variant="ink" block={false} onClick={() => closeDaily("start")}>
-          Start reset
-        </Button>
-        <Button size="sm" variant="tertiary" block={false} onClick={() => closeDaily("dismiss")}>
-          Not now
-        </Button>
-      </NudgeCard>
+      />
     );
   }
-
-  if (!standDue) return null;
 
   function stoodUp() {
     recordMicroBreak();
@@ -179,34 +190,36 @@ export function ReminderRunner() {
   }
 
   return (
-    <NudgeCard
+    <ReminderCard
       title={STAND_NUDGE_COPY.title}
       body={STAND_NUDGE_COPY.body}
+      primary={{ label: STAND_NUDGE_COPY.action, onClick: stoodUp }}
+      secondary={{ label: STAND_NUDGE_COPY.snooze, onClick: later }}
       onDismiss={dismiss}
       dismissLabel="Dismiss until the next nudge"
-    >
-      <Button size="sm" variant="ink" block={false} onClick={stoodUp}>
-        {STAND_NUDGE_COPY.action}
-      </Button>
-      <Button size="sm" variant="tertiary" block={false} onClick={later}>
-        {STAND_NUDGE_COPY.snooze}
-      </Button>
-    </NudgeCard>
+    />
   );
 }
 
-function NudgeCard({
+const DAILY_TITLE = "Time for your Desk Reset";
+
+type CardAction = { label: string; onClick: () => void };
+
+/** The in-app reminder card, above the bottom nav on phones and bottom-right on desktop. */
+function ReminderCard({
   title,
   body,
+  primary,
+  secondary,
   onDismiss,
   dismissLabel,
-  children,
 }: {
   title: string;
   body: string;
+  primary: CardAction;
+  secondary: CardAction;
   onDismiss: () => void;
   dismissLabel: string;
-  children: React.ReactNode;
 }) {
   return (
     <div
@@ -229,7 +242,14 @@ function NudgeCard({
             ×
           </button>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">{children}</div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button size="sm" variant="ink" block={false} onClick={primary.onClick}>
+            {primary.label}
+          </Button>
+          <Button size="sm" variant="tertiary" block={false} onClick={secondary.onClick}>
+            {secondary.label}
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -237,20 +257,4 @@ function NudgeCard({
 
 function laterOf(a: Date | null, b: Date): Date {
   return a && a > b ? a : b;
-}
-
-function readFiredOn(): string | null {
-  try {
-    return window.localStorage.getItem(DAILY_FIRED_KEY);
-  } catch {
-    return null;
-  }
-}
-
-function writeFiredOn(dateKey: string): void {
-  try {
-    window.localStorage.setItem(DAILY_FIRED_KEY, dateKey);
-  } catch {
-    // Private mode: the reminder may repeat on reload, which is harmless.
-  }
 }

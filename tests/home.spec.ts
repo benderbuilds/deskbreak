@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { dailyReminderDecision } from "../src/lib/daily-reminder";
 import { clearAppState, grantPro } from "./helpers";
 
 /** A Monday morning, inside default working hours, in the browser's own time zone. */
@@ -178,5 +179,52 @@ test.describe("stand-up nudge", () => {
 
     // Counted as activity in today's list.
     await expect(page.getByText(/^stood up$/i)).toBeVisible();
+  });
+});
+
+test.describe("daily reminder in the tab", () => {
+  const daily = { id: "daily", minutes: 14 * 60 + 30, weekdaysOnly: true, kind: "daily" as const, enabled: true };
+  const at = (h: number, m: number, day = 21) => new Date(2026, 8, day, h, m);
+
+  test("fires once a day, at its time, on working days only", () => {
+    expect(dailyReminderDecision({ reminder: daily, now: at(14, 29), lastShownDate: null })).toBe("wait");
+    expect(dailyReminderDecision({ reminder: daily, now: at(14, 30), lastShownDate: null })).toBe("due");
+    expect(dailyReminderDecision({ reminder: daily, now: at(15, 10), lastShownDate: "2026-09-21" })).toBe("wait");
+    // Opening DeskBreak in the evening doesn't earn the afternoon nudge.
+    expect(dailyReminderDecision({ reminder: daily, now: at(20, 0), lastShownDate: null })).toBe("wait");
+    // Saturday, weekdays only.
+    expect(dailyReminderDecision({ reminder: daily, now: at(14, 30, 26), lastShownDate: null })).toBe("wait");
+    // A Pro plan's own working days win.
+    expect(dailyReminderDecision({ reminder: daily, now: at(14, 30, 26), lastShownDate: null, workdays: [6] })).toBe("due");
+    expect(dailyReminderDecision({ reminder: { ...daily, enabled: false }, now: at(14, 30), lastShownDate: null })).toBe("wait");
+  });
+
+  test("a reset just before the time answers it, and a snooze brings it back", () => {
+    expect(dailyReminderDecision({ reminder: daily, now: at(14, 35), lastShownDate: null, lastActiveAt: at(13, 50) })).toBe(
+      "answered",
+    );
+    expect(dailyReminderDecision({ reminder: daily, now: at(14, 35), lastShownDate: null, lastActiveAt: at(12, 0) })).toBe("due");
+    expect(dailyReminderDecision({ reminder: daily, now: at(14, 40), lastShownDate: null, snoozedUntil: at(14, 45) })).toBe("wait");
+    expect(dailyReminderDecision({ reminder: daily, now: at(16, 50), lastShownDate: null, snoozedUntil: at(16, 45) })).toBe("due");
+  });
+
+  test("shows a card in the app at the chosen time when notifications aren't allowed", async ({ page }) => {
+    await page.clock.install({ time: new Date(2026, 8, 21, 14, 25) });
+    await clearAppState(page);
+    await page.goto("/app/you");
+    await page.getByRole("switch", { name: /daily reminder/i }).click();
+    await expect(page.getByRole("switch", { name: /daily reminder/i })).toHaveAttribute("aria-checked", "true");
+    await expect(page.getByText(/time for your desk reset/i)).toHaveCount(0);
+
+    await page.clock.runFor(6 * 60_000);
+    await expect(page.getByText(/time for your desk reset/i)).toBeVisible();
+    await page.getByRole("button", { name: /^in 15 min$/i }).click();
+    await expect(page.getByText(/time for your desk reset/i)).toHaveCount(0);
+
+    await page.clock.runFor(16 * 60_000);
+    await expect(page.getByText(/time for your desk reset/i)).toBeVisible();
+    await page.getByRole("button", { name: /dismiss today's reminder/i }).click();
+    await page.clock.runFor(30 * 60_000);
+    await expect(page.getByText(/time for your desk reset/i)).toHaveCount(0);
   });
 });
