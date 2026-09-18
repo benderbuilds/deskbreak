@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CharacterArt } from "@/components/CharacterArt";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { NeedCards } from "@/components/marketing/NeedCards";
 import { LandingViewTracker, StartResetButton } from "@/components/marketing/LandingCta";
-import { HERO_SUBHEAD, PRODUCT_PROMISE, PRODUCT_SUBHEAD } from "@/lib/constants";
-import { LANDING_PAGES } from "@/lib/seo-content";
+import { Citation } from "@/components/marketing/RichText";
+import { WorkoutDemo, type DemoMove } from "@/components/marketing/WorkoutDemo";
+import { FREE_RESET_PROGRAM_ID, HERO_SUBHEAD, PRODUCT_PROMISE, PRODUCT_SUBHEAD } from "@/lib/constants";
+import { getExercise, getProgram } from "@/lib/content";
+import { LANDING_PAGES, PROOF_CALLOUTS } from "@/lib/seo-content";
 
 export const metadata: Metadata = {
   title: "DeskBreak. The workout for people who sit all day.",
@@ -13,11 +15,23 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-const STEPS = [
-  { n: "1", title: "Press Start", body: "No account, no questions. The reset begins in a second." },
-  { n: "2", title: "Follow five clear movements", body: "Neck, shoulders, back, wrists, hips and legs. Three minutes." },
-  { n: "3", title: "Tell us how you feel", body: "One tap. DeskBreak uses it to make the next reset better." },
-];
+const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+
+/** The free reset "Start" opens, read from the catalog so the copy can't drift from it. */
+function freeReset() {
+  const program = getProgram(FREE_RESET_PROGRAM_ID);
+  const steps = (program?.steps ?? [])
+    .map((step) => ({ step, exercise: getExercise(step.exerciseId) }))
+    .filter((entry) => entry.exercise !== undefined);
+  const moveCount = new Set(steps.map((entry) => entry.step.exerciseId)).size;
+  const demo: DemoMove[] = steps.slice(0, 3).map((entry, index) => ({
+    id: entry.step.exerciseId,
+    name: entry.exercise!.name,
+    seconds: entry.step.durationSec,
+    next: steps[index + 1]?.exercise?.name ?? "Done",
+  }));
+  return { moveCount, stepCount: steps.length, demo };
+}
 
 const PRO_EXAMPLES = [
   { time: "10:20 AM", label: "Desk Reset" },
@@ -33,6 +47,18 @@ const PRO_EXAMPLES = [
  * button before the JavaScript lands.
  */
 export default function LandingPage() {
+  const reset = freeReset();
+  const countWord = NUMBER_WORDS[reset.moveCount] ?? String(reset.moveCount);
+  const steps = [
+    { n: "1", title: "Press Start", body: "No account, no questions. The reset begins in a second." },
+    {
+      n: "2",
+      title: `Follow ${countWord} clear movements`,
+      body: "Neck, shoulders, back, wrists, hips and legs. Three minutes.",
+    },
+    { n: "3", title: "Tell us how you feel", body: "One tap. DeskBreak uses it to make the next reset better." },
+  ];
+
   return (
     <MarketingShell>
       <LandingViewTracker />
@@ -68,8 +94,31 @@ export default function LandingPage() {
         </div>
 
         <div className="flex justify-center lg:justify-end">
-          <CharacterArt pose="ready" size={300} alt="Stretch, ready to go" />
+          <WorkoutDemo moves={reset.demo} totalSteps={reset.stepCount} />
         </div>
+      </section>
+
+      <section className="py-8" aria-labelledby="research">
+        <h2 id="research" className="font-display text-[1.5rem] font-semibold tracking-tight text-ink">
+          What the research says about short breaks
+        </h2>
+        <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {PROOF_CALLOUTS.map((callout) => (
+            <li key={callout.sourceId} className="surface px-5 py-4 text-[0.95rem] leading-relaxed text-ink/80">
+              {callout.text}{" "}
+              <span className="text-sm">
+                <Citation ids={[callout.sourceId]} />
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 max-w-[42rem] text-sm leading-relaxed text-ink/55">
+          These are findings from the studies, not promises about DeskBreak. DeskBreak is general movement
+          guidance, not medical care.{" "}
+          <Link href="/science" className="font-semibold text-coral">
+            How we use research &rarr;
+          </Link>
+        </p>
       </section>
 
       <section className="py-10" aria-labelledby="how-it-works">
@@ -77,7 +126,7 @@ export default function LandingPage() {
           How it works
         </h2>
         <ol className="mt-6 grid gap-3 sm:grid-cols-3">
-          {STEPS.map((step) => (
+          {steps.map((step) => (
             <li key={step.n} className="surface px-5 py-6">
               <span className="grid h-8 w-8 place-items-center rounded-full bg-coral text-sm font-semibold text-white">
                 {step.n}
@@ -90,28 +139,17 @@ export default function LandingPage() {
       </section>
 
       <section className="py-6" aria-labelledby="more-than-stretching">
-        <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-          <div>
-            <h2 id="more-than-stretching" className="font-display text-[1.9rem] font-semibold tracking-tight text-ink">
-              More than stretching.
-            </h2>
-            <p className="mt-3 max-w-[32rem] leading-relaxed text-ink/65">
-              Every Desk Reset mixes mobility, light activation and standing up, because the
-              evidence for breaking up sitting is about moving, not holding a pose. Move more.
-              Change positions. Build capacity.
-            </p>
-            <Link href="/science" className="mt-4 inline-block text-sm font-semibold text-coral">
-              Why this works &rarr;
-            </Link>
-          </div>
-          <ul className="grid gap-2 text-sm text-ink/70 sm:grid-cols-2">
-            {["Evidence-informed movement", "Designed for desk workers", "Learns what helps you", "Works offline, no account needed"].map((line) => (
-              <li key={line} className="surface px-4 py-3 font-semibold">
-                {line}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <h2 id="more-than-stretching" className="font-display text-[1.9rem] font-semibold tracking-tight text-ink">
+          More than stretching.
+        </h2>
+        <p className="mt-3 max-w-[40rem] leading-relaxed text-ink/65">
+          Every Desk Reset mixes mobility, light activation and standing up, because the evidence for
+          breaking up sitting is about moving, not holding a pose. It works offline, needs no account, and
+          learns which moves help you.
+        </p>
+        <Link href="/science" className="mt-4 inline-block text-sm font-semibold text-coral">
+          Why this works &rarr;
+        </Link>
       </section>
 
       <section className="mt-8 rounded-[24px] bg-ink px-6 py-10 text-paper sm:px-10" aria-labelledby="pro-teaser">
