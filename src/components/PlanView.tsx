@@ -1,24 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ButtonLink, Chip } from "@/components/Button";
+import { PushSetup } from "@/components/PushSetup";
 import { pushPreferences } from "@/lib/account-client";
 import { track } from "@/lib/analytics";
+import {
+  BREAK_ACTION_COPY,
+  breakTitle,
+  completeMicroBreak,
+  microActionLabel,
+  startBreakHref,
+  syncBreaks,
+} from "@/lib/break-actions";
 import { formatMinutes, minutesNow, parseTimeInput, toTimeInput } from "@/lib/dates";
 import { isProEntitlement } from "@/lib/entitlements";
-import { pushSupported, subscribeToPush } from "@/lib/push-client";
 import { personalizationSignals, saveWorkdayPlan } from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
 import { useIsClient } from "@/lib/use-client";
 import {
   BREAK_TYPE_COPY,
   REMINDER_LEVELS,
-  breakHref,
   createPlan,
   defaultPreferences,
   effectiveStart,
+  isDue,
+  isMicroBreak,
+  isOpen,
   planForToday,
+  planProgress,
   skipBreak,
   snoozeBreak,
   withExpiry,
@@ -47,7 +58,21 @@ export function PlanView() {
   const [days, setDays] = useState<number[]>(existing?.enabledDays ?? defaultPreferences().enabledDays);
   const [editing, setEditing] = useState(!existing);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  // Snoozes and skips on today's breaks are a draft until "Save plan".
+  const [draft, setDraft] = useState<WorkdayPlan | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [justBuilt, setJustBuilt] = useState(false);
+
+  const formChanged =
+    Boolean(existing) &&
+    editing &&
+    (parseTimeInput(start) !== existing?.startMinutes ||
+      parseTimeInput(end) !== existing?.endMinutes ||
+      level !== existing?.level ||
+      [...days].sort().join() !== [...(existing?.enabledDays ?? [])].sort().join());
+  const dirty = Boolean(draft) || formChanged;
+
+  useUnsavedChangesGuard(dirty);
 
   if (!isClient) return null;
 
@@ -77,7 +102,7 @@ export function PlanView() {
     );
   }
 
-  async function save() {
+  function buildFromForm() {
     const startMinutes = parseTimeInput(start);
     const endMinutes = parseTimeInput(end);
     if (startMinutes === null || endMinutes === null) {
@@ -94,6 +119,7 @@ export function PlanView() {
     }
     setError(null);
 
+    const firstBuild = !existing;
     const plan = createPlan({
       startMinutes,
       endMinutes,
@@ -102,27 +128,32 @@ export function PlanView() {
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone ?? null,
     });
     saveWorkdayPlan(plan);
-    track("workday_plan_created", { level, breaks: plan.breaks.length, days: days.length });
+    track("workday_plan_created", { level, breaks: plan.breaks.length, days: days.length, first: firstBuild });
     for (const entry of plan.breaks) {
       track("planned_break_created", { break_id: entry.id, break_type: entry.type, start: entry.startMinutes });
     }
     void pushPreferences();
     void syncBreaks(plan);
+    setDraft(null);
     setEditing(false);
-
-    if (pushSupported() && !state.push.endpoint) {
-      const result = await subscribeToPush();
-      setNotice(
-        result === "subscribed"
-          ? "Reminders on. We'll nudge you even when DeskBreak isn't open."
-          : result === "denied"
-            ? "Notifications are blocked in this browser. Reminders will show while DeskBreak is open, and by email if you've saved one."
-            : "Reminders will show while DeskBreak is open. Turn on push under You for the rest.",
-      );
-    }
+    setJustBuilt(firstBuild);
+    setSaved(!firstBuild);
   }
 
-  const plan: WorkdayPlan | null = state.plan
+  function saveDraft() {
+    if (!draft) return;
+    saveWorkdayPlan(draft);
+    void syncBreaks(draft);
+    setDraft(null);
+    setSaved(true);
+  }
+
+  function editDraft(next: WorkdayPlan) {
+    setDraft(next);
+    setSaved(false);
+  }
+
+  const stored: WorkdayPlan | null = state.plan
     ? withExpiry(
         planForToday(state.plan, {
           signals: personalizationSignals(state),
@@ -131,19 +162,30 @@ export function PlanView() {
         minutesNow(),
       )
     : null;
+  const plan = draft ?? stored;
 
   if (!editing && plan) {
+    const dueId = plan.breaks.find((entry) => isDue(entry))?.id ?? null;
+    const progress = planProgress(plan);
     return (
       <div className="flex flex-1 flex-col px-5 py-6 lg:px-0">
         <h1 className="font-display text-[1.8rem] font-semibold leading-tight text-ink">Today&apos;s plan</h1>
         <p className="mt-2 text-sm text-ink/55">
           {formatMinutes(plan.preferences.startMinutes)} to {formatMinutes(plan.preferences.endMinutes)} ·{" "}
           {REMINDER_LEVELS[plan.preferences.level].label}
+          {progress.total ? ` · ${progress.done} of ${progress.total} done` : ""}
         </p>
-        {notice ? (
-          <p className="surface mt-4 px-4 py-3 text-sm leading-relaxed text-ink/70" role="status">
-            {notice}
-          </p>
+
+        {justBuilt ? (
+          <div className="surface-elevated mt-5 px-4 py-4">
+            <p className="font-display text-base font-semibold text-ink">Your workday is set.</p>
+            <p className="mt-1 text-sm leading-relaxed text-ink/60">
+              DeskBreak reminds you while it&apos;s open. Turn on notifications to get breaks when it isn&apos;t.
+            </p>
+            <div className="mt-3 border-t border-ink/8 pt-3">
+              <PushSetup context="plan" />
+            </div>
+          </div>
         ) : null}
 
         {!plan.breaks.length ? (
@@ -155,63 +197,85 @@ export function PlanView() {
         <ul className="mt-5 grid gap-2.5">
           {plan.breaks.map((entry) => {
             const copy = BREAK_TYPE_COPY[entry.type];
-            const open = entry.status === "planned" || entry.status === "delivered" || entry.status === "snoozed";
+            const micro = isMicroBreak(entry);
+            const due = entry.id === dueId;
             return (
-              <li key={entry.id} className="surface px-4 py-4">
+              <li key={entry.id} className={[due ? "surface-elevated" : "surface", "px-4 py-4"].join(" ")}>
                 <div className="flex items-baseline justify-between gap-3">
                   <p className="font-display text-lg font-semibold tabular-nums text-ink">
                     {formatMinutes(effectiveStart(entry))}
                     <span className="ml-1 text-sm font-normal text-ink/45">to {formatMinutes(entry.endMinutes)}</span>
                   </p>
-                  <p className="text-sm text-ink/50">{entry.durationMin} min</p>
+                  <p className="text-sm text-ink/50">{due ? "Due now" : `${entry.durationMin} min`}</p>
                 </div>
                 <p className="mt-0.5 text-sm text-ink/70">
-                  {copy.label} · {copy.blurb}
+                  {micro ? `${breakTitle(entry, copy.label)} · 1 min. ${copy.blurb}` : `${copy.label} · ${copy.blurb}`}
                 </p>
 
                 {entry.status === "completed" ? (
-                  <p className="mt-3 text-sm font-semibold text-mint-deep">Done</p>
+                  <p className="mt-3 text-sm font-semibold text-mint-deep">{BREAK_ACTION_COPY.done}</p>
                 ) : entry.status === "skipped" ? (
-                  <p className="mt-3 text-sm font-semibold text-ink/40">Skipped</p>
+                  <p className="mt-3 text-sm font-semibold text-ink/40">{BREAK_ACTION_COPY.skipped}</p>
                 ) : entry.status === "expired" ? (
-                  <p className="mt-3 text-sm font-semibold text-ink/40">Missed. No big deal.</p>
-                ) : open ? (
+                  <p className="mt-3 text-sm font-semibold text-ink/40">{BREAK_ACTION_COPY.missed}. No big deal.</p>
+                ) : isOpen(entry) ? (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      block={false}
-                      onClick={() => {
-                        track("planned_break_started", { break_id: entry.id, break_type: entry.type, source: "plan" });
-                        router.push(breakHref(entry));
-                      }}
-                    >
-                      Start now
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      block={false}
-                      onClick={() => {
-                        track("planned_break_snoozed", { break_id: entry.id, minutes: 15 });
-                        const next = snoozeBreak(plan, entry.id, 15);
-                        saveWorkdayPlan(next);
-                        void syncBreaks(next);
-                      }}
-                    >
-                      15 min
-                    </Button>
+                    {micro ? (
+                      due ? (
+                        <Button
+                          size="sm"
+                          block={false}
+                          onClick={() => {
+                            completeMicroBreak(entry, "plan");
+                            if (draft) {
+                              setDraft({
+                                ...draft,
+                                breaks: draft.breaks.map((item) =>
+                                  item.id === entry.id ? { ...item, status: "completed" as const } : item,
+                                ),
+                              });
+                            }
+                          }}
+                        >
+                          {microActionLabel(entry)}
+                        </Button>
+                      ) : null
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant={due ? "primary" : "secondary"}
+                        block={false}
+                        onClick={() => {
+                          if (dirty && !window.confirm(LEAVE_WARNING)) return;
+                          router.push(startBreakHref(entry, "plan"));
+                        }}
+                      >
+                        {due ? BREAK_ACTION_COPY.start : BREAK_ACTION_COPY.startEarly}
+                      </Button>
+                    )}
+                    {due ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        block={false}
+                        onClick={() => {
+                          track("planned_break_snoozed", { break_id: entry.id, minutes: 15 });
+                          editDraft(snoozeBreak(plan, entry.id, 15));
+                        }}
+                      >
+                        {BREAK_ACTION_COPY.snooze}
+                      </Button>
+                    ) : null}
                     <Button
                       size="sm"
                       variant="tertiary"
                       block={false}
                       onClick={() => {
                         track("planned_break_skipped", { break_id: entry.id });
-                        const next = skipBreak(plan, entry.id);
-                        saveWorkdayPlan(next);
-                        void syncBreaks(next);
+                        editDraft(skipBreak(plan, entry.id));
                       }}
                     >
-                      Skip
+                      {BREAK_ACTION_COPY.skip}
                     </Button>
                   </div>
                 ) : null}
@@ -220,8 +284,27 @@ export function PlanView() {
           })}
         </ul>
 
-        <div className="mt-6">
-          <Button variant="secondary" onClick={() => setEditing(true)}>
+        <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 mt-6 lg:bottom-4">
+          <div className="surface-elevated flex flex-wrap items-center gap-3 px-4 py-3">
+            <p className="min-w-0 flex-1 text-sm text-ink/60" role="status">
+              {draft ? "Unsaved changes" : saved ? "Saved" : "No changes"}
+            </p>
+            <Button variant="ink" size="sm" block={false} onClick={saveDraft} disabled={!draft}>
+              {saved && !draft ? "Saved" : "Save plan"}
+            </Button>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              if (draft && !window.confirm(DISCARD_WARNING)) return;
+              setDraft(null);
+              setSaved(false);
+              setEditing(true);
+            }}
+          >
             Change my hours
           </Button>
         </div>
@@ -303,26 +386,62 @@ export function PlanView() {
       ) : null}
 
       <div className="mt-7 grid gap-2.5">
-        <Button onClick={save}>Build my workday</Button>
         {existing ? (
-          <Button variant="tertiary" onClick={() => setEditing(false)}>
-            Cancel
-          </Button>
-        ) : null}
+          <>
+            <Button onClick={buildFromForm} disabled={!formChanged}>
+              Save plan
+            </Button>
+            <p className="text-center text-xs text-ink/50">Saving rebuilds today&apos;s breaks around your new hours.</p>
+            <Button
+              variant="tertiary"
+              onClick={() => {
+                if (formChanged && !window.confirm(DISCARD_WARNING)) return;
+                setStart(toTimeInput(existing.startMinutes));
+                setEnd(toTimeInput(existing.endMinutes));
+                setLevel(existing.level);
+                setDays(existing.enabledDays);
+                setError(null);
+                setEditing(false);
+              }}
+            >
+              Cancel
+            </Button>
+          </>
+        ) : (
+          <Button onClick={buildFromForm}>Build my workday</Button>
+        )}
       </div>
     </div>
   );
 }
 
-async function syncBreaks(plan: WorkdayPlan): Promise<void> {
-  if (!plan.generatedFor) return;
-  try {
-    await fetch("/api/planned-breaks", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ date: plan.generatedFor, breaks: plan.breaks }),
-    });
-  } catch {
-    /* the push scheduler regenerates from preferences if this never lands */
-  }
+const LEAVE_WARNING = "You have unsaved changes to your plan. Leave without saving?";
+const DISCARD_WARNING = "Discard your unsaved changes to today's plan?";
+
+/**
+ * Warns before unsaved plan edits are lost: the browser's own prompt on
+ * reload or close, and a confirm on any in-app link while there are changes.
+ */
+function useUnsavedChangesGuard(dirty: boolean) {
+  useEffect(() => {
+    if (!dirty) return;
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    // Capture phase on the document runs before Next's Link handler.
+    const onClick = (event: MouseEvent) => {
+      const anchor = (event.target as Element | null)?.closest?.("a[href]");
+      if (!anchor || anchor.getAttribute("target") === "_blank") return;
+      if (window.confirm(LEAVE_WARNING)) return;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    document.addEventListener("click", onClick, true);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      document.removeEventListener("click", onClick, true);
+    };
+  }, [dirty]);
 }
