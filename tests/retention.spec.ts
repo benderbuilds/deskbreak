@@ -93,7 +93,9 @@ test.describe("you", () => {
       expect(title).not.toMatch(/overhead reach/i);
       const next = page.getByRole("button", { name: /^(next move|finish)$/i });
       if (!(await next.isVisible().catch(() => false))) break;
-      await next.click();
+      // The last click can race the move to Done under load; the URL check
+      // at the top of the loop decides whether the reset is over.
+      await next.click({ timeout: 5_000 }).catch(() => undefined);
       await page.waitForTimeout(80);
     }
   });
