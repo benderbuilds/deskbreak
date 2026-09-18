@@ -209,13 +209,13 @@ export function PlanView() {
           </p>
         ) : null}
 
-        <ul className="mt-5 grid gap-2.5">
+        <ul className="mt-5 divide-y divide-line overflow-hidden rounded-card border border-line bg-sheet">
           {plan.breaks.map((entry) => {
             const copy = BREAK_TYPE_COPY[entry.type];
             const micro = isMicroBreak(entry);
             const due = entry.id === dueId;
             return (
-              <li key={entry.id} className={[due ? "surface-elevated" : "surface", "px-4 py-4"].join(" ")}>
+              <li key={entry.id} className={[due ? "bg-sheet shadow-[inset_4px_0_0_var(--pen)]" : "", "px-4 py-4"].join(" ")}>
                 <div className="flex items-baseline justify-between gap-3">
                   <p className="font-display font-extrabold text-lg tabular-nums text-ink">
                     {formatMinutes(effectiveStart(entry))}
@@ -300,7 +300,7 @@ export function PlanView() {
         </ul>
 
         <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 mt-6 lg:bottom-4">
-          <div className="surface-elevated flex flex-wrap items-center gap-3 px-4 py-3">
+          <div className="flex flex-wrap items-center gap-3 rounded-card border border-ink bg-sheet px-4 py-3">
             <p className="min-w-0 flex-1 text-sm text-muted" role="status">
               {draft ? "Unsaved changes" : saved ? "Saved" : "No changes"}
             </p>
@@ -383,7 +383,7 @@ export function PlanView() {
                 onClick={() => setLevel(key)}
                 className={[
                   "flex min-h-13 items-center justify-between rounded-[14px] px-4 text-left transition-colors",
-                  active ? "bg-ink text-paper" : "surface text-ink hover:border-ink",
+                  active ? "border border-ink bg-ink text-paper" : "border border-line-strong bg-sheet text-ink hover:border-ink",
                 ].join(" ")}
               >
                 <span className="font-semibold">{option.label}</span>
