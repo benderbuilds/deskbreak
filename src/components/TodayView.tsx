@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Chip } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
+import { DueBreakCard } from "@/components/DueBreakCard";
 import { LogoMark } from "@/components/LogoMark";
 import { ProBadge } from "@/components/ProBadge";
+import { SignInBanner } from "@/components/SignInBanner";
 import { TodayTimeline } from "@/components/TodayTimeline";
 import { WeekSummary } from "@/components/WeekSummary";
 import { track, recommendationProperties } from "@/lib/analytics";
@@ -14,10 +16,12 @@ import { areaLine } from "@/lib/body-areas";
 import {
   DEFAULT_DURATION,
   DURATION_OPTIONS,
+  NEED_BY_ID,
   SETUP_COPY,
   TARGETED_OPTIONS,
 } from "@/lib/constants";
 import { getExercise } from "@/lib/content";
+import { minutesNow } from "@/lib/dates";
 import { canAccessDuration, isProEntitlement } from "@/lib/entitlements";
 import { greetingForHour } from "@/lib/format";
 import { workoutHref } from "@/lib/recommend-client";
@@ -32,6 +36,7 @@ import {
 import { useAppState } from "@/lib/use-app-state";
 import { useIsClient } from "@/lib/use-client";
 import { useRecommendation } from "@/lib/use-recommendation";
+import { isDue, planForToday, withExpiry } from "@/lib/workday";
 import type { DurationMinutes, PrimaryNeed, SetupRequest } from "@/lib/types";
 
 /**
@@ -94,8 +99,13 @@ export function TodayView() {
     router.push(workoutHref(recommendation, { source: need === "general" ? "today" : "targeted" }));
   }
 
+  /** The "Need something specific?" buttons toggle; tapping the active one goes back to full body. */
   function chooseNeed(next: PrimaryNeed) {
-    const value = need === next ? "general" : next;
+    setFocus(need === next ? "general" : next);
+  }
+
+  function setFocus(value: PrimaryNeed) {
+    if (value === need) return;
     setNeed(value);
     if (value !== "general") setPrimaryNeed(value);
     track("need_selected", { need: value, source: "today" });
@@ -118,8 +128,14 @@ export function TodayView() {
   }
 
   const hour = new Date().getHours();
-  const name = state.account.email ? state.account.email.split("@")[0] : null;
-  const title = need === "general" ? "Your Desk Reset" : `${TARGETED_OPTIONS.find((o) => o.id === need)?.label ?? "Desk"} Reset`;
+  // No name: an email's local part ("jesse.bender14") isn't one, and there is no display name yet.
+  const title = resetTitle(need);
+
+  const plan =
+    pro && state.plan
+      ? withExpiry(planForToday(state.plan, { signals: signals ?? undefined, preferredDuration: state.preferredDuration }), minutesNow())
+      : null;
+  const dueBreak = plan?.breaks.find((entry) => isDue(entry)) ?? null;
   const subline =
     recommendation?.personalized ? recommendation.reason : recommendation?.programShortLabel === "Quick Reset" ? "A fast, balanced reset." : "Full-body movement for your workday.";
 
@@ -138,17 +154,25 @@ export function TodayView() {
         <div>
           <p className="mt-5 text-sm font-semibold text-ink/50 lg:mt-2">
             {greetingForHour(hour)}
-            {name ? `, ${name}` : ""}
           </p>
           <h1 className="mt-1 font-display text-[1.7rem] font-semibold leading-tight tracking-tight text-ink lg:text-[2.1rem]">
             {state.progress.totalWorkouts === 0 ? "Sitting all day? Do this." : "Time for a quick reset."}
           </h1>
 
-          <section className="surface-elevated mt-5 px-5 py-5 lg:px-7 lg:py-7" aria-labelledby="reset-title">
+          <Suspense fallback={null}>
+            <SignInBanner />
+          </Suspense>
+
+          {plan && dueBreak ? <DueBreakCard plan={plan} entry={dueBreak} /> : null}
+
+          <section
+            className={[dueBreak ? "surface mt-4" : "surface-elevated mt-5", "px-5 py-5 lg:px-7 lg:py-7"].join(" ")}
+            aria-labelledby="reset-title"
+          >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-coral">
-                  {recommendation?.personalized ? "Recommended for you" : "Recommended now"}
+                  {dueBreak ? "Or a full reset" : recommendation?.personalized ? "Recommended for you" : "Recommended now"}
                 </p>
                 <h2 id="reset-title" className="mt-1.5 font-display text-[1.55rem] font-semibold leading-tight text-ink lg:text-[1.8rem]">
                   {title}
@@ -166,7 +190,12 @@ export function TodayView() {
             </div>
 
             <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
-              <Button onClick={start} disabled={!recommendation} className="sm:flex-1">
+              <Button
+                onClick={start}
+                disabled={!recommendation}
+                variant={dueBreak ? "secondary" : "primary"}
+                className="sm:flex-1"
+              >
                 Start reset
               </Button>
               <Button
@@ -176,13 +205,24 @@ export function TodayView() {
                 aria-expanded={changing}
                 aria-controls="change-reset"
               >
-                Change
+                Change routine
               </Button>
             </div>
 
             {changing ? (
               <div id="change-reset" className="animate-sheet-up mt-4 border-t border-ink/8 pt-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">Length</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">Focus</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(["general", ...TARGETED_OPTIONS.map((option) => option.id)] as PrimaryNeed[]).map((id) => (
+                    <Chip
+                      key={id}
+                      label={NEED_BY_ID[id].label}
+                      active={need === id}
+                      onClick={() => setFocus(id)}
+                    />
+                  ))}
+                </div>
+                <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">Length</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {DURATION_OPTIONS.map((option) => (
                     <Chip
@@ -218,7 +258,7 @@ export function TodayView() {
               Need something specific?
             </h2>
             <div className="mt-2.5 grid grid-cols-2 gap-2">
-              {TARGETED_OPTIONS.map((option) => {
+              {TARGETED_OPTIONS.map((option, index) => {
                 const active = need === option.id;
                 return (
                   <button
@@ -228,6 +268,7 @@ export function TodayView() {
                     onClick={() => chooseNeed(option.id)}
                     className={[
                       "min-h-12 rounded-[14px] px-4 text-left text-sm font-semibold transition-colors duration-200",
+                      TARGETED_OPTIONS.length % 2 && index === TARGETED_OPTIONS.length - 1 ? "col-span-2" : "",
                       active ? "bg-ink text-paper" : "surface text-ink hover:bg-ink/3",
                     ].join(" ")}
                   >
@@ -260,4 +301,11 @@ export function TodayView() {
       </div>
     </div>
   );
+}
+
+/** "Neck + shoulders reset", "Posture reset": the need's label, never "Posture reset Reset". */
+function resetTitle(need: PrimaryNeed): string {
+  if (need === "general") return "Your Desk Reset";
+  const label = NEED_BY_ID[need]?.label ?? "Desk";
+  return /\breset$/i.test(label) ? label : `${label} reset`;
 }

@@ -2,21 +2,30 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
 import { track } from "@/lib/analytics";
-import { PAYWALL_HEADLINES, PRO_FEATURES } from "@/lib/constants";
+import { openBillingPortal, renewalLine } from "@/lib/billing-client";
+import { PRO_FEATURES, SUPPORT_EMAIL } from "@/lib/constants";
+import { todayKey } from "@/lib/dates";
+import { isProEntitlement } from "@/lib/entitlements";
+import { PAYWALL_NEED_HEADLINES, paywallOutcomeLine } from "@/lib/paywall-copy";
 import {
   ANNUAL_LIST_PRICE_USD,
   ANNUAL_PER_MONTH_LABEL,
   ANNUAL_PRICE_USD,
+  CHECKOUT_TRUST_LINE,
   CHECKOUT_UNAVAILABLE,
+  FOUNDING_OFFER,
+  FOUNDING_SPOTS,
   PRICE_OPTIONS,
-  TRIAL_DAYS,
+  checkoutCta,
   formatUsd,
 } from "@/lib/pricing";
 import { ensureAnonymousId, markPaywallSeen } from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
+import { useIsClient } from "@/lib/use-client";
+import { BREAK_TYPE_COPY, REMINDER_LEVELS, defaultPreferences, formatMinutes, generateBreaks } from "@/lib/workday";
 import { isPrimaryNeed, type BillingPeriod, type PrimaryNeed } from "@/lib/types";
 
 /**
@@ -24,9 +33,18 @@ import { isPrimaryNeed, type BillingPeriod, type PrimaryNeed } from "@/lib/types
  *
  * It leads with this person's own numbers, sells automation and
  * personalization rather than locked stretches, and always leaves a way to
- * keep using the free product.
+ * keep using the free product. Someone who already has Pro sees what they
+ * have instead.
  */
 export function PaywallView() {
+  const isClient = useIsClient();
+  const state = useAppState();
+  if (!isClient) return null;
+  if (isProEntitlement(state.entitlement)) return <ProActiveView />;
+  return <Paywall />;
+}
+
+function Paywall() {
   const router = useRouter();
   const params = useSearchParams();
   const state = useAppState();
@@ -45,6 +63,20 @@ export function PaywallView() {
     const helped = state.progress.history.filter((session) => session.perceivedEffect === "better").length;
     return { total, helped };
   }, [state.progress.totalWorkouts, state.progress.history]);
+
+  // A taste of their own day: their saved hours if any, else the defaults.
+  // One-minute stands are left out so the preview stays short.
+  const preview = useMemo(() => {
+    const preferences = {
+      ...(state.plan?.preferences ?? defaultPreferences()),
+      // Every day, so the preview is never empty on a weekend.
+      enabledDays: [0, 1, 2, 3, 4, 5, 6],
+    };
+    return {
+      preferences,
+      breaks: generateBreaks({ preferences, date: todayKey() }).filter((entry) => entry.type !== "stand"),
+    };
+  }, [state.plan]);
 
   useEffect(() => {
     markPaywallSeen();
@@ -91,28 +123,30 @@ export function PaywallView() {
   }
 
   const option = PRICE_OPTIONS[period];
-  const showListPrice = period === "annual" && ANNUAL_LIST_PRICE_USD > ANNUAL_PRICE_USD;
+  const founding = period === "annual" && FOUNDING_OFFER;
   const headline =
-    source === "duration" && minutes
-      ? `${minutes}-minute workouts are part of Pro.`
-      : PAYWALL_HEADLINES[need];
+    source === "duration" && minutes ? `${minutes}-minute workouts are part of Pro.` : PAYWALL_NEED_HEADLINES[need];
+  const outcome = paywallOutcomeLine(need, state.progress.history);
 
   return (
     <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] lg:px-10">
       <div className="flex justify-center">
-        <CharacterArt pose="ready" size={130} alt="Stretch, ready to go" />
+        <CharacterArt pose="ready" size={110} alt="Stretch, ready to go" />
       </div>
 
-      <h1 className="mt-4 text-center font-display text-[2rem] font-semibold leading-tight tracking-tight text-ink">
+      <h1 className="mt-4 text-center font-display text-[1.85rem] font-semibold leading-tight tracking-tight text-ink">
         {headline}
       </h1>
+      <p className="mt-3 text-center leading-relaxed text-ink/70">
+        {outcome ?? "With Pro, DeskBreak learns what works and puts the right movement breaks into your workday."}
+      </p>
 
       {stats.total > 0 ? (
         <div className="mt-5 grid grid-cols-2 gap-3">
           <div className="surface px-4 py-4 text-center">
             <p className="font-display text-2xl font-semibold text-ink">{stats.total}</p>
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink/45">
-              DeskBreak{stats.total === 1 ? "" : "s"}
+              {stats.total === 1 ? "Reset" : "Resets"}
             </p>
           </div>
           <div className="surface px-4 py-4 text-center">
@@ -122,22 +156,33 @@ export function PaywallView() {
         </div>
       ) : null}
 
-      <p className="mt-5 text-center leading-relaxed text-ink/70">
-        With Pro, DeskBreak learns what works and puts the right movement breaks into your workday automatically.
-      </p>
+      <section className="surface mt-5 px-4 py-4" aria-labelledby="plan-preview">
+        <h2 id="plan-preview" className="text-sm font-semibold text-ink">
+          Your workday with Pro
+        </h2>
+        <p className="mt-0.5 text-xs text-ink/55">
+          {formatMinutes(preview.preferences.startMinutes)} to {formatMinutes(preview.preferences.endMinutes)} ·{" "}
+          {REMINDER_LEVELS[preview.preferences.level].label}. You set the hours.
+        </p>
+        <ul className="mt-3 grid gap-1.5">
+          {preview.breaks.map((entry) => (
+            <li key={entry.id} className="flex items-center gap-3 text-sm text-ink/75">
+              <span className="w-[4.6rem] shrink-0 font-semibold tabular-nums text-ink">
+                {formatMinutes(entry.startMinutes)}
+              </span>
+              <span className="min-w-0 truncate">
+                {BREAK_TYPE_COPY[entry.type].label} · {entry.durationMin} min
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-xs leading-relaxed text-ink/55">
+          A reminder when each one opens. Also in Pro: 5- and 10-minute workouts, your full history and sync across
+          devices.
+        </p>
+      </section>
 
-      <ul className="mt-6 grid gap-2 sm:grid-cols-2">
-        {PRO_FEATURES.map((feature) => (
-          <li key={feature} className="flex items-center gap-2.5 text-sm font-semibold text-ink/80">
-            <span aria-hidden className="grid h-5 w-5 place-items-center rounded-full bg-mint text-[11px] font-bold text-ink">
-              ✓
-            </span>
-            {feature}
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-7 grid grid-cols-2 gap-2 rounded-[16px] bg-ink/5 p-1.5" role="radiogroup" aria-label="Billing period">
+      <div className="mt-6 grid grid-cols-2 gap-2 rounded-[16px] bg-ink/5 p-1.5" role="radiogroup" aria-label="Billing period">
         {(["annual", "monthly"] as BillingPeriod[]).map((value) => {
           const active = period === value;
           return (
@@ -161,13 +206,28 @@ export function PaywallView() {
         })}
       </div>
 
+      {founding ? (
+        <div className="mt-4 rounded-[16px] border border-ink/12 bg-white px-4 py-3.5">
+          <p className="text-sm font-semibold text-ink">Founding member</p>
+          <p className="mt-0.5 text-sm leading-relaxed text-ink/65">
+            {formatUsd(ANNUAL_PRICE_USD)}/year instead of {formatUsd(ANNUAL_LIST_PRICE_USD)}, for DeskBreak&apos;s
+            {FOUNDING_SPOTS ? ` first ${FOUNDING_SPOTS} members.` : " first members."}
+          </p>
+        </div>
+      ) : null}
+
       <div className="mt-5 text-center">
         <p className="font-display text-[2.4rem] font-semibold leading-none tracking-tight text-ink">
           {option.amountLabel}
           <span className="text-lg font-semibold text-ink/45">{option.cadenceLabel}</span>
         </p>
         <p className="mt-2 text-sm text-ink/55">
-          {showListPrice ? <span className="line-through">{formatUsd(ANNUAL_LIST_PRICE_USD)}/year</span> : null}{" "}
+          {founding ? (
+            <>
+              <span className="font-semibold text-ink/70">Founding price</span>{" "}
+              <span className="line-through">{formatUsd(ANNUAL_LIST_PRICE_USD)}/year</span> ·{" "}
+            </>
+          ) : null}
           {period === "annual" ? `About ${ANNUAL_PER_MONTH_LABEL.replace("about ", "")}` : option.supportLabel}
         </p>
       </div>
@@ -181,14 +241,83 @@ export function PaywallView() {
 
       <div className="mt-6 grid gap-2.5">
         <Button onClick={startCheckout} disabled={submitting}>
-          {submitting ? "Opening checkout..." : TRIAL_DAYS > 0 ? `Start ${TRIAL_DAYS} days free` : "Build my workday"}
+          {submitting ? "Opening checkout..." : checkoutCta(period)}
         </Button>
+        <p className="text-center text-xs text-ink/55">{CHECKOUT_TRUST_LINE}</p>
         <Button variant="tertiary" onClick={continueFree}>
           Continue free
         </Button>
       </div>
-
-      <p className="mt-4 text-center text-xs text-ink/45">Cancel anytime from You. No support email needed.</p>
     </div>
   );
 }
+
+/** /app/pro for someone who already has Pro: what's included and billing, not a sales pitch. */
+function ProActiveView() {
+  const state = useAppState();
+  const signedIn = Boolean(state.account.profileId);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  async function manage() {
+    setBusy(true);
+    const result = await openBillingPortal();
+    if (result === "opened") return;
+    setBusy(false);
+    setNotice(
+      result === "signed_out"
+        ? "Sign in on You with your checkout email, then manage billing from there."
+        : `We couldn't open billing just now. Email ${SUPPORT_EMAIL} and we'll sort it the same day.`,
+    );
+  }
+
+  return (
+    <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] lg:px-10">
+      <div className="flex justify-center">
+        <CharacterArt pose="ready" size={110} alt="Stretch, ready to go" />
+      </div>
+      <h1 className="mt-4 text-center font-display text-[2rem] font-semibold leading-tight tracking-tight text-ink">
+        You&apos;re Pro
+      </h1>
+      <p className="mt-2 text-center text-sm text-ink/60">{renewalLine(state.entitlement)}</p>
+
+      <section className="surface mt-6 px-4 py-4" aria-labelledby="included">
+        <h2 id="included" className="text-sm font-semibold text-ink">
+          What&apos;s included
+        </h2>
+        <ul className="mt-3 grid gap-2">
+          {PRO_FEATURES.map((feature) => (
+            <li key={feature} className="flex items-center gap-2.5 text-sm font-semibold text-ink/80">
+              <span aria-hidden className="grid h-5 w-5 place-items-center rounded-full bg-mint text-[11px] font-bold text-ink">
+                ✓
+              </span>
+              {feature}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <div className="mt-6 grid gap-2.5">
+        <ButtonLink href="/app/plan">{state.plan ? "Open your workday plan" : "Build my workday"}</ButtonLink>
+        {signedIn ? (
+          <Button variant="secondary" onClick={manage} disabled={busy}>
+            {busy ? "Opening..." : "Manage subscription"}
+          </Button>
+        ) : (
+          <p className="text-center text-sm leading-relaxed text-ink/60">
+            To cancel, change your card or see invoices, sign in on You with the email you used at checkout.
+          </p>
+        )}
+        {notice ? (
+          <p className="text-center text-sm leading-relaxed text-ink/70" role="status">
+            {notice}
+          </p>
+        ) : null}
+        <ButtonLink href="/app" variant="tertiary">
+          Back to Today
+        </ButtonLink>
+      </div>
+    </div>
+  );
+}
+

@@ -66,7 +66,7 @@ test.describe("first visit", () => {
     await page.getByRole("button", { name: /^neck \+ shoulders$/i }).click();
     await expect(page.getByRole("heading", { name: /neck \+ shoulders reset/i })).toBeVisible();
 
-    await page.getByRole("button", { name: /^change$/i }).click();
+    await page.getByRole("button", { name: /^change routine$/i }).click();
     await page.getByRole("button", { name: /quick 2 min/i }).click();
     await expect(page.getByText(/2 minutes ·/)).toBeVisible();
 

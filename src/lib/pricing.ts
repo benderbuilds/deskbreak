@@ -73,3 +73,25 @@ export const CHECKOUT_UNAVAILABLE = {
   title: "Pro checkout is temporarily unavailable.",
   body: "Your free DeskBreak still works. Try Pro again in a bit.",
 };
+
+/**
+ * The founding offer: the annual price shown against a higher list price.
+ * Only on when the list price is above the annual price.
+ */
+export const FOUNDING_OFFER = ANNUAL_LIST_PRICE_USD > ANNUAL_PRICE_USD;
+
+/** Optional cap on founding members, shown as "First 100 members". Unset hides the line. */
+export const FOUNDING_SPOTS = (() => {
+  const parsed = Number(process.env.NEXT_PUBLIC_PRO_FOUNDING_SPOTS);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+})();
+
+/** The paywall button says what it charges. */
+export function checkoutCta(period: BillingPeriod): string {
+  if (TRIAL_DAYS > 0) return `Start ${TRIAL_DAYS} days free`;
+  const option = PRICE_OPTIONS[period];
+  const price = `${option.amountLabel}${option.cadenceLabel}`;
+  return period === "annual" && FOUNDING_OFFER ? `Become a founding member, ${price}` : `Start Pro, ${price}`;
+}
+
+export const CHECKOUT_TRUST_LINE = "Secure checkout with Stripe. Cancel anytime from You.";

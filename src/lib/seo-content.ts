@@ -90,7 +90,6 @@ export const PROOF_CALLOUTS: { text: string; sourceId: string }[] = [
  */
 export const MOVE_STUDIES: Record<string, string[]> = {
   "short-walk": ["dunstan-2012"],
-  "walk-to-water-march": ["dunstan-2012"],
   "screen-distance-blink": ["talens-estarelles-2023"],
 };
 

@@ -22,6 +22,8 @@ const AREA_GROUPS: { id: string; label: string; need: PrimaryNeed; areas: BodyAr
   { id: "neck", label: "Neck + shoulders", need: "neck_shoulders", areas: ["neck", "shoulders", "upperBack"] },
   { id: "back", label: "Back + hips", need: "back_hips", areas: ["upperBack", "core", "hips"] },
   { id: "wrists", label: "Wrists + hands", need: "wrists_hands", areas: ["wrists"] },
+  // Posture here means changing position and opening the upper back, never "correcting" it.
+  { id: "posture", label: "Posture reset", need: "posture", areas: ["upperBack", "shoulders"] },
   { id: "full", label: "Full body", need: "general", areas: [] },
 ];
 
@@ -126,7 +128,10 @@ export function ExploreView() {
               key={group.id}
               type="button"
               onClick={() => startGenerated(group.need, (state.preferredDuration as 2 | 3 | 5 | 10 | null) ?? 3)}
-              className="surface min-h-14 px-4 text-left text-sm font-semibold text-ink transition-colors hover:bg-ink/3"
+              className={[
+                "surface min-h-14 px-4 text-left text-sm font-semibold text-ink transition-colors hover:bg-ink/3",
+                AREA_GROUPS.length % 2 && group.id === "full" ? "col-span-2" : "",
+              ].join(" ")}
             >
               {group.label}
             </button>
