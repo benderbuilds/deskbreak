@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ExerciseDetail } from "@/components/ExerciseDetail";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker } from "@/components/marketing/LandingCta";
 import { getExercise, getExercises } from "@/lib/content";
+import { EXERCISE_ALIASES } from "@/lib/exercise-aliases";
 
 const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co").replace(/\/$/, "");
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return getExercises().map((exercise) => ({ exerciseId: exercise.id }));
+  // Retired ids are generated too, so old links reach the redirect below.
+  return [...getExercises().map((exercise) => exercise.id), ...Object.keys(EXERCISE_ALIASES)].map((exerciseId) => ({
+    exerciseId,
+  }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ exerciseId: string }> }): Promise<Metadata> {
   const { exerciseId } = await params;
   const exercise = getExercise(exerciseId);
-  if (!exercise) return {};
+  if (!exercise || exercise.id !== exerciseId) return {};
   return {
     title: `${exercise.name}: how to do it at your desk`,
     description: exercise.rationale ?? exercise.cue,
@@ -29,6 +33,7 @@ export default async function MovePage({ params }: { params: Promise<{ exerciseI
   const { exerciseId } = await params;
   const exercise = getExercise(exerciseId);
   if (!exercise) notFound();
+  if (exercise.id !== exerciseId) permanentRedirect(`/moves/${exercise.id}`);
 
   const jsonLd = {
     "@context": "https://schema.org",
