@@ -6,7 +6,7 @@ import { useAppState } from "@/lib/use-app-state";
 
 const SIGN_IN_PARAMS = ["signed_in", "saved", "merged", "restored"];
 
-type Arrival = { saved: boolean; restored: boolean };
+type Arrival = { saved: boolean; restored: boolean; merged: number };
 
 /**
  * The one-time confirmation after a sign-in link lands here. It reads the
@@ -25,7 +25,7 @@ export function SignInBanner() {
     const merged = Number(params.get("merged")) || 0;
     // The URL is the only place this lives; it is read once and removed.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setArrival({ saved: params.get("saved") === "1" || merged > 0, restored: params.get("restored") === "1" });
+    setArrival({ saved: params.get("saved") === "1" || merged > 0, restored: params.get("restored") === "1", merged });
     const rest = new URLSearchParams(params.toString());
     for (const key of SIGN_IN_PARAMS) rest.delete(key);
     const query = rest.toString();
@@ -34,11 +34,15 @@ export function SignInBanner() {
 
   if (!arrival) return null;
 
-  const count = state.progress.totalWorkouts;
+  // Local history catches up once the account sync lands; until then the
+  // server's merge count is the better number.
+  const count = Math.max(state.progress.totalWorkouts, arrival.merged);
   const resets = `${count} ${count === 1 ? "reset" : "resets"}`;
   const email = state.account.email;
   const message = arrival.saved
-    ? `Saved. ${count === 1 ? "1 reset is" : `${resets} are`} now on your account.`
+    ? count > 0
+      ? `Saved. ${count === 1 ? "1 reset is" : `${resets} are`} now on your account.`
+      : "Saved. Your account is ready."
     : count > 0
       ? `Welcome back. Your ${count === 1 ? "reset is" : `${resets} are`} here.`
       : "Welcome back. You're signed in.";
