@@ -21,6 +21,9 @@ export function MarketingShell({ children }: { children: ReactNode }) {
           <Link href="/science" className="hidden hover:text-ink sm:inline">
             Why it works
           </Link>
+          <Link href="/blog" className="hidden hover:text-ink sm:inline">
+            Blog
+          </Link>
           <Link href="/app" className="hidden hover:text-ink sm:inline">
             Open DeskBreak
           </Link>
@@ -47,6 +50,12 @@ export function MarketingShell({ children }: { children: ReactNode }) {
             </Link>
             <Link href="/science" className="hover:text-ink">
               Science
+            </Link>
+            <Link href="/blog" className="hover:text-ink">
+              Blog
+            </Link>
+            <Link href="/posture-reset" className="hover:text-ink">
+              Posture reset
             </Link>
             <Link href="/privacy" className="hover:text-ink">
               Privacy

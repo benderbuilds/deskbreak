@@ -7,6 +7,7 @@ import { Citation } from "@/components/marketing/RichText";
 import { WorkoutDemo, type DemoMove } from "@/components/marketing/WorkoutDemo";
 import { FREE_RESET_PROGRAM_ID, HERO_SUBHEAD, PRODUCT_PROMISE, PRODUCT_SUBHEAD } from "@/lib/constants";
 import { getExercise, getProgram } from "@/lib/content";
+import { BLOG_POSTS } from "@/content/blog";
 import { LANDING_PAGES, PROOF_CALLOUTS } from "@/lib/seo-content";
 
 export const metadata: Metadata = {
@@ -190,6 +191,22 @@ export default function LandingPage() {
             </li>
           ))}
         </ul>
+
+        <h2 id="blog" className="mt-10 font-display text-[1.5rem] font-semibold tracking-tight text-ink">
+          What the research says
+        </h2>
+        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+          {BLOG_POSTS.slice(0, 4).map((post) => (
+            <li key={post.slug}>
+              <Link href={`/blog/${post.slug}`} className="surface block px-4 py-4 text-sm font-semibold text-ink transition-colors hover:bg-ink/3">
+                {post.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link href="/blog" className="mt-4 inline-block text-sm font-semibold text-coral">
+          All posts &rarr;
+        </Link>
       </section>
     </MarketingShell>
   );

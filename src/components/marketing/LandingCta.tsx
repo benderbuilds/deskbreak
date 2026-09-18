@@ -78,14 +78,18 @@ export function startHref({
   need,
   minutes,
   setup,
+  program,
   seo = false,
 }: {
   need?: string;
   minutes?: number;
   setup?: "seated" | "standing";
+  /** A specific authored routine, e.g. the walk break. */
+  program?: string;
   seo?: boolean;
 }): string {
   const params = new URLSearchParams();
+  if (program) params.set("program", program);
   if (need) params.set("need", need);
   if (minutes) params.set("minutes", String(minutes));
   if (setup) params.set("setup", setup);
@@ -112,6 +116,7 @@ export function StartResetButton({
   need,
   minutes,
   setup,
+  program,
   source = "landing_hero",
   seo = false,
   variant = "primary",
@@ -120,11 +125,12 @@ export function StartResetButton({
   need?: string;
   minutes?: number;
   setup?: "seated" | "standing";
+  program?: string;
   source?: string;
   seo?: boolean;
   variant?: "primary" | "ink";
 }) {
-  const { href, attribution } = useStartLink(startHref({ need, minutes, setup, seo }));
+  const { href, attribution } = useStartLink(startHref({ need, minutes, setup, program, seo }));
   const base =
     "inline-flex min-h-13 w-full items-center justify-center rounded-[16px] px-6 text-center text-base font-semibold tracking-tight transition-[transform,background-color] duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] active:scale-[0.985] sm:w-auto";
   const skin = variant === "ink" ? "bg-ink text-paper hover:bg-ink/90" : "bg-coral text-white hover:bg-coral-deep";
@@ -139,6 +145,7 @@ export function StartResetButton({
           cta: source,
           need: need ?? null,
           minutes: minutes ?? null,
+          program: program ?? null,
           ...attributionProperties(attribution),
         });
       }}
