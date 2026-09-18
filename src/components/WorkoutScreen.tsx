@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ResumePrompt, WorkoutView } from "@/components/WorkoutView";
+import { SafetyCheck, needsSafetyCheck } from "@/components/SafetyCheck";
 import { LoadingShell } from "@/components/StatusStates";
 import { track } from "@/lib/analytics";
 import { resumableWorkout } from "@/lib/resume";
@@ -24,6 +25,9 @@ export function WorkoutScreen({ programId }: { programId: string }) {
   // Read once, on mount: whether a resume is on offer must not change just
   // because the component re-rendered a second later.
   const [resumable] = useState(() => resumableWorkout(programId));
+  // First visit only. Shown before WorkoutView mounts, so the routine is
+  // resolved with whatever "Go easy on" answers were just given.
+  const [safetyPending, setSafetyPending] = useState(() => !resumable && needsSafetyCheck());
 
   if (!isClient) return <LoadingShell label="Loading your DeskBreak" />;
 
@@ -37,6 +41,8 @@ export function WorkoutScreen({ programId }: { programId: string }) {
   const recommendationId = params.get("rec") ?? resumable?.recommendationId ?? null;
   const source = (params.get("source") ?? resumable?.source ?? "unknown") as SessionSource;
   const plannedBreakId = params.get("break") ?? resumable?.plannedBreakId ?? null;
+
+  if (safetyPending) return <SafetyCheck onContinue={() => setSafetyPending(false)} />;
 
   if (!decided && resumable) {
     return (

@@ -7,6 +7,13 @@ import { formatDose } from "@/lib/format";
 import { MOVE_STUDIES, getSource, shortCitation } from "@/lib/seo-content";
 import type { Exercise, MovementType } from "@/lib/types";
 
+const SETUP_LABELS: Record<Exercise["setup"], string> = {
+  either: "Seated or standing",
+  seated: "Seated",
+  standing: "Standing",
+  floor: "On the floor",
+};
+
 /** Used when a move has no rationale of its own. Never a claim about the move. */
 const WHY_BY_TYPE: Record<MovementType, string> = {
   mobility: "Sitting keeps some joints in one position for hours. This takes one through a range your desk rarely asks for.",
@@ -56,7 +63,7 @@ export function ExerciseDetail({
       </h1>
       <p className="mt-1 text-sm text-ink/55">
         {MOVEMENT_TYPE_LABELS[exercise.movementType]} ·{" "}
-        {exercise.setup === "either" ? "Seated or standing" : exercise.setup === "seated" ? "Seated" : "Standing"}
+        {SETUP_LABELS[exercise.setup]}
       </p>
 
       <ExerciseActions exercise={exercise} inApp={inApp} />

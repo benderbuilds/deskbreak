@@ -88,3 +88,13 @@ export function stopSpeaking(): void {
     /* ignore */
   }
 }
+
+/** A short buzz on step and side changes, where the device supports it. */
+export function vibrateCue(ms = 40): void {
+  if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") return;
+  try {
+    navigator.vibrate(ms);
+  } catch {
+    /* some browsers throw outside a user gesture */
+  }
+}

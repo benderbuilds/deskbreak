@@ -64,7 +64,7 @@ export const NEED_OPTIONS: NeedOption[] = [
   { id: "neck_shoulders", label: "Neck + shoulders", chip: "Neck", blurb: "Undo the laptop lean." },
   { id: "back_hips", label: "Back + hips", chip: "Back", blurb: "Loosen up after sitting." },
   { id: "wrists_hands", label: "Wrists + hands", chip: "Wrists", blurb: "Give keyboard hands a break." },
-  { id: "energy", label: "Energy", chip: "Energy", blurb: "Wake yourself up without another coffee." },
+  { id: "energy", label: "Energy", chip: "Energy", blurb: "Move a little and wake yourself up." },
   { id: "stress", label: "Stress reset", chip: "Stress", blurb: "Slow things down for a few minutes." },
   { id: "posture", label: "Posture reset", chip: "Posture", blurb: "Change position and open up your upper back." },
   { id: "general", label: "Full body", chip: "Full body", blurb: "A balanced reset for a desk day." },
