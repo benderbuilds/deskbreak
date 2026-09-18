@@ -1827,7 +1827,7 @@
       "avoid": "Breathing too fast (hyperventilating).",
       "easier": "Breathe normally and just notice one full exhale.",
       "avoidIf": "Breathing exercises make you feel more anxious.",
-      "rationale": "A long exhale slows things down. Slow breathing has reasonable evidence for reducing felt tension.",
+      "rationale": "A longer breath out is an easy way to slow things down.",
       "defaultDose": {
         "type": "breaths",
         "breaths": 3
@@ -2035,7 +2035,7 @@
       "setup": "standing",
       "intensity": "moderate",
       "cue": "Walk away from your desk: to the far end of the room, a window, or the kitchen for some water, and back.",
-      "tagline": "Among the best-studied ways to break up sitting.",
+      "tagline": "Among the best-studied desk breaks.",
       "feelIt": "your legs and hips loosening as you go",
       "avoid": "Taking your phone and standing still with it.",
       "easier": "Walk to the nearest door and back, or march on the spot beside your desk.",
