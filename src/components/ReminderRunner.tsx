@@ -37,6 +37,9 @@ export function ReminderRunner() {
   const notified = useRef<Set<string>>(new Set());
   const pinged = useRef(false);
   const [standDue, setStandDue] = useState(false);
+  // All DeskBreak can vouch for is the time since it was opened: a first
+  // visit at 2 pm is not told it has "been sitting a while".
+  const [openedAt] = useState(() => new Date());
   const quiet = QUIET_ROUTES.some((route) => pathname.startsWith(route));
 
   useEffect(() => {
@@ -55,7 +58,10 @@ export function ReminderRunner() {
         isStandNudgeDue({
           settings: state.settings.standNudge,
           now: new Date(),
-          lastActiveAt: lastActiveAt({ history: state.progress.history, microBreaks: state.microBreaks }),
+          lastActiveAt: laterOf(
+            lastActiveAt({ history: state.progress.history, microBreaks: state.microBreaks }),
+            openedAt,
+          ),
           hours: plan?.preferences ?? null,
           plannedBreaks: plan?.breaks ?? [],
         });
@@ -92,7 +98,7 @@ export function ReminderRunner() {
       window.clearInterval(id);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [pathname, quiet]);
+  }, [pathname, quiet, openedAt]);
 
   if (!standDue || quiet) return null;
 
@@ -150,4 +156,8 @@ export function ReminderRunner() {
       </div>
     </div>
   );
+}
+
+function laterOf(a: Date | null, b: Date): Date {
+  return a && a > b ? a : b;
 }
