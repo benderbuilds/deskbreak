@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getExercise, getExercisesById } from "./content";
 import { resolveProgramSteps, type ResolvedStep } from "./format";
-import type { DiscomfortReason, Program, SessionExerciseRecord } from "./types";
+import type { BodyArea, DiscomfortReason, Exercise, Program, SessionExerciseRecord } from "./types";
 
 export type WorkoutStatus = "running" | "paused" | "complete";
 
@@ -23,11 +23,21 @@ export type WorkoutEngine = {
   toggle: () => void;
   next: () => void;
   previous: () => void;
-  skip: () => void;
+  /**
+   * Skips the current move. Pass a discomfort reason when "Doesn't feel right"
+   * found no replacement, so the move is still suppressed next time.
+   */
+  skip: (discomfort?: DiscomfortReason | "unspecified") => void;
   /** Replaces the current move (both sides, if it is a per-side hold). */
   swap: (exerciseId: string, discomfort?: DiscomfortReason | "unspecified" | null) => void;
   /** Attaches a reason to the most recent "doesn't feel right" swap. */
   setDiscomfortReason: (reason: DiscomfortReason) => void;
+  /**
+   * After "Painful": replaces every upcoming move whose main area is `area`
+   * with whatever `pick` returns (e.g. discomfortReplacement), or drops it
+   * when `pick` returns null. `taken` holds ids already in the routine.
+   */
+  leaveAreaAlone: (area: BodyArea, pick: (exerciseId: string, taken: Set<string>) => Exercise | null) => void;
   finishNow: () => void;
 };
 
@@ -87,6 +97,7 @@ export function useWorkoutEngine(
   const stepIndexRef = useRef(stepIndex);
   const stepsRef = useRef(steps);
   const advancingRef = useRef(false);
+  const lastSwapIndexRef = useRef<number | null>(null);
 
   useEffect(() => {
     statusRef.current = status;
@@ -124,8 +135,9 @@ export function useWorkoutEngine(
     if (statusRef.current !== "paused") setStatus("running");
   }, []);
 
+  /** Merges `patch` into a step's outcome and adds `addMs` of time actually spent on it. */
   const recordOutcome = useCallback(
-    (index: number, patch: Partial<StepOutcome>) => {
+    (index: number, patch: Partial<StepOutcome>, addMs = 0) => {
       setOutcomes((current) => {
         const base: StepOutcome = current[index] ?? {
           actualMs: 0,
@@ -136,7 +148,7 @@ export function useWorkoutEngine(
           discomfortReported: false,
           discomfortReason: null,
         };
-        return { ...current, [index]: { ...base, ...patch } };
+        return { ...current, [index]: { ...base, ...patch, actualMs: base.actualMs + addMs } };
       });
     },
     [],
@@ -155,11 +167,14 @@ export function useWorkoutEngine(
       }
 
       const actual = stepElapsedMs();
-      recordOutcome(index, {
-        actualMs: actual,
-        completed: mode === "complete",
-        skipped: mode === "skip",
-      });
+      recordOutcome(
+        index,
+        {
+          completed: mode === "complete",
+          skipped: mode === "skip",
+        },
+        actual,
+      );
 
       let nextIndex = index + 1;
       if (mode === "skip") {
@@ -173,6 +188,8 @@ export function useWorkoutEngine(
 
       if (nextIndex >= stepsRef.current.length) {
         sessionConsumedMsRef.current = sessionElapsedMs();
+        // The recorded session time is the time actually spent, to the end.
+        setElapsedMs(sessionConsumedMsRef.current);
         setRemainingMs(0);
         setStatus("complete");
         return;
@@ -239,7 +256,20 @@ export function useWorkoutEngine(
   }, [pause, resume]);
 
   const next = useCallback(() => finishCurrent("complete"), [finishCurrent]);
-  const skip = useCallback(() => finishCurrent("skip"), [finishCurrent]);
+  const skip = useCallback(
+    (discomfort?: DiscomfortReason | "unspecified") => {
+      if (discomfort) {
+        const index = stepIndexRef.current;
+        lastSwapIndexRef.current = index;
+        recordOutcome(index, {
+          discomfortReported: true,
+          discomfortReason: discomfort === "unspecified" ? null : discomfort,
+        });
+      }
+      finishCurrent("skip");
+    },
+    [finishCurrent, recordOutcome],
+  );
 
   const previous = useCallback(() => {
     const index = stepIndexRef.current;
@@ -266,6 +296,8 @@ export function useWorkoutEngine(
 
       const original = current.exercise;
       const reason = discomfort && discomfort !== "unspecified" ? discomfort : null;
+      // Time already spent on the move being replaced still counts.
+      const spentMs = stepElapsedMs();
 
       setSteps((all) => {
         const next = [...all];
@@ -283,18 +315,24 @@ export function useWorkoutEngine(
           durationSec: totalSec,
           dose: replacement.defaultDose,
           side: undefined,
+          // Outcomes (and discomfort) belong to the move that was planned.
+          originalExerciseId: current.originalExerciseId ?? original.id,
         };
         next.splice(index, span, replacementStep);
         return next.map((step, i) => ({ ...step, index: i }));
       });
 
       lastSwapIndexRef.current = index;
-      recordOutcome(index, {
-        swapped: true,
-        swappedToExerciseId: replacement.id,
-        discomfortReported: Boolean(discomfort),
-        discomfortReason: reason,
-      });
+      recordOutcome(
+        index,
+        {
+          swapped: true,
+          swappedToExerciseId: replacement.id,
+          discomfortReported: Boolean(discomfort),
+          discomfortReason: reason,
+        },
+        spentMs,
+      );
 
       // Restart the clock for the new move.
       stepConsumedMsRef.current = 0;
@@ -304,10 +342,9 @@ export function useWorkoutEngine(
         if (step) setRemainingMs(step.durationSec * 1000);
       }, 0);
     },
-    [recordOutcome],
+    [recordOutcome, stepElapsedMs],
   );
 
-  const lastSwapIndexRef = useRef<number | null>(null);
   const setDiscomfortReason = useCallback(
     (reason: DiscomfortReason) => {
       const index = lastSwapIndexRef.current;
@@ -317,8 +354,45 @@ export function useWorkoutEngine(
     [recordOutcome],
   );
 
+  const leaveAreaAlone = useCallback(
+    (area: BodyArea, pick: (exerciseId: string, taken: Set<string>) => Exercise | null) => {
+      setSteps((all) => {
+        const from = stepIndexRef.current + 1;
+        const taken = new Set(all.map((step) => step.exercise.id));
+        const tail: ResolvedStep[] = [];
+        for (let i = from; i < all.length; i += 1) {
+          const step = all[i];
+          if (step.exercise.bodyArea !== area) {
+            tail.push(step);
+            continue;
+          }
+          let durationSec = step.durationSec;
+          const paired = all[i + 1];
+          if (step.side === "left" && paired?.side === "right" && paired.exercise.id === step.exercise.id) {
+            durationSec += paired.durationSec;
+            i += 1;
+          }
+          const replacement = pick(step.exercise.id, taken);
+          if (!replacement) continue;
+          taken.add(replacement.id);
+          tail.push({
+            index: 0,
+            step: { exerciseId: replacement.id, durationSec, dose: replacement.defaultDose, phase: step.step.phase },
+            exercise: replacement,
+            durationSec,
+            dose: replacement.defaultDose,
+            side: undefined,
+          });
+        }
+        return [...all.slice(0, from), ...tail].map((step, index) => ({ ...step, index }));
+      });
+    },
+    [],
+  );
+
   const finishNow = useCallback(() => {
     sessionConsumedMsRef.current = sessionElapsedMs();
+    setElapsedMs(sessionConsumedMsRef.current);
     setStatus("complete");
   }, [sessionElapsedMs]);
 
@@ -333,10 +407,12 @@ export function useWorkoutEngine(
     const byExercise = new Map<string, SessionExerciseRecord>();
     steps.forEach((step, index) => {
       const outcome = outcomes[index];
-      const key = `${step.exercise.id}`;
+      // A swapped step is recorded against the move that was planned, with
+      // swappedToExerciseId naming what was actually done.
+      const key = step.originalExerciseId ?? step.exercise.id;
       const existing = byExercise.get(key);
       const record: SessionExerciseRecord = existing ?? {
-        exerciseId: step.exercise.id,
+        exerciseId: key,
         sequence: byExercise.size,
         plannedSec: 0,
         actualSec: 0,
@@ -359,12 +435,15 @@ export function useWorkoutEngine(
       }
       byExercise.set(key, record);
     });
-    // A swapped-out move keeps its own record, attributed to the original id.
     return [...byExercise.values()];
   }, [steps, outcomes]);
 
   const completedIds = useMemo(
-    () => records.filter((record) => record.completed && !record.swapped).map((record) => record.exerciseId),
+    // What was actually done: a completed swap counts as the replacement.
+    () =>
+      records
+        .filter((record) => record.completed)
+        .map((record) => (record.swapped && record.swappedToExerciseId ? record.swappedToExerciseId : record.exerciseId)),
     [records],
   );
   const skippedIds = useMemo(
@@ -391,6 +470,7 @@ export function useWorkoutEngine(
     skip,
     swap,
     setDiscomfortReason,
+    leaveAreaAlone,
     finishNow,
   };
 }

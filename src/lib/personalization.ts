@@ -1,8 +1,12 @@
+import { getExercise } from "./content";
+import { canonicalExerciseId } from "./exercise-aliases";
 import type {
+  BodyArea,
   DurationMinutes,
   ExerciseSignal,
   PerceivedEffect,
   PrimaryNeed,
+  SafetyFlag,
   SetupId,
   TimeOfDay,
   WorkoutSession,
@@ -28,6 +32,41 @@ export type PersonalizationSignals = {
   durationCounts: Partial<Record<DurationMinutes, number>>;
   /** Minutes-of-day at which completed sessions started, newest first. */
   completionMinutes: number[];
+  /**
+   * Areas to leave alone right now: reported painful, or rated worse twice or
+   * more, in the last AREA_WINDOW_DAYS. Every recommendation path excludes
+   * moves whose primary area is listed here.
+   */
+  avoidAreas: BodyArea[];
+  /** Areas rated worse once recently: kept, but gentler and lower priority. */
+  easeAreas: BodyArea[];
+  /** Recent "worse" count per area, for the repeat-worse clinician line. */
+  worseAreaCounts: Partial<Record<BodyArea, number>>;
+  /** Areas reported painful in the window. */
+  painfulAreas: BodyArea[];
+  /**
+   * Not behaviour: the person's own "Go easy on" answers and floor opt-in.
+   * Carried with the signals so every engine entry point that already takes
+   * signals honours them. Never persisted server-side.
+   */
+  screening?: Screening;
+};
+
+export type Screening = { safetyFlags: SafetyFlag[]; allowFloorWork: boolean };
+
+/** How long a painful or worse area is left alone. */
+export const AREA_WINDOW_DAYS = 7;
+/** "Worse" this many times for one area in the window: leave it alone. */
+export const WORSE_AREA_AVOID_AT = 2;
+
+/**
+ * The areas a targeted reset is about. When a targeted reset is rated worse
+ * and the person does not say which area, these take the blame.
+ */
+export const NEED_FOCUS_AREAS: Partial<Record<PrimaryNeed, BodyArea[]>> = {
+  neck_shoulders: ["neck", "shoulders"],
+  back_hips: ["core", "hips"],
+  wrists_hands: ["wrists"],
 };
 
 export const emptySignal = (): ExerciseSignal => ({
@@ -51,6 +90,10 @@ export const emptySignals = (): PersonalizationSignals => ({
   timeOfDayOutcomes: {},
   durationCounts: {},
   completionMinutes: [],
+  avoidAreas: [],
+  easeAreas: [],
+  worseAreaCounts: {},
+  painfulAreas: [],
 });
 
 function addOutcome(tally: OutcomeTally, effect: PerceivedEffect): OutcomeTally {
@@ -122,13 +165,13 @@ export function applySessionToSignals(
       ];
 
   for (const record of records) {
-    const signal = touch(record.exerciseId);
+    const signal = touch(canonicalExerciseId(record.exerciseId));
     if (record.completed) signal.completed += 1;
     if (record.skipped) signal.skipped += 1;
     if (record.swapped) signal.swapped += 1;
     if (record.discomfortReported) signal.discomfort += 1;
     if (record.swapped && record.swappedToExerciseId) {
-      const replacement = touch(record.swappedToExerciseId);
+      const replacement = touch(canonicalExerciseId(record.swappedToExerciseId));
       if (record.completed) replacement.completed += 1;
     }
   }
@@ -154,10 +197,11 @@ export function applyFeedbackToSignals(
       }));
 
   for (const record of ids) {
-    const targetId =
+    const targetId = canonicalExerciseId(
       record.swapped && record.swappedToExerciseId
         ? record.swappedToExerciseId
-        : record.exerciseId;
+        : record.exerciseId,
+    );
     const signal = { ...(next[targetId] ?? emptySignal()) };
     if (effect === "better" && record.completed) signal.better += 1;
     if (effect === "worse") {
@@ -168,19 +212,72 @@ export function applyFeedbackToSignals(
   return next;
 }
 
+/** The areas a session's "worse" rating points at: what the person said, or the reset's focus. */
+export function worseAreasFor(session: WorkoutSession): BodyArea[] {
+  if (session.perceivedEffect !== "worse") return [];
+  if (session.worseAreas?.length) return [...new Set(session.worseAreas)];
+  return NEED_FOCUS_AREAS[session.primaryNeed] ?? [];
+}
+
+/** Primary areas of the moves reported "painful" in a session. */
+export function painfulAreasFor(session: WorkoutSession): BodyArea[] {
+  const areas = session.exercises
+    .filter((record) => record.discomfortReason === "painful")
+    .map((record) => getExercise(canonicalExerciseId(record.exerciseId))?.bodyArea)
+    .filter((area): area is BodyArea => Boolean(area));
+  return [...new Set(areas)];
+}
+
+/**
+ * Which areas to leave alone, and which to go gently on, as of `now`.
+ *
+ * Pain on any move leaves its area alone for AREA_WINDOW_DAYS. "Worse" twice
+ * for the same area in that window does the same; once makes it gentler.
+ */
+export function areaSignalsFromHistory(
+  history: WorkoutSession[],
+  now: Date = new Date(),
+): Pick<PersonalizationSignals, "avoidAreas" | "easeAreas" | "worseAreaCounts" | "painfulAreas"> {
+  const since = now.getTime() - AREA_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+  const painful = new Set<BodyArea>();
+  const worse: Partial<Record<BodyArea, number>> = {};
+  for (const session of history) {
+    const at = new Date(session.finishedAt || session.startedAt).getTime();
+    if (Number.isNaN(at) || at < since || at > now.getTime() + 60_000) continue;
+    for (const area of painfulAreasFor(session)) painful.add(area);
+    for (const area of worseAreasFor(session)) worse[area] = (worse[area] ?? 0) + 1;
+  }
+  const avoid = new Set<BodyArea>(painful);
+  const ease = new Set<BodyArea>();
+  for (const [area, count] of Object.entries(worse) as [BodyArea, number][]) {
+    if (count >= WORSE_AREA_AVOID_AT) avoid.add(area);
+    else ease.add(area);
+  }
+  for (const area of avoid) ease.delete(area);
+  return {
+    avoidAreas: [...avoid],
+    easeAreas: [...ease],
+    worseAreaCounts: worse,
+    painfulAreas: [...painful],
+  };
+}
+
 /** Builds the full signal set from history. Cheap enough to run on every render. */
 export function signalsFromHistory(
   history: WorkoutSession[],
   exercises: Record<string, ExerciseSignal>,
   limit = 60,
+  now: Date = new Date(),
 ): PersonalizationSignals {
   const signals = emptySignals();
   signals.exercises = exercises;
   const recent = history.slice(0, limit);
   signals.sessionCount = history.length;
+  Object.assign(signals, areaSignalsFromHistory(recent, now));
 
   for (const session of recent) {
-    for (const id of session.completedExerciseIds) {
+    for (const raw of session.completedExerciseIds) {
+      const id = canonicalExerciseId(raw);
       if (!signals.recentExerciseIds.includes(id)) signals.recentExerciseIds.push(id);
     }
     if (signals.recentExerciseIds.length > 24) {
