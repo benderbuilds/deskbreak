@@ -45,7 +45,9 @@ export function SafetyCheck({ onContinue }: { onContinue: () => void }) {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[560px] flex-col px-5 pt-[max(1.25rem,env(safe-area-inset-top))]">
+    // Bottom padding clears the fixed start bar (its height plus the safe area),
+    // so the last options can always be scrolled into view and tapped.
+    <div className="mx-auto w-full max-w-[560px] px-5 pb-[calc(8.5rem+env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))]">
       <h1 className="font-display text-[2rem] font-semibold leading-tight text-ink">Before you start</h1>
       <p className="mt-3 text-[1.05rem] font-semibold leading-snug text-ink">{STOP_RULE}</p>
       <p className="mt-2 text-sm leading-relaxed text-ink/65">{FIRST_RUN_SAFETY_NOTE}</p>
@@ -90,9 +92,11 @@ export function SafetyCheck({ onContinue }: { onContinue: () => void }) {
         </span>
       </label>
 
-      <div className="sticky bottom-0 -mx-5 mt-auto bg-paper/95 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-[2px]">
-        <Button onClick={start}>Start my reset</Button>
-        <p className="mt-2 text-center text-xs text-ink/60">You can change these any time in You.</p>
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ink/8 bg-paper/95 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-[2px]">
+        <div className="mx-auto w-full max-w-[520px]">
+          <Button onClick={start}>Start my reset</Button>
+          <p className="mt-2 text-center text-xs text-ink/60">You can change these any time in You.</p>
+        </div>
       </div>
     </div>
   );
