@@ -73,11 +73,9 @@ export function ReminderAsk() {
     setResult(
       signedIn
         ? "Done. We'll email you a nudge on weekday afternoons."
-        : permission === "granted"
-          ? `Done. We'll nudge you around ${time} on weekdays while DeskBreak is open. Save your progress to get it by email too.`
-          : permission === "denied"
-            ? "Notifications are blocked for DeskBreak in your browser settings. Save your progress to get a daily email instead."
-            : `Saved for ${time} on weekdays. Save your progress to get it by email.`,
+        : permission === "denied"
+          ? "Notifications are blocked for DeskBreak in your browser settings. Save your progress to get a daily email instead."
+          : `Saved for ${time} on weekdays. Save your progress so the reminder can reach you by email.`,
     );
   }
 
