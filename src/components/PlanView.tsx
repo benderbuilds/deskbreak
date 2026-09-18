@@ -56,7 +56,10 @@ export function PlanView() {
   const [end, setEnd] = useState(toTimeInput(existing?.endMinutes ?? defaultPreferences().endMinutes));
   const [level, setLevel] = useState<ReminderLevel>(existing?.level ?? "balanced");
   const [days, setDays] = useState<number[]>(existing?.enabledDays ?? defaultPreferences().enabledDays);
-  const [editing, setEditing] = useState(!existing);
+  // Null until the person chooses: stored state isn't readable on the first
+  // (server) render, so "no plan yet" can't be decided up front.
+  const [editingChoice, setEditing] = useState<boolean | null>(null);
+  const editing = editingChoice ?? !existing;
   const [error, setError] = useState<string | null>(null);
   // Snoozes and skips on today's breaks are a draft until "Save plan".
   const [draft, setDraft] = useState<WorkdayPlan | null>(null);
@@ -94,6 +97,18 @@ export function PlanView() {
         </div>
       </div>
     );
+  }
+
+  /** Loads the saved hours into the form, now that stored state is readable. */
+  function openEditor() {
+    if (existing) {
+      setStart(toTimeInput(existing.startMinutes));
+      setEnd(toTimeInput(existing.endMinutes));
+      setLevel(existing.level);
+      setDays(existing.enabledDays);
+    }
+    setError(null);
+    setEditing(true);
   }
 
   function toggleDay(day: number) {
@@ -302,7 +317,7 @@ export function PlanView() {
               if (draft && !window.confirm(DISCARD_WARNING)) return;
               setDraft(null);
               setSaved(false);
-              setEditing(true);
+              openEditor();
             }}
           >
             Change my hours
