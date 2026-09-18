@@ -403,7 +403,7 @@ export function WorkoutView({
 
   if (!program) {
     return (
-      <div className="flex min-h-dvh flex-col justify-center px-5">
+      <div className="mx-auto flex min-h-dvh w-full max-w-[520px] flex-col justify-center px-5">
         <ErrorState
           title="That reset isn't here"
           body="We couldn't build that routine. Head back and start a fresh one."
@@ -417,7 +417,7 @@ export function WorkoutView({
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-3 px-5" role="status">
         <CharacterArt pose="ready" size={150} alt="Stretch, ready to go" />
-        <p className="text-sm font-semibold text-ink/50">One moment...</p>
+        <p className="text-sm font-semibold text-muted">One moment...</p>
       </div>
     );
   }
@@ -435,13 +435,24 @@ export function WorkoutView({
       ? `Up next: ${upcoming.side === "left" ? "Left" : "Right"} side`
       : `Up next: ${upcoming.exercise.name}`;
 
+  // Share of this move still to go. The pen-blue field drains to it.
+  const moveLeft = current.durationSec > 0 ? Math.min(1, Math.max(0, engine.remainingSec / current.durationSec)) : 0;
+
   return (
-    <div className="relative flex min-h-dvh flex-col pt-[max(0.9rem,env(safe-area-inset-top))]">
+    <div className="on-field relative flex min-h-dvh flex-col overflow-hidden bg-pen-deep pt-[max(0.9rem,env(safe-area-inset-top))] text-white">
+      <div aria-hidden className="pointer-events-none fixed inset-0">
+        <div
+          key={`drain-${engine.stepIndex}`}
+          className="field-drain absolute inset-x-0 bottom-0 bg-pen"
+          style={{ height: `${moveLeft * 100}%` }}
+        />
+      </div>
+
       <p className="sr-only" aria-live="polite" role="status">
         {paused && !sheet ? "Paused" : announcement}
       </p>
 
-      <div className="px-5 lg:px-8">
+      <div className="relative px-5 lg:px-8">
         <header className="flex items-center justify-between gap-3">
           <button
             type="button"
@@ -450,16 +461,16 @@ export function WorkoutView({
               clearActiveWorkout();
               router.push("/app");
             }}
-            className="grid h-11 w-11 place-items-center rounded-full bg-ink/6 text-ink transition-colors hover:bg-ink/10"
+            className="grid h-11 w-11 place-items-center rounded-full bg-white/12 text-white transition-colors hover:bg-white/20"
             aria-label="Leave this DeskBreak"
           >
             <CloseIcon />
           </button>
           <div className="text-center">
-            <p className="text-sm font-semibold text-ink">
+            <p className="text-sm font-semibold text-white">
               {engine.stepIndex + 1} of {engine.steps.length}
             </p>
-            <p className="text-xs font-semibold text-ink/60 tabular-nums">
+            <p className="text-xs font-semibold text-white/85 tabular-nums">
               {formatClock(sessionRemaining)} remaining
             </p>
           </div>
@@ -468,7 +479,7 @@ export function WorkoutView({
               type="button"
               onClick={engine.previous}
               disabled={paused || engine.stepIndex === 0}
-              className="grid h-11 w-11 place-items-center rounded-full text-ink/60 transition-colors hover:bg-ink/6 disabled:opacity-30"
+              className="grid h-11 w-11 place-items-center rounded-full text-white transition-colors hover:bg-white/12 disabled:opacity-40"
               aria-label="Previous move"
               title="Previous (←)"
             >
@@ -481,7 +492,7 @@ export function WorkoutView({
                 engine.next();
               }}
               disabled={paused}
-              className="grid h-11 w-11 place-items-center rounded-full text-ink/60 transition-colors hover:bg-ink/6 disabled:opacity-30"
+              className="grid h-11 w-11 place-items-center rounded-full text-white transition-colors hover:bg-white/12 disabled:opacity-40"
               aria-label={isLast ? "Finish" : "Next move"}
               title="Next (→)"
             >
@@ -491,21 +502,23 @@ export function WorkoutView({
         </header>
 
         <div
-          className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink/8"
+          className="mt-3 flex gap-1"
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={engine.steps.length}
           aria-valuenow={engine.stepIndex + 1}
           aria-label="Reset progress"
         >
-          <div
-            className="h-full rounded-full bg-mint transition-[width] duration-200"
-            style={{ width: `${Math.round(engine.progress * 100)}%` }}
-          />
+          {engine.steps.map((step, index) => (
+            <span
+              key={index}
+              className={`h-1.5 flex-1 rounded-full ${index <= engine.stepIndex ? "bg-white" : "bg-white/25"}`}
+            />
+          ))}
         </div>
       </div>
 
-      <div className="relative flex flex-1 flex-col items-center px-5 text-center lg:mx-auto lg:grid lg:w-full lg:max-w-[1100px] lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-10 lg:px-8 lg:text-left">
+      <div className="relative flex flex-1 flex-col items-center px-5 text-center lg:mx-auto lg:grid lg:w-full lg:max-w-[1100px] lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-12 lg:px-8 lg:text-left">
         {paused && !sheet ? (
           // The whole field resumes; the bottom bar holds the only Resume button.
           <button
@@ -514,64 +527,70 @@ export function WorkoutView({
               unlockAudio();
               engine.resume();
             }}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-[28px] bg-paper/85 backdrop-blur-[2px]"
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-pen-deep/90"
             aria-label="Paused. Tap to resume"
           >
-            <span className="font-display text-3xl font-semibold text-ink">Paused</span>
-            <span className="mt-2 text-sm text-ink/65">Tap anywhere to resume.</span>
+            <span className="font-display text-5xl font-extrabold text-white">Paused</span>
+            <span className="mt-2 text-base text-white/85">Tap anywhere to resume.</span>
           </button>
         ) : null}
 
         <div
           key={`${current.exercise.id}-${engine.stepIndex}`}
-          className="animate-step-in mt-3 flex w-full justify-center lg:mt-0"
+          className="animate-step-in mt-4 flex w-full justify-center lg:mt-0"
         >
-          <CharacterArt
-            pose="exercise"
-            exerciseId={current.exercise.id}
-            setup={stepSetup}
-            animate={engine.status === "running"}
-            mirror={current.side === "right"}
-            size={280}
-            alt={`Stretch demonstrating ${current.exercise.name}${current.side ? `, ${current.side} side` : ""}`}
-            className="max-h-[28vh] w-auto lg:max-h-[56vh]"
-          />
+          <div className="grid aspect-square h-[25vh] max-h-[300px] min-h-[170px] place-items-center rounded-full bg-paper lg:h-[54vh] lg:max-h-[480px]">
+            <CharacterArt
+              pose="exercise"
+              exerciseId={current.exercise.id}
+              setup={stepSetup}
+              animate={engine.status === "running"}
+              mirror={current.side === "right"}
+              size={280}
+              alt={`Stretch demonstrating ${current.exercise.name}${current.side ? `, ${current.side} side` : ""}`}
+              className="h-[84%] w-auto"
+            />
+          </div>
         </div>
 
         <div className="w-full">
           <div key={`copy-${current.exercise.id}-${engine.stepIndex}`} className="animate-step-in">
             {current.side ? (
-              <p className="mt-2 text-2xl font-bold text-ink lg:mt-0">
+              <p className="mt-4 inline-block rounded-full bg-white px-3 py-1 text-base font-bold text-pen-deep lg:mt-0">
                 {current.side === "left" ? "Left side" : "Right side"}
               </p>
             ) : null}
-            <h1 className="mt-1 font-display text-[1.6rem] font-semibold leading-tight text-ink lg:text-[2.2rem]">
+            <h1 className="mt-2 font-display text-[1.75rem] font-extrabold leading-[1.05] text-white lg:text-[2.6rem]">
               {current.exercise.name}
             </h1>
           </div>
 
           <p
-            className="mt-1 font-sans text-[clamp(4rem,18vw,7.5rem)] font-bold leading-none tracking-tight text-ink tabular-nums"
+            className="mt-1 font-display text-[clamp(5.5rem,28vw,11rem)] font-extrabold leading-[0.9] lg:text-[13rem] text-white tabular-nums"
             aria-hidden
           >
             {formatClock(engine.remainingSec)}
           </p>
-          <p className="mt-1 text-[15px] font-semibold text-ink/65">{upNext}</p>
+          <div className="field-bar mx-auto mt-2 h-1.5 w-full max-w-[320px] overflow-hidden rounded-full bg-white/25 lg:mx-0" aria-hidden>
+            <div className="h-full rounded-full bg-white" style={{ width: `${moveLeft * 100}%` }} />
+          </div>
+          <p className="mt-2 text-base font-semibold text-white">{upNext}</p>
 
           <div key={`cue-${current.exercise.id}-${engine.stepIndex}`} className="animate-step-in">
-            <p className="mt-4 text-[1.05rem] leading-relaxed text-ink/80">{cue}</p>
-            <p className="mt-2 text-sm font-semibold text-ink/60">{doseLabel}</p>
+            <p className="mt-4 text-[1.05rem] leading-relaxed text-white/90 lg:max-w-[46ch]">{cue}</p>
+            <p className="mt-2 text-sm font-semibold text-white/85">{doseLabel}</p>
             {current.exercise.feelIt ? (
-              <p className="mt-2 text-sm leading-snug text-ink/60">You should feel {current.exercise.feelIt}.</p>
+              <p className="mt-2 text-sm leading-snug text-white/85">You should feel {current.exercise.feelIt}.</p>
             ) : null}
           </div>
         </div>
       </div>
 
-      <div className="sticky bottom-0 z-20 mt-4 border-t border-ink/8 bg-paper/95 px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-[2px]">
+      <div className="sticky bottom-0 z-20 mt-4 bg-pen-deep px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-4">
         <div className="mx-auto grid w-full max-w-[560px] gap-1">
           <div className="grid grid-cols-[1.4fr_1fr_1fr] gap-2">
             <Button
+              variant="field"
               onClick={() => {
                 unlockAudio();
                 engine.toggle();
@@ -580,11 +599,11 @@ export function WorkoutView({
             >
               {paused ? "Resume" : "Pause"}
             </Button>
-            <Button variant="secondary" onClick={openSwap} disabled={paused} aria-keyshortcuts="S">
+            <Button variant="fieldQuiet" onClick={openSwap} disabled={paused} aria-keyshortcuts="S">
               Swap
             </Button>
             <Button
-              variant="secondary"
+              variant="fieldQuiet"
               disabled={paused}
               onClick={() => {
                 unlockAudio();
@@ -597,24 +616,26 @@ export function WorkoutView({
           <button
             type="button"
             onClick={doesntFeelRight}
-            className="min-h-11 text-sm font-semibold text-ink/65 transition-colors hover:text-ink"
+            className="min-h-11 text-sm font-semibold text-white underline underline-offset-4 hover:no-underline"
           >
             Doesn&apos;t feel right
           </button>
-          <p className="text-center text-xs leading-snug text-ink/65">{STOP_RULE}</p>
+          <p className="text-center text-xs leading-snug text-white/85">{STOP_RULE}</p>
         </div>
       </div>
 
       {sheet && current ? (
-        <SwapSheet
-          mode={sheet}
-          current={sheet === "discomfort" && swappedFrom ? swappedFrom : current.exercise}
-          candidates={candidates}
-          replacement={replacement}
-          onSwap={swapTo}
-          onReason={reportReason}
-          onClose={closeSheet}
-        />
+        <div className="text-ink [--focus:var(--pen)]">
+          <SwapSheet
+            mode={sheet}
+            current={sheet === "discomfort" && swappedFrom ? swappedFrom : current.exercise}
+            candidates={candidates}
+            replacement={replacement}
+            onSwap={swapTo}
+            onReason={reportReason}
+            onClose={closeSheet}
+          />
+        </div>
       ) : null}
     </div>
   );
@@ -640,10 +661,10 @@ export function ResumePrompt({
       <div className="mb-6 flex justify-center">
         <CharacterArt pose="ready" size={170} alt="Stretch, ready to go" />
       </div>
-      <h1 className="text-center font-display text-[2rem] font-semibold leading-tight text-ink">
+      <h1 className="text-center font-display font-extrabold text-[2rem] leading-tight text-ink">
         Continue your DeskBreak?
       </h1>
-      <p className="mt-3 text-center text-ink/60">You were on move {stepIndex + 1}.</p>
+      <p className="mt-3 text-center text-muted">You were on move {stepIndex + 1}.</p>
       <div className="mt-8 grid gap-3">
         <Button onClick={onResume}>Pick up where I left off</Button>
         <Button variant="secondary" onClick={onRestart}>

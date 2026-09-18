@@ -46,41 +46,38 @@ export function WorkoutDemo({ moves, totalSteps }: { moves: DemoMove[]; totalSte
       <div
         role="img"
         aria-label={`Preview of a DeskBreak reset: ${moves.map((entry) => entry.name).join(", ")}, each with a countdown and what's up next.`}
-        className="relative w-[248px] overflow-hidden rounded-[40px] border-[9px] border-ink bg-paper shadow-[0_24px_60px_-28px_rgba(28,25,23,0.55)] sm:w-[272px]"
+        className="relative w-[248px] overflow-hidden rounded-[40px] border-[9px] border-ink bg-pen-deep sm:w-[272px]"
       >
-        <div aria-hidden="true" className="relative flex aspect-[9/17.5] flex-col px-4 pb-4 pt-5">
+        <div aria-hidden="true" className="relative flex aspect-[9/17.5] flex-col px-4 pb-4 pt-5 text-white">
           {/* The field drains downward as the move's time runs out. */}
           <div
-            className="absolute inset-x-0 bottom-0 bg-coral/12"
+            className="absolute inset-x-0 bottom-0 bg-pen"
             style={{ height: `${(1 - progress) * 100}%`, transition: playing && progress > 0 ? `height ${TICK_MS}ms linear` : "none" }}
           />
 
           <div className="relative flex gap-1">
             {Array.from({ length: totalSteps }, (_, step) => (
-              <span
-                key={step}
-                className={`h-1 flex-1 rounded-full ${step < index ? "bg-coral" : step === index ? "bg-coral/60" : "bg-ink/12"}`}
-              />
+              <span key={step} className={`h-1 flex-1 rounded-full ${step <= index ? "bg-white" : "bg-white/25"}`} />
             ))}
           </div>
-          <p className="relative mt-3 text-[11px] font-semibold text-ink/50">
-            Step {index + 1} of {totalSteps}
+          <p className="relative mt-3 text-center text-[11px] font-semibold text-white/85">
+            {index + 1} of {totalSteps}
           </p>
-          <p className="relative mt-0.5 font-display text-[1.35rem] font-semibold leading-tight text-ink">{move.name}</p>
 
-          <div className="relative mt-2 flex flex-1 items-center justify-center">
-            <CharacterArt key={move.id} pose="exercise" exerciseId={move.id} animate={playing} size={150} alt="" />
+          <div className="relative mt-2 flex justify-center">
+            <div className="grid aspect-square w-[62%] place-items-center rounded-full bg-paper">
+              <CharacterArt key={move.id} pose="exercise" exerciseId={move.id} animate={playing} size={120} alt="" className="h-[84%] w-auto" />
+            </div>
           </div>
 
-          <p className="relative text-center font-display text-[3.4rem] font-semibold leading-none tracking-tight text-ink tabular-nums">
+          <p className="relative mt-3 text-center font-display text-[1.3rem] font-extrabold leading-tight">{move.name}</p>
+          <p className="relative text-center font-display text-[4.2rem] font-extrabold leading-[0.9] tabular-nums">
             {Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, "0")}
           </p>
-          <p className="relative mt-3 rounded-[12px] bg-white/80 px-3 py-2 text-xs text-ink/60">
-            <span className="font-semibold text-ink/80">Up next</span> · {move.next}
-          </p>
+          <p className="relative mt-auto text-center text-xs font-semibold text-white/90">Up next: {move.next}</p>
         </div>
       </div>
-      <figcaption className="mt-3 text-xs text-ink/50">
+      <figcaption className="mt-3 text-sm text-muted">
         The {totalSteps}-move Desk Reset{playing ? ", sped up" : ""}.
       </figcaption>
     </figure>
