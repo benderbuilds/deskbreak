@@ -1,5 +1,4 @@
 import { REMINDER_LINES } from "./constants";
-import { todayKey } from "./dates";
 import type {
   PlannedBreak,
   Reminder,
@@ -209,36 +208,4 @@ export function snoozeStandNudge(
 
 export function markStandNudgeShown(settings: StandNudgeSettings, now: Date): StandNudgeSettings {
   return { ...settings, lastNudgeAt: now.toISOString(), snoozedUntil: null };
-}
-
-/** How long after its time a missed daily reminder still fires when the app opens. */
-export const DAILY_REMINDER_GRACE_MINUTES = 120;
-
-/**
- * Whether the daily reminder should fire now, in the open tab.
- *
- * It fires once per day, from its time until the grace window closes, on
- * weekdays when it is weekday-only. It stays quiet when they already moved
- * after the reminder time, since the reminder has nothing left to ask.
- */
-export function isDailyReminderDue(input: {
-  reminder: Reminder | undefined;
-  now: Date;
-  firedOn: string | null;
-  lastActiveAt: Date | null;
-}): boolean {
-  const { reminder, now, firedOn, lastActiveAt: active } = input;
-  if (!reminder || !reminder.enabled) return false;
-  const day = now.getDay();
-  if (reminder.weekdaysOnly && (day === 0 || day === 6)) return false;
-  const today = todayKey(now);
-  if (firedOn === today) return false;
-  const minutes = now.getHours() * 60 + now.getMinutes();
-  if (minutes < reminder.minutes || minutes > reminder.minutes + DAILY_REMINDER_GRACE_MINUTES) return false;
-  if (active) {
-    const reminderAt = new Date(now);
-    reminderAt.setHours(Math.floor(reminder.minutes / 60), reminder.minutes % 60, 0, 0);
-    if (active >= reminderAt) return false;
-  }
-  return true;
 }

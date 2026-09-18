@@ -23,7 +23,6 @@ import {
   nextStandNudgeAt,
   snoozeStandNudge,
   STAND_NUDGE_INTERVAL_MINUTES,
-  isDailyReminderDue,
 } from "../src/lib/reminders";
 import { todayKey } from "../src/lib/dates";
 import {
@@ -299,34 +298,5 @@ test.describe("honest numbers", () => {
     expect(day.resets).toBe(2);
     expect(day.microBreaks).toBe(1);
     expect(day.activeSeconds).toBe(360);
-  });
-});
-
-test.describe("free daily reminder in the open tab", () => {
-  const reminder = { id: "daily", minutes: 12 * 60 + 5, weekdaysOnly: true, kind: "daily" as const, enabled: true };
-  // Friday 18 September 2026, local time.
-  const at = (h: number, m: number, day = 18) => new Date(2026, 8, day, h, m);
-
-  test("fires from its time until the grace window closes, once a day", () => {
-    expect(isDailyReminderDue({ reminder, now: at(12, 4), firedOn: null, lastActiveAt: null })).toBe(false);
-    expect(isDailyReminderDue({ reminder, now: at(12, 5), firedOn: null, lastActiveAt: null })).toBe(true);
-    expect(isDailyReminderDue({ reminder, now: at(14, 5), firedOn: null, lastActiveAt: null })).toBe(true);
-    expect(isDailyReminderDue({ reminder, now: at(14, 6), firedOn: null, lastActiveAt: null })).toBe(false);
-    expect(isDailyReminderDue({ reminder, now: at(12, 30), firedOn: "2026-09-18", lastActiveAt: null })).toBe(false);
-    expect(isDailyReminderDue({ reminder, now: at(12, 30), firedOn: "2026-09-17", lastActiveAt: null })).toBe(true);
-  });
-
-  test("skips weekends when weekday-only, and stays quiet when switched off", () => {
-    expect(isDailyReminderDue({ reminder, now: at(12, 30, 19), firedOn: null, lastActiveAt: null })).toBe(false);
-    expect(
-      isDailyReminderDue({ reminder: { ...reminder, weekdaysOnly: false }, now: at(12, 30, 19), firedOn: null, lastActiveAt: null }),
-    ).toBe(true);
-    expect(isDailyReminderDue({ reminder: { ...reminder, enabled: false }, now: at(12, 30), firedOn: null, lastActiveAt: null })).toBe(false);
-    expect(isDailyReminderDue({ reminder: undefined, now: at(12, 30), firedOn: null, lastActiveAt: null })).toBe(false);
-  });
-
-  test("does not ask when they already moved after the reminder time", () => {
-    expect(isDailyReminderDue({ reminder, now: at(12, 30), firedOn: null, lastActiveAt: at(12, 10) })).toBe(false);
-    expect(isDailyReminderDue({ reminder, now: at(12, 30), firedOn: null, lastActiveAt: at(11, 50) })).toBe(true);
   });
 });
