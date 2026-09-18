@@ -13,7 +13,7 @@ test.describe("first visit", () => {
 
     // One button, no account. The first time only, one safety screen whose
     // questions are optional: starting is still a single tap.
-    await page.getByRole("button", { name: /^start my reset$/i }).first().click();
+    await page.getByRole("link", { name: /^start my reset$/i }).first().click();
     await expect(page).toHaveURL(/\/app\/workout\//);
     await expect(page.getByRole("heading", { name: /before you start/i })).toBeVisible();
     await expect(page.getByText(/stop if it's sharp/i)).toBeVisible();
@@ -48,7 +48,7 @@ test.describe("first visit", () => {
   test("a landing shortcut jumps straight into that need", async ({ page }) => {
     await clearAppState(page);
     await page.goto("/");
-    await page.getByRole("button", { name: /wrists \+ hands/i }).click();
+    await page.getByRole("link", { name: /wrists \+ hands/i }).click();
     await expect(page).toHaveURL(/\/app\/workout\/.*need=wrists_hands/);
   });
 

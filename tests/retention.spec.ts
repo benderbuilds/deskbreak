@@ -122,12 +122,13 @@ test.describe("legal and support", () => {
 
 test.describe("seo pages hand off into the product", () => {
   test("an intent page starts the matching reset, with structured data", async ({ page }) => {
+    await clearAppState(page);
     const html = await (await page.request.get("/neck-shoulder-exercises")).text();
     expect(html).toContain("application/ld+json");
     expect(html).toContain("Neck and Shoulder Exercises for Desk Workers");
 
     await page.goto("/neck-shoulder-exercises");
-    await page.getByRole("button", { name: /start the 3-minute neck \+ shoulder reset/i }).first().click();
+    await page.getByRole("link", { name: /start the 3-minute neck \+ shoulder reset/i }).first().click();
     await expect(page).toHaveURL(/\/app\/workout\/.*need=neck_shoulders/);
     await expect(page.getByText(/1 of \d+/)).toBeVisible();
   });
@@ -135,7 +136,8 @@ test.describe("seo pages hand off into the product", () => {
   test("older area pages still work", async ({ page }) => {
     await page.goto("/desk-exercises/neck");
     await expect(page.getByRole("heading", { name: /5 tiny neck resets/i })).toBeVisible();
-    await page.getByRole("button", { name: /start the 3-minute reset/i }).first().click();
+    // The button names the routine it starts, so the promise matches the handoff.
+    await page.getByRole("link", { name: /start the 3-minute neck \+ shoulder reset/i }).first().click();
     await expect(page).toHaveURL(/need=neck_shoulders/);
   });
 
@@ -144,7 +146,7 @@ test.describe("seo pages hand off into the product", () => {
     expect(response.status()).toBe(200);
     await page.goto("/moves/chin-tuck");
     await expect(page.getByRole("heading", { name: /chin tuck/i })).toBeVisible();
-    await expect(page.getByText(/why deskbreak uses it/i)).toBeVisible();
+    await expect(page.getByText(/why it.s here/i)).toBeVisible();
     await expect(page.getByText(/avoid this movement if/i)).toBeVisible();
     expect((await page.request.get("/moves/not-a-move")).status()).toBe(404);
   });
