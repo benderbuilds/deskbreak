@@ -9,7 +9,7 @@ import { SignInBanner } from "@/components/SignInBanner";
 import { SwitchRow } from "@/components/Switch";
 import { describeAccountError, pushPreferences, requestMagicLink, signOut } from "@/lib/account-client";
 import { track } from "@/lib/analytics";
-import { openBillingPortal } from "@/lib/billing-client";
+import { openBillingPortal, renewalLine } from "@/lib/billing-client";
 import {
   CONSTRAINT_OPTIONS,
   DURATION_OPTIONS,
@@ -499,11 +499,6 @@ export function SettingsView() {
   );
 }
 
-function renewalLine(entitlement: { cancelAtPeriodEnd?: boolean; proExpiresAt?: string | null }): string {
-  if (entitlement.cancelAtPeriodEnd) return "Cancels at the end of the current period.";
-  if (entitlement.proExpiresAt) return `Renews ${new Date(entitlement.proExpiresAt).toLocaleDateString()}.`;
-  return "Active.";
-}
 
 function rateLimitCopy(seconds: number): string {
   const wait = seconds <= 90 ? `${seconds} seconds` : `${Math.ceil(seconds / 60)} minutes`;

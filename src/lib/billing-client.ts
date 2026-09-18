@@ -1,6 +1,7 @@
 "use client";
 
 import { track } from "./analytics";
+import type { Entitlement } from "./types";
 
 export type PortalResult = "opened" | "signed_out" | "failed";
 
@@ -21,4 +22,11 @@ export async function openBillingPortal(): Promise<PortalResult> {
   } catch {
     return "failed";
   }
+}
+
+/** "Renews 9/18/2027.", "Cancels at the end of the current period." */
+export function renewalLine(entitlement: Pick<Entitlement, "cancelAtPeriodEnd" | "proExpiresAt">): string {
+  if (entitlement.cancelAtPeriodEnd) return "Cancels at the end of the current period.";
+  if (entitlement.proExpiresAt) return `Renews ${new Date(entitlement.proExpiresAt).toLocaleDateString()}.`;
+  return "Active.";
 }
