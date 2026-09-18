@@ -1827,7 +1827,7 @@
       "avoid": "Breathing too fast (hyperventilating).",
       "easier": "Breathe normally and just notice one full exhale.",
       "avoidIf": "Breathing exercises make you feel more anxious.",
-      "rationale": "Slow breathing with a longer exhale is a simple way to settle; studies of structured breathing report modestly lower stress.",
+      "rationale": "A long exhale slows things down. Slow breathing has reasonable evidence for reducing felt tension.",
       "defaultDose": {
         "type": "breaths",
         "breaths": 3
