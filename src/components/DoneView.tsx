@@ -236,52 +236,55 @@ export function DoneView() {
 
   return (
     <div className="flex min-h-dvh flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
-      <div className="flex justify-center">
-        <CharacterArt
-          pose={quiet ? "idle" : "done"}
-          setup={session?.setup === "standing" ? "standing" : "seated"}
-          size={170}
-          alt={quiet ? "Stretch" : "Stretch, done and noticeably less folded"}
-        />
+      {/* A good finish is written on a sticky note. Worse or painful stays plain paper. */}
+      <div className={quiet ? "" : "sticky-note mx-auto w-full max-w-[30rem] -rotate-1 px-5 pb-6 pt-5"}>
+        <div className="flex justify-center">
+          <CharacterArt
+            pose={quiet ? "idle" : "done"}
+            setup={session?.setup === "standing" ? "standing" : "seated"}
+            size={170}
+            alt={quiet ? "Stretch" : "Stretch, done and noticeably less folded"}
+          />
+        </div>
+
+        <h1 className="mt-4 text-center font-display font-extrabold text-[2rem] leading-tight text-ink">
+          {heading}
+        </h1>
+        {session && !quiet && activeSec < 60 ? (
+          <p className="mt-1 text-center text-sm text-ink/80">{capitalize(sessionMovedLabel(session))}.</p>
+        ) : null}
+        {hurt ? (
+          <p className="mt-4 rounded-[12px] bg-ink/5 px-4 py-3 text-sm leading-relaxed text-ink" role="status">
+            {PAINFUL_RESPONSE}
+          </p>
+        ) : null}
+
+        {stage === "feedback" ? (
+          <>
+            <p className="mt-8 text-center font-display font-extrabold text-xl text-ink">How do you feel?</p>
+            <div className="mt-4 grid grid-cols-3 gap-2" role="group" aria-label="How do you feel?">
+              {RATING_ORDER.map((id) => {
+                const option = FEEDBACK_OPTIONS.find((entry) => entry.id === id);
+                if (!option) return null;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => submitFeedback(id)}
+                    className="flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-[14px] border border-ink/60 bg-white px-2 py-2 text-center font-semibold leading-tight text-ink transition-colors hover:bg-paper active:bg-paper"
+                  >
+                    <span aria-hidden className="text-lg leading-none text-ink/75">
+                      {RATING_GLYPHS[id]}
+                    </span>
+                    <span>{option.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className={`mt-3 text-center text-sm ${quiet ? "text-muted" : "text-ink/80"}`}>Your answer tunes the next reset.</p>
+          </>
+        ) : null}
       </div>
-
-      <h1 className="mt-4 text-center font-display text-[2rem] font-semibold leading-tight tracking-tight text-ink">
-        {heading}
-      </h1>
-      {session && !quiet && activeSec < 60 ? (
-        <p className="mt-1 text-center text-sm text-ink/65">{capitalize(sessionMovedLabel(session))}.</p>
-      ) : null}
-      {hurt ? (
-        <p className="mt-4 rounded-[12px] bg-ink/5 px-4 py-3 text-sm leading-relaxed text-ink" role="status">
-          {PAINFUL_RESPONSE}
-        </p>
-      ) : null}
-
-      {stage === "feedback" ? (
-        <>
-          <p className="mt-8 text-center font-display text-xl font-semibold text-ink">How do you feel?</p>
-          <div className="mt-4 grid grid-cols-3 gap-2" role="group" aria-label="How do you feel?">
-            {RATING_ORDER.map((id) => {
-              const option = FEEDBACK_OPTIONS.find((entry) => entry.id === id);
-              if (!option) return null;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => submitFeedback(id)}
-                  className="flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-[16px] border border-ink/12 bg-white px-2 py-2 text-center font-semibold leading-tight text-ink transition-colors hover:bg-ink/4 active:bg-ink/8"
-                >
-                  <span aria-hidden className="text-lg leading-none text-ink/60">
-                    {RATING_GLYPHS[id]}
-                  </span>
-                  <span>{option.label}</span>
-                </button>
-              );
-            })}
-          </div>
-          <p className="mt-3 text-center text-sm text-ink/60">Your answer tunes the next reset.</p>
-        </>
-      ) : null}
 
       {stage === "worse" ? (
         <WorseFollowUp
@@ -299,7 +302,7 @@ export function DoneView() {
       {stage === "focus" ? (
         <>
           {effect && !worse ? <p className="mt-3 text-center text-ink/70">{FEEDBACK_RESPONSES[effect]}</p> : null}
-          <p className="mt-8 text-center font-display text-xl font-semibold text-ink">
+          <p className="mt-8 text-center font-display font-extrabold text-xl text-ink">
             Where do you usually feel desk work the most?
           </p>
           <div className="mt-4 grid gap-2">
@@ -322,10 +325,10 @@ export function DoneView() {
         <>
           {effect && !worse ? <p className="mt-3 text-center text-ink/70">{FEEDBACK_RESPONSES[effect]}</p> : null}
           <form onSubmit={submitSave} className="mt-8">
-            <h2 className="font-display text-xl font-semibold text-ink">
+            <h2 className="font-display font-extrabold text-xl text-ink">
               Want DeskBreak to remember what works for you?
             </h2>
-            <p className="mt-2 text-sm leading-relaxed text-ink/60">
+            <p className="mt-2 text-sm leading-relaxed text-muted">
               We&apos;ll email you a sign-in link. No password, and your history so far comes with you.
             </p>
             <label htmlFor="done-email" className="sr-only">
@@ -339,10 +342,10 @@ export function DoneView() {
               placeholder="you@work.com"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="mt-4 min-h-13 w-full rounded-[16px] border border-ink/12 bg-white px-4 text-base text-ink outline-none focus-visible:border-coral"
+              className="mt-4 min-h-13 w-full rounded-[14px] border border-line-strong bg-white px-4 text-base text-ink"
             />
             {emailError ? (
-              <p className="mt-2 text-sm font-semibold text-coral" role="alert">
+              <p className="mt-2 text-sm font-semibold text-pen" role="alert">
                 {emailError}
               </p>
             ) : null}
@@ -360,17 +363,17 @@ export function DoneView() {
 
       {stage === "sent" ? (
         <>
-          <h2 className="mt-8 text-center font-display text-xl font-semibold text-ink">Check your inbox.</h2>
-          <p className="mt-2 text-center text-sm leading-relaxed text-ink/60">
+          <h2 className="mt-8 text-center font-display font-extrabold text-xl text-ink">Check your inbox.</h2>
+          <p className="mt-2 text-center text-sm leading-relaxed text-muted">
             We sent a sign-in link to {email.trim()}. Open it on any device and your resets follow you.
           </p>
           <p className="mt-2 text-center text-sm font-semibold leading-relaxed text-ink">
             Open the link on this device to keep today&apos;s reset.
           </p>
           {devLink ? (
-            <p className="mt-3 text-center text-xs text-ink/50">
+            <p className="mt-3 text-center text-xs text-muted">
               Email isn&apos;t configured here, so here is the link:{" "}
-              <a href={devLink} className="font-semibold text-coral">
+              <a href={devLink} className="font-semibold text-pen">
                 sign in
               </a>
             </p>
@@ -395,13 +398,13 @@ export function DoneView() {
             <p className="mt-3 text-center text-[1.05rem] text-ink/70">{FEEDBACK_RESPONSES[effect]}</p>
           ) : null}
 
-          <div className="mt-7 grid gap-3">
+          <div className="mt-7 grid gap-5">
             {offerPro ? (
               <div className="surface px-4 py-4">
-                <p className="font-display text-base font-semibold text-ink">
+                <p className="font-display font-extrabold text-base text-ink">
                   {helpful} resets helped. Want DeskBreak to plan them for you?
                 </p>
-                <p className="mt-1 text-sm leading-relaxed text-ink/65">
+                <p className="mt-1 text-sm leading-relaxed text-muted">
                   Pro fits breaks around your workday and reminds you when each one is due.
                 </p>
                 <div className="mt-3">
@@ -418,17 +421,17 @@ export function DoneView() {
 
             {!quiet ? <ReminderAsk /> : null}
 
-            <div className="surface px-4 py-4">
+            <div className="border-t border-line pt-4">
               <WeekSummary />
-              {patternLine ? <p className="mt-3 text-sm text-ink/65">{patternLine}</p> : null}
+              {patternLine ? <p className="mt-3 text-sm text-muted">{patternLine}</p> : null}
             </div>
 
             {session?.exercises?.length ? <MovesDone session={session} /> : null}
 
             {offerChallenge ? (
-              <Link href="/app/challenge" className="surface block px-4 py-4 transition-colors hover:bg-ink/3">
-                <p className="font-display text-base font-semibold text-ink">Try the 5-Day Desk Reset</p>
-                <p className="mt-1 text-sm leading-relaxed text-ink/60">
+              <Link href="/app/challenge" className="group block border-t border-line pt-4">
+                <p className="font-display font-extrabold text-lg text-ink group-hover:text-pen group-hover:underline">Try the 5-Day Desk Reset</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">
                   See how a workweek of moving more feels.
                 </p>
               </Link>
@@ -480,7 +483,7 @@ function WorseFollowUp({
     <>
       <p className="mt-3 text-center text-ink/70">{FEEDBACK_RESPONSES.worse}</p>
       <fieldset className="mt-7">
-        <legend className="w-full text-center font-display text-xl font-semibold text-ink">{WORSE_AREA_PROMPT}</legend>
+        <legend className="w-full text-center font-display font-extrabold text-xl text-ink">{WORSE_AREA_PROMPT}</legend>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           {areas.map((area) => {
             const active = selected.includes(area);
@@ -492,7 +495,7 @@ function WorseFollowUp({
                 onClick={() => onToggle(area)}
                 className={[
                   "min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors",
-                  active ? "border-ink bg-ink text-paper" : "border-ink/15 bg-white text-ink hover:bg-ink/4",
+                  active ? "border-ink bg-ink text-paper" : "border-line-strong bg-white text-ink hover:border-ink",
                 ].join(" ")}
               >
                 {BODY_AREA_LABELS[area]}
@@ -517,7 +520,7 @@ function WorseFollowUp({
 function MovesDone({ session }: { session: WorkoutSession }) {
   const records = session.exercises ?? [];
   return (
-    <details className="surface px-4 py-3">
+    <details className="border-t border-line pt-1">
       <summary className="min-h-11 cursor-pointer py-2 text-sm font-semibold text-ink">
         Moves in this reset ({records.length})
       </summary>
@@ -536,7 +539,7 @@ function MovesDone({ session }: { session: WorkoutSession }) {
           return (
             <li key={`${record.exerciseId}-${record.sequence}`} className="flex justify-between gap-3">
               <span>{done?.name ?? record.exerciseId}</span>
-              <span className="shrink-0 text-ink/60">{status}</span>
+              <span className="shrink-0 text-muted">{status}</span>
             </li>
           );
         })}
