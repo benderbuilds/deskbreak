@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { BLOG_POSTS } from "@/content/blog";
 import { getExercises } from "@/lib/content";
 import { AREA_PAGES, GUIDE_PAGES, LANDING_PAGES } from "@/lib/seo-content";
 
@@ -13,6 +14,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${BASE}/${page.slug}`,
       lastModified: now,
       priority: 0.9,
+    })),
+    { url: `${BASE}/blog`, lastModified: now, priority: 0.7 },
+    ...BLOG_POSTS.map((post) => ({
+      url: `${BASE}/blog/${post.slug}`,
+      lastModified: new Date(post.published),
+      priority: 0.7,
     })),
     ...AREA_PAGES.map((page) => ({
       url: `${BASE}/desk-exercises/${page.slug}`,

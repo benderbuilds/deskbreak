@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import { CharacterArt } from "@/components/CharacterArt";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker, StartResetButton } from "@/components/marketing/LandingCta";
+import { PainNote } from "@/components/marketing/RichText";
 import { getExercise } from "@/lib/content";
-import { AREA_PAGES, findAreaPage } from "@/lib/seo-content";
+import { AREA_PAGES, findAreaPage, startRoutineName } from "@/lib/seo-content";
 
 export const dynamicParams = false;
 
@@ -31,6 +32,7 @@ export default async function AreaPage({ params }: { params: Promise<{ area: str
   if (!page) notFound();
 
   const moves = page.moves.map((id) => getExercise(id)).filter((exercise) => exercise !== undefined);
+  const routine = startRoutineName(page.need, 3, page.setup);
 
   return (
     <MarketingShell>
@@ -40,14 +42,16 @@ export default async function AreaPage({ params }: { params: Promise<{ area: str
         <p className="mt-4 max-w-[42rem] text-lg leading-relaxed text-ink/65">{page.intro}</p>
 
         <div className="surface-elevated mt-8 max-w-[34rem] px-5 py-6 sm:px-7">
-          <p className="font-display text-lg font-semibold text-ink">{page.ctaLabel}</p>
+          <p className="font-display text-lg font-semibold text-ink">Try the guided {routine}</p>
           <p className="mt-1 text-sm text-ink/60">Timed, cued and illustrated. No account, no equipment.</p>
           <div className="mt-4">
-            <StartResetButton need={page.need} minutes={3} source={`seo_${page.slug}`} seo>
-              Start the 3-minute reset
+            <StartResetButton need={page.need} minutes={3} setup={page.setup} source={`seo_${page.slug}`} seo>
+              {`Start the ${routine}`}
             </StartResetButton>
           </div>
         </div>
+
+        {page.painNote ? <PainNote className="mt-6" /> : null}
 
         <ol className="mt-10 grid gap-4">
           {moves.map((exercise, index) => (
@@ -85,8 +89,8 @@ export default async function AreaPage({ params }: { params: Promise<{ area: str
         </ul>
 
         <div className="mt-10">
-          <StartResetButton need={page.need} minutes={3} source={`seo_${page.slug}_footer`} seo>
-            Start the 3-minute reset
+          <StartResetButton need={page.need} minutes={3} setup={page.setup} source={`seo_${page.slug}_footer`} seo>
+            {`Start the ${routine}`}
           </StartResetButton>
         </div>
       </article>
