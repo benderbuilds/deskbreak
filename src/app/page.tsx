@@ -102,7 +102,7 @@ export default function LandingPage() {
         </h2>
         <ul className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
           {PROOF_CALLOUTS.map((callout) => (
-            <li key={callout.sourceId} className="border-t-2 border-ink pt-3 text-[0.95rem] leading-relaxed text-ink/80">
+            <li key={callout.sourceId} className="border-t border-line-strong pt-3 text-[0.95rem] leading-relaxed text-ink/80">
               {callout.text}{" "}
               <span className="text-sm">
                 <Citation ids={[callout.sourceId]} />
