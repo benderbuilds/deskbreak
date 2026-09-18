@@ -22,6 +22,28 @@ import {
 const SOURCES: SessionSource[] = ["today", "targeted", "explore", "planned_break", "push", "seo", "landing", "resume"];
 
 /**
+ * Where the visit came from, as the landing CTAs pass it on (`ref`, utm tags),
+ * plus the referring site when someone links to /app/start directly. Same
+ * property names as the landing events so the funnel joins up.
+ */
+function startAttribution(params: URLSearchParams) {
+  let referrerHost: string | null = null;
+  try {
+    const host = document.referrer ? new URL(document.referrer).host : "";
+    if (host && host !== window.location.host) referrerHost = host;
+  } catch {
+    referrerHost = null;
+  }
+  return {
+    ref: params.get("ref"),
+    referrer_host: referrerHost,
+    landing_utm_source: params.get("utm_source"),
+    landing_utm_medium: params.get("utm_medium"),
+    landing_utm_campaign: params.get("utm_campaign"),
+  };
+}
+
+/**
  * The way into a workout from anywhere outside Today.
  *
  * No questions. It reads what the link already knows (a need, a length, a
@@ -97,6 +119,7 @@ export function StartFlow() {
         generated: !recommendation.authored,
       }),
       pro,
+      ...startAttribution(new URLSearchParams(params.toString())),
     });
     if (source === "seo") track("seo_workout_started", { need, duration: durationMinutes });
     router.replace(workoutHref(recommendation, { source, plannedBreakId }));
