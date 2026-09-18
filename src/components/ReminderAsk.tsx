@@ -39,7 +39,7 @@ export function ReminderAsk() {
   const signedIn = Boolean(state.account.profileId);
   const pro = isProEntitlement(state.entitlement);
   const [dismissed, setDismissed] = useState(wasDismissed);
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [minutes] = useState(() => minutesNow());
 
@@ -68,21 +68,28 @@ export function ReminderAsk() {
     track("reminder_created", { kind: "daily", channel: signedIn ? "email" : "browser", source: "done" });
     // Signed in, this is what turns the daily email on.
     void pushPreferences();
+    // Ready for a workday plan. Push carries planned breaks only, so nothing
+    // below promises it for this reminder.
     if (pro && permission === "granted" && pushSupported() && !state.push.endpoint) await subscribeToPush();
     setBusy(false);
+    const email = signedIn
+      ? "We'll also email you on weekday afternoons."
+      : "Save your progress to also get it by email.";
     setResult(
-      signedIn
-        ? "Done. We'll email you a nudge on weekday afternoons."
-        : permission === "denied"
-          ? "Notifications are blocked for DeskBreak in your browser settings. Save your progress to get a daily email instead."
-          : `Saved for ${time} on weekdays. Save your progress so the reminder can reach you by email.`,
+      permission === "denied"
+        ? ["Notifications are blocked for DeskBreak in your browser settings.", email]
+        : [`Reminder set for ${time}. It shows while DeskBreak is open.`, email],
     );
   }
 
   if (result) {
     return (
       <div className="surface px-4 py-4" role="status">
-        <p className="text-sm leading-relaxed text-ink">{result}</p>
+        {result.map((line) => (
+          <p key={line} className="text-sm leading-relaxed text-ink">
+            {line}
+          </p>
+        ))}
       </div>
     );
   }
@@ -112,11 +119,11 @@ export function ReminderAsk() {
       ) : (
         <>
           <p className="mt-1 text-sm leading-relaxed text-ink/65">
-            {signedIn ? "A short email nudge on weekday afternoons." : `A nudge around ${time} on weekdays.`}
+            A nudge around {time} on weekdays.
           </p>
           <div className="mt-3 flex items-center gap-2">
             <Button size="sm" block={false} onClick={remind} disabled={busy}>
-              {signedIn ? "Remind me" : `Remind me at ${time}`}
+              Remind me at {time}
             </Button>
             <Button variant="tertiary" size="sm" block={false} onClick={dismiss}>
               Not now
