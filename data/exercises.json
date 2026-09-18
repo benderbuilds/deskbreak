@@ -21,7 +21,7 @@
       ],
       "setup": "either",
       "intensity": "gentle",
-      "cue": "Slide your chin straight back (make a soft double chin). Keep eyes level, don’t tip the nose down.",
+      "cue": "Slide your chin straight back (make a soft double chin) and hold for 2 seconds. Keep eyes level, don’t tip the nose down.",
       "tagline": "Undo the laptop lean.",
       "feelIt": "the back of your neck lengthening",
       "avoid": "Tipping the head up or down instead of sliding straight back.",
@@ -29,8 +29,9 @@
       "avoidIf": "Any movement of the neck sharply increases pain, dizziness or tingling.",
       "rationale": "Gently moves the neck out of the forward position a screen pulls it into. Simple, repeatable, and comfortable for almost everyone.",
       "defaultDose": {
-        "type": "reps",
-        "reps": 8
+        "type": "repsHold",
+        "reps": 8,
+        "holdSec": 2
       },
       "skipIf": [
         "acute_neck_injury",
@@ -46,10 +47,10 @@
       "stretchView": "side",
       "setupVariants": {
         "seated": {
-          "cue": "Slide your chin straight back (make a soft double chin). Keep eyes level, don’t tip the nose down. Stay seated tall."
+          "cue": "Slide your chin straight back (make a soft double chin) and hold for 2 seconds. Keep eyes level, don’t tip the nose down. Stay seated tall."
         },
         "standing": {
-          "cue": "Stand tall. Slide your chin straight back (soft double chin). Eyes level, don’t tip the nose down."
+          "cue": "Stand tall. Slide your chin straight back (soft double chin) and hold for 2 seconds. Eyes level, don’t tip the nose down."
         }
       }
     },
@@ -293,7 +294,7 @@
       ],
       "setup": "either",
       "intensity": "gentle",
-      "cue": "Slow shoulder circles, lift, roll back, drop, then forward. Keep the neck easy.",
+      "cue": "Slow shoulder circles, mostly backward: lift, roll back, drop. Add a few forward at the end. Keep the neck easy.",
       "tagline": "Slow circles, not shrugs.",
       "feelIt": "your shoulders travelling through their full circle",
       "avoid": "Rushing or crunching the neck.",
@@ -517,7 +518,7 @@
       ],
       "setup": "seated",
       "intensity": "gentle",
-      "cue": "Sit tall, hands lightly behind the head, elbows wide. Lift the breastbone a little without jamming the low back or flaring the ribs.",
+      "cue": "Sit tall with your mid-back against the chair back, hands lightly behind the head, elbows wide. Lift the breastbone a little over the chair back without jamming the low back or flaring the ribs.",
       "feelIt": "your chest widening across the front",
       "avoid": "Flaring the ribs and overarching the low back.",
       "easier": "Move through a smaller range.",
@@ -647,7 +648,7 @@
       ],
       "setup": "seated",
       "intensity": "gentle",
-      "cue": "Sitting, round your mid-back and tuck the chin slightly (cat), then lift the chest and look forward (cow). Move slow.",
+      "cue": "Sitting, breathe out as you round your mid-back and tuck the chin slightly (cat), then breathe in as you lift the chest and look forward (cow). Move slow.",
       "feelIt": "your spine moving one segment at a time",
       "avoid": "Rushing or forcing end range.",
       "easier": "Make the movement smaller and slower.",
