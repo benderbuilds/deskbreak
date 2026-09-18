@@ -79,7 +79,7 @@ export const PROOF_CALLOUTS: { text: string; sourceId: string }[] = [
     sourceId: "waongenngarm-2021",
   },
   {
-    text: "The WHO’s 2020 guidelines recommend adults limit time spent sitting, and say “some physical activity is better than none.”",
+    text: "The WHO’s 2020 guidelines recommend adults limit time spent sitting, and say “some physical activity is better than none”.",
     sourceId: "who-2020",
   },
 ];
