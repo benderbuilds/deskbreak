@@ -22,6 +22,8 @@ const AREA_GROUPS: { id: string; label: string; need: PrimaryNeed; areas: BodyAr
   { id: "neck", label: "Neck + shoulders", need: "neck_shoulders", areas: ["neck", "shoulders", "upperBack"] },
   { id: "back", label: "Back + hips", need: "back_hips", areas: ["upperBack", "core", "hips"] },
   { id: "wrists", label: "Wrists + hands", need: "wrists_hands", areas: ["wrists"] },
+  // Posture here means changing position and opening the upper back, never "correcting" it.
+  { id: "posture", label: "Posture reset", need: "posture", areas: ["upperBack", "shoulders"] },
   { id: "full", label: "Full body", need: "general", areas: [] },
 ];
 
@@ -93,22 +95,22 @@ export function ExploreView() {
 
   return (
     <div className="flex flex-1 flex-col px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))] lg:px-0">
-      <h1 className="font-display text-[2rem] font-semibold leading-tight text-ink">Explore</h1>
+      <h1 className="font-display font-extrabold text-[2rem] leading-tight text-ink">Explore</h1>
 
       {recommended ? (
         <section className="mt-5" aria-labelledby="recommended">
-          <h2 id="recommended" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+          <h2 id="recommended" className="font-display text-xl font-extrabold text-ink">
             Recommended for you
           </h2>
           <button
             type="button"
             onClick={() => router.push(workoutHref(recommended, { source: "explore" }))}
-            className="surface-elevated mt-2 flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-ink/3"
+            className="surface-elevated mt-2 flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:border-ink"
           >
             <CharacterArt pose="ready" size={64} alt="" />
             <span className="min-w-0">
-              <span className="block font-display text-lg font-semibold text-ink">{recommended.programName}</span>
-              <span className="block text-sm text-ink/60">
+              <span className="block font-display font-extrabold text-lg text-ink">{recommended.programName}</span>
+              <span className="block text-sm text-muted">
                 {recommended.recommendedDuration} min · {areaLine(recommended.exerciseIds.flatMap((id) => getExercise(id)?.bodyAreas ?? []))}
               </span>
             </span>
@@ -117,7 +119,7 @@ export function ExploreView() {
       ) : null}
 
       <section className="mt-7" aria-labelledby="by-area">
-        <h2 id="by-area" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+        <h2 id="by-area" className="font-display text-xl font-extrabold text-ink">
           By body area
         </h2>
         <div className="mt-2 grid grid-cols-2 gap-2">
@@ -126,7 +128,10 @@ export function ExploreView() {
               key={group.id}
               type="button"
               onClick={() => startGenerated(group.need, (state.preferredDuration as 2 | 3 | 5 | 10 | null) ?? 3)}
-              className="surface min-h-14 px-4 text-left text-sm font-semibold text-ink transition-colors hover:bg-ink/3"
+              className={[
+                "min-h-14 rounded-control border border-line-strong bg-sheet px-4 text-left text-sm font-semibold text-ink transition-colors hover:border-ink",
+                AREA_GROUPS.length % 2 && group.id === "full" ? "col-span-2" : "",
+              ].join(" ")}
             >
               {group.label}
             </button>
@@ -135,7 +140,7 @@ export function ExploreView() {
       </section>
 
       <section className="mt-7" aria-labelledby="by-goal">
-        <h2 id="by-goal" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+        <h2 id="by-goal" className="font-display text-xl font-extrabold text-ink">
           By goal
         </h2>
         <div className="mt-2 grid grid-cols-2 gap-2">
@@ -146,7 +151,7 @@ export function ExploreView() {
                 key={goal.id}
                 type="button"
                 onClick={() => startGenerated(need, 3)}
-                className="surface min-h-14 px-4 text-left text-sm font-semibold text-ink transition-colors hover:bg-ink/3"
+                className="min-h-14 rounded-control border border-line-strong bg-sheet px-4 text-left text-sm font-semibold text-ink transition-colors hover:border-ink"
               >
                 {goal.label}
               </button>
@@ -156,7 +161,7 @@ export function ExploreView() {
       </section>
 
       <section className="mt-7" aria-labelledby="by-time">
-        <h2 id="by-time" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+        <h2 id="by-time" className="font-display text-xl font-extrabold text-ink">
           By time
         </h2>
         <div className="mt-2 grid grid-cols-4 gap-2">
@@ -174,10 +179,10 @@ export function ExploreView() {
                   }
                   startGenerated("general", minutes);
                 }}
-                className="surface flex min-h-14 flex-col items-center justify-center px-2 text-sm font-semibold text-ink transition-colors hover:bg-ink/3"
+                className="flex min-h-14 flex-col items-center justify-center rounded-control border border-line-strong bg-sheet px-2 text-sm font-semibold text-ink transition-colors hover:border-ink"
               >
                 {minutes} min
-                {locked ? <span className="text-[10px] uppercase tracking-wide text-ink/45">Pro</span> : null}
+                {locked ? <span className="text-xs font-semibold text-muted">Pro</span> : null}
               </button>
             );
           })}
@@ -185,10 +190,10 @@ export function ExploreView() {
       </section>
 
       <section className="mt-7" aria-labelledby="routines">
-        <h2 id="routines" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+        <h2 id="routines" className="font-display text-xl font-extrabold text-ink">
           Routines
         </h2>
-        <ul className="mt-2 grid gap-2">
+        <ul className="mt-2 divide-y divide-line overflow-hidden rounded-card border border-line bg-sheet">
           {programs.map((program) => {
             const locked = isProgramLocked(program, state.entitlement);
             return (
@@ -196,18 +201,18 @@ export function ExploreView() {
                 <button
                   type="button"
                   onClick={() => startProgram(program, "explore_routine")}
-                  className="surface flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-ink/3"
+                  className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-paper"
                 >
                   <span className="min-w-0">
                     <span className="block font-semibold text-ink">{program.name}</span>
-                    <span className="mt-0.5 block text-sm text-ink/55">
+                    <span className="mt-0.5 block text-sm text-muted">
                       {program.durationMin} min · {NEED_BY_ID[program.primaryNeed].label}
                     </span>
                   </span>
                   <span
                     className={[
-                      "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.1em]",
-                      locked ? "bg-ink text-paper" : "bg-mint/25 text-ink/70",
+                      "shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold",
+                      locked ? "bg-ink text-paper" : "text-muted",
                     ].join(" ")}
                   >
                     {locked ? "Pro" : "Free"}
@@ -221,10 +226,10 @@ export function ExploreView() {
 
       {favorites.length ? (
         <section className="mt-7" aria-labelledby="favorites">
-          <h2 id="favorites" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+          <h2 id="favorites" className="font-display text-xl font-extrabold text-ink">
             Favorites
           </h2>
-          <ul className="mt-2 grid gap-2">
+          <ul className="mt-2 divide-y divide-line overflow-hidden rounded-card border border-line bg-sheet">
             {favorites.map((exercise) => (
               <ExerciseCard key={exercise.id} exercise={exercise} locked={isExerciseLocked(exercise, state.entitlement)} />
             ))}
@@ -233,7 +238,7 @@ export function ExploreView() {
       ) : null}
 
       <section className="mt-7" aria-labelledby="movements">
-        <h2 id="movements" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">
+        <h2 id="movements" className="font-display text-xl font-extrabold text-ink">
           Individual movements
         </h2>
         <label htmlFor="explore-search" className="sr-only">
@@ -245,7 +250,7 @@ export function ExploreView() {
           placeholder="Search movements"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          className="mt-2 min-h-12 w-full rounded-[14px] border border-ink/12 bg-white px-4 text-base text-ink outline-none focus-visible:border-coral"
+          className="mt-2 min-h-12 w-full rounded-[14px] border border-line-strong bg-white px-4 text-base text-ink"
         />
         <div className="mt-3 flex flex-wrap gap-2">
           <Chip label="All" active={area === "all"} onClick={() => setArea("all")} />
@@ -259,7 +264,7 @@ export function ExploreView() {
             <EmptyState title="Nothing matches" body="Try another word, or clear the filter." />
           </div>
         ) : (
-          <ul className="mt-4 grid gap-2">
+          <ul className="mt-4 divide-y divide-line overflow-hidden rounded-card border border-line bg-sheet">
             {filtered.map((exercise) => (
               <ExerciseCard key={exercise.id} exercise={exercise} locked={isExerciseLocked(exercise, state.entitlement)} />
             ))}
@@ -275,17 +280,17 @@ function ExerciseCard({ exercise, locked }: { exercise: Exercise; locked: boolea
     <li>
       <Link
         href={`/app/explore/move/${exercise.id}`}
-        className="surface flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-ink/3"
+        className="flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-paper"
       >
         <CharacterArt pose={locked ? "locked" : "exercise"} exerciseId={locked ? undefined : exercise.id} size={56} alt="" />
         <span className="min-w-0 flex-1">
           <span className="block font-semibold text-ink">{exercise.name}</span>
-          <span className="mt-0.5 block text-sm text-ink/55">
+          <span className="mt-0.5 block text-sm text-muted">
             {BODY_AREA_LABELS[exercise.bodyArea]} · {formatDose(exercise.defaultDose)}
           </span>
         </span>
         {locked ? (
-          <span className="shrink-0 rounded-full bg-ink px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-paper">
+          <span className="shrink-0 rounded-full bg-ink px-2.5 py-1 text-xs font-semibold text-paper">
             Pro
           </span>
         ) : null}

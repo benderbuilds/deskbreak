@@ -24,13 +24,20 @@ export async function completeReset(page: Page): Promise<void> {
   await page.waitForURL(/\/app\/done/, { timeout: 20_000 });
 }
 
-/** Puts the browser in a known state: fresh visitor, no stored preferences. */
-export async function clearAppState(page: Page): Promise<void> {
+/**
+ * Puts the browser in a known state: fresh visitor, no stored preferences.
+ *
+ * The one-time safety screen is marked as seen unless `firstRun` is set, so
+ * tests about other flows start on the first move. Tests of the first visit
+ * itself pass `{ firstRun: true }`.
+ */
+export async function clearAppState(page: Page, options: { firstRun?: boolean } = {}): Promise<void> {
   await page.goto("/");
-  await page.evaluate(() => {
+  await page.evaluate((firstRun) => {
     window.localStorage.clear();
     window.sessionStorage.clear();
-  });
+    if (!firstRun) window.localStorage.setItem("deskbreak.safetyNote.v1", "1");
+  }, Boolean(options.firstRun));
 }
 
 /**

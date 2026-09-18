@@ -70,7 +70,7 @@ export default function PrivacyPage() {
 
         <h2>Deleting your data</h2>
         <p>
-          Email <a className="font-semibold text-coral" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>{" "}
+          Email <a className="font-semibold text-pen" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>{" "}
           from the address you signed up with and we will delete everything tied to
           it, including any subscription record, once the subscription is cancelled.
         </p>

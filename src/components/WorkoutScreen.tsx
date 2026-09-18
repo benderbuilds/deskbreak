@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ResumePrompt, WorkoutView } from "@/components/WorkoutView";
+import { SafetyCheck, needsSafetyCheck } from "@/components/SafetyCheck";
 import { LoadingShell } from "@/components/StatusStates";
 import { track } from "@/lib/analytics";
 import { resumableWorkout } from "@/lib/resume";
@@ -16,6 +17,11 @@ import {
   type SetupRequest,
 } from "@/lib/types";
 
+/** Everything but the workout field itself keeps the narrow full-bleed column. */
+function Column({ children }: { children: React.ReactNode }) {
+  return <div className="mx-auto flex min-h-dvh w-full max-w-[520px] flex-col lg:max-w-[720px]">{children}</div>;
+}
+
 export function WorkoutScreen({ programId }: { programId: string }) {
   const isClient = useIsClient();
   const params = useSearchParams();
@@ -24,8 +30,16 @@ export function WorkoutScreen({ programId }: { programId: string }) {
   // Read once, on mount: whether a resume is on offer must not change just
   // because the component re-rendered a second later.
   const [resumable] = useState(() => resumableWorkout(programId));
+  // First visit only. Shown before WorkoutView mounts, so the routine is
+  // resolved with whatever "Go easy on" answers were just given.
+  const [safetyPending, setSafetyPending] = useState(() => !resumable && needsSafetyCheck());
 
-  if (!isClient) return <LoadingShell label="Loading your DeskBreak" />;
+  if (!isClient)
+    return (
+      <Column>
+        <LoadingShell label="Loading your DeskBreak" />
+      </Column>
+    );
 
   const state = getAppState();
   const needParam = params.get("need");
@@ -38,21 +52,30 @@ export function WorkoutScreen({ programId }: { programId: string }) {
   const source = (params.get("source") ?? resumable?.source ?? "unknown") as SessionSource;
   const plannedBreakId = params.get("break") ?? resumable?.plannedBreakId ?? null;
 
+  if (safetyPending)
+    return (
+      <Column>
+        <SafetyCheck onContinue={() => setSafetyPending(false)} />
+      </Column>
+    );
+
   if (!decided && resumable) {
     return (
-      <ResumePrompt
-        stepIndex={resumable.stepIndex}
-        onResume={() => {
-          track("session_resumed", { program_id: programId, step: resumable.stepIndex + 1 });
-          setResumeAt(resumable.stepIndex);
-          setDecided(true);
-        }}
-        onRestart={() => {
-          clearActiveWorkout();
-          setResumeAt(0);
-          setDecided(true);
-        }}
-      />
+      <Column>
+        <ResumePrompt
+          stepIndex={resumable.stepIndex}
+          onResume={() => {
+            track("session_resumed", { program_id: programId, step: resumable.stepIndex + 1 });
+            setResumeAt(resumable.stepIndex);
+            setDecided(true);
+          }}
+          onRestart={() => {
+            clearActiveWorkout();
+            setResumeAt(0);
+            setDecided(true);
+          }}
+        />
+      </Column>
     );
   }
 

@@ -36,10 +36,10 @@ export function WelcomeView() {
       <div className="flex justify-center">
         <CharacterArt pose="done" size={170} alt="Stretch, pleased about this" />
       </div>
-      <h1 className="mt-5 text-center font-display text-[2rem] font-semibold leading-tight tracking-tight text-ink">
+      <h1 className="mt-5 text-center font-display font-extrabold text-[2rem] leading-tight text-ink">
         {pro ? "You're in." : "Almost there."}
       </h1>
-      <p className="mt-3 text-center leading-relaxed text-ink/65">
+      <p className="mt-3 text-center leading-relaxed text-muted">
         {pro
           ? "Tell DeskBreak when you work and it will handle the rest of the day."
           : "Your payment is still settling. Give it a moment and refresh, or restore from You."}

@@ -19,7 +19,7 @@ export default function SupportPage() {
       >
         <p>
           Email{" "}
-          <a className="font-semibold text-coral" href={`mailto:${SUPPORT_EMAIL}`}>
+          <a className="font-semibold text-pen" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>
           .
@@ -29,7 +29,7 @@ export default function SupportPage() {
         <ul>
           <li>
             <strong>I paid but Pro is not showing.</strong> Open{" "}
-            <Link className="font-semibold text-coral" href="/app/settings">
+            <Link className="font-semibold text-pen" href="/app/settings">
               Settings
             </Link>{" "}
             and use Restore Pro with your checkout email.

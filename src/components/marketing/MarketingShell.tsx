@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LogoMark } from "@/components/LogoMark";
+import { HeaderStartLink } from "@/components/marketing/HeaderStartLink";
 import { MOVEMENT_DISCLAIMER } from "@/lib/constants";
 
 /**
@@ -15,28 +16,26 @@ export function MarketingShell({ children }: { children: ReactNode }) {
       <header className="mx-auto flex w-full max-w-[64rem] items-center justify-between px-5 py-5">
         <Link href="/" className="flex items-center gap-2" aria-label="DeskBreak home">
           <LogoMark size={34} />
-          <span className="font-display text-lg font-semibold tracking-tight">DeskBreak</span>
+          <span className="font-display font-extrabold text-lg">DeskBreak</span>
         </Link>
-        <nav className="flex items-center gap-4 text-sm font-semibold text-ink/60" aria-label="Site">
+        <nav className="flex items-center gap-4 text-sm font-semibold text-muted" aria-label="Site">
           <Link href="/science" className="hidden hover:text-ink sm:inline">
             Why it works
+          </Link>
+          <Link href="/blog" className="hidden hover:text-ink sm:inline">
+            Blog
           </Link>
           <Link href="/app" className="hidden hover:text-ink sm:inline">
             Open DeskBreak
           </Link>
-          <Link
-            href="/app/start?source=landing"
-            className="rounded-[12px] bg-ink px-4 py-2 text-sm font-semibold text-paper transition-colors hover:bg-ink/90"
-          >
-            Start my reset
-          </Link>
+          <HeaderStartLink />
         </nav>
       </header>
 
       <main className="mx-auto w-full max-w-[64rem] px-5 pb-20">{children}</main>
 
-      <footer className="border-t border-ink/8">
-        <div className="mx-auto w-full max-w-[64rem] px-5 py-8 text-sm text-ink/55">
+      <footer className="border-t border-line">
+        <div className="mx-auto w-full max-w-[64rem] px-5 py-8 text-sm text-muted">
           <p className="max-w-[42rem] leading-relaxed">{MOVEMENT_DISCLAIMER}</p>
           <nav className="mt-5 flex flex-wrap gap-x-6 gap-y-2 font-semibold" aria-label="Footer">
             <Link href="/desk-exercises" className="hover:text-ink">
@@ -48,6 +47,12 @@ export function MarketingShell({ children }: { children: ReactNode }) {
             <Link href="/science" className="hover:text-ink">
               Science
             </Link>
+            <Link href="/blog" className="hover:text-ink">
+              Blog
+            </Link>
+            <Link href="/posture-reset" className="hover:text-ink">
+              Posture reset
+            </Link>
             <Link href="/privacy" className="hover:text-ink">
               Privacy
             </Link>
@@ -58,7 +63,7 @@ export function MarketingShell({ children }: { children: ReactNode }) {
               Support
             </Link>
           </nav>
-          <p className="mt-5 text-xs text-ink/40">&copy; {new Date().getFullYear()} DeskBreak</p>
+          <p className="mt-5 text-xs text-muted">&copy; {new Date().getFullYear()} DeskBreak</p>
         </div>
       </footer>
     </div>

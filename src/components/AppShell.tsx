@@ -29,6 +29,8 @@ function Sync() {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const bare = FULL_BLEED.some((route) => pathname.startsWith(route));
+  // The workout field runs edge to edge; its own screens narrow themselves.
+  const field = pathname.startsWith("/app/workout");
 
   return (
     <div className="min-h-dvh bg-paper">
@@ -37,7 +39,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </Suspense>
       <ServiceWorkerRegistrar />
       <ReminderRunner />
-      {bare ? (
+      {field ? (
+        <div className="flex min-h-dvh w-full flex-col">{children}</div>
+      ) : bare ? (
         <div className="mx-auto flex min-h-dvh w-full max-w-[520px] flex-col lg:max-w-[720px]">
           {children}
         </div>

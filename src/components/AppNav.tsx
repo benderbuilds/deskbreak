@@ -22,7 +22,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="sticky bottom-0 z-20 mt-auto border-t border-ink/8 bg-paper/92 backdrop-blur-md lg:hidden"
+      className="sticky bottom-0 z-20 mt-auto border-t border-line bg-paper lg:hidden"
       aria-label="Primary"
     >
       <ul className="mx-auto grid max-w-[520px] grid-cols-4 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1">
@@ -35,9 +35,11 @@ export function BottomNav() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={[
-                  "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-2xl text-[11px] font-semibold tracking-wide",
+                  "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-2xl text-xs font-semibold",
                   "transition-colors duration-200",
-                  active ? "text-coral" : "text-ink/45",
+                  active
+                    ? "relative text-ink before:absolute before:top-0 before:h-[3px] before:w-8 before:rounded-full before:bg-pen"
+                    : "text-muted",
                 ].join(" ")}
               >
                 <Icon active={active} />
@@ -57,12 +59,12 @@ export function SideNav() {
 
   return (
     <nav
-      className="sticky top-0 hidden h-dvh w-[220px] shrink-0 flex-col border-r border-ink/8 px-4 py-6 lg:flex"
+      className="sticky top-0 hidden h-dvh w-[220px] shrink-0 flex-col border-r border-line px-4 py-6 lg:flex"
       aria-label="Primary"
     >
       <Link href="/app" className="flex items-center gap-2 px-2" aria-label="DeskBreak Today">
         <LogoMark size={30} />
-        <span className="font-display text-lg font-semibold tracking-tight">DeskBreak</span>
+        <span className="font-display font-extrabold text-lg">DeskBreak</span>
       </Link>
       <ul className="mt-8 grid gap-1">
         {items.map((item) => {
@@ -75,7 +77,7 @@ export function SideNav() {
                 aria-current={active ? "page" : undefined}
                 className={[
                   "flex min-h-11 items-center gap-3 rounded-[12px] px-3 text-sm font-semibold transition-colors duration-200",
-                  active ? "bg-ink/6 text-ink" : "text-ink/60 hover:bg-ink/4 hover:text-ink",
+                  active ? "bg-sheet text-ink shadow-[inset_3px_0_0_var(--pen)]" : "text-muted hover:bg-ink/4 hover:text-ink",
                 ].join(" ")}
               >
                 <Icon active={active} />
@@ -85,7 +87,7 @@ export function SideNav() {
           );
         })}
       </ul>
-      <div className="mt-auto px-2 text-xs leading-relaxed text-ink/40">
+      <div className="mt-auto px-2 text-xs leading-relaxed text-muted">
         <Link href="/science" className="hover:text-ink">
           Why this works
         </Link>

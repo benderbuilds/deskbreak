@@ -6,11 +6,18 @@ import {
   signalsFromHistory,
   type PersonalizationSignals,
 } from "./personalization";
-import { satisfyBreak } from "./workday";
+import { satisfyBreak, satisfyMicroBreak } from "./workday";
+import { defaultStandNudge } from "./reminders";
+import { canonicalExerciseId } from "./exercise-aliases";
+import { normalizeSafetyFlags } from "./safety";
+import {
+  BODY_AREAS,
+} from "./body-areas";
 import {
   isFunctionalConstraint,
   isPrimaryNeed,
   type AccountState,
+  type BodyArea,
   type AppSettings,
   type AppState,
   type Attribution,
@@ -24,6 +31,7 @@ import {
   type ProgressState,
   type PushState,
   type Reminder,
+  type SafetyFlag,
   type SessionSource,
   type SetupId,
   type SetupRequest,
@@ -45,6 +53,7 @@ const LEGACY_PROGRESS = "deskbreak.progress.v1";
 
 const HISTORY_CAP = 400;
 const RECOMMENDATION_CAP = 20;
+const MICRO_BREAK_CAP = 500;
 
 const listeners = new Set<() => void>();
 
@@ -97,6 +106,8 @@ export const defaultState = (): AppState => ({
   preferredSetup: null,
   preferredDuration: null,
   constraints: [],
+  safetyFlags: [],
+  allowFloorWork: false,
   favorites: [],
   firstResetComplete: false,
   paywallSeen: false,
@@ -118,6 +129,7 @@ export const defaultState = (): AppState => ({
     celebrationTheme: "classic",
     reminders: [],
     lastReminderDate: null,
+    standNudge: defaultStandNudge(),
   },
   plan: null,
   challenge: emptyChallenge(),
@@ -127,6 +139,7 @@ export const defaultState = (): AppState => ({
   account: emptyAccount(),
   push: emptyPush(),
   resetsSinceFeedback: 0,
+  microBreaks: [],
 });
 
 const SERVER_STATE = defaultState();
@@ -268,7 +281,14 @@ function migrateRating(value: unknown): StiffnessRating | null {
   return null;
 }
 
+function normalizeWorseAreas(value: unknown): BodyArea[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const areas = BODY_AREAS.filter((area) => value.includes(area));
+  return areas.length ? areas : undefined;
+}
+
 export function normalizeSession(raw: LegacyV2Session): WorkoutSession {
+  const worseAreas = normalizeWorseAreas((raw as { worseAreas?: unknown }).worseAreas);
   return {
     sessionId: raw.sessionId,
     programId: raw.programId,
@@ -283,6 +303,7 @@ export function normalizeSession(raw: LegacyV2Session): WorkoutSession {
     startedAt: raw.startedAt,
     finishedAt: raw.finishedAt,
     perceivedEffect: migrateEffect(raw.perceivedEffect),
+    ...(worseAreas ? { worseAreas } : {}),
     recommendationId: raw.recommendationId ?? null,
     algorithmVersion: raw.algorithmVersion ?? null,
     source: raw.source ?? "unknown",
@@ -328,6 +349,27 @@ function signalsFromScratch(history: WorkoutSession[]): AppState["signals"] {
   return signals;
 }
 
+/** Signal maps keyed by retired ids fold into the move that replaced them. */
+function canonicalSignals(signals: AppState["signals"]): AppState["signals"] {
+  const next: AppState["signals"] = {};
+  for (const [id, signal] of Object.entries(signals)) {
+    const key = canonicalExerciseId(id);
+    const existing = next[key];
+    next[key] = existing
+      ? {
+          completed: existing.completed + signal.completed,
+          skipped: existing.skipped + signal.skipped,
+          swapped: existing.swapped + signal.swapped,
+          discomfort: existing.discomfort + signal.discomfort,
+          better: existing.better + signal.better,
+          worse: existing.worse + signal.worse,
+          lastAt: [existing.lastAt, signal.lastAt].filter(Boolean).sort().pop() ?? null,
+        }
+      : signal;
+  }
+  return next;
+}
+
 export function migrateV2State(parsed: LegacyV2State): AppState {
   const base = defaultState();
   const history = (parsed.progress?.history ?? []).map(normalizeSession);
@@ -346,7 +388,11 @@ export function migrateV2State(parsed: LegacyV2State): AppState {
       history,
       lastWorkout,
     },
-    settings: { ...base.settings, ...(parsed.settings as Partial<AppSettings>) },
+    settings: {
+      ...base.settings,
+      ...(parsed.settings as Partial<AppSettings>),
+      standNudge: { ...base.settings.standNudge, ...parsed.settings?.standNudge },
+    },
     plan: migratePlan(parsed.plan),
     challenge: {
       ...base.challenge,
@@ -357,10 +403,15 @@ export function migrateV2State(parsed: LegacyV2State): AppState {
     attribution: { ...base.attribution, ...parsed.attribution },
     primaryNeed: isPrimaryNeed(parsed.primaryNeed) ? parsed.primaryNeed : null,
     constraints: (parsed.constraints ?? []).filter(isFunctionalConstraint),
-    favorites: parsed.favorites ?? [],
+    safetyFlags: normalizeSafetyFlags(parsed.safetyFlags),
+    allowFloorWork: parsed.allowFloorWork === true,
+    microBreaks: Array.isArray(parsed.microBreaks)
+      ? parsed.microBreaks.filter((entry): entry is string => typeof entry === "string").slice(0, MICRO_BREAK_CAP)
+      : [],
+    favorites: (parsed.favorites ?? []).map(canonicalExerciseId),
     signals:
       parsed.signals && Object.keys(parsed.signals).length
-        ? parsed.signals
+        ? canonicalSignals(parsed.signals)
         : signalsFromScratch(history),
     recommendations: parsed.recommendations ?? [],
     account: { ...base.account, ...parsed.account, email: parsed.account?.email ?? parsed.email ?? null },
@@ -489,6 +540,30 @@ export function setConstraints(constraints: FunctionalConstraint[]): void {
   patchAppState((state) => ({ ...state, constraints: [...new Set(constraints)] }));
 }
 
+/**
+ * "Go easy on" answers. Health information: stored on this device only and
+ * never pushed to the profile. The engine sees them through
+ * personalizationSignals(state).screening.
+ */
+export function setSafetyFlags(flags: SafetyFlag[]): void {
+  patchAppState((state) => ({ ...state, safetyFlags: normalizeSafetyFlags(flags) }));
+}
+
+export function toggleSafetyFlag(flag: SafetyFlag): boolean {
+  let on = false;
+  patchAppState((state) => {
+    on = !state.safetyFlags.includes(flag);
+    const next = on ? [...state.safetyFlags, flag] : state.safetyFlags.filter((entry) => entry !== flag);
+    return { ...state, safetyFlags: normalizeSafetyFlags(next) };
+  });
+  return on;
+}
+
+/** Floor exercises are off by default; this is the opt-in. */
+export function setAllowFloorWork(allow: boolean): void {
+  patchAppState((state) => ({ ...state, allowFloorWork: allow }));
+}
+
 export function toggleFavorite(id: string): boolean {
   let added = false;
   patchAppState((state) => {
@@ -610,9 +685,16 @@ export function getStoredRecommendation(id: string | null | undefined): StoredRe
   return getAppState().recommendations.find((entry) => entry.id === id) ?? null;
 }
 
-/** Signals the engine reads, built from what this browser has seen. */
-export function personalizationSignals(state = getAppState()): PersonalizationSignals {
-  return signalsFromHistory(state.progress.history, state.signals);
+/**
+ * Signals the engine reads, built from what this browser has seen, with the
+ * person's "Go easy on" answers and floor opt-in attached so every engine
+ * call that takes signals honours them.
+ */
+export function personalizationSignals(state = getAppState(), now = new Date()): PersonalizationSignals {
+  return {
+    ...signalsFromHistory(state.progress.history, state.signals, 60, now),
+    screening: { safetyFlags: state.safetyFlags ?? [], allowFloorWork: Boolean(state.allowFloorWork) },
+  };
 }
 
 export function recordCompletedWorkout(session: WorkoutSession): ProgressState {
@@ -687,6 +769,63 @@ export function recordFeedback(sessionId: string, effect: PerceivedEffect): void
       },
     };
   });
+}
+
+/**
+ * After a "Worse" rating: which areas felt worse. Two in a week for the same
+ * area leaves it out of routines for a while (see areaSignalsFromHistory).
+ */
+export function recordWorseAreas(sessionId: string, areas: BodyArea[]): void {
+  const worseAreas = BODY_AREAS.filter((area) => areas.includes(area));
+  const apply = (session: WorkoutSession): WorkoutSession => {
+    if (session.sessionId !== sessionId) return session;
+    const next = { ...session };
+    if (worseAreas.length) next.worseAreas = worseAreas;
+    else delete next.worseAreas;
+    return next;
+  };
+  patchAppState((state) => ({
+    ...state,
+    progress: {
+      ...state.progress,
+      lastWorkout: state.progress.lastWorkout ? apply(state.progress.lastWorkout) : null,
+      history: state.progress.history.map(apply),
+    },
+  }));
+}
+
+/**
+ * A one-minute stand or walk taken outside a workout (the stand-up nudge, or a
+ * planned micro-break done without opening a routine). Counts as activity and
+ * clears the planned break it satisfies.
+ */
+export function recordMicroBreak(options: { at?: Date; plannedBreakId?: string | null } = {}): void {
+  const at = (options.at ?? new Date()).toISOString();
+  patchAppState((state) => {
+    const plan = !state.plan
+      ? null
+      : options.plannedBreakId
+        ? {
+            ...state.plan,
+            breaks: state.plan.breaks.map((entry) =>
+              entry.id === options.plannedBreakId ? { ...entry, status: "completed" as const } : entry,
+            ),
+          }
+        : satisfyMicroBreak(state.plan, new Date(at));
+    return {
+      ...state,
+      plan,
+      microBreaks: [at, ...state.microBreaks].slice(0, MICRO_BREAK_CAP),
+      settings: { ...state.settings, standNudge: { ...state.settings.standNudge, snoozedUntil: null } },
+    };
+  });
+}
+
+export function saveStandNudge(patch: Partial<AppSettings["standNudge"]>): void {
+  patchAppState((state) => ({
+    ...state,
+    settings: { ...state.settings, standNudge: { ...state.settings.standNudge, ...patch } },
+  }));
 }
 
 /**

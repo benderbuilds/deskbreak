@@ -11,6 +11,8 @@ import type { SetupId } from "@/lib/types";
 
 const FALLBACK_SRC = `/character/${NEUTRAL_FALLBACK}.svg`;
 const FRAME_MS = 900;
+/** The neutral card is not a demonstration, so it must not be described as one. */
+const FALLBACK_ALT = "No illustration yet; follow the written steps";
 
 export function CharacterArt({
   pose = "idle",
@@ -19,6 +21,7 @@ export function CharacterArt({
   animate = false,
   tappable = false,
   alt = "Stretch",
+  mirror = false,
   className,
   size = 220,
 }: {
@@ -28,6 +31,8 @@ export function CharacterArt({
   animate?: boolean;
   tappable?: boolean;
   alt?: string;
+  /** Flips the art horizontally, for the right-side step of a per-side move. */
+  mirror?: boolean;
   className?: string;
   size?: number;
 }) {
@@ -51,6 +56,7 @@ export function CharacterArt({
       animate={animate}
       tappable={tappable}
       alt={alt}
+      mirror={mirror}
       className={className}
       size={size}
     />
@@ -64,6 +70,7 @@ function ArtFrames({
   animate,
   tappable,
   alt,
+  mirror,
   className,
   size,
 }: {
@@ -73,6 +80,7 @@ function ArtFrames({
   animate: boolean;
   tappable: boolean;
   alt: string;
+  mirror: boolean;
   className?: string;
   size: number;
 }) {
@@ -91,9 +99,13 @@ function ArtFrames({
 
   const intended = showEnd && canAnimate && end ? end : start;
   const src = broken === intended ? FALLBACK_SRC : intended;
+  const showingFallback = isFallback || src === FALLBACK_SRC;
+  // Decorative uses (alt="") stay decorative.
+  const label = showingFallback && alt ? FALLBACK_ALT : alt;
 
   const visualClass = [
     "pointer-events-none select-none",
+    mirror && !showingFallback ? "-scale-x-100" : "",
     bounce ? "animate-[tapBounce_420ms_cubic-bezier(0.34,1.4,0.64,1)]" : "",
     className,
   ]
@@ -105,11 +117,11 @@ function ArtFrames({
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
-      alt={tappable ? "" : alt}
+      alt={tappable ? "" : label}
       width={size}
       height={size}
       draggable={false}
-      data-art-fallback={isFallback ? "true" : undefined}
+      data-art-fallback={showingFallback ? "true" : undefined}
       onError={() => setBroken(intended)}
       onAnimationEnd={() => setBounce(false)}
       className={visualClass}
@@ -125,8 +137,8 @@ function ArtFrames({
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
         setBounce(true);
       }}
-      aria-label={alt}
-      className="relative z-0 rounded-[28px] outline-none focus-visible:ring-2 focus-visible:ring-coral"
+      aria-label={label}
+      className="relative z-0 rounded-[28px]"
     >
       {graphic}
     </button>

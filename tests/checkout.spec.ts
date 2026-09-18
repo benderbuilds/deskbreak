@@ -12,9 +12,13 @@ test.describe("checkout", () => {
   test("sends the selected period and lands on the Stripe URL", async ({ page }) => {
     await clearAppState(page);
 
+    // The server only confirms Pro once checkout has happened; before that,
+    // /app/pro is the paywall rather than the "You're Pro" screen.
+    let paid = false;
     let requestBody: Record<string, unknown> = {};
     await page.route("**/api/checkout", async (route) => {
       requestBody = JSON.parse(route.request().postData() ?? "{}");
+      paid = true;
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -22,8 +26,9 @@ test.describe("checkout", () => {
       });
     });
 
-    await page.route("**/api/entitlement**", (route) =>
-      route.fulfill({
+    await page.route("**/api/entitlement**", (route) => {
+      if (!paid) return route.continue();
+      return route.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
@@ -33,12 +38,12 @@ test.describe("checkout", () => {
           cancelAtPeriodEnd: false,
           email: "buyer@work.com",
         }),
-      }),
-    );
+      });
+    });
 
     await page.goto("/app/pro?from=done&need=neck_shoulders");
     await page.getByRole("radio", { name: /monthly/i }).click();
-    await page.getByRole("button", { name: /build my workday/i }).click();
+    await page.getByRole("button", { name: /^(start pro|become a founding member)/i }).click();
 
     await page.waitForURL(/\/app\/welcome/);
     expect(requestBody).toMatchObject({
@@ -65,7 +70,7 @@ test.describe("checkout", () => {
     );
 
     await page.goto("/app/pro");
-    await page.getByRole("button", { name: /build my workday/i }).click();
+    await page.getByRole("button", { name: /^(start pro|become a founding member)/i }).click();
     await expect(appAlert(page)).toBeVisible();
 
     await page.getByRole("button", { name: /^continue free$/i }).click();

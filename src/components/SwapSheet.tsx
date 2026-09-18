@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Chip } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
-import { DISCOMFORT_REASONS, SAFETY_LINE } from "@/lib/constants";
+import { DISCOMFORT_REASONS, PAINFUL_RESPONSE, SAFETY_LINE } from "@/lib/constants";
 import type { DiscomfortReason, Exercise } from "@/lib/types";
 
 export type SwapMode = "swap" | "discomfort";
@@ -11,9 +11,10 @@ export type SwapMode = "swap" | "discomfort";
 /**
  * "Swap" and "Doesn't feel right" share a sheet.
  *
- * Swap offers a few alternatives. Doesn't-feel-right has already switched the
- * move by the time this opens; it only asks, optionally, why, and reminds the
- * user that stopping is always fine.
+ * Swap offers a few alternatives. Doesn't-feel-right has already switched (or
+ * skipped) the move by the time this opens; `current` is the move it took out.
+ * It asks, optionally, why. "Painful" answers with when to see someone, and
+ * the caller leaves that body area out of the rest of the reset.
  */
 export function SwapSheet({
   mode,
@@ -46,7 +47,7 @@ export function SwapSheet({
 
   return (
     <div
-      className="fixed inset-0 z-30 flex items-end justify-center bg-ink/30 backdrop-blur-[2px] sm:items-center"
+      className="fixed inset-0 z-30 flex items-end justify-center bg-ink/40 sm:items-center"
       role="presentation"
       onClick={onClose}
     >
@@ -59,13 +60,19 @@ export function SwapSheet({
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 id="swap-title" className="font-display text-xl font-semibold text-ink">
-              {mode === "discomfort" ? "No problem. Let's switch it." : "Swap this move"}
+            <h2 id="swap-title" className="font-display font-extrabold text-xl text-ink">
+              {mode === "swap"
+                ? "Swap this move"
+                : replacement
+                  ? "No problem. Let's switch it."
+                  : "No problem. Let's skip it."}
             </h2>
-            <p className="mt-1 text-sm text-ink/60">
-              {mode === "discomfort" && replacement
-                ? `${current.name} is out. ${replacement.name} is in.`
-                : `Instead of ${current.name}.`}
+            <p className="mt-1 text-sm text-muted">
+              {mode === "swap"
+                ? `Instead of ${current.name}.`
+                : replacement
+                  ? `${current.name} is out. ${replacement.name} is in.`
+                  : `${current.name} is out.`}
             </p>
           </div>
           <button
@@ -91,13 +98,20 @@ export function SwapSheet({
                   label={option.label}
                   active={reason === option.id}
                   onClick={() => {
+                    if (reason === option.id) return;
                     setReason(option.id);
                     onReason(option.id);
                   }}
                 />
               ))}
             </div>
-            <p className="mt-4 text-xs leading-relaxed text-ink/50">{SAFETY_LINE}</p>
+            {reason === "painful" ? (
+              <p className="mt-4 rounded-[12px] bg-ink/5 px-3 py-3 text-sm leading-relaxed text-ink" role="status">
+                {PAINFUL_RESPONSE}
+              </p>
+            ) : (
+              <p className="mt-4 text-xs leading-relaxed text-muted">{SAFETY_LINE}</p>
+            )}
             <div className="mt-5">
               <Button onClick={onClose}>Continue</Button>
             </div>
@@ -110,21 +124,21 @@ export function SwapSheet({
                   <button
                     type="button"
                     onClick={() => onSwap(candidate)}
-                    className="surface flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-ink/3"
+                    className="surface flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:border-ink"
                   >
                     <CharacterArt pose="exercise" exerciseId={candidate.id} size={56} alt="" />
                     <span className="min-w-0">
                       <span className="block font-semibold text-ink">{candidate.name}</span>
-                      <span className="block text-sm text-ink/55">{candidate.tagline ?? candidate.cue}</span>
+                      <span className="block text-sm text-muted">{candidate.tagline ?? candidate.cue}</span>
                     </span>
                   </button>
                 </li>
               ))}
               {!candidates.length ? (
-                <li className="text-sm text-ink/55">Nothing else fits this slot. Skip it instead.</li>
+                <li className="text-sm text-muted">Nothing else fits this slot. Skip it instead.</li>
               ) : null}
             </ul>
-            <p className="mt-4 text-xs leading-relaxed text-ink/50">{SAFETY_LINE}</p>
+            <p className="mt-4 text-xs leading-relaxed text-muted">{SAFETY_LINE}</p>
           </>
         )}
       </div>

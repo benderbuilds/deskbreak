@@ -16,11 +16,12 @@
       ],
       "needs": [
         "neck_shoulders",
-        "stress"
+        "stress",
+        "posture"
       ],
       "setup": "either",
       "intensity": "gentle",
-      "cue": "Slide your chin straight back (make a soft double chin). Keep eyes level, don’t tip the nose down.",
+      "cue": "Slide your chin straight back (make a soft double chin) and hold for 2 seconds. Keep eyes level, don’t tip the nose down.",
       "tagline": "Undo the laptop lean.",
       "feelIt": "the back of your neck lengthening",
       "avoid": "Tipping the head up or down instead of sliding straight back.",
@@ -28,14 +29,15 @@
       "avoidIf": "Any movement of the neck sharply increases pain, dizziness or tingling.",
       "rationale": "Gently moves the neck out of the forward position a screen pulls it into. Simple, repeatable, and comfortable for almost everyone.",
       "defaultDose": {
-        "type": "reps",
-        "reps": 8
+        "type": "repsHold",
+        "reps": 8,
+        "holdSec": 2
       },
       "skipIf": [
         "acute_neck_injury",
         "dizziness"
       ],
-      "saferSwapId": null,
+      "saferSwapId": "long-exhale-reset",
       "constraints": [],
       "evidenceCategories": [
         "mobility",
@@ -45,10 +47,10 @@
       "stretchView": "side",
       "setupVariants": {
         "seated": {
-          "cue": "Slide your chin straight back (make a soft double chin). Keep eyes level, don’t tip the nose down. Stay seated tall."
+          "cue": "Slide your chin straight back (make a soft double chin) and hold for 2 seconds. Keep eyes level, don’t tip the nose down. Stay seated tall."
         },
         "standing": {
-          "cue": "Stand tall. Slide your chin straight back (soft double chin). Eyes level, don’t tip the nose down."
+          "cue": "Stand tall. Slide your chin straight back (soft double chin) and hold for 2 seconds. Eyes level, don’t tip the nose down."
         }
       }
     },
@@ -123,7 +125,8 @@
       },
       "skipIf": [
         "headache_spike",
-        "dizziness"
+        "dizziness",
+        "acute_neck_injury"
       ],
       "saferSwapId": "chin-tuck",
       "constraints": [],
@@ -151,19 +154,22 @@
       ],
       "setup": "either",
       "intensity": "gentle",
-      "cue": "Sit or stand tall. Tip one ear toward the same-side shoulder; rest the opposite hand lightly on the head. Don’t pull hard.",
+      "cue": "Sit tall, hold the chair seat with your left hand. Tip your right ear toward your right shoulder until the left side of your neck feels long. Hand on head only if you want, resting, not pulling. Switch sides at the chime.",
       "feelIt": "a stretch down the side of your neck",
-      "avoid": "Yanking or twisting the neck.",
-      "easier": "Skip the hand assist and let the head's own weight do the work.",
+      "avoid": "Pulling on the head, or turning the chin as you tip.",
+      "easier": "Skip the hand and let the head's own weight do the work.",
       "avoidIf": "You feel sharp pain or tingling into an arm.",
       "rationale": "Takes the side of the neck through a range it rarely visits during desk work.",
       "defaultDose": {
-        "type": "holdSec",
-        "seconds": 25
+        "type": "holdSecEachSide",
+        "seconds": 20
       },
       "skipIf": [
         "sharp_neck_pain",
-        "recent_neck_surgery"
+        "recent_neck_surgery",
+        "acute_neck_injury",
+        "arm_tingling",
+        "dizziness"
       ],
       "saferSwapId": "chin-tuck",
       "constraints": [],
@@ -171,7 +177,13 @@
         "mobility"
       ],
       "evidenceLevel": "general",
-      "stretchView": "front"
+      "stretchView": "front",
+      "notFirst": true,
+      "setupVariants": {
+        "standing": {
+          "cue": "Stand tall and let your left arm hang heavy. Tip your right ear toward your right shoulder until the left side of your neck feels long. Hand on head only if you want, resting, not pulling. Switch sides at the chime."
+        }
+      }
     },
     {
       "id": "neck-rotation",
@@ -202,7 +214,9 @@
       },
       "skipIf": [
         "vertigo",
-        "cervical_disc_flare"
+        "cervical_disc_flare",
+        "acute_neck_injury",
+        "dizziness"
       ],
       "saferSwapId": "chin-tuck",
       "constraints": [
@@ -216,7 +230,7 @@
     },
     {
       "id": "upper-trap-release",
-      "name": "Upper trap release",
+      "name": "Upper trap and levator release",
       "access": "pro",
       "bodyArea": "neck",
       "bodyAreas": [
@@ -233,10 +247,10 @@
       ],
       "setup": "seated",
       "intensity": "gentle",
-      "cue": "Sit tall. Drop one ear toward that shoulder and look slightly down toward the armpit. Keep the opposite shoulder down.",
+      "cue": "Sit tall and hold the chair seat with your left hand. Tip your right ear toward your right shoulder, then turn your nose slightly down toward your right armpit. Optionally rest your right hand on your head; let its weight, not a pull, do the work. Switch sides at the chime.",
       "feelIt": "the top of your shoulder letting go",
       "avoid": "Shrugging the stretching shoulder up.",
-      "easier": "Skip the hand and simply let the shoulder drop away.",
+      "easier": "Skip the hand and simply let the held-down shoulder drop away.",
       "avoidIf": "You get a headache or tingling into an arm.",
       "rationale": "Eases the muscles that carry the shoulders up toward the ears when work gets tense.",
       "defaultDose": {
@@ -245,7 +259,9 @@
       },
       "skipIf": [
         "migraine_aura",
-        "severe_neck_spasm"
+        "severe_neck_spasm",
+        "acute_neck_injury",
+        "arm_tingling"
       ],
       "saferSwapId": "neck-side-stretch",
       "constraints": [],
@@ -253,7 +269,8 @@
         "mobility"
       ],
       "evidenceLevel": "general",
-      "stretchView": "front"
+      "stretchView": "front",
+      "notFirst": true
     },
     {
       "id": "shoulder-rolls",
@@ -272,11 +289,12 @@
       "needs": [
         "neck_shoulders",
         "energy",
-        "stress"
+        "stress",
+        "posture"
       ],
       "setup": "either",
       "intensity": "gentle",
-      "cue": "Slow shoulder circles, lift, roll back, drop, then forward. Keep the neck easy.",
+      "cue": "Slow shoulder circles, mostly backward: lift, roll back, drop. Add a few forward at the end. Keep the neck easy.",
       "tagline": "Slow circles, not shrugs.",
       "feelIt": "your shoulders travelling through their full circle",
       "avoid": "Rushing or crunching the neck.",
@@ -326,17 +344,17 @@
       ],
       "setup": "either",
       "intensity": "gentle",
-      "cue": "Let the shoulders slide down away from the ears. Lightly draw the shoulder blades down the back. Don’t force the chest forward.",
+      "cue": "Lift your shoulders toward your ears, hold for 2 seconds, then let them drop and slide down away from your ears. Breathe out as they drop.",
       "tagline": "Shoulders away from the ears.",
-      "feelIt": "space opening between your ears and shoulders",
-      "avoid": "Pinching the neck or forcing the chest forward.",
+      "feelIt": "the tops of your shoulders letting go as they drop",
+      "avoid": "Holding your breath, or shrugging so hard the neck strains.",
       "easier": "Shrug only halfway.",
       "avoidIf": "Shrugging causes sharp neck pain.",
       "rationale": "Exaggerating the shrug, then letting go, makes it easier to notice when the shoulders are creeping up during work.",
       "defaultDose": {
         "type": "repsHold",
         "reps": 8,
-        "holdSec": 3
+        "holdSec": 2
       },
       "skipIf": [],
       "saferSwapId": "shoulder-rolls",
@@ -363,7 +381,8 @@
       "needs": [
         "neck_shoulders",
         "back_hips",
-        "wrists_hands"
+        "wrists_hands",
+        "posture"
       ],
       "setup": "seated",
       "intensity": "gentle",
@@ -405,7 +424,8 @@
       ],
       "needs": [
         "neck_shoulders",
-        "back_hips"
+        "back_hips",
+        "posture"
       ],
       "setup": "either",
       "intensity": "moderate",
@@ -447,11 +467,12 @@
       "needs": [
         "neck_shoulders",
         "back_hips",
-        "wrists_hands"
+        "wrists_hands",
+        "posture"
       ],
-      "setup": "either",
+      "setup": "standing",
       "intensity": "gentle",
-      "cue": "Place a forearm on a doorframe or wall at about shoulder height. Gently turn your chest away until you feel a stretch across the front of the shoulder and chest.",
+      "cue": "Stand in a doorway or beside a wall. Place a forearm on the frame, elbow at or below shoulder height. Step through with the same-side foot and gently turn your chest away until you feel a stretch across the front of the shoulder and chest. Stop if the front of the shoulder pinches or the arm tingles.",
       "feelIt": "the front of your chest and shoulder opening",
       "avoid": "Leaning so hard the front of the shoulder hurts.",
       "easier": "Keep the arm lower and the stretch lighter.",
@@ -462,15 +483,20 @@
         "seconds": 25
       },
       "skipIf": [
-        "recent_shoulder_dislocation"
+        "recent_shoulder_dislocation",
+        "shoulder_impingement",
+        "arm_tingling"
       ],
       "saferSwapId": "shoulder-rolls",
-      "constraints": [],
+      "constraints": [
+        "leave_chair"
+      ],
       "evidenceCategories": [
         "mobility"
       ],
       "evidenceLevel": "general",
-      "stretchView": "side"
+      "stretchView": "side",
+      "notFirst": true
     },
     {
       "id": "chair-open-chest",
@@ -487,11 +513,12 @@
       ],
       "needs": [
         "neck_shoulders",
-        "back_hips"
+        "back_hips",
+        "posture"
       ],
       "setup": "seated",
       "intensity": "gentle",
-      "cue": "Sit tall, hands lightly behind the head, elbows wide. Lift the breastbone a little without jamming the low back or flaring the ribs.",
+      "cue": "Sit tall with your mid-back against the chair back, hands lightly behind the head, elbows wide. Lift the breastbone a little over the chair back without jamming the low back or flaring the ribs.",
       "feelIt": "your chest widening across the front",
       "avoid": "Flaring the ribs and overarching the low back.",
       "easier": "Move through a smaller range.",
@@ -526,7 +553,8 @@
         "activate"
       ],
       "needs": [
-        "neck_shoulders"
+        "neck_shoulders",
+        "posture"
       ],
       "setup": "either",
       "intensity": "moderate",
@@ -568,11 +596,12 @@
       ],
       "needs": [
         "neck_shoulders",
-        "back_hips"
+        "back_hips",
+        "posture"
       ],
       "setup": "standing",
       "intensity": "moderate",
-      "cue": "Stand (or sit tall) with back against a wall or firm chair back. Keep ribs quiet and slide both arms up and down the surface like a slow snow angel, trying to keep contact.",
+      "cue": "Stand with your back against a wall, feet a small step away from it. Keep your ribs quiet and slide both arms up and down the wall like a slow snow angel. It's fine if your hands don't touch the wall.",
       "feelIt": "your upper back working to stay flat",
       "avoid": "Arching the low back off the wall.",
       "easier": "Stand away from the wall and do the same movement freely.",
@@ -614,11 +643,12 @@
       "needs": [
         "back_hips",
         "stress",
-        "energy"
+        "energy",
+        "posture"
       ],
       "setup": "seated",
       "intensity": "gentle",
-      "cue": "Sitting, round your mid-back and tuck the chin slightly (cat), then lift the chest and look forward (cow). Move slow.",
+      "cue": "Sitting, breathe out as you round your mid-back and tuck the chin slightly (cat), then breathe in as you lift the chest and look forward (cow). Move slow.",
       "feelIt": "your spine moving one segment at a time",
       "avoid": "Rushing or forcing end range.",
       "easier": "Make the movement smaller and slower.",
@@ -629,7 +659,8 @@
         "reps": 8
       },
       "skipIf": [
-        "recent_spinal_surgery"
+        "recent_spinal_surgery",
+        "osteoporosis"
       ],
       "saferSwapId": "seated-scap-squeeze",
       "constraints": [],
@@ -653,11 +684,12 @@
         "mobilize"
       ],
       "needs": [
-        "back_hips"
+        "back_hips",
+        "posture"
       ],
       "setup": "seated",
       "intensity": "moderate",
-      "cue": "Sit with mid-back against the chair back, hands lightly behind your head. Lean the upper back over the chair while keeping the low back quiet.",
+      "cue": "Only on a fixed, non-reclining chair back that meets your mid-back. Chair on wheels? Brace it against the desk first. Sit with your mid-back against the chair back, hands lightly behind your head. Lean the upper back over the chair while keeping the low back quiet.",
       "feelIt": "your mid-back opening backwards",
       "avoid": "Hyperextending the low back.",
       "easier": "Reduce the range and skip the hand support.",
@@ -694,11 +726,12 @@
       ],
       "needs": [
         "back_hips",
-        "energy"
+        "energy",
+        "posture"
       ],
       "setup": "seated",
       "intensity": "gentle",
-      "cue": "Sit tall with feet planted. Rotate the mid-back to look over one shoulder, then the other. Keep the hips quiet, don’t twist from the low back.",
+      "cue": "Sit tall with feet planted and arms crossed over your chest. Turn your mid-back to look over one shoulder, then the other. Keep the hips quiet; don't twist from the low back. Swivel chair? Keep your feet planted so the seat doesn't turn.",
       "feelIt": "an easy twist through your mid-back",
       "avoid": "Twisting from the low back or yanking with the arms.",
       "easier": "Rotate a little less far and keep your hands on your thighs.",
@@ -710,7 +743,9 @@
       },
       "skipIf": [
         "acute_disc_pain",
-        "recent_spinal_surgery"
+        "recent_spinal_surgery",
+        "osteoporosis",
+        "pregnancy"
       ],
       "saferSwapId": "seated-cat-cow",
       "constraints": [],
@@ -751,7 +786,7 @@
       "skipIf": [
         "rib_or_side_strain"
       ],
-      "saferSwapId": "standing-posture-reset",
+      "saferSwapId": "seated-cat-cow",
       "constraints": [],
       "evidenceCategories": [
         "mobility"
@@ -791,7 +826,7 @@
       "skipIf": [
         "acute_lumbar_spasm"
       ],
-      "saferSwapId": "standing-posture-reset",
+      "saferSwapId": "sit-bones-find",
       "constraints": [],
       "evidenceCategories": [
         "mobility",
@@ -815,7 +850,8 @@
         "return"
       ],
       "needs": [
-        "back_hips"
+        "back_hips",
+        "posture"
       ],
       "setup": "seated",
       "intensity": "gentle",
@@ -827,7 +863,7 @@
       "rationale": "A deliberate change of sitting position. Variety matters more than any single posture.",
       "defaultDose": {
         "type": "holdSec",
-        "seconds": 30
+        "seconds": 20
       },
       "skipIf": [
         "acute_lumbar_spasm"
@@ -838,7 +874,8 @@
         "posture_variability"
       ],
       "evidenceLevel": "general",
-      "stretchView": "side"
+      "stretchView": "side",
+      "maxSec": 20
     },
     {
       "id": "seated-figure-4",
@@ -857,7 +894,7 @@
       ],
       "setup": "seated",
       "intensity": "gentle",
-      "cue": "Sit tall. Cross one ankle over the opposite knee. Hinge a little forward from the hips until you feel a stretch in the outer hip, stop before sharp pain.",
+      "cue": "Sit tall. Cross one ankle over the opposite knee (tight? rest it on your shin instead). Hinge a little forward from the hips until you feel a stretch in the outer hip, stop before sharp pain. Chair on wheels? Brace it against the desk first.",
       "tagline": "Outer-hip stretch in the chair.",
       "feelIt": "the outside of your hip and glute",
       "avoid": "Pressing down on the bent knee.",
@@ -935,7 +972,7 @@
       ],
       "setup": "seated",
       "intensity": "gentle",
-      "cue": "Sit tall, feet planted. Slowly sweep both knees to one side, then the other, like windshield wipers, moving at the hips, not collapsing the low back.",
+      "cue": "Sit tall, feet planted. Slowly sweep both knees to one side, then the other, like windshield wipers, moving at the hips, not collapsing the low back. Swivel chair? Plant your feet so the seat doesn't turn.",
       "feelIt": "your hips rolling in and out",
       "avoid": "Collapsing the low back or forcing end range.",
       "easier": "Make the movement smaller.",
@@ -977,7 +1014,7 @@
       ],
       "setup": "standing",
       "intensity": "moderate",
-      "cue": "Stand and step one foot back into a short lunge. Gently tuck the back-side pelvis under (flatten the low-back arch) until you feel a stretch in the front of the back hip. Hold the desk for balance if needed.",
+      "cue": "Hold the desk and step one foot back into a short lunge, back knee soft. Squeeze the back-side glute and gently tuck the pelvis under (flatten the low-back arch) until you feel a stretch in the front of the back hip.",
       "feelIt": "the front of your back hip",
       "avoid": "Arching the low back.",
       "easier": "Keep a hand on the desk and shorten the step.",
@@ -988,9 +1025,10 @@
         "seconds": 25
       },
       "skipIf": [
-        "balance_issues_without_support"
+        "balance_issues_without_support",
+        "hip_replacement_restrictions"
       ],
-      "saferSwapId": "seated-hip-opener",
+      "saferSwapId": "seated-figure-4",
       "constraints": [
         "balance",
         "leave_chair"
@@ -1033,7 +1071,8 @@
       },
       "skipIf": [
         "acute_disc_pain",
-        "balance_issues_without_support"
+        "balance_issues_without_support",
+        "low_back_flare"
       ],
       "saferSwapId": "seated-march",
       "constraints": [
@@ -1061,7 +1100,7 @@
       "needs": [
         "back_hips"
       ],
-      "setup": "seated",
+      "setup": "floor",
       "intensity": "moderate",
       "cue": "Lie on your back, knees bent, feet flat. Squeeze the glutes and lift the hips until shoulders–hips–knees line up. Lower slow. Stop if the low back hurts.",
       "feelIt": "your glutes doing the work",
@@ -1074,7 +1113,8 @@
         "reps": 10
       },
       "skipIf": [
-        "cannot_get_to_floor_safely"
+        "cannot_get_to_floor_safely",
+        "pregnancy"
       ],
       "saferSwapId": "standing-glute-squeeze",
       "constraints": [
@@ -1148,7 +1188,7 @@
       ],
       "setup": "standing",
       "intensity": "moderate",
-      "cue": "From sitting, stand up (use hands on thighs/desk only if needed). Squeeze the glutes at the top, then sit down slowly with control.",
+      "cue": "Chair on wheels? Brace it against the desk first. From sitting, stand up (hands on thighs or the desk only if needed). Squeeze your glutes at the top without leaning back, then sit down slowly with control.",
       "feelIt": "your legs and glutes driving you up",
       "avoid": "Knee cave, rushing, or pushing off with momentum only.",
       "easier": "Use your hands on the armrests or desk.",
@@ -1162,7 +1202,7 @@
         "severe_hip_or_knee_pain",
         "balance_risk"
       ],
-      "saferSwapId": "standing-glute-squeeze",
+      "saferSwapId": "seated-march",
       "constraints": [
         "deep_knee_bend",
         "leave_chair"
@@ -1193,7 +1233,7 @@
       ],
       "setup": "standing",
       "intensity": "moderate",
-      "cue": "Stand with soft knees, hands light on the desk. Hinge forward from the hips with a long spine, don’t round hard through the low back.",
+      "cue": "Stand with soft knees, hands light on the desk. Hinge forward from the hips with a long spine, don't round hard through the low back. Stop if it pulls or tingles down the leg.",
       "feelIt": "the back of your thighs",
       "avoid": "Rounding hard through the low back.",
       "easier": "Bend the knees and hinge less far.",
@@ -1204,7 +1244,8 @@
         "seconds": 25
       },
       "skipIf": [
-        "acute_disc_pain"
+        "acute_disc_pain",
+        "low_back_flare"
       ],
       "saferSwapId": "seated-march",
       "constraints": [
@@ -1234,7 +1275,7 @@
       ],
       "setup": "either",
       "intensity": "gentle",
-      "cue": "Arm forward, elbow soft, palm facing up. Use the other hand to gently ease the fingers toward the floor until you feel a stretch in the forearm.",
+      "cue": "Arm forward, elbow soft, palm facing up. Use the other hand to gently ease the fingers toward the floor until you feel a stretch in the forearm. Stop before any tingling in the fingers.",
       "tagline": "Palm-up forearm stretch.",
       "feelIt": "the underside of your forearm",
       "avoid": "Locking the elbow hard.",
@@ -1247,7 +1288,8 @@
       },
       "skipIf": [
         "carpal_tunnel_flare",
-        "recent_wrist_sprain"
+        "recent_wrist_sprain",
+        "arm_tingling"
       ],
       "saferSwapId": "wrist-circles",
       "constraints": [],
@@ -1274,7 +1316,7 @@
       ],
       "setup": "either",
       "intensity": "gentle",
-      "cue": "Arm forward, elbow soft, palm facing down. Use the other hand to gently ease the fingers toward you until you feel a stretch on top of the forearm.",
+      "cue": "Arm forward, elbow soft, palm down. Let the fingers point to the floor; with the other hand, ease the back of the hand toward you until the top of the forearm stretches. Stop before any tingling in the fingers.",
       "feelIt": "the top of your forearm",
       "avoid": "Bouncing into the stretch.",
       "easier": "Use less pressure from the other hand.",
@@ -1285,7 +1327,8 @@
         "seconds": 25
       },
       "skipIf": [
-        "wrist_tendinitis_flare"
+        "wrist_tendinitis_flare",
+        "arm_tingling"
       ],
       "saferSwapId": "wrist-circles",
       "constraints": [],
@@ -1420,7 +1463,7 @@
     },
     {
       "id": "standing-posture-reset",
-      "name": "Standing posture reset",
+      "name": "Stand tall and breathe",
       "access": "free",
       "bodyArea": "posture",
       "bodyAreas": [
@@ -1435,19 +1478,20 @@
       ],
       "needs": [
         "energy",
-        "neck_shoulders"
+        "neck_shoulders",
+        "posture"
       ],
       "setup": "standing",
       "intensity": "gentle",
-      "cue": "Stand with feet under the hips, soft knees. Stack ears over shoulders over hips. Grow tall through the crown of the head without locking the knees or flaring the ribs.",
-      "feelIt": "your whole front side lengthening",
-      "avoid": "Locking knees or puffing the chest.",
+      "cue": "Stand up. Feel your feet on the floor, soften your knees and let your head float up. Breathe easily.",
+      "feelIt": "your weight settling through your feet",
+      "avoid": "Locking the knees or holding yourself stiff.",
       "easier": "Stand for a shorter time with a hand on the desk.",
       "avoidIf": "You cannot stand safely.",
-      "rationale": "Standing up is the single biggest change of position available at a desk. This makes it deliberate.",
+      "rationale": "Standing up is the biggest change of position available at a desk. There's no one correct posture; the point is to move into a different one.",
       "defaultDose": {
         "type": "holdSec",
-        "seconds": 45
+        "seconds": 20
       },
       "skipIf": [],
       "saferSwapId": "sit-bones-find",
@@ -1459,7 +1503,8 @@
         "sitting_interruption"
       ],
       "evidenceLevel": "moderate",
-      "stretchView": "side"
+      "stretchView": "side",
+      "maxSec": 30
     },
     {
       "id": "standing-overhead-reach",
@@ -1477,19 +1522,20 @@
         "move"
       ],
       "needs": [
-        "energy"
+        "energy",
+        "posture"
       ],
       "setup": "standing",
       "intensity": "gentle",
-      "cue": "Stand tall with soft knees. Reach both arms overhead slowly, lengthening through the sides. Keep ribs soft (don’t flare) and breathe easy.",
+      "cue": "Stand tall with soft knees. Reach both arms up for 3 slow breaths, then lower them. Repeat 3 times. Keep your ribs soft and your shoulders away from your ears.",
       "feelIt": "your ribs lifting away from your hips",
       "avoid": "Flared ribs, shrugged shoulders, or locking the knees.",
       "easier": "Reach forward and up instead of straight overhead.",
       "avoidIf": "Raising the arms overhead causes sharp shoulder pain.",
       "rationale": "Reaching up is the opposite of everything a desk asks of you.",
       "defaultDose": {
-        "type": "holdSec",
-        "seconds": 25
+        "type": "reps",
+        "reps": 3
       },
       "skipIf": [
         "shoulder_impingement"
@@ -1503,7 +1549,8 @@
         "mobility"
       ],
       "evidenceLevel": "general",
-      "stretchView": "side"
+      "stretchView": "side",
+      "minSec": 30
     },
     {
       "id": "calf-raise",
@@ -1535,7 +1582,7 @@
       "skipIf": [
         "achilles_pain_flare"
       ],
-      "saferSwapId": "ankle-circles",
+      "saferSwapId": "seated-march",
       "constraints": [
         "leave_chair",
         "balance"
@@ -1578,53 +1625,12 @@
       "skipIf": [
         "severe_hip_or_knee_pain"
       ],
-      "saferSwapId": "ankle-circles",
+      "saferSwapId": "shoulder-rolls",
       "constraints": [],
       "evidenceCategories": [
         "movement_breaks"
       ],
       "evidenceLevel": "general",
-      "stretchView": "front"
-    },
-    {
-      "id": "walk-to-water-march",
-      "name": "Walk-to-water march",
-      "access": "pro",
-      "bodyArea": "legs",
-      "bodyAreas": [
-        "legs"
-      ],
-      "movementType": "aerobic",
-      "phases": [
-        "move"
-      ],
-      "needs": [
-        "energy"
-      ],
-      "setup": "standing",
-      "intensity": "moderate",
-      "cue": "March in place easily or take a short walk (for example to get water). Quiet feet, easy breathing, not a workout.",
-      "feelIt": "an easy rhythm through your legs",
-      "avoid": "Turning it into a workout or stomping.",
-      "easier": "March on the spot beside your desk instead.",
-      "avoidIf": "You have severe hip or knee pain.",
-      "rationale": "Walking is the best-evidenced way to break up sitting. Attaching it to fetching water makes it happen.",
-      "defaultDose": {
-        "type": "holdSec",
-        "seconds": 40
-      },
-      "skipIf": [
-        "severe_hip_or_knee_pain"
-      ],
-      "saferSwapId": "seated-march",
-      "constraints": [
-        "leave_chair"
-      ],
-      "evidenceCategories": [
-        "sitting_interruption",
-        "movement_breaks"
-      ],
-      "evidenceLevel": "strong",
       "stretchView": "front"
     },
     {
@@ -1671,8 +1677,8 @@
       "stretchView": "front"
     },
     {
-      "id": "ankle-circles",
-      "name": "Ankle circles",
+      "id": "ankle-pumps",
+      "name": "Ankle pumps",
       "access": "pro",
       "bodyArea": "legs",
       "bodyAreas": [
@@ -1681,7 +1687,8 @@
       "movementType": "mobility",
       "phases": [
         "reset",
-        "mobilize"
+        "mobilize",
+        "move"
       ],
       "needs": [
         "energy",
@@ -1689,15 +1696,15 @@
       ],
       "setup": "either",
       "intensity": "gentle",
-      "cue": "Lift one foot slightly and circle the ankle slowly each direction. Switch feet.",
-      "feelIt": "your ankles freeing up",
-      "avoid": "Rushing the circles.",
-      "easier": "Make the circles smaller.",
+      "cue": "Point your toes up toward you, then down, with both feet at once. Slow and easy, about 15 times.",
+      "feelIt": "your calves and ankles working",
+      "avoid": "Rushing, or bouncing the heels.",
+      "easier": "One foot at a time.",
       "avoidIf": "You have an acute ankle sprain.",
-      "rationale": "Moves the ankles, which sit motionless under a desk for hours.",
+      "rationale": "Moves the ankles and calves, which sit still under a desk for hours.",
       "defaultDose": {
-        "type": "repsEachWayEachSide",
-        "reps": 8
+        "type": "reps",
+        "reps": 15
       },
       "skipIf": [
         "acute_ankle_sprain"
@@ -1727,9 +1734,9 @@
       ],
       "setup": "standing",
       "intensity": "gentle",
-      "cue": "Feel three points on the floor: big-toe base, little-toe base, and heel. Spread the toes wide, then keep a soft grip through the midfoot.",
+      "cue": "Stand with feet flat. Feel three points on the floor: big-toe base, little-toe base and heel. Spread your toes wide, then gently shorten the midfoot as if gripping the floor, toes soft, not clawed. Hold, then relax.",
       "feelIt": "your feet spreading into the floor",
-      "avoid": "Clawing toes hard or rolling to the outer edge only.",
+      "avoid": "Clawing the toes hard, holding the breath, or rolling to the outer edge.",
       "easier": "Do it seated.",
       "avoidIf": "Your foot cramps or you have a plantar flare.",
       "rationale": "Wakes up the feet, which spend the day passive inside shoes.",
@@ -1742,49 +1749,7 @@
         "foot_cramp",
         "plantar_flare"
       ],
-      "saferSwapId": "short-foot-grip",
-      "constraints": [
-        "leave_chair"
-      ],
-      "evidenceCategories": [
-        "strengthening"
-      ],
-      "evidenceLevel": "emerging",
-      "stretchView": "front"
-    },
-    {
-      "id": "short-foot-grip",
-      "name": "Short foot grip",
-      "access": "pro",
-      "bodyArea": "legs",
-      "bodyAreas": [
-        "legs"
-      ],
-      "movementType": "isometric",
-      "phases": [
-        "activate"
-      ],
-      "needs": [
-        "energy"
-      ],
-      "setup": "standing",
-      "intensity": "gentle",
-      "cue": "With feet on the floor, gently shorten the midfoot as if gripping the floor, keep the toes soft, not clawed.",
-      "feelIt": "the arch of your foot engaging",
-      "avoid": "Clawing hard with the toes or holding the breath.",
-      "easier": "Do it seated with less effort.",
-      "avoidIf": "Your foot cramps or you have a plantar flare.",
-      "rationale": "Light work for the small muscles of the foot.",
-      "defaultDose": {
-        "type": "repsHold",
-        "reps": 8,
-        "holdSec": 3
-      },
-      "skipIf": [
-        "foot_cramp",
-        "plantar_flare"
-      ],
-      "saferSwapId": "ankle-circles",
+      "saferSwapId": "stand-and-shift",
       "constraints": [
         "leave_chair"
       ],
@@ -1812,7 +1777,7 @@
       ],
       "setup": "standing",
       "intensity": "moderate",
-      "cue": "Hands on the desk, walk the feet back until the body is in a straight line from head to heels. Hold without sagging the hips or shrugging. Use forearms on the desk if wrists complain.",
+      "cue": "Only on a sturdy, fixed desk, not a sit-stand desk on casters or one that can slide. Hands on the desk, walk the feet back until your body is in a straight line from head to heels. Hold without sagging the hips or shrugging. Use forearms on the desk if wrists complain.",
       "feelIt": "your middle holding you steady",
       "avoid": "Sagging hips or shrugging shoulders.",
       "easier": "Lean less and hold for less time.",
@@ -1820,10 +1785,11 @@
       "rationale": "A little trunk and shoulder work using the desk. Standing up to do it is half the benefit.",
       "defaultDose": {
         "type": "holdSec",
-        "seconds": 30
+        "seconds": 20
       },
       "skipIf": [
-        "wrist_pain"
+        "wrist_pain",
+        "pregnancy"
       ],
       "saferSwapId": "standing-posture-reset",
       "constraints": [
@@ -1834,7 +1800,8 @@
         "strengthening"
       ],
       "evidenceLevel": "emerging",
-      "stretchView": "side"
+      "stretchView": "side",
+      "maxSec": 30
     },
     {
       "id": "long-exhale-reset",
@@ -1860,10 +1827,10 @@
       "avoid": "Breathing too fast (hyperventilating).",
       "easier": "Breathe normally and just notice one full exhale.",
       "avoidIf": "Breathing exercises make you feel more anxious.",
-      "rationale": "A long exhale slows things down. Slow breathing has reasonable evidence for reducing felt tension.",
+      "rationale": "A longer breath out is an easy way to slow things down.",
       "defaultDose": {
         "type": "breaths",
-        "breaths": 5
+        "breaths": 3
       },
       "skipIf": [],
       "saferSwapId": null,
@@ -1880,11 +1847,12 @@
         "standing": {
           "cue": "Stand with soft knees. Inhale through the nose, then sigh out through the mouth longer than the inhale. Soft shoulders."
         }
-      }
+      },
+      "minSec": 30
     },
     {
       "id": "box-breathing",
-      "name": "Box breathing",
+      "name": "Paced breathing",
       "access": "free",
       "bodyArea": "breathing",
       "bodyAreas": [
@@ -1899,15 +1867,15 @@
       ],
       "setup": "either",
       "intensity": "gentle",
-      "cue": "Breathe in for 4 counts, hold 4, out for 4, hold 4. Repeat for the cued rounds. Keep it easy, don’t strain.",
-      "feelIt": "your breathing settle into an even rhythm",
+      "cue": "Breathe in through your nose for a count of 4, then out slowly for a count of 6. No holding. Keep it easy.",
+      "feelIt": "your breathing settle into a slow, even rhythm",
       "avoid": "Straining or forcing the breath.",
-      "easier": "Shorten every side of the box to two seconds.",
-      "avoidIf": "Breath holds make you dizzy or anxious.",
-      "rationale": "A structured breath for the end of a reset, so you return to work calmer than you left it.",
+      "easier": "Breathe in for 3 and out for 4.",
+      "avoidIf": "Slow breathing makes you dizzy or more anxious.",
+      "rationale": "A slow, longer out-breath at the end of a reset, so you return to work calmer than you left it. No breath holds.",
       "defaultDose": {
-        "type": "rounds",
-        "rounds": 4
+        "type": "breaths",
+        "breaths": 3
       },
       "skipIf": [
         "breathing_increases_anxiety"
@@ -1918,7 +1886,8 @@
         "breathing"
       ],
       "evidenceLevel": "moderate",
-      "stretchView": "side"
+      "stretchView": "side",
+      "minSec": 30
     },
     {
       "id": "sit-bones-find",
@@ -1935,7 +1904,8 @@
         "return"
       ],
       "needs": [
-        "back_hips"
+        "back_hips",
+        "posture"
       ],
       "setup": "seated",
       "intensity": "gentle",
@@ -1947,18 +1917,19 @@
       "rationale": "A quick way to change how you are sitting. There is no perfect posture, but there is a different one.",
       "defaultDose": {
         "type": "holdSec",
-        "seconds": 25
+        "seconds": 20
       },
       "skipIf": [
         "acute_sit_bone_pain"
       ],
-      "saferSwapId": "standing-posture-reset",
+      "saferSwapId": "long-exhale-reset",
       "constraints": [],
       "evidenceCategories": [
         "posture_variability"
       ],
       "evidenceLevel": "general",
-      "stretchView": "side"
+      "stretchView": "side",
+      "maxSec": 20
     },
     {
       "id": "desk-wiggle-reset",
@@ -1975,7 +1946,8 @@
       ],
       "needs": [
         "energy",
-        "stress"
+        "stress",
+        "posture"
       ],
       "setup": "seated",
       "intensity": "gentle",
@@ -1998,7 +1970,8 @@
         "movement_breaks"
       ],
       "evidenceLevel": "general",
-      "stretchView": "front"
+      "stretchView": "front",
+      "maxSec": 30
     },
     {
       "id": "screen-distance-blink",
@@ -2020,7 +1993,7 @@
       ],
       "setup": "either",
       "intensity": "gentle",
-      "cue": "Sit or stand slightly farther from the screen. Soften your gaze to a far point (wall or window), take five slow blinks, then return to work.",
+      "cue": "Look at something about 20 feet (6 m) away, like a far wall or a window, for 20 seconds. Blink fully and slowly a few times, then return to work.",
       "tagline": "Far focus, then blink.",
       "feelIt": "your eyes stop straining forward",
       "avoid": "Staring hard or skipping the far-focus.",
@@ -2028,8 +2001,8 @@
       "avoidIf": "Nothing in particular.",
       "rationale": "Looking into the distance and blinking fully gives the eyes the break a screen never offers.",
       "defaultDose": {
-        "type": "reps",
-        "reps": 5
+        "type": "seconds",
+        "seconds": 20
       },
       "skipIf": [],
       "saferSwapId": "long-exhale-reset",
@@ -2061,20 +2034,19 @@
       ],
       "setup": "standing",
       "intensity": "moderate",
-      "cue": "Walk away from your desk. To the far end of the room, a window, or the kitchen and back.",
-      "tagline": "The best-evidenced desk break there is.",
+      "cue": "Walk away from your desk: to the far end of the room, a window, or the kitchen for some water, and back.",
+      "tagline": "Among the best-studied desk breaks.",
       "feelIt": "your legs and hips loosening as you go",
       "avoid": "Taking your phone and standing still with it.",
-      "easier": "Walk to the nearest door and back.",
+      "easier": "Walk to the nearest door and back, or march on the spot beside your desk.",
       "avoidIf": "You cannot walk safely without support.",
-      "rationale": "Walking is the best-evidenced way to break up sitting. Even a minute changes what your legs, hips and back are doing.",
+      "rationale": "Walking is among the best-studied ways to break up sitting. Even a minute changes what your legs, hips and back are doing.",
       "defaultDose": {
         "type": "holdSec",
         "seconds": 60
       },
       "skipIf": [
-        "severe_hip_or_knee_pain",
-        "balance_risk"
+        "severe_hip_or_knee_pain"
       ],
       "saferSwapId": "seated-march",
       "constraints": [
@@ -2084,7 +2056,8 @@
         "sitting_interruption",
         "movement_breaks"
       ],
-      "evidenceLevel": "strong"
+      "evidenceLevel": "strong",
+      "minSec": 45
     },
     {
       "id": "stand-and-shift",
@@ -2105,7 +2078,8 @@
       "needs": [
         "energy",
         "back_hips",
-        "general"
+        "general",
+        "posture"
       ],
       "setup": "standing",
       "intensity": "gentle",
@@ -2131,7 +2105,8 @@
         "sitting_interruption",
         "posture_variability"
       ],
-      "evidenceLevel": "moderate"
+      "evidenceLevel": "moderate",
+      "maxSec": 40
     }
   ]
 }

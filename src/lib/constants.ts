@@ -6,6 +6,7 @@ import type {
   PrimaryNeed,
   SetupId,
 } from "./types";
+import { TARGETED_NEEDS } from "./types";
 
 export const FREE_RESET_PROGRAM_ID = "desk-reset-3min";
 export const FREE_STANDING_RESET_PROGRAM_ID = "desk-reset-3min-standing";
@@ -29,6 +30,25 @@ export const MOVEMENT_DISCLAIMER =
 export const SAFETY_LINE =
   "Stop this movement if it causes sharp or worsening pain, numbness, weakness or dizziness.";
 
+/** The one-line stop rule for the workout screen, under the dose. */
+export const STOP_RULE =
+  "Mild stretch is fine. Stop if it's sharp, spreads down an arm or leg, tingles, or makes you dizzy.";
+
+/** Shown once, before the first workout, with STOP_RULE. */
+export const FIRST_RUN_SAFETY_NOTE =
+  "Not medical care. See a clinician for pain lasting more than 2 weeks, pain after a fall or injury, or pain with fever, weight loss, night pain, or new weakness.";
+
+/** What "Doesn't feel right" -> "Painful" says. The engine leaves that area alone for 7 days. */
+export const PAINFUL_RESPONSE =
+  "Let's leave that area alone today. If this pain is new, sharp, or lasts more than a couple of weeks, check with a physical therapist or doctor.";
+
+/** After "Worse": the follow-up question. The answer feeds recordWorseAreas(). */
+export const WORSE_AREA_PROMPT = "What felt worse?";
+
+/** Shown when the same area has been rated worse twice or more in 7 days. */
+export const WORSE_REPEAT_CLINICIAN_LINE =
+  "That area has felt worse more than once this week, so we're leaving it out for now. If it keeps bothering you, check with a physical therapist or doctor.";
+
 export const SUPPORT_EMAIL = "hello@deskbreak.co";
 
 export type NeedOption = {
@@ -44,8 +64,9 @@ export const NEED_OPTIONS: NeedOption[] = [
   { id: "neck_shoulders", label: "Neck + shoulders", chip: "Neck", blurb: "Undo the laptop lean." },
   { id: "back_hips", label: "Back + hips", chip: "Back", blurb: "Loosen up after sitting." },
   { id: "wrists_hands", label: "Wrists + hands", chip: "Wrists", blurb: "Give keyboard hands a break." },
-  { id: "energy", label: "Energy", chip: "Energy", blurb: "Wake yourself up without another coffee." },
+  { id: "energy", label: "Energy", chip: "Energy", blurb: "Move a little and wake yourself up." },
   { id: "stress", label: "Stress reset", chip: "Stress", blurb: "Slow things down for a few minutes." },
+  { id: "posture", label: "Posture reset", chip: "Posture", blurb: "Change position and open up your upper back." },
   { id: "general", label: "Full body", chip: "Full body", blurb: "A balanced reset for a desk day." },
 ];
 
@@ -54,9 +75,9 @@ export const NEED_BY_ID: Record<PrimaryNeed, NeedOption> = NEED_OPTIONS.reduce(
   {} as Record<PrimaryNeed, NeedOption>,
 );
 
-/** The four "Need something specific?" buttons. */
+/** The "Need something specific?" buttons, in TARGETED_NEEDS order. */
 export const TARGETED_OPTIONS: NeedOption[] = NEED_OPTIONS.filter((option) =>
-  ["neck_shoulders", "back_hips", "wrists_hands", "energy"].includes(option.id),
+  TARGETED_NEEDS.includes(option.id),
 );
 
 /** The landing page says "Low energy" where the app says "Energy". */
@@ -66,6 +87,7 @@ export const LANDING_TARGETED_LABELS: Record<PrimaryNeed, string> = {
   wrists_hands: "Wrists + hands",
   energy: "Low energy",
   stress: "Stress",
+  posture: "Posture reset",
   general: "Full body",
 };
 
@@ -87,15 +109,23 @@ export const SETUP_COPY: Record<SetupId | "either", { label: string; hint: strin
   standing: { label: "Standing only", hint: "We'll use the space beside your desk." },
 };
 
+/**
+ * "Movements to avoid". Floor work is not listed: it is off by default and
+ * switched on with the "Include floor exercises" preference instead.
+ */
 export const CONSTRAINT_OPTIONS: { id: FunctionalConstraint; label: string }[] = [
   { id: "overhead", label: "Overhead movements" },
   { id: "weight_through_wrists", label: "Weight through wrists" },
   { id: "deep_knee_bend", label: "Deep knee bends" },
   { id: "balance", label: "Balance-heavy movements" },
-  { id: "floor", label: "Floor exercises" },
   { id: "neck_rotation", label: "Neck rotation" },
   { id: "leave_chair", label: "Getting out of my chair" },
 ];
+
+export const FLOOR_WORK_OPTION = {
+  label: "Include floor exercises",
+  hint: "Off by default. Only turn this on if you have space and can get down to the floor and up again easily.",
+};
 
 export const DISCOMFORT_REASONS: { id: DiscomfortReason; label: string }[] = [
   { id: "uncomfortable", label: "Uncomfortable" },
@@ -114,7 +144,7 @@ export const FEEDBACK_OPTIONS: { id: PerceivedEffect; label: string }[] = [
 export const FEEDBACK_RESPONSES: Record<PerceivedEffect, string> = {
   better: "We'll use that to make your next reset better.",
   same: "Got it. We'll adjust what comes next.",
-  worse: "Sorry about that. We'll steer away from what was in this one.",
+  worse: "Sorry about that. Tell us what felt worse and we'll leave it alone for a while.",
 };
 
 /** Headline on the paywall, chosen by what the user said was bothering them. */
@@ -124,6 +154,7 @@ export const PAYWALL_HEADLINES: Record<PrimaryNeed, string> = {
   wrists_hands: "Make feeling better automatic.",
   energy: "Make the 3 PM reset automatic.",
   stress: "Make feeling better automatic.",
+  posture: "Make changing position automatic.",
   general: "Make feeling better automatic.",
 };
 
