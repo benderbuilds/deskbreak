@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import { CharacterArt } from "@/components/CharacterArt";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker, StartResetButton } from "@/components/marketing/LandingCta";
+import { PainNote, RichText } from "@/components/marketing/RichText";
 import { getExercise } from "@/lib/content";
-import { LANDING_PAGES, findLandingPage } from "@/lib/seo-content";
+import { LANDING_PAGES, findLandingPage, startMinutes, startRoutineName } from "@/lib/seo-content";
 
 const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co").replace(/\/$/, "");
 
@@ -40,6 +41,12 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
   if (!page) notFound();
 
   const moves = page.moves.map((id) => getExercise(id)).filter((exercise) => exercise !== undefined);
+  // The CTA names exactly what it starts. A longer article starts the free
+  // 3-minute version and says so.
+  const minutes = startMinutes(page.durationMinutes);
+  const routine = startRoutineName(page.need, minutes, page.setup);
+  const ctaLabel = `Start the ${routine}`;
+  const shorterThanArticle = minutes < page.durationMinutes;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -72,24 +79,28 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
         <h1 className="max-w-[40rem] font-display text-[2.2rem] font-semibold leading-tight tracking-tight text-ink sm:text-[2.6rem]">
           {page.title}
         </h1>
-        <p className="mt-4 max-w-[42rem] text-lg leading-relaxed text-ink/70">{page.answer}</p>
+        <p className="mt-4 max-w-[42rem] text-lg leading-relaxed text-ink/70">
+          <RichText text={page.answer} />
+        </p>
 
         <div className="surface-elevated mt-8 max-w-[34rem] px-5 py-6 sm:px-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-coral">{page.ctaTitle}</p>
-          <p className="mt-1 font-display text-xl font-semibold text-ink">
-            {page.durationMinutes}-Minute {page.need === "general" ? "Desk Reset" : "Reset"}
+          <p className="mt-1 font-display text-xl font-semibold text-ink">{routine}</p>
+          <p className="mt-1 text-sm text-ink/60">
+            {shorterThanArticle
+              ? `Start with the free ${minutes}-minute version. The full ${page.durationMinutes}-minute workout is in Pro.`
+              : "No equipment. No signup. Timed, cued and illustrated."}
           </p>
-          <p className="mt-1 text-sm text-ink/60">No equipment. No signup. Timed, cued and illustrated.</p>
           <div className="mt-4">
-            <StartResetButton need={page.need} minutes={page.durationMinutes <= 3 ? page.durationMinutes : 3} source={`seo_${page.slug}`} seo>
-              {page.ctaLabel}
+            <StartResetButton need={page.need} minutes={minutes} setup={page.setup} source={`seo_${page.slug}`} seo>
+              {ctaLabel}
             </StartResetButton>
           </div>
         </div>
 
-        <h2 className="mt-12 font-display text-[1.6rem] font-semibold tracking-tight text-ink">
-          Best {page.need === "wrists_hands" ? "wrist" : page.need === "neck_shoulders" ? "neck and shoulder" : page.need === "back_hips" ? "back and hip" : "desk"} exercises
-        </h2>
+        {page.painNote ? <PainNote className="mt-6" /> : null}
+
+        <h2 className="mt-12 font-display text-[1.6rem] font-semibold tracking-tight text-ink">{page.movesHeading}</h2>
         <ol className="mt-5 grid gap-4">
           {moves.map((exercise, index) => (
             <li key={exercise.id} className="surface flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center">
@@ -121,17 +132,23 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
           {page.sections.map((section) => (
             <section key={section.heading}>
               <h2 className="font-display text-xl font-semibold text-ink">{section.heading}</h2>
-              <p className="mt-2 leading-relaxed text-ink/70">{section.body}</p>
+              <p className="mt-2 leading-relaxed text-ink/70">
+                <RichText text={section.body} />
+              </p>
             </section>
           ))}
         </div>
 
         <div className="surface-elevated mt-10 max-w-[34rem] px-5 py-6 sm:px-7">
-          <p className="font-display text-lg font-semibold text-ink">{page.ctaTitle}</p>
-          <p className="mt-1 text-sm text-ink/60">Start DeskBreak. No equipment, no signup.</p>
+          <p className="font-display text-lg font-semibold text-ink">{routine}</p>
+          <p className="mt-1 text-sm text-ink/60">
+            {shorterThanArticle
+              ? `Free, ${minutes} minutes. The full ${page.durationMinutes}-minute workout is in Pro.`
+              : "No equipment, no signup."}
+          </p>
           <div className="mt-4">
-            <StartResetButton need={page.need} minutes={page.durationMinutes <= 3 ? page.durationMinutes : 3} source={`seo_${page.slug}_footer`} seo>
-              {page.ctaLabel}
+            <StartResetButton need={page.need} minutes={minutes} setup={page.setup} source={`seo_${page.slug}_footer`} seo>
+              {ctaLabel}
             </StartResetButton>
           </div>
         </div>

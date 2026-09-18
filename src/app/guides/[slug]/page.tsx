@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker, StartResetButton } from "@/components/marketing/LandingCta";
-import { GUIDE_PAGES, findGuidePage } from "@/lib/seo-content";
+import { RichText } from "@/components/marketing/RichText";
+import { GUIDE_PAGES, findGuidePage, startRoutineName } from "@/lib/seo-content";
 
 export const dynamicParams = false;
 
@@ -26,6 +27,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   const { slug } = await params;
   const page = findGuidePage(slug);
   if (!page) notFound();
+  const routine = startRoutineName(page.need, page.minutes);
 
   return (
     <MarketingShell>
@@ -38,17 +40,19 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           {page.sections.map((section) => (
             <section key={section.heading}>
               <h2 className="font-display text-xl font-semibold text-ink">{section.heading}</h2>
-              <p className="mt-2 leading-relaxed text-ink/70">{section.body}</p>
+              <p className="mt-2 leading-relaxed text-ink/70">
+                <RichText text={section.body} />
+              </p>
             </section>
           ))}
         </div>
 
         <div className="surface-elevated mt-10 max-w-[34rem] px-5 py-6 sm:px-7">
-          <p className="font-display text-lg font-semibold text-ink">{page.ctaLabel}</p>
+          <p className="font-display text-lg font-semibold text-ink">Try the guided {routine}</p>
           <p className="mt-1 text-sm text-ink/60">Timed, cued and illustrated. No account, no equipment.</p>
           <div className="mt-4">
-            <StartResetButton need={page.need} minutes={page.slug === "2-minute-desk-workout" ? 2 : 3} source={`guide_${page.slug}`} seo>
-              Start the guided reset
+            <StartResetButton need={page.need} minutes={page.minutes} source={`guide_${page.slug}`} seo>
+              {`Start the ${routine}`}
             </StartResetButton>
           </div>
         </div>

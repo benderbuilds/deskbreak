@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker, StartResetButton } from "@/components/marketing/LandingCta";
-import { getEvidence } from "@/lib/content";
+import { RichText } from "@/components/marketing/RichText";
 import { ALGORITHM_VERSION } from "@/lib/recommendation";
+import { allSources } from "@/lib/seo-content";
 
 export const metadata: Metadata = {
   title: "The science behind DeskBreak",
@@ -16,28 +17,28 @@ const SECTIONS = [
   {
     heading: "Why interrupt sitting?",
     body: [
-      "Long, uninterrupted sitting is associated with worse outcomes than the same amount of sitting broken into shorter blocks. Experimental work has found that brief, regular activity breaks during prolonged sitting change how the body handles a meal, and large population studies suggest that regular activity substantially weakens the link between sitting time and poor health.",
+      "In observational studies, long, uninterrupted sitting is associated with worse health markers than the same amount of sitting broken into shorter blocks {cite:healy-2008}. Experimental work has found that brief, regular activity breaks during prolonged sitting change how the body handles a meal {cite:dunstan-2012,loh-2020}. Large population studies suggest that high levels of daily activity, around an hour a day of moderate activity, can offset the link between long sitting time and early death {cite:ekelund-2016}. Desk breaks are one small piece of that, not a replacement for regular exercise {cite:who-2020}.",
       "DeskBreak's job is to make those interruptions happen. It does not claim to know you have been sitting; it makes the break easy enough that you take it anyway.",
     ],
   },
   {
     heading: "Why short movement breaks?",
     body: [
-      "Reviews of workplace break interventions find that active breaks are associated with less discomfort in office workers without costing productivity. Frequency matters more than length: several two- or three-minute breaks across a day do more than one long session that rarely happens.",
+      "Reviews of workplace break interventions find moderate-quality evidence that active breaks with a change of posture are associated with less discomfort in office workers, without costing productivity {cite:waongenngarm-2018}. Studies of desk workers have found benefits from short breaks taken often, for example every 20 to 30 minutes {cite:mclean-2001,shrestha-2018}, and short breaks you actually take add up. They're easier to fit into a real workday, and easier to repeat, than a long session.",
       "Three minutes is DeskBreak's default because it is long enough to reach the neck, shoulders, wrists, back, hips and legs, and short enough to repeat.",
     ],
   },
   {
     heading: "Why DeskBreak includes more than stretching",
     body: [
-      "Stretching is pleasant and improves how far joints move, but it is not the only lever. Randomised trials in office workers have found that small daily amounts of resistance exercise are associated with less frequent neck and shoulder pain, and reviews of workplace programmes find combined mobility and strengthening more useful than stretching alone.",
-      "So a Desk Reset mixes mobility, light activation (a shoulder-blade squeeze, a glute squeeze, a sit-to-stand), a change of position, and where possible a short walk. Move more. Change positions. Build capacity.",
+      "Stretching is pleasant, and trials in office workers have found it can reduce discomfort {cite:shariat-2018}, but it is not the only lever. A randomised trial found that just 2 minutes a day of resistance exercise with light elastic bands reduced neck and shoulder pain intensity in working adults with frequent symptoms {cite:andersen-2011}, and a review of office-worker trials found strengthening exercise helped neck pain {cite:louw-2017}. Reviews of workplace programmes find the strongest evidence for strengthening exercise, with more modest evidence for stretching {cite:van-eerd-2016}, so DeskBreak includes both.",
+      "So a Desk Reset mixes mobility, light activation (a shoulder-blade squeeze, a glute squeeze, a sit-to-stand), a change of position, and where possible a short walk. DeskBreak's no-equipment moves are a lighter version of the band exercises those trials used. Move more. Change positions. Build capacity.",
     ],
   },
   {
     heading: "Why there isn't one perfect posture",
     body: [
-      "The evidence does not support a single correct sitting posture that prevents pain. What it does support is variability: changing position regularly and moving. DeskBreak therefore never tells you to sit up straight. It tells you to sit differently, and to get up.",
+      "There is little evidence that one 'correct' sitting posture prevents pain {cite:slater-2019}. Trials in office workers suggest that regularly changing position and taking active breaks helps {cite:waongenngarm-2018,waongenngarm-2021}. DeskBreak therefore never tells you to sit up straight. It tells you to sit differently, and to get up.",
     ],
   },
   {
@@ -45,7 +46,7 @@ const SECTIONS = [
     body: [
       "Every movement in the library is tagged with the areas it addresses, the kind of movement it is (mobility, strength, activation, aerobic, breathing, position change or an eye break), where it can sit in a routine, functional constraints it conflicts with, and the evidence category it draws on.",
       "A routine is assembled from a template with phases: reset, mobilize, activate, move, return. Each slot is filled by scoring candidates on relevance to what you asked for, how often it has helped you before, structural fit, your preferences and restrictions, recent repetition, time of day and variety. Anything you have said you would rather avoid is excluded before scoring, whatever its score.",
-      `Every generated routine is validated for length, position changes, balance, repetition and safety before you see it. If it fails, a hand-authored routine is used instead. Each recommendation is versioned (currently ${ALGORITHM_VERSION}) and stored with its inputs, so what you report afterwards can be attributed to what was recommended.`,
+      `Every generated routine is checked for length, position changes, balance and repetition before you see it. If it fails, a hand-authored routine is used instead. Each recommendation is versioned (currently ${ALGORITHM_VERSION}) and stored with its inputs, so what you report afterwards can be attributed to what was recommended.`,
     ],
   },
   {
@@ -57,7 +58,7 @@ const SECTIONS = [
 ];
 
 export default function SciencePage() {
-  const references = getEvidence();
+  const references = allSources();
 
   return (
     <MarketingShell>
@@ -77,7 +78,7 @@ export default function SciencePage() {
               <h2 className="font-display text-xl font-semibold text-ink">{section.heading}</h2>
               {section.body.map((paragraph) => (
                 <p key={paragraph.slice(0, 40)} className="mt-3 leading-relaxed text-ink/70">
-                  {paragraph}
+                  <RichText text={paragraph} />
                 </p>
               ))}
             </section>
@@ -91,17 +92,42 @@ export default function SciencePage() {
           <p className="mt-2 text-sm text-ink/55">
             A curated list, not an exhaustive one. Summaries describe what each study looked at, not what DeskBreak does to you.
           </p>
-          <ol className="mt-4 grid gap-4">
+          <ol className="mt-4 grid gap-5">
             {references.map((reference, index) => (
-              <li key={reference.id} className="text-sm leading-relaxed text-ink/70">
-                <span className="mr-2 font-semibold text-ink/40">{index + 1}.</span>
-                <a href={reference.url} target="_blank" rel="noreferrer" className="font-semibold text-coral">
-                  {reference.title}
-                </a>
-                . {reference.source}, {reference.year}. <span className="text-ink/55">{reference.summary}</span>
+              <li key={reference.id} id={reference.id} className="scroll-mt-6 text-sm leading-relaxed text-ink/70">
+                <p>
+                  <span className="mr-2 font-semibold text-ink/40">{index + 1}.</span>
+                  {reference.citation ? (
+                    reference.citation.replace(reference.url, "").trim()
+                  ) : (
+                    <>
+                      {reference.title}. <em>{reference.source}</em>, {reference.year}.
+                    </>
+                  )}{" "}
+                  <a href={reference.url} target="_blank" rel="noreferrer" className="break-all font-semibold text-coral">
+                    doi:{reference.doi}
+                  </a>
+                </p>
+                <p className="mt-1 text-ink/55">{reference.summary}</p>
               </li>
             ))}
           </ol>
+        </section>
+
+        <section id="how-we-use-sources" className="mt-12 max-w-[42rem] scroll-mt-6" aria-labelledby="sources-heading">
+          <h2 id="sources-heading" className="font-display text-xl font-semibold text-ink">
+            Sources and how we use them
+          </h2>
+          <p className="mt-3 leading-relaxed text-ink/70">
+            Every study cited on DeskBreak, including the blog, is on this list, checked against its PubMed record and
+            DOI. We link the DOI, keep the limits a study states (&ldquo;in a lab trial&rdquo;, &ldquo;small&rdquo;,
+            &ldquo;in one trial&rdquo;), and only quote words that appear in the published abstract. A finding about
+            walking breaks or resistance bands is not a finding about DeskBreak, and we say so where it matters.
+          </p>
+          <p className="mt-3 leading-relaxed text-ink/70">
+            Move pages don&apos;t carry evidence grades. A move cites a study only when that move, or a close analogue,
+            was what the study tested.
+          </p>
         </section>
 
         <div className="surface-elevated mt-12 max-w-[34rem] px-5 py-6 sm:px-7">
@@ -115,7 +141,7 @@ export default function SciencePage() {
         </div>
 
         <p className="mt-8 text-xs text-ink/45">
-          Every movement page lists the evidence it draws on. Browse them from{" "}
+          Every movement page explains why it&apos;s in a reset. Browse them from{" "}
           <Link href="/desk-exercises" className="font-semibold text-coral">
             desk exercises
           </Link>
