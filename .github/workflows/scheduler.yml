@@ -1,22 +1,22 @@
 name: Scheduler
 
-# The one and only scheduler for DeskBreak's background jobs.
+# Manual fallback for DeskBreak's background jobs. Not the scheduler.
 #
-# Every 15 minutes it calls the push scheduler and the reminder mailer. Both
-# endpoints are idempotent: each decides what is due in every profile's own
-# time zone and records every send in `notification_deliveries`, so calling
-# them early, late, twice, or after a missed run never produces a duplicate.
-# Nothing here depends on the runner's clock.
+# The clock lives in an external cron service (cron-job.org) that POSTs
+# /api/push/send every 5 minutes and /api/reminders/send every 15 minutes with
+# `Authorization: Bearer $CRON_SECRET`. GitHub's `schedule` trigger was tried
+# first and fired hours late on this repository, which is why it is gone.
+#
+# Both endpoints are idempotent: each decides what is due in every profile's
+# own time zone and records every send in `notification_deliveries`, so
+# running this by hand on top of the cron service never double-sends.
 #
 # Vercel Cron is deliberately not configured (there is no vercel.json crons
-# entry): the Hobby plan only allows daily jobs, and two schedulers for the
-# same endpoints would be one too many. Do not enable both.
+# entry): the Hobby plan only allows daily jobs. Keep exactly one driver.
 #
-# Set two repository secrets: APP_URL (e.g. https://deskbreak.co) and
-# CRON_SECRET (the same value the deployment has). Without them the runs skip.
+# Needs two repository secrets: APP_URL (https://deskbreak.co) and
+# CRON_SECRET (the same value the deployment has). Without them the run skips.
 on:
-  schedule:
-    - cron: "*/15 * * * *"
   workflow_dispatch:
 
 concurrency:
