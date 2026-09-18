@@ -6,7 +6,7 @@ import {
   signalsFromHistory,
   type PersonalizationSignals,
 } from "./personalization";
-import { satisfyBreak } from "./workday";
+import { satisfyBreak, satisfyMicroBreak } from "./workday";
 import { defaultStandNudge } from "./reminders";
 import { canonicalExerciseId } from "./exercise-aliases";
 import { normalizeSafetyFlags } from "./safety";
@@ -802,15 +802,16 @@ export function recordWorseAreas(sessionId: string, areas: BodyArea[]): void {
 export function recordMicroBreak(options: { at?: Date; plannedBreakId?: string | null } = {}): void {
   const at = (options.at ?? new Date()).toISOString();
   patchAppState((state) => {
-    const plan =
-      state.plan && options.plannedBreakId
+    const plan = !state.plan
+      ? null
+      : options.plannedBreakId
         ? {
             ...state.plan,
             breaks: state.plan.breaks.map((entry) =>
               entry.id === options.plannedBreakId ? { ...entry, status: "completed" as const } : entry,
             ),
           }
-        : state.plan;
+        : satisfyMicroBreak(state.plan, new Date(at));
     return {
       ...state,
       plan,
