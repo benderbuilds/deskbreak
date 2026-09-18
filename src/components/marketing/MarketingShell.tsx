@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LogoMark } from "@/components/LogoMark";
+import { HeaderStartLink } from "@/components/marketing/HeaderStartLink";
 import { MOVEMENT_DISCLAIMER } from "@/lib/constants";
 
 /**
@@ -27,12 +28,7 @@ export function MarketingShell({ children }: { children: ReactNode }) {
           <Link href="/app" className="hidden hover:text-ink sm:inline">
             Open DeskBreak
           </Link>
-          <Link
-            href="/app/start?source=landing"
-            className="rounded-[12px] bg-ink px-4 py-2 text-sm font-semibold text-paper transition-colors hover:bg-ink/90"
-          >
-            Start my reset
-          </Link>
+          <HeaderStartLink />
         </nav>
       </header>
 
