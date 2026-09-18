@@ -34,9 +34,8 @@ yarn-error.log*
 .env*
 !.env.example
 
-# generated agent stubs
+# generated agent stubs (CLAUDE.md is hand-written and tracked)
 AGENTS.md
-CLAUDE.md
 
 # vercel
 .vercel
