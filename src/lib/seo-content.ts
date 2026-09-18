@@ -409,7 +409,7 @@ export const LANDING_PAGES: LandingPage[] = [
     metaDescription:
       "There is no single correct way to sit. A guided 3-minute posture reset that gets you out of the position you've been in, and into a few different ones.",
     answer:
-      "The best posture is the next one. There is little evidence that one 'correct' sitting posture prevents pain; trials in office workers suggest that regularly changing position and taking active breaks helps {cite:waongenngarm-2018,waongenngarm-2021}. A posture reset is three minutes of doing exactly that.",
+      "The best posture is the next one. There is little evidence that one 'correct' sitting posture prevents pain; in trials with office workers, active breaks that involved changing position were linked to less reported discomfort {cite:waongenngarm-2018,waongenngarm-2021}. A posture reset is three minutes of doing exactly that.",
     movesHeading: "Posture reset moves",
     moves: ["sit-bones-find", "chin-tuck", "seated-cat-cow", "seated-thoracic-rotation", "stand-and-shift", "standing-posture-reset"],
     sections: [
