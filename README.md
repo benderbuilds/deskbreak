@@ -166,12 +166,15 @@ under You, for signed-in users) and goes out once per local day in the
 
 ### One scheduler
 
-`.github/workflows/scheduler.yml` is the only scheduler. It calls both
-endpoints every 15 minutes from GitHub Actions; set the `APP_URL` and
-`CRON_SECRET` repository secrets to turn it on. Vercel Cron is not configured
-(there is no `vercel.json` crons entry) and must not be added alongside it:
-the Hobby plan only allows daily jobs, and two drivers for the same endpoints
-is one too many.
+An external cron service is the only scheduler. cron-job.org POSTs
+`/api/push/send` every 5 minutes and `/api/reminders/send` every 15 minutes
+with `Authorization: Bearer $CRON_SECRET`. GitHub's `schedule` trigger was
+the first driver and fired hours late on this repository, so
+`.github/workflows/scheduler.yml` now has only `workflow_dispatch`: a manual
+button for emergencies, not a clock. Vercel Cron is not configured (there is
+no `vercel.json` crons entry) and must not be added alongside the cron
+service: the Hobby plan only allows daily jobs, and two drivers for the same
+endpoints is one too many.
 
 The endpoints do not care when or how often they are called. Every send is
 first claimed as a row in `notification_deliveries` with a unique dedupe key

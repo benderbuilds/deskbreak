@@ -17,8 +17,8 @@ export async function GET() {
       ok: report.ready,
       ...report,
       scheduler: {
-        driver: "github-actions",
-        workflow: ".github/workflows/scheduler.yml",
+        driver: "external-cron",
+        manualFallback: ".github/workflows/scheduler.yml",
         endpoints: ["/api/push/send", "/api/reminders/send"],
         vercelCron: false,
       },
