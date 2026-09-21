@@ -106,7 +106,7 @@ export function SwapSheet({
               ))}
             </div>
             {reason === "painful" ? (
-              <p className="mt-4 rounded-[12px] bg-ink/5 px-3 py-3 text-sm leading-relaxed text-ink" role="status">
+              <p className="mt-4 rounded-[12px] border-l-4 border-signal bg-ink/5 px-3 py-3 text-sm leading-relaxed text-ink" role="status">
                 {PAINFUL_RESPONSE}
               </p>
             ) : (

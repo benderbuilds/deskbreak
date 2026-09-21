@@ -42,7 +42,7 @@ export function ErrorState({
 }) {
   return (
     <div
-      className="rounded-[24px] border-2 border-pen bg-white px-5 py-8 text-center"
+      className="rounded-[24px] border-2 border-signal bg-white px-5 py-8 text-center"
       role="alert"
     >
       <p className="font-display font-extrabold text-xl text-ink">{title}</p>
