@@ -2,7 +2,9 @@
 """Crop Jesse’s locked mark PNG and write favicon / PWA / LogoMark rasters.
 
 Does not redraw the silhouette. Source: scripts/locked-mark-source.png
-(the attached lock image).
+(the attached lock image). The source square is coral; the mark ships in
+slate, so the square is recoloured pixel by pixel along the coral-to-white
+axis. Geometry is untouched — only the hue of the ground moves.
 """
 from __future__ import annotations
 
@@ -12,6 +14,9 @@ from io import BytesIO
 from pathlib import Path
 
 from PIL import Image
+
+# The mark's square. Matches --pen in globals.css and the manifest theme colour.
+MARK = (0x30, 0x52, 0x5C)
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = Path(__file__).resolve().parent / "locked-mark-source.png"
@@ -90,13 +95,41 @@ def crop_lock(im: Image.Image) -> tuple[Image.Image, tuple[int, int, int]]:
     return canvas, coral
 
 
+def recolour(img: Image.Image, coral: tuple[int, int, int]) -> Image.Image:
+    """Swap the coral ground for slate, keeping every antialiased edge.
+
+    Each pixel in the source is a blend of the coral ground and the white
+    figure. Projecting it back onto that axis recovers how white it is, and
+    re-blending slate to white by the same amount preserves the soft edges
+    exactly where they were.
+    """
+    axis = tuple(255 - c for c in coral)
+    denom = sum(v * v for v in axis)
+    px = img.load()
+    w, h = img.size
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = px[x, y]
+            if a == 0:
+                continue
+            dot = (r - coral[0]) * axis[0] + (g - coral[1]) * axis[1] + (b - coral[2]) * axis[2]
+            t = min(max(dot / denom, 0.0), 1.0)
+            px[x, y] = (
+                round(MARK[0] + (255 - MARK[0]) * t),
+                round(MARK[1] + (255 - MARK[1]) * t),
+                round(MARK[2] + (255 - MARK[2]) * t),
+                a,
+            )
+    return img
+
+
 def resize(img: Image.Image, size: int) -> Image.Image:
     return img.resize((size, size), Image.Resampling.LANCZOS)
 
 
-def fullbleed(img: Image.Image, size: int, coral: tuple[int, int, int]) -> Image.Image:
+def fullbleed(img: Image.Image, size: int) -> Image.Image:
     src = resize(img, size)
-    out = Image.new("RGB", (size, size), coral)
+    out = Image.new("RGB", (size, size), MARK)
     sp = src.load()
     op = out.load()
     for y in range(size):
@@ -113,7 +146,7 @@ def main() -> None:
 
     im = Image.open(SRC).convert("RGBA")
     cropped, coral = crop_lock(im)
-    master = resize(cropped, 1024)
+    master = recolour(resize(cropped, 1024), coral)
 
     ICONS.mkdir(parents=True, exist_ok=True)
     PUBLIC.mkdir(parents=True, exist_ok=True)
@@ -122,10 +155,10 @@ def main() -> None:
     resize(master, 192).save(ICONS / "icon-192.png", optimize=True)
     resize(master, 128).save(ICONS / "logo-mark.png", optimize=True)
 
-    fullbleed(master, 180, coral).save(PUBLIC / "apple-touch-icon.png", optimize=True)
+    fullbleed(master, 180).save(PUBLIC / "apple-touch-icon.png", optimize=True)
 
-    fb512 = fullbleed(master, 512, coral)
-    mask = Image.new("RGB", (512, 512), coral)
+    fb512 = fullbleed(master, 512)
+    mask = Image.new("RGB", (512, 512), MARK)
     inset = fb512.resize((410, 410), Image.Resampling.LANCZOS)
     pad = (512 - 410) // 2
     mask.paste(inset, (pad, pad))
@@ -157,7 +190,7 @@ def main() -> None:
     if stale.exists():
         stale.unlink()
 
-    print("wrote icons from locked PNG", SRC.name, "coral", coral)
+    print("wrote icons from locked PNG", SRC.name, "ground", MARK)
 
 
 if __name__ == "__main__":
