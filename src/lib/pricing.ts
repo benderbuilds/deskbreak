@@ -23,7 +23,11 @@ export const ANNUAL_PRICE_USD = money(
   39,
 );
 
-/** Shown struck through next to the founding price. Optional. */
+/**
+ * What Pro costs once the founding offer ends. Shown as the price ahead, never
+ * struck through: nobody has paid it yet, so it is a promise about our own
+ * pricing rather than a discount off a price that was never charged.
+ */
 export const ANNUAL_LIST_PRICE_USD = money(
   process.env.NEXT_PUBLIC_PRO_ANNUAL_LIST_PRICE,
   59,
@@ -75,16 +79,27 @@ export const CHECKOUT_UNAVAILABLE = {
 };
 
 /**
- * The founding offer: the annual price shown against a higher list price.
- * Only on when the list price is above the annual price.
+ * The founding offer: a lower annual price for the first members, with the
+ * later price stated. Only on when the later price is above today's.
  */
 export const FOUNDING_OFFER = ANNUAL_LIST_PRICE_USD > ANNUAL_PRICE_USD;
 
-/** Optional cap on founding members, shown as "First 100 members". Unset hides the line. */
+/**
+ * How many founding members the offer is good for. The count is what makes the
+ * later price a real commitment, so it has a default; set the env var to 0 to
+ * say "the first members" instead.
+ */
 export const FOUNDING_SPOTS = (() => {
-  const parsed = Number(process.env.NEXT_PUBLIC_PRO_FOUNDING_SPOTS);
+  const raw = process.env.NEXT_PUBLIC_PRO_FOUNDING_SPOTS;
+  if (raw === undefined || raw === "") return 100;
+  const parsed = Number(raw);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 })();
+
+/** One line stating the offer and the price that follows it. */
+export const FOUNDING_TERMS = FOUNDING_SPOTS
+  ? `${formatUsd(ANNUAL_LIST_PRICE_USD)}/year after the first ${FOUNDING_SPOTS} members.`
+  : `${formatUsd(ANNUAL_LIST_PRICE_USD)}/year once the founding offer ends.`;
 
 /** The paywall button says what it charges. */
 export function checkoutCta(period: BillingPeriod): string {

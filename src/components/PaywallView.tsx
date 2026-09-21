@@ -11,13 +11,12 @@ import { todayKey } from "@/lib/dates";
 import { isProEntitlement } from "@/lib/entitlements";
 import { PAYWALL_NEED_HEADLINES, paywallOutcomeLine } from "@/lib/paywall-copy";
 import {
-  ANNUAL_LIST_PRICE_USD,
   ANNUAL_PER_MONTH_LABEL,
   ANNUAL_PRICE_USD,
   CHECKOUT_TRUST_LINE,
   CHECKOUT_UNAVAILABLE,
   FOUNDING_OFFER,
-  FOUNDING_SPOTS,
+  FOUNDING_TERMS,
   PRICE_OPTIONS,
   checkoutCta,
   formatUsd,
@@ -210,8 +209,7 @@ function Paywall() {
         <div className="sticky-note mt-5 px-4 py-3.5">
           <p className="font-display text-lg font-extrabold text-ink">Founding member</p>
           <p className="mt-0.5 text-sm leading-relaxed text-ink/80">
-            {formatUsd(ANNUAL_PRICE_USD)}/year instead of {formatUsd(ANNUAL_LIST_PRICE_USD)}, for DeskBreak&apos;s
-            {FOUNDING_SPOTS ? ` first ${FOUNDING_SPOTS} members.` : " first members."}
+            {formatUsd(ANNUAL_PRICE_USD)}/year, kept for as long as you stay subscribed. {FOUNDING_TERMS}
           </p>
         </div>
       ) : null}
@@ -224,8 +222,7 @@ function Paywall() {
         <p className="mt-2 text-sm text-muted">
           {founding ? (
             <>
-              <span className="font-semibold text-ink/70">Founding price</span>{" "}
-              <span className="line-through">{formatUsd(ANNUAL_LIST_PRICE_USD)}/year</span> ·{" "}
+              <span className="font-semibold text-ink/70">Founding price</span> ·{" "}
             </>
           ) : null}
           {period === "annual" ? `About ${ANNUAL_PER_MONTH_LABEL.replace("about ", "")}` : option.supportLabel}
