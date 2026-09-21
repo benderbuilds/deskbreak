@@ -201,15 +201,17 @@ body {
 /*
  * The workout field: slate that drains downward as the move runs out. Slate
  * and its deeper shade sit 1.2:1 apart, too close to show a falling edge on
- * their own, so the waterline itself is drawn in sand (6.5:1 on the drained
- * slate) and that line is what you watch fall.
+ * their own, so the waterline itself is drawn in sand and that line is what
+ * you watch fall. It passes behind the cue text on its way down, so it is
+ * held at 65% — still 3.7:1 against the drained slate and 3.3:1 against the
+ * slate below it, without reading as a rule struck through a sentence.
  *
  * Under reduced motion the fill stays full and a static bar shows progress,
  * so the waterline is dropped rather than parked at the top of the screen.
  */
 .field-drain {
   transition: height 250ms linear;
-  box-shadow: inset 0 2px 0 var(--note);
+  box-shadow: inset 0 2px 0 color-mix(in srgb, var(--note) 65%, transparent);
 }
 
 .field-bar {
