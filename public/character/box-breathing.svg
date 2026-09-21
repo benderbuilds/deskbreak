@@ -2,46 +2,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeskBreak Stretch — Box breathing, breathing in for four (front)">
   <title>DeskBreak Stretch — Box breathing, breathing in for four (front)</title>
   <rect width="512" height="512" fill="none"/>
-  <ellipse cx="256" cy="468" rx="110" ry="10" fill="#E7E2DA" opacity="0.55"/>
+  <ellipse cx="256" cy="468" rx="110" ry="10" fill="#DCE3E9" opacity="0.55"/>
   <g id="chair">
-    <rect x="168" y="300" width="176" height="90" rx="18" fill="#E7E2DA" stroke="#1C1917" stroke-width="3.0"/>
-    <rect x="180" y="230" width="22" height="78" rx="8" fill="#E7E2DA" stroke="#1C1917" stroke-width="3.0"/>
-    <rect x="310" y="230" width="22" height="78" rx="8" fill="#E7E2DA" stroke="#1C1917" stroke-width="3.0"/>
+    <rect x="168" y="300" width="176" height="90" rx="18" fill="#DCE3E9" stroke="#22343B" stroke-width="3.0"/>
+    <rect x="180" y="230" width="22" height="78" rx="8" fill="#DCE3E9" stroke="#22343B" stroke-width="3.0"/>
+    <rect x="310" y="230" width="22" height="78" rx="8" fill="#DCE3E9" stroke="#22343B" stroke-width="3.0"/>
   </g>
   <g id="legs">
-    <path d="M220,320 L200,430" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
-    <path d="M292,320 L312,430" fill="none" stroke="#1C1917" stroke-width="12" stroke-linecap="round"/>
-    <path d="M220,320 L200,430" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
-    <path d="M292,320 L312,430" fill="none" stroke="#D6D0C6" stroke-width="7" stroke-linecap="round"/>
-    <ellipse cx="200" cy="436" rx="18" ry="8" fill="#1C1917"/>
-    <ellipse cx="312" cy="436" rx="18" ry="8" fill="#1C1917"/>
+    <path d="M220,320 L200,430" fill="none" stroke="#22343B" stroke-width="12" stroke-linecap="round"/>
+    <path d="M292,320 L312,430" fill="none" stroke="#22343B" stroke-width="12" stroke-linecap="round"/>
+    <path d="M220,320 L200,430" fill="none" stroke="#ACC0D3" stroke-width="7" stroke-linecap="round"/>
+    <path d="M292,320 L312,430" fill="none" stroke="#ACC0D3" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="200" cy="436" rx="18" ry="8" fill="#22343B"/>
+    <ellipse cx="312" cy="436" rx="18" ry="8" fill="#22343B"/>
   </g>
   <!-- the box: four equal counts -->
-  <rect x="150" y="96" width="212" height="212" rx="16" fill="none" stroke="#FF5A36" stroke-width="3" stroke-dasharray="8 7" opacity="0.55"/>
-  <circle cx="362" cy="96" r="9" fill="#2DD4A8" stroke="#1C1917" stroke-width="2.5"/>
-  <text x="150" y="86" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#1C1917" opacity="0.55">in 4</text>
-  <text x="372" y="208" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#1C1917" opacity="0.55">hold 4</text>
+  <rect x="150" y="96" width="212" height="212" rx="16" fill="none" stroke="#BC7085" stroke-width="3" stroke-dasharray="8 7" opacity="0.55"/>
+  <circle cx="362" cy="96" r="9" fill="#09A1A1" stroke="#22343B" stroke-width="2.5"/>
+  <text x="150" y="86" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#22343B" opacity="0.55">in 4</text>
+  <text x="372" y="208" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#22343B" opacity="0.55">hold 4</text>
   <g id="torso">
     <!-- ribs wide on the inhale -->
-    <rect x="214" y="198" width="84" height="100" rx="26" fill="#FFFFFF" stroke="#1C1917" stroke-width="3.0"/>
+    <rect x="214" y="198" width="84" height="100" rx="26" fill="#FFFFFF" stroke="#22343B" stroke-width="3.0"/>
   </g>
   <g class="arm">
-    <path d="M222,220 Q194,272 188,330" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round"/>
-    <path d="M222,220 Q194,272 188,330" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round"/>
-    <circle cx="188" cy="330" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+    <path d="M222,220 Q194,272 188,330" fill="none" stroke="#22343B" stroke-width="10" stroke-linecap="round"/>
+    <path d="M222,220 Q194,272 188,330" fill="none" stroke="#F0DFC9" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="188" cy="330" r="7" fill="#BC7085" stroke="#22343B" stroke-width="2"/>
   </g>
   <g class="arm">
-    <path d="M290,220 Q318,272 324,330" fill="none" stroke="#1C1917" stroke-width="10" stroke-linecap="round"/>
-    <path d="M290,220 Q318,272 324,330" fill="none" stroke="#F3E6D8" stroke-width="6" stroke-linecap="round"/>
-    <circle cx="324" cy="330" r="7" fill="#FF5A36" stroke="#1C1917" stroke-width="2"/>
+    <path d="M290,220 Q318,272 324,330" fill="none" stroke="#22343B" stroke-width="10" stroke-linecap="round"/>
+    <path d="M290,220 Q318,272 324,330" fill="none" stroke="#F0DFC9" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="324" cy="330" r="7" fill="#BC7085" stroke="#22343B" stroke-width="2"/>
   </g>
-  <path d="M256,246 L256,214" stroke="#2DD4A8" stroke-width="4" stroke-linecap="round"/>
-  <path d="M248,226 L256,212 L264,226" fill="none" stroke="#2DD4A8" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M256,246 L256,214" stroke="#09A1A1" stroke-width="4" stroke-linecap="round"/>
+  <path d="M248,226 L256,212 L264,226" fill="none" stroke="#09A1A1" stroke-width="4" stroke-linejoin="round"/>
   <g id="head">
-    <circle cx="256" cy="155" r="36" fill="#F3E6D8" stroke="#1C1917" stroke-width="3.0"/>
-    <path d="M222,147 Q228,115 256,117 Q284,115 290,147" fill="#1C1917"/>
-    <path d="M238,155 Q244,150 250,155" fill="none" stroke="#1C1917" stroke-width="2.6" stroke-linecap="round"/>
-    <path d="M262,155 Q268,150 274,155" fill="none" stroke="#1C1917" stroke-width="2.6" stroke-linecap="round"/>
-    <ellipse cx="256" cy="170" rx="7" ry="5" fill="none" stroke="#1C1917" stroke-width="2.5"/>
+    <circle cx="256" cy="155" r="36" fill="#F0DFC9" stroke="#22343B" stroke-width="3.0"/>
+    <path d="M222,147 Q228,115 256,117 Q284,115 290,147" fill="#22343B"/>
+    <path d="M238,155 Q244,150 250,155" fill="none" stroke="#22343B" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M262,155 Q268,150 274,155" fill="none" stroke="#22343B" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="256" cy="170" rx="7" ry="5" fill="none" stroke="#22343B" stroke-width="2.5"/>
   </g>
 </svg>
