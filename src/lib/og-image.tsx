@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { ImageResponse } from "next/og";
 
 /**
- * Social preview images, in the app's own look: a pen field with the timer
+ * Social preview images, in the app's own look: a slate field with the timer
  * bar draining across it, the way a move looks while it runs.
  *
  * Every shared link gets one, so a post on Product Hunt or Reddit shows the
@@ -12,9 +12,9 @@ import { ImageResponse } from "next/og";
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
 
-const PEN = "#2438E8";
-const PEN_DEEP = "#121C80";
-const NOTE = "#FFE45C";
+const PEN = "#30525C";
+const PEN_DEEP = "#2A4750";
+const NOTE = "#F6C992";
 
 /**
  * Read from the source tree rather than a URL: the fonts ship with the build,
@@ -127,7 +127,7 @@ export async function ogImage({
                 width: `${Math.round(Math.min(Math.max(progress, 0), 1) * 100)}%`,
                 height: "100%",
                 borderRadius: 999,
-                backgroundColor: "#FFFFFF",
+                backgroundColor: NOTE,
               }}
             />
           </div>

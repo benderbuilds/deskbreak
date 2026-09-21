@@ -435,7 +435,7 @@ export function WorkoutView({
       ? `Up next: ${upcoming.side === "left" ? "Left" : "Right"} side`
       : `Up next: ${upcoming.exercise.name}`;
 
-  // Share of this move still to go. The pen-blue field drains to it.
+  // Share of this move still to go. The slate field drains to it.
   const moveLeft = current.durationSec > 0 ? Math.min(1, Math.max(0, engine.remainingSec / current.durationSec)) : 0;
 
   return (
@@ -572,7 +572,7 @@ export function WorkoutView({
             {formatClock(engine.remainingSec)}
           </p>
           <div className="field-bar mx-auto mt-2 h-1.5 w-full max-w-[320px] overflow-hidden rounded-full bg-white/25 lg:mx-0" aria-hidden>
-            <div className="h-full rounded-full bg-white" style={{ width: `${moveLeft * 100}%` }} />
+            <div className="h-full rounded-full bg-note" style={{ width: `${moveLeft * 100}%` }} />
           </div>
           <p className="mt-2 text-base font-semibold text-white">{upNext}</p>
 

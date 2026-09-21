@@ -23,7 +23,7 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="rounded-[24px] bg-white px-5 py-8 text-center shadow-[0_4px_0_rgba(28,25,23,0.06)]">
+    <div className="rounded-[24px] bg-white px-5 py-8 text-center shadow-[0_4px_0_rgba(34,52,59,0.08)]">
       <p className="font-display font-extrabold text-xl text-ink">{title}</p>
       <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
       {action ? <div className="mt-5">{action}</div> : null}
@@ -42,7 +42,7 @@ export function ErrorState({
 }) {
   return (
     <div
-      className="rounded-[24px] border-2 border-pen bg-white px-5 py-8 text-center"
+      className="rounded-[24px] border-2 border-signal bg-white px-5 py-8 text-center"
       role="alert"
     >
       <p className="font-display font-extrabold text-xl text-ink">{title}</p>

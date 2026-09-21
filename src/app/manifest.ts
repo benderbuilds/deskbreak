@@ -14,8 +14,8 @@ export default function manifest(): MetadataRoute.Manifest {
       { name: "Start my Desk Reset", url: "/app/start?source=landing", description: "3-minute Desk Reset" },
       { name: "Quick 2-minute reset", url: "/app/start?minutes=2&source=landing" },
     ],
-    background_color: "#F1F3F6",
-    theme_color: "#1A2233",
+    background_color: "#F6F3EF",
+    theme_color: "#30525C",
     icons: [
       {
         src: "/icons/icon-192.png",

@@ -254,7 +254,7 @@ export function DoneView() {
           <p className="mt-1 text-center text-sm text-ink/80">{capitalize(sessionMovedLabel(session))}.</p>
         ) : null}
         {hurt ? (
-          <p className="mt-4 rounded-[12px] bg-ink/5 px-4 py-3 text-sm leading-relaxed text-ink" role="status">
+          <p className="mt-4 rounded-[12px] border-l-4 border-signal bg-ink/5 px-4 py-3 text-sm leading-relaxed text-ink" role="status">
             {PAINFUL_RESPONSE}
           </p>
         ) : null}
@@ -387,7 +387,14 @@ export function DoneView() {
       {stage === "wrap" ? (
         <>
           {worse ? (
-            <p className="mt-3 text-center text-[1.05rem] text-ink/75">
+            // The clinician line is advice, not a thank-you: it gets the signal edge.
+            <p
+              className={
+                clinician
+                  ? "mt-3 rounded-[12px] border-l-4 border-signal bg-ink/5 px-4 py-3 text-[1.05rem] leading-relaxed text-ink"
+                  : "mt-3 text-center text-[1.05rem] text-ink/75"
+              }
+            >
               {clinician
                 ? WORSE_REPEAT_CLINICIAN_LINE
                 : worseAreas.length
