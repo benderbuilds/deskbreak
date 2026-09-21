@@ -6,11 +6,11 @@ import Link from "next/link";
 /**
  * Three levels only.
  *
- * primary: solid pen blue on an ink lip that the press collapses. One per view.
+ * primary: solid slate on a deeper lip that the press collapses. One per view.
  * secondary: neutral filled. "ghost" and "mint" are kept as aliases so older
  * call sites keep compiling; both render as secondary.
  * tertiary: text.
- * field / fieldQuiet: primary and secondary on the pen-blue workout field.
+ * field / fieldQuiet: primary and secondary on the slate workout field.
  */
 type Variant = "primary" | "secondary" | "tertiary" | "ghost" | "mint" | "ink" | "field" | "fieldQuiet";
 type Size = "md" | "sm";
@@ -24,7 +24,7 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-pen text-white shadow-[0_4px_0_var(--pen-deep)] hover:bg-[#1d30d6] active:translate-y-[3px] active:shadow-[0_1px_0_var(--pen-deep)]",
+    "bg-pen text-white shadow-[0_4px_0_var(--pen-deep)] hover:bg-[#3a626e] active:translate-y-[3px] active:shadow-[0_1px_0_var(--pen-deep)]",
   ink: "bg-ink text-paper shadow-[0_4px_0_#000] hover:bg-ink/90 active:translate-y-[3px] active:shadow-[0_1px_0_#000]",
   secondary:
     "bg-sheet text-ink border border-line-strong shadow-[0_3px_0_var(--line-strong)] hover:bg-paper active:translate-y-[2px] active:shadow-[0_1px_0_var(--line-strong)]",
@@ -33,9 +33,9 @@ const variants: Record<Variant, string> = {
   mint:
     "bg-sheet text-ink border border-line-strong shadow-[0_3px_0_var(--line-strong)] hover:bg-paper active:translate-y-[2px] active:shadow-[0_1px_0_var(--line-strong)]",
   tertiary: "bg-transparent text-ink underline-offset-4 hover:underline",
-  // On the pen-blue workout field.
+  // On the slate workout field.
   field:
-    "bg-white text-pen-deep shadow-[0_4px_0_rgba(8,12,60,0.55)] hover:bg-paper active:translate-y-[3px] active:shadow-[0_1px_0_rgba(8,12,60,0.55)]",
+    "bg-white text-pen-deep shadow-[0_4px_0_rgba(16,30,34,0.6)] hover:bg-paper active:translate-y-[3px] active:shadow-[0_1px_0_rgba(16,30,34,0.6)]",
   fieldQuiet:
     "bg-white/10 text-white border border-white/70 hover:bg-white/20 active:translate-y-[2px]",
 };
