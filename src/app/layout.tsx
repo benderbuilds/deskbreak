@@ -41,7 +41,10 @@ export const metadata: Metadata = {
     title: `DeskBreak. ${PRODUCT_PROMISE}`,
     description: PRODUCT_SUBHEAD,
     type: "website",
+    siteName: "DeskBreak",
   },
+  // Without this the card is the small one, which crops the preview to a thumbnail.
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
