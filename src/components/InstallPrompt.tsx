@@ -101,7 +101,7 @@ export function InstallPrompt() {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-ink">Keep DeskBreak one click away</p>
-          <p className="mt-0.5 text-xs leading-relaxed text-ink/55">
+          <p className="mt-0.5 text-xs leading-relaxed text-muted">
             {desktop ? "Add DeskBreak to your desktop." : "Add DeskBreak to your home screen."}
           </p>
         </div>
@@ -109,7 +109,7 @@ export function InstallPrompt() {
           <button
             type="button"
             onClick={dismiss}
-            className="min-h-11 rounded-full px-3 text-sm font-semibold text-ink/45"
+            className="min-h-11 rounded-full px-3 text-sm font-semibold text-muted"
           >
             Later
           </button>
@@ -119,28 +119,41 @@ export function InstallPrompt() {
         </div>
       </div>
       {showHelp ? (
-        <ol className="mt-3 space-y-1.5 text-xs leading-relaxed text-ink/65">
-          {ios ? (
-            <>
-              <li>1. Tap Share (square with the arrow).</li>
-              <li>2. Tap Add to Home Screen.</li>
-              <li>3. Tap Add. Open DeskBreak from that icon next time.</li>
-            </>
-          ) : desktop ? (
-            <>
-              <li>1. Open your browser menu, or the install icon in the address bar.</li>
-              <li>2. Choose Install DeskBreak.</li>
-              <li>3. It opens in its own window from now on.</li>
-            </>
-          ) : (
-            <>
-              <li>1. Open the browser menu (⋮ or Share).</li>
-              <li>2. Tap Install app or Add to Home Screen.</li>
-              <li>3. Already added? Open the DeskBreak icon, not this tab.</li>
-            </>
-          )}
-        </ol>
+        <InstallSteps platform={ios ? "ios" : desktop ? "desktop" : "android"} className="mt-3" />
       ) : null}
     </div>
+  );
+}
+
+export type InstallPlatform = "ios" | "android" | "desktop";
+
+export function installPlatform(): InstallPlatform {
+  return isIosDevice() ? "ios" : isAndroidDevice() ? "android" : "desktop";
+}
+
+/** How to add DeskBreak to the home screen or desktop, per platform. */
+export function InstallSteps({ platform, className = "" }: { platform: InstallPlatform; className?: string }) {
+  return (
+    <ol className={`space-y-1.5 text-xs leading-relaxed text-muted ${className}`}>
+      {platform === "ios" ? (
+        <>
+          <li>1. Tap Share (the square with the arrow) in Safari.</li>
+          <li>2. Tap Add to Home Screen.</li>
+          <li>3. Tap Add. Open DeskBreak from that icon next time.</li>
+        </>
+      ) : platform === "desktop" ? (
+        <>
+          <li>1. Open your browser menu, or the install icon in the address bar.</li>
+          <li>2. Choose Install DeskBreak.</li>
+          <li>3. It opens in its own window from now on.</li>
+        </>
+      ) : (
+        <>
+          <li>1. Open the browser menu (⋮ or Share).</li>
+          <li>2. Tap Install app or Add to Home Screen.</li>
+          <li>3. Already added? Open the DeskBreak icon, not this tab.</li>
+        </>
+      )}
+    </ol>
   );
 }

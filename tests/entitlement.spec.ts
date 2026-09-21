@@ -16,8 +16,8 @@ test.describe("free user", () => {
     await lockedRoutine.click();
 
     await expect(page).toHaveURL(/\/app\/pro/);
-    await expect(page.getByText(/\$39/)).toBeVisible();
-    await expect(page.getByRole("button", { name: /build my workday/i })).toBeVisible();
+    await expect(page.getByText("$39/year", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^(start pro|become a founding member)/i })).toBeVisible();
   });
 
   test("locked routines stay visible rather than hidden", async ({ page }) => {
@@ -38,7 +38,7 @@ test.describe("free user", () => {
     );
 
     await page.goto("/app/pro?from=test");
-    await page.getByRole("button", { name: /build my workday/i }).click();
+    await page.getByRole("button", { name: /^(start pro|become a founding member)/i }).click();
 
     await expect(appAlert(page)).toContainText(/pro checkout is temporarily unavailable/i);
     const body = await page.locator("body").innerText();
@@ -56,7 +56,7 @@ test.describe("free user", () => {
     );
 
     await page.goto("/app/pro");
-    await page.getByRole("button", { name: /build my workday/i }).click();
+    await page.getByRole("button", { name: /^(start pro|become a founding member)/i }).click();
 
     await expect(appAlert(page)).toContainText(/pro checkout is temporarily unavailable/i);
     const body = await page.locator("body").innerText();
@@ -65,9 +65,9 @@ test.describe("free user", () => {
 
   test("both billing periods are offered with the configured prices", async ({ page }) => {
     await page.goto("/app/pro");
-    await expect(page.getByText("$39")).toBeVisible();
+    await expect(page.getByText("$39/year", { exact: true })).toBeVisible();
     await page.getByRole("radio", { name: /monthly/i }).click();
-    await expect(page.getByText("$5.99")).toBeVisible();
+    await expect(page.getByText("$5.99/month", { exact: true })).toBeVisible();
   });
 });
 

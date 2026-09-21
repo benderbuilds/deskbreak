@@ -1,15 +1,24 @@
 @import "tailwindcss";
 
+/*
+ * "Desk clock": copier paper, ballpoint ink, one sticky note.
+ * Contrast on paper: ink 14:1, muted 5.4:1, pen 6.7:1, signal 4.7:1.
+ * White on pen is 7.5:1. Line-strong is the lightest border that still
+ * reads as a control edge (3.3:1).
+ */
 :root {
-  --paper: #f7f4ef;
-  --surface: #ffffff;
-  --coral: #ff5a36;
-  --coral-deep: #e04420;
-  --mint: #2dd4a8;
-  --mint-deep: #1baf8a;
-  --ink: #1c1917;
-  --line: rgba(28, 25, 23, 0.08);
-  --radius-card: 22px;
+  --paper: #f1f3f6;
+  --sheet: #ffffff;
+  --ink: #1a2233;
+  --muted: #5b6475;
+  --pen: #2438e8;
+  --pen-deep: #121c80;
+  --note: #ffe45c;
+  --signal: #c2410c;
+  --line: rgba(26, 34, 51, 0.12);
+  --line-strong: #7c8596;
+  --focus: var(--pen);
+  --radius-card: 20px;
   --radius-control: 14px;
   --motion: 200ms;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -17,16 +26,25 @@
 
 @theme inline {
   --color-paper: var(--paper);
-  --color-surface: var(--surface);
-  --color-coral: var(--coral);
-  --color-coral-deep: var(--coral-deep);
-  --color-mint: var(--mint);
-  --color-mint-deep: var(--mint-deep);
+  --color-sheet: var(--sheet);
   --color-ink: var(--ink);
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-fraunces);
+  --color-muted: var(--muted);
+  --color-pen: var(--pen);
+  --color-pen-deep: var(--pen-deep);
+  --color-note: var(--note);
+  --color-signal: var(--signal);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --radius-card: var(--radius-card);
   --radius-control: var(--radius-control);
+}
+
+/* Condensed ExtraBold: headings, prices, big numbers, the workout timer. */
+@utility font-display {
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  font-stretch: 75%;
+  letter-spacing: -0.005em;
 }
 
 html {
@@ -37,39 +55,57 @@ html {
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--coral) 28%, transparent);
+  background: color-mix(in srgb, var(--note) 70%, transparent);
+  color: var(--ink);
 }
 
 /* Visible focus for keyboard users, everywhere, without touching mouse users. */
 :focus-visible {
-  outline: 2px solid var(--coral);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
-  border-radius: 8px;
 }
 
-/* --- Surfaces: three levels, no floating-card-everywhere. ---------------- */
-
-.surface {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+/* On the pen-blue workout field the ring turns white so it stays visible. */
+.on-field {
+  --focus: #ffffff;
 }
 
-.surface-elevated {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 24px;
-  box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04), 0 8px 24px -16px rgba(28, 25, 23, 0.18);
-}
+/* --- Surfaces -------------------------------------------------------------
+ * surface-elevated: the one raised block on a view.
+ * surface: a quieter grouped block.
+ * sticky-note: reward moments only.
+ */
 
-.tonal {
-  background: rgba(28, 25, 23, 0.04);
-  border-radius: var(--radius-card);
+@layer components {
+  .surface {
+    background: var(--sheet);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+  }
+
+  .surface-elevated {
+    background: var(--sheet);
+    border: 1px solid rgba(26, 34, 51, 0.22);
+    border-radius: var(--radius-card);
+  }
+
+  .tonal {
+    background: rgba(26, 34, 51, 0.05);
+    border-radius: var(--radius-card);
+  }
+
+  /* Square-ish, lifted at one corner. The only shadow in the app besides the button lip. */
+  .sticky-note {
+    background: var(--note);
+    color: var(--ink);
+    border-radius: 4px 4px 22px 4px;
+    box-shadow: 0 1px 0 rgba(26, 34, 51, 0.08), 0 16px 24px -20px rgba(26, 34, 51, 0.6);
+  }
 }
 
 /* --- Motion ------------------------------------------------------------- */
@@ -151,6 +187,18 @@ body {
   animation: sheetUp 220ms var(--ease);
 }
 
+/*
+ * The workout field: pen blue that drains downward as the move runs out.
+ * Under reduced motion the fill stays full and a static bar shows progress.
+ */
+.field-drain {
+  transition: height 250ms linear;
+}
+
+.field-bar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -159,5 +207,13 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .field-drain {
+    height: 100% !important;
+  }
+
+  .field-bar {
+    display: block;
   }
 }

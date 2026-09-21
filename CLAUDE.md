@@ -61,6 +61,39 @@ deliveries, or `supabase/schema.sql`.
   else at the API.
 - Never reset the production database or run destructive suites against it.
   The test harness in `tests/postgres/` is the only place `DELETE` runs.
+- Exercise ids appear in saved history, synced sessions and `/moves/*` URLs.
+  When moves are merged or renamed, keep the old id resolving to the new one.
+
+## Movement safety
+
+- Every recommendation path respects discomfort, "Worse" outcomes and the
+  "Go easy on" flags: first session, fallback, authored programs, adapted
+  programs and swap candidates. A new path that skips these is a bug.
+- "Doesn't feel right" replaces a move from a different body area or a
+  breathing move, never a neighbour in the same region.
+- Floor moves never appear in seated or standing desk routines unless the
+  person opted in. Check `setup` and constraints when adding a move.
+- Each-side moves get time for both sides and a switch cue. A dose label must
+  fit the slot it is shown in.
+- The stop rule is shown on the workout screen, not only on move pages.
+
+## Health claims and evidence
+
+- Every health claim on the site maps to a source in `data/evidence.json`
+  whose DOI resolves to that paper. Check the DOI before adding a citation;
+  one entry once pointed at an unrelated paper.
+- Quotes are verbatim from the abstract or full text, with the study's own
+  qualifiers kept ("in a lab trial", "reported", "small"). Summarise what the
+  study tested, not what DeskBreak would like it to show.
+- Only cite a study on a move page when that move, or a close analogue, was
+  studied. No per-move evidence grades.
+- Until a licensed PT signs off in writing on a pinned content version, never
+  write: PT-reviewed, physical therapist approved, clinically reviewed or
+  proven, an unqualified "evidence-based" badge, relief, reduces or prevents
+  pain or injury, fix or correct posture, or any comparison implying desk
+  breaks replace regular exercise. Posture copy is about changing positions;
+  there is no single correct posture.
+- No official guideline sets a break interval. Don't claim one.
 
 ## Configuration
 
@@ -72,6 +105,13 @@ deliveries, or `supabase/schema.sql`.
   Never print a secret in logs, tests, commits, PR bodies, or chat.
 - Canonical origin is `NEXT_PUBLIC_APP_URL` (https://deskbreak.co). Code
   fallbacks also say deskbreak.co. `www` redirects to the apex.
+- GA4 falls back to the live property when `NEXT_PUBLIC_GA_MEASUREMENT_ID` is
+  unset. Local and test runs set it to an empty string and leave
+  `NEXT_PUBLIC_POSTHOG_KEY` empty, so the owner's funnel only counts real
+  visitors. Local sign-in needs `AUTH_SECRET` plus `AUTH_DEV_LINKS=1`.
+- Review and test flows run against localhost or a preview, never
+  deskbreak.co: resets, ratings, sign-ins and push subscriptions there write
+  production data.
 - Sending address is `hello@deskbreak.co` through Resend; the mailbox forwards
   via Cloudflare Email Routing.
 

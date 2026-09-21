@@ -5,15 +5,19 @@ test.describe("first visit", () => {
   test("a stranger reaches movement in one tap and is asked how they feel afterwards", async ({
     page,
   }) => {
-    await clearAppState(page);
+    await clearAppState(page, { firstRun: true });
     await page.goto("/");
 
     await expect(page.getByRole("heading", { name: /sitting all day\? do this/i })).toBeVisible();
     await expect(page.getByText("3-Minute Desk Reset")).toBeVisible();
 
-    // One button, no questions, no account.
-    await page.getByRole("button", { name: /^start my reset$/i }).first().click();
+    // One button, no account. The first time only, one safety screen whose
+    // questions are optional: starting is still a single tap.
+    await page.getByRole("link", { name: /^start my reset$/i }).first().click();
     await expect(page).toHaveURL(/\/app\/workout\//);
+    await expect(page.getByRole("heading", { name: /before you start/i })).toBeVisible();
+    await expect(page.getByText(/stop if it's sharp/i)).toBeVisible();
+    await page.getByRole("button", { name: /^start my reset$/i }).click();
     await expect(page.getByText(/1 of \d+/)).toBeVisible();
     await expect(page.getByRole("button", { name: /^pause$/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /doesn.t feel right/i })).toBeVisible();
@@ -21,7 +25,9 @@ test.describe("first visit", () => {
     await completeReset(page);
 
     // How do you feel? Then, first time only, where desk work lands. Then save.
-    await expect(page.getByRole("heading", { name: /nice\./i })).toBeVisible();
+    // Honest time: clicking through takes seconds, and the headline says so.
+    await expect(page.getByRole("heading", { name: /short one|nice\./i })).toBeVisible();
+    await expect(page.getByText(/your answer tunes the next reset/i)).toBeVisible();
     await expect(page.getByText(/how do you feel/i)).toBeVisible();
     await page.getByRole("button", { name: /^better$/i }).click();
     await expect(page.getByText(/we'll use that to make your next reset better/i)).toBeVisible();
@@ -42,7 +48,7 @@ test.describe("first visit", () => {
   test("a landing shortcut jumps straight into that need", async ({ page }) => {
     await clearAppState(page);
     await page.goto("/");
-    await page.getByRole("button", { name: /wrists \+ hands/i }).click();
+    await page.getByRole("link", { name: /wrists \+ hands/i }).click();
     await expect(page).toHaveURL(/\/app\/workout\/.*need=wrists_hands/);
   });
 
@@ -60,7 +66,7 @@ test.describe("first visit", () => {
     await page.getByRole("button", { name: /^neck \+ shoulders$/i }).click();
     await expect(page.getByRole("heading", { name: /neck \+ shoulders reset/i })).toBeVisible();
 
-    await page.getByRole("button", { name: /^change$/i }).click();
+    await page.getByRole("button", { name: /^change routine$/i }).click();
     await page.getByRole("button", { name: /quick 2 min/i }).click();
     await expect(page.getByText(/2 minutes ·/)).toBeVisible();
 

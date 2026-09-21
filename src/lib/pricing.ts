@@ -23,7 +23,11 @@ export const ANNUAL_PRICE_USD = money(
   39,
 );
 
-/** Shown struck through next to the founding price. Optional. */
+/**
+ * What Pro costs once the founding offer ends. Shown as the price ahead, never
+ * struck through: nobody has paid it yet, so it is a promise about our own
+ * pricing rather than a discount off a price that was never charged.
+ */
 export const ANNUAL_LIST_PRICE_USD = money(
   process.env.NEXT_PUBLIC_PRO_ANNUAL_LIST_PRICE,
   59,
@@ -73,3 +77,36 @@ export const CHECKOUT_UNAVAILABLE = {
   title: "Pro checkout is temporarily unavailable.",
   body: "Your free DeskBreak still works. Try Pro again in a bit.",
 };
+
+/**
+ * The founding offer: a lower annual price for the first members, with the
+ * later price stated. Only on when the later price is above today's.
+ */
+export const FOUNDING_OFFER = ANNUAL_LIST_PRICE_USD > ANNUAL_PRICE_USD;
+
+/**
+ * How many founding members the offer is good for. The count is what makes the
+ * later price a real commitment, so it has a default; set the env var to 0 to
+ * say "the first members" instead.
+ */
+export const FOUNDING_SPOTS = (() => {
+  const raw = process.env.NEXT_PUBLIC_PRO_FOUNDING_SPOTS;
+  if (raw === undefined || raw === "") return 100;
+  const parsed = Number(raw);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+})();
+
+/** One line stating the offer and the price that follows it. */
+export const FOUNDING_TERMS = FOUNDING_SPOTS
+  ? `${formatUsd(ANNUAL_LIST_PRICE_USD)}/year after the first ${FOUNDING_SPOTS} members.`
+  : `${formatUsd(ANNUAL_LIST_PRICE_USD)}/year once the founding offer ends.`;
+
+/** The paywall button says what it charges. */
+export function checkoutCta(period: BillingPeriod): string {
+  if (TRIAL_DAYS > 0) return `Start ${TRIAL_DAYS} days free`;
+  const option = PRICE_OPTIONS[period];
+  const price = `${option.amountLabel}${option.cadenceLabel}`;
+  return period === "annual" && FOUNDING_OFFER ? `Become a founding member, ${price}` : `Start Pro, ${price}`;
+}
+
+export const CHECKOUT_TRUST_LINE = "Secure checkout with Stripe. Cancel anytime from You.";

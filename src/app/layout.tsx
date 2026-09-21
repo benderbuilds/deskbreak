@@ -1,17 +1,19 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import Script from "next/script";
-import { Fraunces, Inter } from "next/font/google";
+import { Archivo } from "next/font/google";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { INSTALL_CAPTURE_SCRIPT } from "@/lib/pwa-install";
 import { PRODUCT_PROMISE, PRODUCT_SUBHEAD } from "@/lib/constants";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const fraunces = Fraunces({
+// One family. The width axis gives the condensed display cut for headings and
+// the workout timer; body text stays at normal width.
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  variable: "--font-archivo",
   display: "swap",
+  axes: ["wdth"],
 });
 
 export const metadata: Metadata = {
@@ -43,7 +45,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FF5A36",
+  themeColor: "#1A2233",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -56,7 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${archivo.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-paper font-sans text-ink">
         <Script id="deskbreak-pwa-install" strategy="beforeInteractive">

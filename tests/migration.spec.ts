@@ -110,4 +110,37 @@ test.describe("signals", () => {
     expect(signals.durationCounts[3]).toBe(1);
     expect(signals.recentExerciseIds).toContain("chin-tuck");
   });
+
+  test("V3 additions default safely and survive a reload", async () => {
+    const fresh = migrateV2State({ version: 3 } as never);
+    expect(fresh.safetyFlags).toEqual([]);
+    expect(fresh.allowFloorWork).toBe(false);
+    expect(fresh.microBreaks).toEqual([]);
+    expect(fresh.settings.standNudge.enabled).toBe(true);
+
+    const kept = migrateV2State({
+      version: 3,
+      safetyFlags: ["pregnancy", "not-a-flag", "neck"],
+      allowFloorWork: true,
+      microBreaks: ["2026-09-09T10:00:00.000Z", 42],
+      settings: { standNudge: { enabled: false } },
+      favorites: ["ankle-circles"],
+      signals: { "walk-to-water-march": { completed: 2, skipped: 0, swapped: 0, discomfort: 0, better: 1, worse: 0, lastAt: null } },
+    } as never);
+    expect(kept.safetyFlags).toEqual(["neck", "pregnancy"]);
+    expect(kept.allowFloorWork).toBe(true);
+    expect(kept.microBreaks).toEqual(["2026-09-09T10:00:00.000Z"]);
+    expect(kept.settings.standNudge.enabled).toBe(false);
+    expect(kept.settings.standNudge.intervalMinutes).toBeGreaterThan(0);
+    // Retired ids fold into the move that replaced them.
+    expect(kept.favorites).toEqual(["ankle-pumps"]);
+    expect(kept.signals["short-walk"]?.completed).toBe(2);
+    expect(kept.signals["walk-to-water-march"]).toBeUndefined();
+  });
+
+  test("a session's 'what felt worse' areas are kept and validated", async () => {
+    const session = normalizeSession({ ...v2Session, worseAreas: ["neck", "elbow"] } as never);
+    expect(session.worseAreas).toEqual(["neck"]);
+    expect(normalizeSession(v2Session as never).worseAreas).toBeUndefined();
+  });
 });
