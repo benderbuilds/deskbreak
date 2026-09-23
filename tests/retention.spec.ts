@@ -227,6 +227,32 @@ test.describe("seo pages hand off into the product", () => {
   });
 });
 
+test.describe("social cards", () => {
+  test("every shared page has one, and it is a real image", async ({ page }) => {
+    const paths = [
+      "/opengraph-image",
+      "/neck-shoulder-exercises/opengraph-image",
+      "/science/opengraph-image",
+      "/blog/opengraph-image",
+    ];
+    for (const path of paths) {
+      const response = await page.request.get(path);
+      expect(response.status(), path).toBe(200);
+      expect(response.headers()["content-type"], path).toContain("image/png");
+      // A blank or errored render would be tiny.
+      expect((await response.body()).length, path).toBeGreaterThan(5000);
+    }
+  });
+
+  test("the homepage card names the free entry, and a guide distinguishes its free starter", async ({ page }) => {
+    const home = await (await page.request.get("/")).text();
+    expect(home).toContain("A free, guided 3-minute desk break");
+    // The 5-minute guide's card offers the free 3-minute routine it starts.
+    const guide = await (await page.request.get("/office-workout")).text();
+    expect(guide).toMatch(/free 3-minute/i);
+  });
+});
+
 test.describe("offline", () => {
   test("the service worker and offline page are served", async ({ page }) => {
     const sw = await page.request.get("/sw.js");

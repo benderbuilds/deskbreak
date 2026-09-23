@@ -38,6 +38,23 @@ test.describe("free user", () => {
     expect(body).toMatch(/5- and 10-minute workouts/i);
   });
 
+  test("the Pro page compares the two plans in terms the code enforces", async ({ page }) => {
+    await clearAppState(page);
+    await page.goto("/app/pro?from=test");
+
+    const table = page.getByRole("table", { name: /free and pro/i });
+    await expect(table).toBeVisible();
+    // Things free users already have must be marked as included on Free.
+    const free = table.getByRole("row", { name: /daily short resets/i });
+    await expect(free).toContainText(/included/i);
+    // ...and the real Pro differences must be on the Pro side only.
+    await expect(table.getByRole("row", { name: /five- and ten-minute/i })).toContainText(/not included/i);
+    await expect(table.getByRole("row", { name: /workday plan/i })).toContainText(/not included/i);
+
+    // Continuing free is still one tap from here.
+    await expect(page.getByRole("button", { name: /continue free/i })).toBeVisible();
+  });
+
   test("Progress does not claim a history limit that free users do not have", async ({ page }) => {
     await clearAppState(page);
     await page.goto("/app");

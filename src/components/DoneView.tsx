@@ -7,6 +7,7 @@ import { Button } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { ReminderAsk } from "@/components/ReminderAsk";
+import { ShareReset } from "@/components/ShareReset";
 import { WeekSummary } from "@/components/WeekSummary";
 import { track } from "@/lib/analytics";
 import { BODY_AREA_LABELS, BODY_AREAS } from "@/lib/body-areas";
@@ -418,6 +419,12 @@ export function DoneView() {
             >
               Back to Today
             </Button>
+            {/* Never after a reset that hurt or made someone feel worse. */}
+            {!quiet ? (
+              <div className="mt-2 flex justify-center">
+                <ShareReset need={session?.primaryNeed ?? state.primaryNeed ?? "general"} />
+              </div>
+            ) : null}
           </div>
         </>
       ) : null}

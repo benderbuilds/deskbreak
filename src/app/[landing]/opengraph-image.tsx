@@ -11,7 +11,10 @@ export default async function Image({ params }: { params: Promise<{ landing: str
   if (!page) {
     return ogImage({ title: "DeskBreak", footnote: "Three-minute desk resets." });
   }
-  // The footnote names the routine the page actually starts.
-  const routine = startRoutineName(page.need, startMinutes(page.durationMinutes), page.setup);
-  return ogImage({ title: page.title, footnote: routine });
+  // The footnote names the routine the page actually starts, and says it is
+  // free. A guide titled "5-Minute Office Workout" starts a free three-minute
+  // one, so the card has to distinguish the two.
+  const minutes = startMinutes(page.durationMinutes);
+  const routine = startRoutineName(page.need, minutes, page.setup);
+  return ogImage({ title: page.title, footnote: `Free ${minutes}-minute ${routine}. No signup.` });
 }

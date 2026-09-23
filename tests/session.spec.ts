@@ -177,6 +177,38 @@ test.describe("done", () => {
     expect(need).toBe("back_hips");
   });
 
+  test("sharing a reset offers a public page and no private identifiers", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    const events = await captureEvents(page);
+    await clearAppState(page);
+    await startReset(page, "neck_shoulders");
+    await completeReset(page);
+    await page.getByRole("button", { name: /^better$/i }).click();
+
+    await page.getByRole("button", { name: /share this reset/i }).click();
+    await expect(page.getByRole("status").filter({ hasText: /copied|copy/i })).toBeVisible();
+
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toContain("/neck-shoulder-exercises");
+    // Nothing about this person travels with the link.
+    expect(copied).not.toMatch(/\?|session|rec_|utm_|ref=/);
+
+    const seen = await events();
+    expect(seen).toContain("share_reset_clicked");
+    expect(seen).toContain("share_reset_result");
+  });
+
+  test("a reset that felt worse is never offered for sharing", async ({ page }) => {
+    await clearAppState(page);
+    await startReset(page);
+    await completeReset(page);
+    await page.getByRole("button", { name: /^worse$/i }).click();
+    await page.getByRole("button", { name: /^not sure$/i }).click();
+
+    await expect(page.getByRole("button", { name: /back to today/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /share this reset/i })).toHaveCount(0);
+  });
+
   test("Worse skips the questions and lands on a quiet wrap-up", async ({ page }) => {
     await clearAppState(page);
     await startReset(page);
