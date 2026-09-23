@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { dailyReminderDecision } from "../src/lib/daily-reminder";
-import { clearAppState, grantPro } from "./helpers";
+import { clearAppState, completeReset, finishDoneFlow, grantPro } from "./helpers";
 
 /** A Monday morning, inside default working hours, in the browser's own time zone. */
 const MONDAY_9AM = new Date(2026, 8, 21, 9, 0, 0);
@@ -17,6 +17,50 @@ test.describe("analytics", () => {
     await page.waitForLoadState("networkidle");
     expect(analytics).toEqual([]);
     expect(await page.content()).not.toContain("googletagmanager");
+  });
+});
+
+test.describe("today after a reset", () => {
+  test("says the reset is done, with the time actually moved", async ({ page }) => {
+    await clearAppState(page);
+    await page.goto("/app");
+    await page.getByRole("button", { name: /^start reset$/i }).click();
+    await completeReset(page);
+    await finishDoneFlow(page);
+    await page.goto("/app");
+
+    await expect(page.getByRole("heading", { name: /today.s reset complete/i })).toBeVisible();
+    // Clicking through takes seconds, so the page must not claim three minutes.
+    await expect(page.getByText(/1 reset · \d+ seconds? moved/i)).toBeVisible();
+    // The routine is still there, and no longer the loudest thing on screen.
+    await expect(page.getByRole("button", { name: /^do another reset$/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^start reset$/i })).toHaveCount(0);
+  });
+
+  test("counts a second reset", async ({ page }) => {
+    await clearAppState(page);
+    for (let run = 0; run < 2; run += 1) {
+      await page.goto("/app");
+      await page.getByRole("button", { name: run === 0 ? /^start reset$/i : /^do another reset$/i }).click();
+      await completeReset(page);
+      await finishDoneFlow(page);
+    }
+    await page.goto("/app");
+    await expect(page.getByText(/2 resets · /i)).toBeVisible();
+  });
+
+  test("a reset that felt worse is acknowledged without celebration", async ({ page }) => {
+    await clearAppState(page);
+    await page.goto("/app");
+    await page.getByRole("button", { name: /^start reset$/i }).click();
+    await completeReset(page);
+    await page.getByRole("button", { name: /^worse$/i }).click();
+    await page.getByRole("button", { name: /^not sure$/i }).click();
+    await page.getByRole("button", { name: /back to today/i }).click();
+
+    await expect(page.getByText(/1 reset · /i)).toBeVisible();
+    const body = await page.locator("body").innerText();
+    expect(body).not.toMatch(/nice work|great job|well done|complete!/i);
   });
 });
 

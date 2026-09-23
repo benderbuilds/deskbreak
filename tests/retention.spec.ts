@@ -68,6 +68,28 @@ test.describe("daily reminder", () => {
       "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
   });
 
+  test("already enabled, it shows what is on instead of asking again", async ({ page }) => {
+    await clearAppState(page);
+    await page.goto("/app");
+    await page.getByRole("button", { name: /^start reset$/i }).click();
+    await completeReset(page);
+    await finishDoneFlow(page);
+
+    await page.getByRole("button", { name: /^remind me at/i }).click();
+    await expect(page.getByRole("status").filter({ hasText: /while deskbreak is open/i })).toBeVisible();
+
+    // A later reset finds it on, and offers to manage it rather than re-asking.
+    await page.goto("/app");
+    await page.getByRole("button", { name: /^(do another reset|start reset)$/i }).click();
+    await completeReset(page);
+    await finishDoneFlow(page);
+
+    await expect(page.getByText(/reminder is on/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /^remind me at/i })).toHaveCount(0);
+    const manage = page.getByRole("link", { name: /manage reminders/i });
+    expect(await manage.getAttribute("href")).toContain("/app/you");
+  });
+
   test("an iPhone is offered the in-app reminder, not only an install", async ({ page }) => {
     await clearAppState(page);
     await page.goto("/app");
@@ -75,7 +97,9 @@ test.describe("daily reminder", () => {
     await completeReset(page);
     await finishDoneFlow(page);
 
-    // What it does is said before the button is pressed.
+    // What it does is said before the button is pressed, under a heading that
+    // is true on a Friday.
+    await expect(page.getByRole("heading", { name: /make it a daily break/i })).toBeVisible();
     await expect(page.getByText(/while deskbreak is open/i)).toBeVisible();
     await page.getByRole("button", { name: /^remind me at/i }).click();
 

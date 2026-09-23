@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/Button";
 import { pushPreferences } from "@/lib/account-client";
@@ -28,8 +29,11 @@ function minutesNow(date = new Date()): number {
 }
 
 /**
- * "Same time tomorrow?" on the Done screen, right after a reset, when the
+ * The return invitation on the Done screen, right after a reset, when the
  * habit is easiest to set up. Uses the same daily reminder as You.
+ *
+ * The heading does not promise tomorrow: on a Friday, on a weekend, or on a
+ * day that is not a working day, tomorrow is not when this arrives.
  *
  * The free daily reminder is shown inside DeskBreak while it is open, which
  * needs no permission and no installed app. An OS notification is a bonus
@@ -45,8 +49,8 @@ export function ReminderAsk() {
   const [busy, setBusy] = useState(false);
   const [minutes] = useState(() => minutesNow());
 
-  const hasDaily = state.settings.reminders.some((entry) => entry.kind === "daily" && entry.enabled);
-  if (!result && (dismissed || hasDaily)) return null;
+  const daily = state.settings.reminders.find((entry) => entry.kind === "daily" && entry.enabled);
+  if (!result && dismissed && !daily) return null;
 
   const notifications = typeof window !== "undefined" && "Notification" in window;
   const time = formatReminderTime(minutes);
@@ -97,9 +101,28 @@ export function ReminderAsk() {
     );
   }
 
+  // Already on: say what is on, and where to change it. Asking again, or
+  // asking the browser for permission again, is how a reminder gets turned off.
+  if (daily) {
+    return (
+      <div className="surface px-4 py-4">
+        <h2 className="font-display font-extrabold text-base text-ink">
+          Your daily reminder is on for {formatReminderTime(daily.minutes)}.
+        </h2>
+        <p className="mt-1 text-sm leading-relaxed text-muted">
+          {daily.weekdaysOnly ? "On weekdays, while DeskBreak is open." : "Every day, while DeskBreak is open."}
+          {signedIn ? " You'll also get an email on weekday afternoons." : ""}
+        </p>
+        <Link href="/app/you" className="mt-2 inline-block text-sm font-semibold text-pen underline underline-offset-4">
+          Manage reminders
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="surface px-4 py-4">
-      <p className="font-display font-extrabold text-base text-ink">Same time tomorrow?</p>
+      <h2 className="font-display font-extrabold text-base text-ink">Make it a daily break.</h2>
       {/* What it does, before the button that turns it on. */}
       <p className="mt-1 text-sm leading-relaxed text-muted">
         A nudge around {time} on weekdays, while DeskBreak is open.
