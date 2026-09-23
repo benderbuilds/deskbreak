@@ -27,6 +27,31 @@ test.describe("free user", () => {
     await expect(page.getByText("5-Minute Deeper Reset")).toBeVisible();
   });
 
+  test("the paywall only claims what Pro actually adds", async ({ page }) => {
+    await clearAppState(page);
+    await page.goto("/app/pro?from=test");
+    const body = await page.locator("body").innerText();
+    // Signing in and syncing are free, so Pro must not be sold on them.
+    expect(body).not.toMatch(/sync across devices/i);
+    // Free resets are personalized too; the Pro difference is the library.
+    expect(body).not.toMatch(/personalized resets/i);
+    expect(body).toMatch(/5- and 10-minute workouts/i);
+  });
+
+  test("Progress does not claim a history limit that free users do not have", async ({ page }) => {
+    await clearAppState(page);
+    await page.goto("/app");
+    await page.getByRole("button", { name: /^start reset$/i }).click();
+    await completeReset(page);
+    await finishDoneFlow(page);
+
+    await page.goto("/app/progress");
+    await expect(page.getByText(/active day|active workday/i).first()).toBeVisible();
+    const body = await page.locator("body").innerText();
+    expect(body).not.toMatch(/last 14 days on free/i);
+    expect(body).not.toMatch(/syncs it across devices/i);
+  });
+
   test("the paywall never leaks configuration details", async ({ page }) => {
     await clearAppState(page);
     await page.route("**/api/checkout", (route) =>
