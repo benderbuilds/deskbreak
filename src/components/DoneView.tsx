@@ -342,6 +342,7 @@ export function DoneView() {
                   <Button
                     variant="tertiary"
                     block={false}
+                    className="px-0"
                     onClick={() => setPersonalizing((open) => !open)}
                     aria-expanded={personalizing}
                     aria-controls="done-personalize"
@@ -379,7 +380,7 @@ export function DoneView() {
                     <p className="mt-1 text-sm text-muted">
                       A sign-in link by email, no password, and today&apos;s resets come with you.{" "}
                       <button type="button" onClick={skipSave} className="font-semibold text-ink underline underline-offset-4">
-                        Not now
+                        No thanks
                       </button>
                     </p>
                   </div>
