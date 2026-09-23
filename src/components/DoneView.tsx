@@ -31,6 +31,7 @@ import {
   ratingsUntilPatterns,
   sessionMovedLabel,
 } from "@/lib/insights";
+import { markOnce } from "@/lib/once";
 import { areaAvoidanceNotice } from "@/lib/recommendation";
 import {
   dismissSavePrompt,
@@ -97,17 +98,30 @@ export function DoneView() {
   const [clinician, setClinician] = useState(false);
   const tunePlayed = useRef(false);
 
-  const askFocus = isClient && state.progress.totalWorkouts <= 1 && !state.primaryNeed;
+  const worse = effect === "worse";
+  // Worse, or painful along the way: no celebration, and nothing is asked of
+  // them. Someone the reset left feeling worse is not a conversion step.
+  const quiet = worse || hurt;
+
+  const askFocus = isClient && !quiet && state.progress.totalWorkouts <= 1 && !state.primaryNeed;
   const askSave =
-    isClient && !signedIn && !pro && !state.savePromptDismissedAt && state.progress.totalWorkouts <= 6;
+    isClient &&
+    !quiet &&
+    !signedIn &&
+    !pro &&
+    !state.savePromptDismissedAt &&
+    state.progress.totalWorkouts <= 6;
 
   const afterFeedback: Stage = askFocus ? "focus" : askSave ? "save" : "wrap";
   const afterFocus: Stage = askSave ? "save" : "wrap";
   const stage: Stage = advanced ?? (askFeedback ? "feedback" : afterFeedback);
 
   useEffect(() => {
-    if (stage === "save") track("email_prompt_viewed", { source: "done", kind: "save_progress" });
-  }, [stage]);
+    if (stage !== "save") return;
+    // Revisiting Done shows the prompt again; the funnel counts it once.
+    if (!markOnce(`email_prompt:${session?.sessionId ?? "none"}`)) return;
+    track("email_prompt_viewed", { source: "done", kind: "save_progress" });
+  }, [stage, session?.sessionId]);
 
   // No question to answer (already rated, or not asked): the reset is its own reward.
   useEffect(() => {
@@ -122,6 +136,8 @@ export function DoneView() {
     if (tunePlayed.current || !session || !state.settings.soundEnabled) return;
     if (Date.now() - new Date(session.finishedAt).getTime() > TUNE_WINDOW_MS) return;
     tunePlayed.current = true;
+    // A refresh within the window is the same finish, not a second one.
+    if (!markOnce(`tune:${session.sessionId}`)) return;
     playCelebrationTune(session.finishedAt);
   }
 
@@ -202,9 +218,6 @@ export function DoneView() {
     setAdvanced("wrap");
   }
 
-  const worse = effect === "worse";
-  // Worse, or painful along the way: no celebration and no asks.
-  const quiet = worse || hurt;
   const helpful = state.progress.history.filter((entry) => entry.perceivedEffect === "better").length;
   // Said out loud, on this screen, instead of hiding behind "Back to Today".
   const offerPro =
@@ -444,7 +457,7 @@ export function DoneView() {
               </Link>
             ) : null}
 
-            <InstallPrompt />
+            {!quiet ? <InstallPrompt /> : null}
           </div>
 
           <div className="mt-auto pt-6">

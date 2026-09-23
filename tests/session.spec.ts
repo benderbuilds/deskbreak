@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { clearAppState, completeReset } from "./helpers";
+import { captureEvents, clearAppState, completeReset } from "./helpers";
 
 const STOP_RULE = /mild stretch is fine\. stop if it's sharp/i;
 
@@ -116,6 +116,58 @@ test.describe("done", () => {
     expect(worseAreas).toEqual(["neck"]);
     // No reminder ask or upsell right after something made them feel worse.
     await expect(page.getByText(/same time tomorrow/i)).toHaveCount(0);
+  });
+
+  test("Worse skips the questions and lands on a quiet wrap-up", async ({ page }) => {
+    await clearAppState(page);
+    await startReset(page);
+    await completeReset(page);
+
+    await page.getByRole("button", { name: /^worse$/i }).click();
+    await page.getByRole("button", { name: /^neck$/i }).click();
+    await page.getByRole("button", { name: /^done$/i }).click();
+
+    // Nothing is asked of someone the reset left feeling worse.
+    await expect(page.getByRole("button", { name: /back to today/i })).toBeVisible();
+    await expect(page.getByText(/where do you usually feel desk work/i)).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /remember what works/i })).toHaveCount(0);
+    await expect(page.getByRole("textbox", { name: /email/i })).toHaveCount(0);
+  });
+
+  test("a later Worse reset keeps the install and challenge asks away", async ({ page }) => {
+    await clearAppState(page);
+    for (let run = 1; run <= 3; run += 1) {
+      await startReset(page);
+      await completeReset(page);
+      if (run < 3) {
+        await rateAndWrap(page, /^better$/i);
+        continue;
+      }
+      await page.getByRole("button", { name: /^worse$/i }).click();
+      await page.getByRole("button", { name: /^not sure$/i }).click();
+    }
+
+    await expect(page.getByRole("button", { name: /back to today/i })).toBeVisible();
+    await expect(page.getByText(/one click away|home screen/i)).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /5-day desk reset/i })).toHaveCount(0);
+    await expect(page.getByText(/workday plan/i)).toHaveCount(0);
+  });
+
+  test("the save prompt is counted once, however often Done is revisited", async ({ page }) => {
+    const events = await captureEvents(page);
+    await clearAppState(page);
+    await startReset(page);
+    await completeReset(page);
+
+    await page.getByRole("button", { name: /^better$/i }).click();
+    await page.getByRole("button", { name: /^back \+ hips$/i }).click();
+    await expect(page.getByRole("heading", { name: /remember what works/i })).toBeVisible();
+
+    await page.reload();
+    await expect(page.getByRole("heading", { name: /remember what works/i })).toBeVisible();
+
+    const seen = await events();
+    expect(seen.filter((event) => event === "email_prompt_viewed")).toHaveLength(1);
   });
 
   test("Back to Today goes to Today, and the Pro offer is an honest card", async ({ page }) => {
