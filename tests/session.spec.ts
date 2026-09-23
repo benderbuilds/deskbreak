@@ -22,7 +22,7 @@ test.describe("safety", () => {
   test("the first reset opens with a skippable safety screen, once", async ({ page }) => {
     await clearAppState(page, { firstRun: true });
     await page.goto("/app/start?need=neck_shoulders&minutes=3&source=landing");
-    await expect(page.getByRole("heading", { name: /before you start/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /a quick check before you move/i })).toBeVisible();
     await expect(page.getByText(/not medical care/i)).toBeVisible();
 
     await page.getByRole("checkbox", { name: /neck pain or a recent neck injury/i }).check();
@@ -36,7 +36,30 @@ test.describe("safety", () => {
     // Never again, even before the first reset is finished.
     await page.goto("/app/start?need=general&minutes=3&source=landing");
     await expect(page.getByText(/^1 of \d+$/)).toBeVisible();
-    await expect(page.getByRole("heading", { name: /before you start/i })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /a quick check before you move/i })).toHaveCount(0);
+  });
+
+  test("the safety step says what it is, keeps every flag, and asks for nothing", async ({ page }) => {
+    await clearAppState(page, { firstRun: true });
+    await page.goto("/app/start?need=general&minutes=3&source=landing");
+
+    await expect(page.getByRole("heading", { name: /a quick check before you move/i })).toBeVisible();
+    await expect(page.getByText(/select any that apply, or start when you.re ready/i)).toBeVisible();
+    // Ten flags, all reachable, none behind a disclosure.
+    await expect(page.getByRole("checkbox")).toHaveCount(10);
+    // Floor work is a setting, not a question asked before a desk reset.
+    await expect(page.getByText(/floor/i)).toHaveCount(0);
+
+    await page.getByRole("button", { name: /^start my reset$/i }).click();
+    await expect(page.getByText(/^1 of \d+$/)).toBeVisible();
+  });
+
+  test("the floor-work preference still lives in You and stays off by default", async ({ page }) => {
+    await clearAppState(page);
+    await page.goto("/app/you");
+    const floor = page.getByRole("switch", { name: /include floor exercises/i });
+    await expect(floor).toBeVisible();
+    await expect(floor).toHaveAttribute("aria-checked", "false");
   });
 
   test("the stop rule is on the workout screen the whole time", async ({ page }) => {
@@ -115,7 +138,43 @@ test.describe("done", () => {
     );
     expect(worseAreas).toEqual(["neck"]);
     // No reminder ask or upsell right after something made them feel worse.
-    await expect(page.getByText(/same time tomorrow/i)).toHaveCount(0);
+    await expect(page.getByText(/make it a daily break/i)).toHaveCount(0);
+  });
+
+  test("a good reset reaches the return invitation without any other question", async ({ page }) => {
+    await clearAppState(page);
+    await startReset(page);
+    await completeReset(page);
+
+    await page.getByRole("button", { name: /^better$/i }).click();
+
+    // Straight to the summary: no focus question, no email form.
+    await expect(page.getByRole("heading", { name: /make it a daily break/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /back to today/i })).toBeVisible();
+    await expect(page.getByText(/where do you usually feel desk work/i)).toHaveCount(0);
+    await expect(page.getByRole("textbox", { name: /email/i })).toHaveCount(0);
+
+    // Saving progress is an optional link to the page that already does it.
+    const save = page.getByRole("link", { name: /save my progress/i });
+    await expect(save).toBeVisible();
+    expect(await save.getAttribute("href")).toContain("/app/save");
+  });
+
+  test("personalizing the next reset is optional and does not start another step", async ({ page }) => {
+    await clearAppState(page);
+    await startReset(page);
+    await completeReset(page);
+    await page.getByRole("button", { name: /^better$/i }).click();
+
+    await page.getByRole("button", { name: /personalize my next reset/i }).click();
+    await page.getByRole("button", { name: /^back \+ hips$/i }).click();
+
+    // Still on the summary, with the choice remembered.
+    await expect(page.getByRole("button", { name: /back to today/i })).toBeVisible();
+    const need = await page.evaluate(
+      () => JSON.parse(localStorage.getItem("deskbreak.app.v2") ?? "{}").primaryNeed,
+    );
+    expect(need).toBe("back_hips");
   });
 
   test("Worse skips the questions and lands on a quiet wrap-up", async ({ page }) => {
@@ -160,11 +219,10 @@ test.describe("done", () => {
     await completeReset(page);
 
     await page.getByRole("button", { name: /^better$/i }).click();
-    await page.getByRole("button", { name: /^back \+ hips$/i }).click();
-    await expect(page.getByRole("heading", { name: /remember what works/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /save my progress/i })).toBeVisible();
 
     await page.reload();
-    await expect(page.getByRole("heading", { name: /remember what works/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /save my progress/i })).toBeVisible();
 
     const seen = await events();
     expect(seen.filter((event) => event === "email_prompt_viewed")).toHaveLength(1);
@@ -177,7 +235,7 @@ test.describe("done", () => {
       await completeReset(page);
       await rateAndWrap(page, /^better$/i);
       if (run === 1) {
-        await expect(page.getByText(/same time tomorrow/i)).toBeVisible();
+        await expect(page.getByText(/make it a daily break/i)).toBeVisible();
         await expect(page.getByText(/more rated resets to see your patterns/i)).toBeVisible();
       }
       if (run < 3) {

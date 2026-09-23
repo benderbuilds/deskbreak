@@ -108,7 +108,7 @@ test.describe("first visit", () => {
     // questions are optional: starting is still a single tap.
     await page.getByRole("link", { name: /^start my free reset$/i }).first().click();
     await expect(page).toHaveURL(/\/app\/workout\//);
-    await expect(page.getByRole("heading", { name: /before you start/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /a quick check before you move/i })).toBeVisible();
     await expect(page.getByText(/stop if it's sharp/i)).toBeVisible();
     await page.getByRole("button", { name: /^start my reset$/i }).click();
     await expect(page.getByText(/1 of \d+/)).toBeVisible();
@@ -117,7 +117,7 @@ test.describe("first visit", () => {
 
     await completeReset(page);
 
-    // How do you feel? Then, first time only, where desk work lands. Then save.
+    // How do you feel? Then the summary, and the way back to Today.
     // Honest time: clicking through takes seconds, and the headline says so.
     await expect(page.getByRole("heading", { name: /short one|nice\./i })).toBeVisible();
     await expect(page.getByText(/your answer tunes the next reset/i)).toBeVisible();
@@ -125,17 +125,20 @@ test.describe("first visit", () => {
     await page.getByRole("button", { name: /^better$/i }).click();
     await expect(page.getByText(/we'll use that to make your next reset better/i)).toBeVisible();
 
-    await expect(page.getByText(/where do you usually feel desk work/i)).toBeVisible();
-    await page.getByRole("button", { name: /^back \+ hips$/i }).click();
-
-    await expect(page.getByRole("heading", { name: /remember what works for you/i })).toBeVisible();
-    await page.getByRole("button", { name: /^not now$/i }).click();
+    // The invitation to come back is on the first summary, with no question
+    // to answer and no account to create first.
+    await expect(page.getByRole("heading", { name: /make it a daily break/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /personalize my next reset/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /save my progress/i })).toBeVisible();
+    await expect(page.getByText(/where do you usually feel desk work/i)).toHaveCount(0);
 
     await expect(page.getByRole("button", { name: /back to today/i })).toBeVisible();
     await page.getByRole("button", { name: /back to today/i }).click();
     await expect(page).toHaveURL(/\/app$/);
-    await expect(page.getByText(/recommended now/i)).toBeVisible();
-    await expect(page.getByText(/1 reset/)).toBeVisible();
+    // Today acknowledges what was done rather than asking for it again.
+    await expect(page.getByRole("heading", { name: /today.s reset complete/i })).toBeVisible();
+    await expect(page.getByText(/1 reset · /)).toBeVisible();
+    await expect(page.getByRole("button", { name: /^do another reset$/i })).toBeVisible();
   });
 
   test("a landing shortcut jumps straight into that need", async ({ page }) => {

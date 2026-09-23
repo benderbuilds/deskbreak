@@ -83,14 +83,16 @@ export async function revokePro(page: Page): Promise<void> {
   );
 }
 
-/** Answers the post-reset questions so a test lands on the wrap-up screen. */
+/**
+ * Answers the one question Done asks, landing on the summary.
+ *
+ * Nothing else is clicked. The summary's other offers are optional, and a
+ * blind "Not now" here used to dismiss whichever one happened to render
+ * first, which quietly changed the state a test then asserted on.
+ */
 export async function finishDoneFlow(page: Page): Promise<void> {
   const feel = page.getByRole("button", { name: /^better$/i });
   if (await feel.isVisible().catch(() => false)) await feel.click();
-  const focus = page.getByRole("button", { name: /^neck \+ shoulders$/i });
-  if (await focus.isVisible().catch(() => false)) await focus.click();
-  const notNow = page.getByRole("button", { name: /^not now$/i });
-  if (await notNow.isVisible().catch(() => false)) await notNow.click();
   await expect(page.getByRole("button", { name: /back to today/i })).toBeVisible();
 }
 

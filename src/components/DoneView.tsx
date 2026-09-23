@@ -8,13 +8,13 @@ import { CharacterArt } from "@/components/CharacterArt";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { ReminderAsk } from "@/components/ReminderAsk";
 import { WeekSummary } from "@/components/WeekSummary";
-import { describeAccountError, requestMagicLink } from "@/lib/account-client";
 import { track } from "@/lib/analytics";
 import { BODY_AREA_LABELS, BODY_AREAS } from "@/lib/body-areas";
 import { playCelebrationTune } from "@/lib/celebration-tune";
 import {
   CHALLENGE_OFFER_AFTER_SESSIONS,
   FEEDBACK_OPTIONS,
+  NEED_BY_ID,
   FEEDBACK_RESPONSES,
   PAINFUL_RESPONSE,
   TARGETED_OPTIONS,
@@ -41,7 +41,6 @@ import {
   personalizationSignals,
   recordFeedback,
   recordWorseAreas,
-  saveEmail,
   setPrimaryNeed,
   shouldAskForFeedback,
 } from "@/lib/storage";
@@ -49,7 +48,7 @@ import { useAppState } from "@/lib/use-app-state";
 import { useIsClient } from "@/lib/use-client";
 import type { BodyArea, PerceivedEffect, PrimaryNeed, WorkoutSession } from "@/lib/types";
 
-type Stage = "feedback" | "worse" | "focus" | "save" | "sent" | "wrap";
+type Stage = "feedback" | "worse" | "wrap";
 
 /** Left to right: Worse, Same, Better, all styled alike so none is suggested. */
 const RATING_ORDER: PerceivedEffect[] = ["worse", "same", "better"];
@@ -67,9 +66,14 @@ const PAYWALL_AFTER_HELPFUL = 3;
 /**
  * The screen that decides whether someone ever comes back.
  *
- * One honest question. Then, only the first time, where desk work usually
- * lands. Then an offer to remember what worked. The paywall comes later, and
- * only once DeskBreak has something real to point at.
+ * One honest question, then the invitation to come back, and nothing standing
+ * between the two. Personalizing the next reset and saving progress are both
+ * offered here, but as options on the summary rather than steps that have to
+ * be cleared: someone who just finished their first three minutes has already
+ * done the thing we wanted them to do.
+ *
+ * The paywall comes later, and only once DeskBreak has something real to
+ * point at.
  */
 export function DoneView() {
   const router = useRouter();
@@ -90,10 +94,8 @@ export function DoneView() {
 
   const [advanced, setAdvanced] = useState<Stage | null>(null);
   const [effect, setEffect] = useState<PerceivedEffect | null>(session?.perceivedEffect ?? null);
-  const [email, setEmail] = useState(state.email ?? "");
-  const [submitting, setSubmitting] = useState(false);
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [devLink, setDevLink] = useState<string | null>(null);
+  const [personalizing, setPersonalizing] = useState(false);
+  const [saveDismissed, setSaveDismissed] = useState(false);
   const [worseAreas, setWorseAreas] = useState<BodyArea[]>([]);
   const [clinician, setClinician] = useState(false);
   const tunePlayed = useRef(false);
@@ -103,8 +105,8 @@ export function DoneView() {
   // them. Someone the reset left feeling worse is not a conversion step.
   const quiet = worse || hurt;
 
-  const askFocus = isClient && !quiet && state.progress.totalWorkouts <= 1 && !state.primaryNeed;
-  const askSave =
+  // Offered on the summary, never in the way of it.
+  const offerSave =
     isClient &&
     !quiet &&
     !signedIn &&
@@ -112,16 +114,14 @@ export function DoneView() {
     !state.savePromptDismissedAt &&
     state.progress.totalWorkouts <= 6;
 
-  const afterFeedback: Stage = askFocus ? "focus" : askSave ? "save" : "wrap";
-  const afterFocus: Stage = askSave ? "save" : "wrap";
-  const stage: Stage = advanced ?? (askFeedback ? "feedback" : afterFeedback);
+  const stage: Stage = advanced ?? (askFeedback ? "feedback" : "wrap");
 
   useEffect(() => {
-    if (stage !== "save") return;
-    // Revisiting Done shows the prompt again; the funnel counts it once.
+    if (stage !== "wrap" || !offerSave) return;
+    // Revisiting Done shows the offer again; the funnel counts it once.
     if (!markOnce(`email_prompt:${session?.sessionId ?? "none"}`)) return;
     track("email_prompt_viewed", { source: "done", kind: "save_progress" });
-  }, [stage, session?.sessionId]);
+  }, [stage, offerSave, session?.sessionId]);
 
   // No question to answer (already rated, or not asked): the reset is its own reward.
   useEffect(() => {
@@ -166,7 +166,7 @@ export function DoneView() {
         }),
       }).catch(() => {});
     }
-    setAdvanced(value === "worse" ? "worse" : afterFeedback);
+    setAdvanced(value === "worse" ? "worse" : "wrap");
   }
 
   function submitWorseAreas(areas: BodyArea[]) {
@@ -182,40 +182,19 @@ export function DoneView() {
       const notice = areaAvoidanceNotice(personalizationSignals(getAppState()));
       setClinician(Boolean(notice?.suggestClinician && notice.areas.some((area) => areas.includes(area))));
     }
-    setAdvanced(afterFeedback);
+    setAdvanced("wrap");
   }
 
-  function chooseFocus(need: PrimaryNeed | null) {
-    if (need) setPrimaryNeed(need);
-    track("need_selected", { need: need ?? "none", source: "done_focus" });
-    setAdvanced(afterFocus);
-  }
-
-  async function submitSave(event: React.FormEvent) {
-    event.preventDefault();
-    const trimmed = email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) {
-      setEmailError("That doesn't look like an email address.");
-      return;
-    }
-    setSubmitting(true);
-    setEmailError(null);
-    const result = await requestMagicLink(trimmed, { next: "/app?saved=1" });
-    setSubmitting(false);
-    if (!result.ok) {
-      setEmailError(describeAccountError(result.error));
-      return;
-    }
-    saveEmail(trimmed);
-    track("email_submitted", { source: "done", kind: "save_progress" });
-    if (result.devLink) setDevLink(result.devLink);
-    setAdvanced("sent");
+  function chooseFocus(need: PrimaryNeed) {
+    setPrimaryNeed(need);
+    track("need_selected", { need, source: "done_focus" });
+    setPersonalizing(false);
   }
 
   function skipSave() {
+    setSaveDismissed(true);
     dismissSavePrompt();
     track("email_skipped", { source: "done", kind: "save_progress" });
-    setAdvanced("wrap");
   }
 
   const helpful = state.progress.history.filter((entry) => entry.perceivedEffect === "better").length;
@@ -312,91 +291,6 @@ export function DoneView() {
         />
       ) : null}
 
-      {stage === "focus" ? (
-        <>
-          {effect && !worse ? <p className="mt-3 text-center text-ink/70">{FEEDBACK_RESPONSES[effect]}</p> : null}
-          <p className="mt-8 text-center font-display font-extrabold text-xl text-ink">
-            Where do you usually feel desk work the most?
-          </p>
-          <div className="mt-4 grid gap-2">
-            {TARGETED_OPTIONS.map((option) => (
-              <Button key={option.id} variant="secondary" onClick={() => chooseFocus(option.id)}>
-                {option.label}
-              </Button>
-            ))}
-            <Button variant="secondary" onClick={() => chooseFocus("general")}>
-              Mostly just stiff
-            </Button>
-            <Button variant="tertiary" onClick={() => chooseFocus(null)}>
-              No particular problem
-            </Button>
-          </div>
-        </>
-      ) : null}
-
-      {stage === "save" ? (
-        <>
-          {effect && !worse ? <p className="mt-3 text-center text-ink/70">{FEEDBACK_RESPONSES[effect]}</p> : null}
-          <form onSubmit={submitSave} className="mt-8">
-            <h2 className="font-display font-extrabold text-xl text-ink">
-              Want DeskBreak to remember what works for you?
-            </h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted">
-              We&apos;ll email you a sign-in link. No password, and your history so far comes with you.
-            </p>
-            <label htmlFor="done-email" className="sr-only">
-              Your email address
-            </label>
-            <input
-              id="done-email"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              placeholder="you@work.com"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="mt-4 min-h-13 w-full rounded-[14px] border border-line-strong bg-white px-4 text-base text-ink"
-            />
-            {emailError ? (
-              <p className="mt-2 text-sm font-semibold text-pen" role="alert">
-                {emailError}
-              </p>
-            ) : null}
-            <div className="mt-4 grid gap-2.5">
-              <Button type="submit" disabled={submitting}>
-                {submitting ? "Sending..." : "Save my progress"}
-              </Button>
-              <Button variant="tertiary" onClick={skipSave}>
-                Not now
-              </Button>
-            </div>
-          </form>
-        </>
-      ) : null}
-
-      {stage === "sent" ? (
-        <>
-          <h2 className="mt-8 text-center font-display font-extrabold text-xl text-ink">Check your inbox.</h2>
-          <p className="mt-2 text-center text-sm leading-relaxed text-muted">
-            We sent a sign-in link to {email.trim()}. Open it on any device and your resets follow you.
-          </p>
-          <p className="mt-2 text-center text-sm font-semibold leading-relaxed text-ink">
-            Open the link on this device to keep today&apos;s reset.
-          </p>
-          {devLink ? (
-            <p className="mt-3 text-center text-xs text-muted">
-              Email isn&apos;t configured here, so here is the link:{" "}
-              <a href={devLink} className="font-semibold text-pen">
-                sign in
-              </a>
-            </p>
-          ) : null}
-          <div className="mt-6">
-            <Button onClick={() => setAdvanced("wrap")}>Continue</Button>
-          </div>
-        </>
-      ) : null}
-
       {stage === "wrap" ? (
         <>
           {worse ? (
@@ -440,6 +334,58 @@ export function DoneView() {
             ) : null}
 
             {!quiet ? <ReminderAsk /> : null}
+
+            {/* Both optional, both on the summary, neither in the way of it. */}
+            {!quiet ? (
+              <div className="grid gap-3 border-t border-line pt-4">
+                <div>
+                  <Button
+                    variant="tertiary"
+                    block={false}
+                    onClick={() => setPersonalizing((open) => !open)}
+                    aria-expanded={personalizing}
+                    aria-controls="done-personalize"
+                  >
+                    Personalize my next reset
+                  </Button>
+                  {personalizing ? (
+                    <div id="done-personalize" className="animate-sheet-up mt-2 grid gap-2">
+                      <p className="text-sm text-muted">Where do you usually feel desk work the most?</p>
+                      {TARGETED_OPTIONS.map((option) => (
+                        <Button key={option.id} variant="secondary" size="sm" onClick={() => chooseFocus(option.id)}>
+                          {option.label}
+                        </Button>
+                      ))}
+                      <Button variant="secondary" size="sm" onClick={() => chooseFocus("general")}>
+                        Mostly just stiff
+                      </Button>
+                    </div>
+                  ) : state.primaryNeed && state.primaryNeed !== "general" ? (
+                    <p className="mt-1 text-sm text-muted">
+                      Next reset leans towards {NEED_BY_ID[state.primaryNeed]?.label.toLowerCase() ?? "what you picked"}.
+                    </p>
+                  ) : null}
+                </div>
+
+                {offerSave && !saveDismissed ? (
+                  <div>
+                    <Link
+                      href="/app/save?next=/app"
+                      className="text-sm font-semibold text-pen underline underline-offset-4"
+                      onClick={() => track("account_started", { source: "done", kind: "save_progress" })}
+                    >
+                      Save my progress
+                    </Link>
+                    <p className="mt-1 text-sm text-muted">
+                      A sign-in link by email, no password, and today&apos;s resets come with you.{" "}
+                      <button type="button" onClick={skipSave} className="font-semibold text-ink underline underline-offset-4">
+                        Not now
+                      </button>
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="border-t border-line pt-4">
               <WeekSummary />

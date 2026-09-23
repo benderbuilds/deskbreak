@@ -21,9 +21,10 @@ import {
   TARGETED_OPTIONS,
 } from "@/lib/constants";
 import { getExercise } from "@/lib/content";
-import { minutesNow } from "@/lib/dates";
+import { minutesNow, todayKey } from "@/lib/dates";
 import { canAccessDuration, isProEntitlement } from "@/lib/entitlements";
 import { greetingForHour } from "@/lib/format";
+import { activityOn, formatActiveTime } from "@/lib/insights";
 import { workoutHref } from "@/lib/recommend-client";
 import { preferredDurationFrom } from "@/lib/personalization";
 import {
@@ -131,6 +132,20 @@ export function TodayView() {
   // No name: an email's local part ("jesse.bender14") isn't one, and there is no display name yet.
   const title = resetTitle(need);
 
+  // What actually happened today, in this browser's own day. Opening a
+  // workout is not finishing one, and firstResetComplete says nothing about
+  // whether today has a reset in it.
+  const today = activityOn(state.progress.history, state.microBreaks, todayKey());
+  const doneToday = today.resets > 0;
+  // A recent bad outcome is acknowledged, never celebrated.
+  const lastToday = [...state.progress.history]
+    .filter((entry) => todayKey(new Date(entry.finishedAt)) === todayKey())
+    .sort((a, b) => a.finishedAt.localeCompare(b.finishedAt))
+    .at(-1);
+  const roughToday =
+    lastToday?.perceivedEffect === "worse" ||
+    Boolean(lastToday?.exercises?.some((record) => record.discomfortReason === "painful"));
+
   const plan =
     pro && state.plan
       ? withExpiry(planForToday(state.plan, { signals: signals ?? undefined, preferredDuration: state.preferredDuration }), minutesNow())
@@ -156,8 +171,23 @@ export function TodayView() {
             {greetingForHour(hour)}
           </p>
           <h1 className="mt-1 font-display font-extrabold text-[1.7rem] leading-tight text-ink lg:text-[2.1rem]">
-            {state.progress.totalWorkouts === 0 ? "Sitting all day? Do this." : "Time for a quick reset."}
+            {doneToday
+              ? roughToday
+                ? "Today's reset is done."
+                : "Today's reset complete."
+              : state.progress.totalWorkouts === 0
+                ? "Sitting all day? Do this."
+                : "Time for a quick reset."}
           </h1>
+          {doneToday ? (
+            <p className="mt-2 text-[1.05rem] font-semibold text-ink">
+              {today.resets} {today.resets === 1 ? "reset" : "resets"} ·{" "}
+              {formatActiveTime(today.activeSeconds)} moved
+              {today.microBreaks
+                ? ` · ${today.microBreaks} ${today.microBreaks === 1 ? "stand-up" : "stand-ups"}`
+                : ""}
+            </p>
+          ) : null}
 
           <Suspense fallback={null}>
             <SignInBanner />
@@ -166,13 +196,19 @@ export function TodayView() {
           {plan && dueBreak ? <DueBreakCard plan={plan} entry={dueBreak} /> : null}
 
           <section
-            className={[dueBreak ? "surface mt-4" : "surface-elevated mt-5", "px-5 py-5 lg:px-7 lg:py-7"].join(" ")}
+            className={[dueBreak || doneToday ? "surface mt-4" : "surface-elevated mt-5", "px-5 py-5 lg:px-7 lg:py-7"].join(" ")}
             aria-labelledby="reset-title"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-muted">
-                  {dueBreak ? "Or a full reset" : recommendation?.personalized ? "Recommended for you" : "Recommended now"}
+                  {dueBreak
+                    ? "Or a full reset"
+                    : doneToday
+                      ? "If you want another"
+                      : recommendation?.personalized
+                        ? "Recommended for you"
+                        : "Recommended now"}
                 </p>
                 <h2 id="reset-title" className="mt-1.5 font-display font-extrabold text-[1.55rem] leading-tight text-ink lg:text-[1.8rem]">
                   {title}
@@ -193,10 +229,10 @@ export function TodayView() {
               <Button
                 onClick={start}
                 disabled={!recommendation}
-                variant={dueBreak ? "secondary" : "primary"}
+                variant={dueBreak || doneToday ? "secondary" : "primary"}
                 className="sm:flex-1"
               >
-                Start reset
+                {doneToday ? "Do another reset" : "Start reset"}
               </Button>
               <Button
                 variant="tertiary"
