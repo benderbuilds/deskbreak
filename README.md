@@ -94,6 +94,20 @@ Character art resolves by exercise id from `data/art-manifest.json`. Run
 `npm run art:manifest` after adding an SVG. Free routines must have dedicated
 art; the audit enforces it.
 
+## Brand assets
+
+The mark is generated, never hand-edited. `scripts/locked-mark-source.png` is
+the approved silhouette; `python3 scripts/generate-icons.py` recolours its
+ground and writes every output: the favicons, the multi-resolution
+`favicon.ico`, the Apple touch icon, the PWA icons and the maskable one, whose
+white geometry has to stay inside the centred circle of 40% of the width.
+
+Icons keep their paths forever, so a cached page or an installed app still
+resolves them. What changes is `ASSET_VERSION` in `src/lib/brand.ts`, which is
+appended to every brand image URL. `public/sw.js` answers `/icons/*` from its
+cache before the network, so its own version literal has to move at the same
+time or returning visitors keep the old artwork.
+
 ## Recommendation engine
 
 `src/lib/recommendation.ts` is the one place that decides what a user should do

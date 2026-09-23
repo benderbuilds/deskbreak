@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { CharacterArt } from "@/components/CharacterArt";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker, StartResetButton } from "@/components/marketing/LandingCta";
+import { StickyStartBar } from "@/components/marketing/StickyStartBar";
+import { startHref } from "@/lib/start-link";
 import { PainNote, RichText } from "@/components/marketing/RichText";
 import { getExercise } from "@/lib/content";
 import { LANDING_PAGES, findLandingPage, startMinutes, startRoutineName } from "@/lib/seo-content";
@@ -91,7 +93,7 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
               ? `Start with the free ${minutes}-minute version. The full ${page.durationMinutes}-minute workout is in Pro.`
               : "No equipment. No signup. Timed, cued and illustrated."}
           </p>
-          <div className="mt-4">
+          <div className="mt-4" data-free-start>
             <StartResetButton need={page.need} minutes={minutes} setup={page.setup} source={`seo_${page.slug}`} seo>
               {ctaLabel}
             </StartResetButton>
@@ -146,7 +148,7 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
               ? `Free, ${minutes} minutes. The full ${page.durationMinutes}-minute workout is in Pro.`
               : "No equipment, no signup."}
           </p>
-          <div className="mt-4">
+          <div className="mt-4" data-free-start>
             <StartResetButton need={page.need} minutes={minutes} setup={page.setup} source={`seo_${page.slug}_footer`} seo>
               {ctaLabel}
             </StartResetButton>
@@ -166,6 +168,13 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
           </ul>
         </nav>
       </article>
+
+      {/* The same reset this page is about, not a generic one. */}
+      <StickyStartBar
+        href={startHref({ need: page.need, minutes, setup: page.setup, seo: true })}
+        label={ctaLabel}
+        placement={`seo_${page.slug}_sticky`}
+      />
     </MarketingShell>
   );
 }

@@ -1,7 +1,15 @@
 /* DeskBreak service worker: offline shell + background push. */
 
-const VERSION = "deskbreak-v3-1";
-const SHELL = ["/app", "/app/start", "/offline", "/icons/icon-192.png", "/icons/icon-512.png", "/character/stretch-fallback.svg"];
+/*
+ * Bump VERSION with the brand artwork. ASSET_VERSION in src/lib/brand.ts is
+ * the same string; it is repeated here because this file is plain JavaScript
+ * served as-is, and icons are answered from the cache before the network.
+ */
+const ASSET_VERSION = "cobalt-1";
+const VERSION = `deskbreak-v3-${ASSET_VERSION}`;
+const ICON_192 = `/icons/icon-192.png?v=${ASSET_VERSION}`;
+const ICON_512 = `/icons/icon-512.png?v=${ASSET_VERSION}`;
+const SHELL = ["/app", "/app/start", "/offline", ICON_192, ICON_512, "/character/stretch-fallback.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -80,8 +88,8 @@ self.addEventListener("push", (event) => {
   }
   const options = {
     body: payload.body,
-    icon: "/icons/icon-192.png",
-    badge: "/icons/icon-192.png",
+    icon: ICON_192,
+    badge: ICON_192,
     tag: payload.tag || "deskbreak-reminder",
     renotify: false,
     data: { url: payload.url, breakId: payload.breakId || null },
