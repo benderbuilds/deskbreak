@@ -3,7 +3,7 @@
 
 Does not redraw the silhouette. Source: scripts/locked-mark-source.png
 (the attached lock image). The source square is coral; the mark ships in
-slate, so the square is recoloured pixel by pixel along the coral-to-white
+cobalt, so the square is recoloured pixel by pixel along the coral-to-white
 axis. Geometry is untouched — only the hue of the ground moves.
 """
 from __future__ import annotations
@@ -16,7 +16,7 @@ from pathlib import Path
 from PIL import Image
 
 # The mark's square. Matches --pen in globals.css and the manifest theme colour.
-MARK = (0x30, 0x52, 0x5C)
+MARK = (0x31, 0x55, 0xD9)
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = Path(__file__).resolve().parent / "locked-mark-source.png"
@@ -96,11 +96,11 @@ def crop_lock(im: Image.Image) -> tuple[Image.Image, tuple[int, int, int]]:
 
 
 def recolour(img: Image.Image, coral: tuple[int, int, int]) -> Image.Image:
-    """Swap the coral ground for slate, keeping every antialiased edge.
+    """Swap the coral ground for cobalt, keeping every antialiased edge.
 
     Each pixel in the source is a blend of the coral ground and the white
     figure. Projecting it back onto that axis recovers how white it is, and
-    re-blending slate to white by the same amount preserves the soft edges
+    re-blending cobalt to white by the same amount preserves the soft edges
     exactly where they were.
     """
     axis = tuple(255 - c for c in coral)

@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import Script from "next/script";
 import { Archivo } from "next/font/google";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
+import { BRAND_MARK_COLOR, brandAsset } from "@/lib/brand";
 import { INSTALL_CAPTURE_SCRIPT } from "@/lib/pwa-install";
 import { PRODUCT_PROMISE, PRODUCT_SUBHEAD } from "@/lib/constants";
 import "./globals.css";
@@ -26,16 +27,17 @@ export const metadata: Metadata = {
   applicationName: "DeskBreak",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, title: "DeskBreak", statusBarStyle: "default" },
+  // Versioned so a browser holding the old artwork fetches the new one.
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: brandAsset("/favicon.svg"), type: "image/svg+xml" },
+      { url: brandAsset("/favicon.ico"), sizes: "any" },
+      { url: brandAsset("/favicon-32.png"), sizes: "32x32", type: "image/png" },
+      { url: brandAsset("/favicon-16.png"), sizes: "16x16", type: "image/png" },
+      { url: brandAsset("/icons/icon-192.png"), sizes: "192x192", type: "image/png" },
+      { url: brandAsset("/icons/icon-512.png"), sizes: "512x512", type: "image/png" },
     ],
-    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+    apple: { url: brandAsset("/apple-touch-icon.png"), sizes: "180x180" },
   },
   openGraph: {
     title: `DeskBreak. ${PRODUCT_PROMISE}`,
@@ -48,7 +50,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#30525C",
+  themeColor: BRAND_MARK_COLOR,
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",

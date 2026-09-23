@@ -2,8 +2,8 @@ import { readFile } from "node:fs/promises";
 import { ImageResponse } from "next/og";
 
 /**
- * Social preview images, in the app's own look: a slate field with the timer
- * bar draining across it, the way a move looks while it runs.
+ * Social preview images, in the app's own look: the navy workout field with
+ * the timer bar draining across it, the way a move looks while it runs.
  *
  * Every shared link gets one, so a post on Product Hunt or Reddit shows the
  * product rather than an empty grey box.
@@ -12,9 +12,12 @@ import { ImageResponse } from "next/og";
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
 
-const PEN = "#30525C";
-const PEN_DEEP = "#2A4750";
-const NOTE = "#F6C992";
+// The workout field, not the action colour: white on cobalt is fine for a
+// button but heavy across a 1200x630 card, and the field is what the product
+// actually looks like while someone is moving.
+const FIELD = "#18233D";
+const FIELD_DRAINED = "#111C33";
+const NOTE = "#FFE08A";
 
 /**
  * Read from the source tree rather than a URL: the fonts ship with the build,
@@ -77,7 +80,7 @@ export async function ogImage({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: PEN,
+          backgroundColor: FIELD,
           padding: "64px 72px",
           fontFamily: "Archivo",
           color: "#FFFFFF",
@@ -119,7 +122,7 @@ export async function ogImage({
               width: "100%",
               height: 14,
               borderRadius: 999,
-              backgroundColor: PEN_DEEP,
+              backgroundColor: FIELD_DRAINED,
             }}
           >
             <div

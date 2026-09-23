@@ -1,3 +1,4 @@
+import { brandAsset } from "./brand";
 import { REMINDER_LINES } from "./constants";
 import type {
   PlannedBreak,
@@ -54,7 +55,7 @@ export function pingLocalNotification(title: string, body: string, href?: string
   try {
     const notification = new Notification(title, {
       body,
-      icon: "/icons/icon-192.png",
+      icon: brandAsset("/icons/icon-192.png"),
       tag: "deskbreak-reminder",
     });
     if (href) {

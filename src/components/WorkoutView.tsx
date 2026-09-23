@@ -439,11 +439,11 @@ export function WorkoutView({
   const moveLeft = current.durationSec > 0 ? Math.min(1, Math.max(0, engine.remainingSec / current.durationSec)) : 0;
 
   return (
-    <div className="on-field relative flex min-h-dvh flex-col overflow-hidden bg-pen-deep pt-[max(0.9rem,env(safe-area-inset-top))] text-white">
+    <div className="on-field relative flex min-h-dvh flex-col overflow-hidden bg-field-drained pt-[max(0.9rem,env(safe-area-inset-top))] text-white">
       <div aria-hidden className="pointer-events-none fixed inset-0">
         <div
           key={`drain-${engine.stepIndex}`}
-          className="field-drain absolute inset-x-0 bottom-0 bg-pen"
+          className="field-drain absolute inset-x-0 bottom-0 bg-field"
           style={{ height: `${moveLeft * 100}%` }}
         />
       </div>
@@ -527,7 +527,7 @@ export function WorkoutView({
               unlockAudio();
               engine.resume();
             }}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-pen-deep/90"
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-field-drained/90"
             aria-label="Paused. Tap to resume"
           >
             <span className="font-display text-5xl font-extrabold text-white">Paused</span>
@@ -556,7 +556,7 @@ export function WorkoutView({
         <div className="w-full">
           <div key={`copy-${current.exercise.id}-${engine.stepIndex}`} className="animate-step-in">
             {current.side ? (
-              <p className="mt-4 inline-block rounded-full bg-white px-3 py-1 text-base font-bold text-pen-deep lg:mt-0">
+              <p className="mt-4 inline-block rounded-full bg-white px-3 py-1 text-base font-bold text-ink lg:mt-0">
                 {current.side === "left" ? "Left side" : "Right side"}
               </p>
             ) : null}
@@ -586,7 +586,7 @@ export function WorkoutView({
         </div>
       </div>
 
-      <div className="sticky bottom-0 z-20 mt-4 bg-pen-deep px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-4">
+      <div className="sticky bottom-0 z-20 mt-4 bg-field-drained px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-4">
         <div className="mx-auto grid w-full max-w-[560px] gap-1">
           <div className="grid grid-cols-[1.4fr_1fr_1fr] gap-2">
             <Button

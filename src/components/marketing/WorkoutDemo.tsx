@@ -46,12 +46,12 @@ export function WorkoutDemo({ moves, totalSteps }: { moves: DemoMove[]; totalSte
       <div
         role="img"
         aria-label={`Preview of a DeskBreak reset: ${moves.map((entry) => entry.name).join(", ")}, each with a countdown and what's up next.`}
-        className="relative w-[248px] overflow-hidden rounded-[40px] border-[9px] border-ink bg-pen-deep sm:w-[272px]"
+        className="relative w-[248px] overflow-hidden rounded-[40px] border-[9px] border-ink bg-field-drained sm:w-[272px]"
       >
         <div aria-hidden="true" className="relative flex aspect-[9/17.5] flex-col px-4 pb-4 pt-5 text-white">
           {/* The field drains downward as the move's time runs out. */}
           <div
-            className="absolute inset-x-0 bottom-0 bg-pen"
+            className="absolute inset-x-0 bottom-0 bg-field"
             style={{ height: `${(1 - progress) * 100}%`, transition: playing && progress > 0 ? `height ${TICK_MS}ms linear` : "none" }}
           />
 

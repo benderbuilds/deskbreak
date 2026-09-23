@@ -61,13 +61,13 @@ export async function sendEmail(input: {
 }
 
 function shell(inner: string): string {
-  return `<div style="font-family:ui-sans-serif,system-ui,sans-serif;background:#F6F3EF;color:#22343B;padding:32px 20px">
+  return `<div style="font-family:ui-sans-serif,system-ui,sans-serif;background:#F7F9FC;color:#18233D;padding:32px 20px">
   <div style="max-width:420px;margin:0 auto">${inner}</div>
 </div>`;
 }
 
 function button(href: string, label: string): string {
-  return `<a href="${href}" style="display:inline-block;background:#30525C;color:#fff;text-decoration:none;font-weight:600;padding:14px 22px;border-radius:14px">${escapeHtml(label)}</a>`;
+  return `<a href="${href}" style="display:inline-block;background:#3155D9;color:#fff;text-decoration:none;font-weight:600;padding:14px 22px;border-radius:14px">${escapeHtml(label)}</a>`;
 }
 
 /** Plain, single-purpose reminder. One link, one job. */
@@ -84,7 +84,7 @@ export function reminderEmail(input: {
   const html = shell(`
     <p style="font-size:20px;line-height:1.35;font-weight:600;margin:0 0 20px">${escapeHtml(input.line)}</p>
     ${button(link, "Start my reset")}
-    <p style="font-size:13px;color:#556970;margin:24px 0 0">Not useful? Turn reminders off under You.</p>`);
+    <p style="font-size:13px;color:#536078;margin:24px 0 0">Not useful? Turn reminders off under You.</p>`);
 
   return { subject: input.line, text, html };
 }
@@ -98,9 +98,9 @@ export function magicLinkEmail(input: { link: string; minutes: number }): {
   const text = `Here is your DeskBreak sign-in link. It works once and expires in ${input.minutes} minutes.\n\n${input.link}\n\nIf you didn't ask for this, you can ignore it.`;
   const html = shell(`
     <p style="font-size:20px;line-height:1.35;font-weight:600;margin:0 0 8px">Save what works for you.</p>
-    <p style="font-size:15px;line-height:1.5;color:#3E5158;margin:0 0 20px">This link signs you in on any device. It works once and expires in ${input.minutes} minutes.</p>
+    <p style="font-size:15px;line-height:1.5;color:#3B4763;margin:0 0 20px">This link signs you in on any device. It works once and expires in ${input.minutes} minutes.</p>
     ${button(input.link, "Sign in to DeskBreak")}
-    <p style="font-size:13px;color:#556970;margin:24px 0 0">If you didn't ask for this, you can ignore it.</p>`);
+    <p style="font-size:13px;color:#536078;margin:24px 0 0">If you didn't ask for this, you can ignore it.</p>`);
   return { subject: "Your DeskBreak sign-in link", text, html };
 }
 

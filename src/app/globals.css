@@ -1,30 +1,42 @@
 @import "tailwindcss";
 
 /*
- * "Seashell afternoon": a seashell page, slate ink and one sand-coloured note.
- * Contrast on paper: ink 11.7:1, muted 5.2:1, pen 7.6:1, signal 5.1:1.
- * White on pen is 8.4:1, on pen-deep 9.9:1; ink on the note is 8.4:1.
- * Line-strong is the lightest border that still reads as a control edge
- * (3.6:1, just over the 3:1 minimum for a UI shape).
+ * "Cobalt and sunshine": a cool near-white page, deep navy ink, one cobalt
+ * action colour and a sunshine note for the small celebratory moments.
  *
- * Mist, rose and teal are graphic fills only — soft callout grounds, chart
- * and progress fills, dividers. White on any of them fails, so they never
- * sit behind text.
+ * Measured contrast on paper: ink 14.8:1, muted 6.0:1, pen 5.8:1,
+ * signal 6.1:1. White on pen is 6.1:1, on pen-hover 7.6:1, on pen-deep
+ * 8.3:1. Ink on the note is 12.1:1 and on accent-soft 13.7:1.
+ * Line-strong is the lightest border that still reads as a control edge
+ * (3.7:1 on white, over the 3:1 minimum for a UI shape); line is decorative
+ * only and never the sole boundary of an input.
+ *
+ * The workout field is navy. Cobalt on it is 2.6:1, so the field's accents
+ * are white and the note colour, never pen.
+ *
+ * Mist, rose and teal are graphic fills only — chart and progress fills.
+ * White on any of them fails, so they never sit behind text.
  */
 :root {
-  --paper: #f6f3ef;
+  --paper: #f7f9fc;
   --sheet: #ffffff;
-  --ink: #22343b;
-  --muted: #556970;
-  --pen: #30525c;
-  --pen-deep: #2a4750;
-  --note: #f6c992;
-  --signal: #a8465c;
+  --ink: #18233d;
+  --muted: #536078;
+  --pen: #3155d9;
+  --pen-hover: #2748c1;
+  --pen-deep: #2443b5;
+  --accent-soft: #edf0ff;
+  --note: #ffe08a;
+  --signal: #b4233c;
   --mist: #acc0d3;
   --rose: #d396a6;
   --teal: #09a1a1;
-  --line: rgba(34, 52, 59, 0.14);
-  --line-strong: #5484a4;
+  --line: #dce2ec;
+  --line-strong: #78859d;
+  /* The workout screen's own ground, so the action colour can change
+   * without repainting the room someone moves in. */
+  --field: #18233d;
+  --field-drained: #111c33;
   --focus: var(--pen);
   --radius-card: 20px;
   --radius-control: 14px;
@@ -38,8 +50,12 @@
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-pen: var(--pen);
+  --color-pen-hover: var(--pen-hover);
   --color-pen-deep: var(--pen-deep);
+  --color-accent-soft: var(--accent-soft);
   --color-note: var(--note);
+  --color-field: var(--field);
+  --color-field-drained: var(--field-drained);
   --color-signal: var(--signal);
   --color-mist: var(--mist);
   --color-rose: var(--rose);
@@ -81,7 +97,7 @@ body {
   outline-offset: 2px;
 }
 
-/* On the slate workout field the ring turns white so it stays visible. */
+/* On the navy workout field the ring turns white so it stays visible. */
 .on-field {
   --focus: #ffffff;
 }
@@ -101,12 +117,12 @@ body {
 
   .surface-elevated {
     background: var(--sheet);
-    border: 1px solid rgba(34, 52, 59, 0.22);
+    border: 1px solid var(--line-strong);
     border-radius: var(--radius-card);
   }
 
   .tonal {
-    background: rgba(34, 52, 59, 0.05);
+    background: var(--accent-soft);
     border-radius: var(--radius-card);
   }
 
@@ -115,7 +131,7 @@ body {
     background: var(--note);
     color: var(--ink);
     border-radius: 4px 4px 22px 4px;
-    box-shadow: 0 1px 0 rgba(34, 52, 59, 0.08), 0 16px 24px -20px rgba(34, 52, 59, 0.6);
+    box-shadow: 0 1px 0 rgba(24, 35, 61, 0.08), 0 16px 24px -20px rgba(24, 35, 61, 0.6);
   }
 }
 
@@ -199,12 +215,12 @@ body {
 }
 
 /*
- * The workout field: slate that drains downward as the move runs out. Slate
- * and its deeper shade sit 1.2:1 apart, too close to show a falling edge on
- * their own, so the waterline itself is drawn in sand and that line is what
- * you watch fall. It passes behind the cue text on its way down, so it is
- * held at 65% — still 3.7:1 against the drained slate and 3.3:1 against the
- * slate below it, without reading as a rule struck through a sentence.
+ * The workout field: navy that drains downward as the move runs out. The
+ * field and its drained shade sit close together, too close to show a falling
+ * edge on their own, so the waterline itself is drawn in the note colour and
+ * that line is what you watch fall. It passes behind the cue text on its way
+ * down, so it is held at 65%, which keeps it visible without reading as a
+ * rule struck through a sentence.
  *
  * Under reduced motion the fill stays full and a static bar shows progress,
  * so the waterline is dropped rather than parked at the top of the screen.
