@@ -4,6 +4,9 @@ import Link from "next/link";
 import { buttonClassName } from "@/components/Button";
 import { useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
+import { startHref } from "@/lib/start-link";
+
+export { startHref };
 
 type Attribution = {
   ref: string | null;
@@ -73,29 +76,6 @@ export function useStartLink(href: string): { href: string; attribution: Attribu
     setAttribution(readAttribution());
   }, []);
   return { href: withAttribution(href, attribution), attribution };
-}
-
-export function startHref({
-  need,
-  minutes,
-  setup,
-  program,
-  seo = false,
-}: {
-  need?: string;
-  minutes?: number;
-  setup?: "seated" | "standing";
-  /** A specific authored routine, e.g. the walk break. */
-  program?: string;
-  seo?: boolean;
-}): string {
-  const params = new URLSearchParams();
-  if (program) params.set("program", program);
-  if (need) params.set("need", need);
-  if (minutes) params.set("minutes", String(minutes));
-  if (setup) params.set("setup", setup);
-  params.set("source", seo ? "seo" : "landing");
-  return `/app/start?${params.toString()}`;
 }
 
 export function LandingViewTracker({ page = "landing", seo = false }: { page?: string; seo?: boolean }) {

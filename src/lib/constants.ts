@@ -22,6 +22,27 @@ export const PRODUCT_SUBHEAD =
 export const HERO_ALT_HEADLINE = "Feel better at your desk.";
 export const HERO_SUBHEAD =
   "DeskBreak gives you a quick, guided reset for your neck, shoulders, back, wrists, hips and legs.";
+
+/**
+ * The public promise, in one place so the page, the start bar and the social
+ * card cannot drift apart.
+ *
+ * The length is a constant because every generic free CTA has to ask for it
+ * explicitly: without it, a browser that once preferred a 10-minute Pro
+ * routine would be handed one by a button that just said "free".
+ */
+export const FREE_RESET_MINUTES: DurationMinutes = 3;
+export const HERO_HEADLINE = "Sit all day? Take three minutes.";
+export const HERO_SUPPORT =
+  "A free, guided movement break you can do right at your desk. Follow along, then get back to your day.";
+export const FREE_CTA_LABEL = "Start my free reset";
+export const FREE_REASSURANCE = "3 minutes. No signup. No equipment.";
+/** One joke, kept subordinate to the promise and the button. */
+export const HERO_ASIDE = "Your 37 open tabs can wait.";
+export const FREE_RESET_NAME = "3-minute Desk Reset";
+export const CLOSING_CTA_HEADING = "Your next three minutes are ready.";
+export const FREE_OFFER_HEADING = "A useful desk break, free.";
+export const FREE_OFFER_TERMS = "No trial countdown. No card needed for free resets.";
 export const PRO_PROMISE = "DeskBreak manages your workday.";
 
 export const MOVEMENT_DISCLAIMER =
