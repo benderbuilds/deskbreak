@@ -5,6 +5,21 @@ import { clearAppState, grantPro } from "./helpers";
 /** A Monday morning, inside default working hours, in the browser's own time zone. */
 const MONDAY_9AM = new Date(2026, 8, 21, 9, 0, 0);
 
+test.describe("analytics", () => {
+  test("a test run never loads the live measurement tag", async ({ page }) => {
+    const analytics: string[] = [];
+    page.on("request", (request) => {
+      if (/googletagmanager\.com|google-analytics\.com|i\.posthog\.com/.test(request.url())) {
+        analytics.push(request.url());
+      }
+    });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    expect(analytics).toEqual([]);
+    expect(await page.content()).not.toContain("googletagmanager");
+  });
+});
+
 test.describe("today", () => {
   test("posture is a target, and Change routine sets focus without doubling the title", async ({ page }) => {
     await clearAppState(page);
