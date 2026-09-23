@@ -33,6 +33,11 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,
     env: {
+      // The owner's funnel counts real visitors only: a test run must never
+      // load the live measurement tag or send a PostHog event. GA falls back
+      // to the live property when this is unset, so it is set, not omitted.
+      NEXT_PUBLIC_GA_MEASUREMENT_ID: "",
+      NEXT_PUBLIC_POSTHOG_KEY: "",
       // Deterministic prices so assertions do not depend on a deploy's env.
       NEXT_PUBLIC_PRO_MONTHLY_PRICE: "5.99",
       NEXT_PUBLIC_PRO_ANNUAL_PRICE: "39",

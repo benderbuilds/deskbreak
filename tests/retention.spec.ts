@@ -60,6 +60,37 @@ test.describe("progress", () => {
   });
 });
 
+test.describe("daily reminder", () => {
+  // iPhone Safari only shows OS notifications to an installed app. The
+  // in-tab reminder needs nothing installed, so it must still be on offer.
+  test.use({
+    userAgent:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
+  });
+
+  test("an iPhone is offered the in-app reminder, not only an install", async ({ page }) => {
+    await clearAppState(page);
+    await page.goto("/app");
+    await page.getByRole("button", { name: /^start reset$/i }).click();
+    await completeReset(page);
+    await finishDoneFlow(page);
+
+    // What it does is said before the button is pressed.
+    await expect(page.getByText(/while deskbreak is open/i)).toBeVisible();
+    await page.getByRole("button", { name: /^remind me at/i }).click();
+
+    await expect(page.getByRole("status").filter({ hasText: /while deskbreak is open/i })).toBeVisible();
+    const reminders = await page.evaluate(
+      () =>
+        (JSON.parse(localStorage.getItem("deskbreak.app.v2") ?? "{}").settings?.reminders ?? []) as Array<{
+          kind?: string;
+          enabled?: boolean;
+        }>,
+    );
+    expect(reminders.some((entry) => entry.kind === "daily" && entry.enabled)).toBe(true);
+  });
+});
+
 test.describe("5-day desk reset", () => {
   test("takes a baseline on a 1 to 5 scale before it starts counting days", async ({ page }) => {
     await clearAppState(page);

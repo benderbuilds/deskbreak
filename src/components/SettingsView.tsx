@@ -438,7 +438,7 @@ export function SettingsView() {
           ) : (
             <>
               <p className="text-sm leading-relaxed text-muted">
-                A workday plan, reminders around it, 5- and 10-minute workouts and your full history.
+                A workday plan, reminders around it, 5- and 10-minute workouts and the full move library.
               </p>
               <div className="mt-3">
                 <ButtonLink href="/app/pro?from=you" variant="secondary" size="sm" block={false}>

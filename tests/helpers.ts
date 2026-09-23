@@ -103,3 +103,31 @@ export async function finishDoneFlow(page: Page): Promise<void> {
 export function appAlert(page: Page) {
   return page.getByRole("alert").filter({ hasText: /./ });
 }
+
+/**
+ * Records the events the app sends, without sending any.
+ *
+ * `track()` hands events to `window.posthog` when it is there, so a stub
+ * standing in for it exercises the real call path. Analytics stay off in the
+ * test build, so nothing leaves the browser either way.
+ */
+export async function captureEvents(page: Page): Promise<() => Promise<string[]>> {
+  // Kept in sessionStorage, not a variable: the events of interest span a
+  // reload, and an init script starts over on every navigation.
+  await page.addInitScript(() => {
+    const KEY = "__deskbreak_test_events";
+    window.posthog = {
+      capture: (event: string) => {
+        const seen = JSON.parse(window.sessionStorage.getItem(KEY) ?? "[]") as string[];
+        seen.push(event);
+        window.sessionStorage.setItem(KEY, JSON.stringify(seen));
+      },
+      identify: () => {},
+      register: () => {},
+    };
+  });
+  return () =>
+    page.evaluate(
+      () => JSON.parse(window.sessionStorage.getItem("__deskbreak_test_events") ?? "[]") as string[],
+    );
+}
