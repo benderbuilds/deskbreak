@@ -176,8 +176,8 @@ function Paywall() {
           ))}
         </ul>
         <p className="mt-3 text-xs leading-relaxed text-muted">
-          A reminder when each one opens. Also in Pro: 5- and 10-minute workouts, your full history and sync across
-          devices.
+          A reminder when each one opens. Also in Pro: 5- and 10-minute workouts and the full routine and move
+          library.
         </p>
       </section>
 

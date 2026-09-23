@@ -9,6 +9,7 @@ import { NEED_BY_ID } from "@/lib/constants";
 import { getExercise } from "@/lib/content";
 import { isProEntitlement } from "@/lib/entitlements";
 import {
+  activeDayKeys,
   formatActiveTime,
   isHelpfulEnough,
   patternsReady,
@@ -19,9 +20,6 @@ import { helpRate, signalsFromHistory } from "@/lib/personalization";
 import { useAppState } from "@/lib/use-app-state";
 import { useIsClient } from "@/lib/use-client";
 import type { WorkoutSession } from "@/lib/types";
-
-/** Free sees the last few weeks; Pro sees everything. */
-const FREE_HISTORY_DAYS = 14;
 
 /**
  * Progress answers one question: is DeskBreak actually helping me?
@@ -129,10 +127,11 @@ export function ProgressView() {
           {!pro ? (
             <Link href="/app/pro?from=progress" className="surface mt-6 block px-5 py-4 transition-colors hover:border-ink">
               <p className="font-display font-extrabold text-base text-ink">
-                Insights cover the last {FREE_HISTORY_DAYS} days on Free.
+                Want DeskBreak to plan these breaks for you?
               </p>
               <p className="mt-1 text-sm leading-relaxed text-muted">
-                Pro keeps your full history, syncs it across devices and shows which resets help most.
+                Pro adds a workday plan with a reminder for each break, 5- and 10-minute workouts, and the full
+                routine and move library.
               </p>
               <p className="mt-2 text-sm font-semibold text-pen underline underline-offset-4">See Pro</p>
             </Link>
@@ -162,7 +161,7 @@ type Insights = {
 };
 
 function buildInsights(history: WorkoutSession[], signals: Record<string, { better: number; worse: number }>): Insights {
-  const activeDays = new Set(history.map((session) => session.finishedAt.slice(0, 10))).size;
+  const activeDays = activeDayKeys(history).length;
   const rated = history.filter((session) => session.perceivedEffect);
   const helped = rated.filter((session) => session.perceivedEffect === "better").length;
   // Real time spent moving, never the routine's advertised length.

@@ -33,6 +33,21 @@ export function activeSecondsFor(session: Pick<WorkoutSession, "exercises" | "el
   return elapsed;
 }
 
+/**
+ * The local days a reset was finished on, in order, each counted once.
+ *
+ * The day is the one the person was living in, not UTC: a 9 pm reset in New
+ * York belongs to that evening, not to tomorrow.
+ */
+export function activeDayKeys(history: Pick<WorkoutSession, "finishedAt">[]): string[] {
+  const keys = new Set<string>();
+  for (const session of history) {
+    const date = new Date(session.finishedAt);
+    if (!Number.isNaN(date.getTime())) keys.add(todayKey(date));
+  }
+  return [...keys].sort();
+}
+
 export function totalActiveSeconds(history: Pick<WorkoutSession, "exercises" | "elapsedSec">[]): number {
   return history.reduce((sum, session) => sum + activeSecondsFor(session), 0);
 }

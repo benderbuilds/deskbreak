@@ -179,13 +179,17 @@ export const PAYWALL_HEADLINES: Record<PrimaryNeed, string> = {
   general: "Make feeling better automatic.",
 };
 
+/**
+ * What Pro actually adds, and nothing else.
+ *
+ * Signing in, syncing and personalized resets are free, so none of them
+ * belongs on this list. The differences are enforced in entitlements.ts.
+ */
 export const PRO_FEATURES = [
   "Smart workday plan",
-  "Personalized resets",
-  "Multiple reminders",
+  "A reminder for each planned break",
   "5- and 10-minute workouts",
-  "Full progress insights",
-  "Sync across devices",
+  "The full routine and move library",
 ];
 
 /** Reminder copy in DeskBreak's voice. Never shames a skipped break. */
