@@ -75,6 +75,12 @@ export type AnalyticsEvent =
   | "challenge_completed"
   | "constraints_updated"
   | "app_error"
+  // The return invitation, and passing a reset on. A share "result" is what
+  // this browser did, never proof that anyone received anything.
+  | "return_prompt_viewed"
+  | "return_prompt_dismissed"
+  | "share_reset_clicked"
+  | "share_reset_result"
   // Older names, still emitted for existing dashboards.
   | "reset_started"
   | "reset_completed"

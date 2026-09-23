@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/Button";
 import { pushPreferences } from "@/lib/account-client";
 import { track } from "@/lib/analytics";
 import { isProEntitlement } from "@/lib/entitlements";
 import { pushSupported, subscribeToPush } from "@/lib/push-client";
+import { markOnce } from "@/lib/once";
 import { formatReminderTime, requestNotificationPermission } from "@/lib/reminders";
 import { saveReminders } from "@/lib/storage";
 import { useAppState } from "@/lib/use-app-state";
@@ -50,12 +51,23 @@ export function ReminderAsk() {
   const [minutes] = useState(() => minutesNow());
 
   const daily = state.settings.reminders.find((entry) => entry.kind === "daily" && entry.enabled);
+  const offering = !result && !dismissed && !daily;
+  const sessionId = state.progress.lastWorkout?.sessionId ?? "none";
+
+  useEffect(() => {
+    // Once per finished reset, however often Done is revisited, so the funnel
+    // counts people rather than renders.
+    if (!offering || !markOnce(`return_prompt:${sessionId}`)) return;
+    track("return_prompt_viewed", { prompt: "daily_reminder" });
+  }, [offering, sessionId]);
+
   if (!result && dismissed && !daily) return null;
 
   const notifications = typeof window !== "undefined" && "Notification" in window;
   const time = formatReminderTime(minutes);
 
   function dismiss() {
+    track("return_prompt_dismissed", { prompt: "daily_reminder" });
     setDismissed(true);
     try {
       window.localStorage.setItem(DISMISS_KEY, "1");

@@ -18,7 +18,7 @@ export function HeaderStartLink() {
       href={href}
       prefetch={false}
       onClick={() => track("primary_cta_clicked", { cta: "header", minutes: FREE_RESET_MINUTES, ...attributionProperties(attribution) })}
-      className="rounded-[12px] bg-pen px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-pen-hover"
+      className="inline-flex min-h-11 items-center rounded-[12px] bg-pen px-4 text-sm font-semibold text-white transition-colors hover:bg-pen-hover"
     >
       Start free
     </Link>

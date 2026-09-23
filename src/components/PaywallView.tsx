@@ -181,6 +181,8 @@ function Paywall() {
         </p>
       </section>
 
+      <PlanComparison />
+
       <div className="mt-6 grid grid-cols-2 gap-2 rounded-[16px] border border-line-strong bg-sheet p-1.5" role="radiogroup" aria-label="Billing period">
         {(["annual", "monthly"] as BillingPeriod[]).map((value) => {
           const active = period === value;
@@ -318,3 +320,55 @@ function ProActiveView() {
   );
 }
 
+/**
+ * Free against Pro, in the terms entitlements.ts actually enforces.
+ *
+ * Signing in, syncing and personalization are free and are deliberately not
+ * on this table: selling them as Pro would be selling something a free user
+ * already has.
+ */
+const PLAN_ROWS: { capability: string; free: boolean; note?: string }[] = [
+  { capability: "Quick and daily short resets", free: true, note: "One, two and three minutes" },
+  { capability: "Resets aimed at a body area", free: true },
+  { capability: "Your progress and what helped", free: true },
+  { capability: "Five- and ten-minute routines", free: false },
+  { capability: "The full routine and move library", free: false },
+  { capability: "A workday plan, with a reminder for each break", free: false },
+];
+
+function PlanComparison() {
+  return (
+    <section className="mt-6" aria-labelledby="plan-comparison">
+      <h2 id="plan-comparison" className="font-display text-lg font-extrabold text-ink">
+        Free and Pro
+      </h2>
+      <table className="mt-3 w-full border-collapse text-left text-sm" aria-labelledby="plan-comparison">
+        <thead>
+          <tr className="border-b border-line-strong text-xs uppercase tracking-wide text-muted">
+            <th scope="col" className="py-2 font-semibold">
+              Capability
+            </th>
+            <th scope="col" className="w-[5.5rem] py-2 text-center font-semibold">
+              Free
+            </th>
+            <th scope="col" className="w-[5.5rem] py-2 text-center font-semibold">
+              Pro
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {PLAN_ROWS.map((row) => (
+            <tr key={row.capability} className="border-b border-line align-top">
+              <th scope="row" className="py-2.5 pr-3 font-semibold text-ink">
+                {row.capability}
+                {row.note ? <span className="block text-xs font-normal text-muted">{row.note}</span> : null}
+              </th>
+              <td className="py-2.5 text-center text-ink/75">{row.free ? "Included" : "Not included"}</td>
+              <td className="py-2.5 text-center font-semibold text-ink">Included</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
