@@ -95,7 +95,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "Every 20 minutes again: computer workers and discomfort" },
       {
         type: "p",
-        text: "A much older field study went into real workplaces instead {cite:mclean-2001}. Computer workers did their usual keyboard work under different microbreak schedules and reported how uncomfortable they felt in the neck, low back, shoulders, and wrists and forearms.",
+        text: "A much older field study went into real workplaces instead {cite:mclean-2001}. Computer workers did their usual keyboard work while taking microbreaks, meaning short pauses from typing at a set interval. They reported how uncomfortable they felt in the neck, low back, shoulders, and wrists and forearms.",
       },
       { type: "quote", sourceId: "mclean-2001" },
       {
@@ -502,7 +502,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "figure", figureId: "eye-break-study" },
       {
         type: "p",
-        text: "People reported fewer eye strain and dry eye symptoms during reminders. It was unclear whether that improvement lasted after reminders stopped.",
+        text: "People reported fewer eye strain and dry eye symptoms during reminders. It was unclear whether that improvement lasted after reminders stopped. Here is how the authors summed it up, using DES for digital eye strain:",
       },
       { type: "quote", sourceId: "talens-estarelles-2023" },
       {
@@ -545,7 +545,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: "list",
         items: [
-          "Every 20 minutes or so, look at something far away: out of a window, down a corridor. Around 6 metres is enough.",
+          "Every 20 minutes or so, look at something far away: out of a window, down a hallway. About 20 feet, or 6 meters, is enough.",
           "Hold it for about 20 seconds, and let yourself blink.",
           "If reminders help you remember, choose one you can comfortably fit into your day.",
           "Pair it with a movement break when you can. Standing up and walking away from the screen changes where you're looking anyway.",
@@ -571,7 +571,7 @@ export const BLOG_POSTS: BlogPost[] = [
     published: "2026-09-18",
     updatedAt: "2026-09-25",
     guardrail:
-      "Programme plus desk ~64 min/day less sitting; programme alone ~22 min. Combined intervention, never desk alone. Adjusted total daily sitting vs usual practice at 12 months. Health benefits unproven.",
+      "Support program plus desk ~64 min/day less sitting; program alone ~22 min. Combined intervention, never desk alone. Adjusted total daily sitting vs usual practice at 12 months. Health benefits unproven.",
     sources: ["shrestha-2018", "edwardson-2022", "buckley-2015"],
     cta: {
       need: "general",
@@ -582,7 +582,7 @@ export const BLOG_POSTS: BlogPost[] = [
     blocks: [
       {
         type: "p",
-        text: "A standing desk can be part of a plan to sit less. In a large trial, people who received a desk and support to change their habits sat less than those who continued their usual work habits {cite:edwardson-2022}. The trial did not test a desk alone or show that sitting less guarantees better health.",
+        text: "A standing desk can be part of a plan to sit less. In a large trial, people who received a desk plus a support program to change their habits sat less than those who continued their usual work habits {cite:edwardson-2022}. The trial did not test a desk alone or show that sitting less guarantees better health.",
       },
       { type: "h2", text: "Do they reduce sitting? Yes" },
       {
@@ -597,18 +597,18 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "A bigger trial, a year long" },
       {
         type: "p",
-        text: "A 2022 study followed 756 UK office workers for a year {cite:edwardson-2022}. Researchers assigned 78 workplace groups to one of three options: usual work habits, support to sit less, or the same support plus an adjustable desk. The support included education, goals and reminders.",
+        text: "A 2022 study followed 756 UK office workers for a year {cite:edwardson-2022}. Researchers assigned 78 workplace groups to one of three options: usual work habits, a support program to sit less, or the same support program plus an adjustable desk. The support program was education, goal setting and reminders, with no new desk.",
       },
       { type: "figure", figureId: "standing-desk-trial" },
       {
         type: "p",
-        text: "After 12 months, the group receiving support sat about 22 minutes less per day than the group with usual work habits. The group receiving support plus a desk sat about 64 minutes less {cite:edwardson-2022}. These estimates account for factors such as starting sitting time. They include sitting at work and outside work, and they do not predict each person's result.",
+        text: "After 12 months, the group with the support program sat about 22 minutes less per day than the group with usual work habits. The group with the support program plus a desk sat about 64 minutes less {cite:edwardson-2022}. These estimates account for factors such as starting sitting time. They include sitting at work and outside work, and they do not predict each person's result.",
       },
       { type: "figure", figureId: "standing-desk-results" },
       { type: "quote", sourceId: "edwardson-2022" },
       {
         type: "p",
-        text: "Both groups also reported small improvements in stress, wellbeing and vigour. The benefits were small and mainly psychological. That's the gap in the evidence: sitting less is clearly achievable, but these trials haven't shown a longer-term health payoff.",
+        text: "Both program groups also reported small improvements in stress, wellbeing and energy {cite:edwardson-2022}. Those were small changes on questionnaires people answered about themselves. That's the gap in the evidence: sitting less is clearly achievable, but these trials haven't shown a longer-term health payoff.",
       },
       { type: "h2", text: "What experts recommend" },
       {
@@ -623,7 +623,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "What these trials didn't test" },
       {
         type: "p",
-        text: "It's worth noticing what the trials measured: time spent sitting, plus some questionnaires about how people felt. They didn't test whether standing desks change back pain, heart health or weight over years. And the biggest results came with support around the desk: a programme, goals, prompts. A desk delivered on its own and left in the sitting position is a different thing.",
+        text: "It's worth noticing what the trials measured: time spent sitting, plus some questionnaires about how people felt. They didn't test whether standing desks change back pain, heart health or weight over years. And the biggest results came with the support program around the desk: education, goals and reminders. A desk delivered on its own and left in the sitting position is a different thing.",
       },
       {
         type: "p",
@@ -632,7 +632,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "So, are they worth it?" },
       {
         type: "p",
-        text: "If your goal is to sit less, a standing desk is one of the best-tested ways to do it, especially with some structure around it. If your goal is a specific health outcome, the trials haven't shown that yet. Either way, how you use the desk matters.",
+        text: "If your goal is to sit less, a standing desk is one of the best-tested ways to do it, especially with a support program around it. If your goal is a specific health outcome, the trials haven't shown that yet. Either way, how you use the desk matters.",
       },
       {
         type: "list",

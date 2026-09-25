@@ -198,7 +198,9 @@ test.describe("required editorial corrections", () => {
     expect(text).toContain("sitting at work and outside work");
     expect(text).toContain("usual work habits");
     // The combined intervention is never presented as a desk-alone result.
-    expect(text).toContain("support plus a desk");
+    expect(text).toContain("support program plus a desk");
+    // The program is named and explained before the results lean on it.
+    expect(text).toContain("The support program was education, goal setting and reminders");
   });
 
   test("no official break interval is claimed", () => {
