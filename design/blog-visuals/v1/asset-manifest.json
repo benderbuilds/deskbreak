@@ -1,11 +1,11 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "createdAt": "2026-09-25",
   "publicBasePath": "/blog/figures/v1",
   "assets": [
     {
       "id": "break-frequency-protocol",
-      "title": "A walking-break experiment",
+      "title": "A study of short walking breaks",
       "postSlug": "how-often-should-you-get-up-from-your-desk",
       "placement": {
         "afterHeading": "Every 20 minutes: the lab study",
@@ -14,12 +14,12 @@
       "sourceIds": [
         "dunstan-2012"
       ],
-      "alt": "The same 19 adults completed three laboratory conditions: uninterrupted sitting, light walking breaks, and moderate walking breaks.",
-      "caption": "This experiment compared walking schedules in a laboratory. It did not test DeskBreak routines or establish a universal break interval.",
+      "alt": "Nineteen adults each tried sitting without breaks, light walking breaks, and moderate walking breaks in a lab.",
+      "caption": "Researchers tested 2-minute walks every 20 minutes. This small lab study did not identify the best break schedule or test DeskBreak routines.",
       "longDescription": [
-        "Nineteen adults aged 45 to 65 with overweight or obesity completed all three conditions in a randomized crossover trial.",
-        "After an initial seated period and a test drink, participants completed five hours of uninterrupted sitting or sitting interrupted by two-minute light or moderate walks every 20 minutes.",
-        "The researchers measured post-drink glucose and insulin. The walking conditions included 14 breaks totaling 28 minutes; the diagram is a comparison of conditions, not a complete time axis."
+        "The same 19 adults tried all three options on separate days. They were aged 45 to 65 and had overweight or obesity. The order of the options was assigned by chance.",
+        "Each visit began with two hours of sitting and a test drink. Researchers then tracked five hours of sitting without breaks, or sitting with two-minute walks every 20 minutes.",
+        "Blood tests measured glucose, also called blood sugar, and insulin, a hormone that helps control blood sugar. Each walking day included 14 walks, totaling 28 minutes. The three rows compare the options; they do not show every break."
       ],
       "sourceChecked": true,
       "clinicallyReviewed": false,
@@ -34,13 +34,13 @@
           "svg": "svg/break-frequency-protocol--mobile.svg",
           "webp": "webp/break-frequency-protocol--mobile.webp",
           "width": 600,
-          "height": 1120
+          "height": 1160
         }
       }
     },
     {
       "id": "break-frequency-interpretation",
-      "title": "Keep the finding in context",
+      "title": "What this walking study tells us",
       "postSlug": "how-often-should-you-get-up-from-your-desk",
       "placement": {
         "afterHeading": "Every 20 minutes: the lab study",
@@ -49,13 +49,13 @@
       "sourceIds": [
         "dunstan-2012"
       ],
-      "alt": "The experiment tested walking, short laboratory sessions, and blood markers. It did not test stretching, a universal schedule, or long-term health outcomes.",
-      "caption": "A result applies first to the people, activity and outcome that were actually studied. A different routine needs its own evidence.",
+      "alt": "The study tested walking breaks and blood sugar over a few hours in a lab. It did not test desk stretches or long-term health.",
+      "caption": "The study tells us about short walks and blood test results over a few hours. It leaves the best break timing and long-term health effects unanswered.",
       "longDescription": [
-        "Activity: the experiment tested light and moderate walking, not stretching or a guided DeskBreak routine.",
-        "Setting: 19 participants completed short laboratory sessions, not months of normal desk work.",
-        "Outcome: the researchers measured post-drink glucose and insulin, not long-term health outcomes.",
-        "Testing a 20-minute interval does not establish it as the best interval for everyone."
+        "The activity was walking. The study did not test desk stretches or DeskBreak routines.",
+        "The same 19 adults took part on separate days in a lab. The study did not follow their normal workdays for months.",
+        "Researchers measured blood sugar and insulin after a test drink. They did not measure long-term health effects.",
+        "The study tested one break interval: every 20 minutes. It did not compare that timing with other schedules."
       ],
       "sourceChecked": true,
       "clinicallyReviewed": false,
@@ -64,13 +64,13 @@
           "svg": "svg/break-frequency-interpretation--desktop.svg",
           "webp": "webp/break-frequency-interpretation--desktop.webp",
           "width": 1200,
-          "height": 850
+          "height": 880
         },
         "mobile": {
           "svg": "svg/break-frequency-interpretation--mobile.svg",
           "webp": "webp/break-frequency-interpretation--mobile.webp",
           "width": 600,
-          "height": 1200
+          "height": 1270
         }
       }
     },
@@ -85,13 +85,13 @@
       "sourceIds": [
         "talens-estarelles-2023"
       ],
-      "alt": "The mnemonic means every 20 minutes, look about 20 feet away, for 20 seconds. Twenty feet is about six metres.",
-      "caption": "These numbers describe the mnemonic used in the study. They are not established as the optimal timing or distance.",
+      "alt": "Every 20 minutes, look away from the screen at something about 20 feet away for 20 seconds. Twenty feet is about six meters.",
+      "caption": "An easy way to remember a screen break. The study tested these numbers together; it did not show they were better than other timings or distances.",
       "longDescription": [
-        "Every 20 minutes: a prompt to interrupt sustained near-screen viewing.",
-        "About 20 feet away: approximately six metres.",
-        "For 20 seconds: the duration in this commonly used reminder.",
-        "The cited study evaluated the rule as a package; it did not compare different intervals, distances or durations."
+        "Every 20 minutes, look away from your screen.",
+        "Choose something about 20 feet away, roughly six meters.",
+        "Look at it for 20 seconds.",
+        "These are the numbers in the familiar 20-20-20 rule. The study did not test whether a different interval, distance or duration worked better."
       ],
       "sourceChecked": true,
       "clinicallyReviewed": false,
@@ -112,7 +112,7 @@
     },
     {
       "id": "eye-break-study",
-      "title": "What one small study tested",
+      "title": "Eye breaks: what one study found",
       "postSlug": "does-the-20-20-20-rule-work",
       "placement": {
         "afterHeading": "The study",
@@ -121,14 +121,14 @@
       "sourceIds": [
         "talens-estarelles-2023"
       ],
-      "alt": "Twenty-nine symptomatic computer users were monitored for two weeks without reminders, two weeks with reminders, and one week after reminders stopped.",
-      "caption": "A before-and-after comparison in the same people, with no separate control group. Symptom questionnaires and clinical eye measurements are different outcomes.",
+      "alt": "Twenty-nine computer users with eye strain spent two weeks without reminders, two weeks with reminders, and one week after reminders stopped.",
+      "caption": "People reported less eye strain during reminders. Because everyone followed the same sequence, the study cannot show how much of the change came from the reminders.",
       "longDescription": [
-        "The study recruited 29 computer users with symptoms of digital eye strain.",
-        "The full timeline comprised two weeks of baseline monitoring without reminders, two weeks with 20-20-20 software reminders, and one week after the reminders stopped.",
-        "Participants reported fewer symptoms during reminders; improvements were not clearly sustained after reminders stopped.",
-        "Dry-eye signs did not improve over two weeks. Most binocular vision measures did not change, although accommodative facility improved.",
-        "This small study had no separate control group and did not compare alternative break schedules."
+        "The study followed 29 computer users who already had eye strain.",
+        "Researchers first tracked two weeks without reminders. Next came two weeks of 20-20-20 reminders, then one week after the reminders stopped.",
+        "People reported fewer symptoms during reminders. It was unclear whether that improvement lasted after the reminders stopped.",
+        "Tests for signs of dry eye did not improve. Most other eye tests did not change either, but one focusing test improved. This was accommodative facility, a measure of how readily the eyes change focus.",
+        "All 29 people followed the same sequence. There was no separate group for comparison, and the study did not test different break schedules."
       ],
       "sourceChecked": true,
       "clinicallyReviewed": false,
@@ -143,13 +143,13 @@
           "svg": "svg/eye-break-study--mobile.svg",
           "webp": "webp/eye-break-study--mobile.webp",
           "width": 600,
-          "height": 1360
+          "height": 1390
         }
       }
     },
     {
       "id": "standing-desk-trial",
-      "title": "A desk was part of a programme",
+      "title": "The study tested desks with support",
       "postSlug": "are-standing-desks-worth-it",
       "placement": {
         "afterHeading": "A bigger trial, a year long",
@@ -158,13 +158,13 @@
       "sourceIds": [
         "edwardson-2022"
       ],
-      "alt": "A trial randomized 78 workplace clusters with 756 UK employees to usual practice, a sit-less programme, or the same programme plus a height-adjustable desk.",
-      "caption": "The trial compared three groups over 12 months. There was no desk-only group, so the combined result cannot be attributed to buying a desk alone.",
+      "alt": "The trial compared usual work habits, support to sit less, and the same support plus an adjustable desk in 756 UK office workers.",
+      "caption": "Everyone who received a desk also received support to sit less. This trial cannot tell us what a desk alone would do.",
       "longDescription": [
-        "The trial enrolled 756 desk-based local-government employees in 78 workplace clusters in the United Kingdom.",
-        "Clusters were randomized to usual practice, the SMART Work and Life (SWAL) sit-less programme, or SWAL plus a height-adjustable desk.",
-        "The primary comparison was daily sitting time at 12 months. This included time during and outside work.",
-        "There was no group given only a desk without the programme."
+        "The study included 756 UK local-government office workers in 78 workplace groups. Each workplace group was assigned by chance to one of three options.",
+        "One option was usual work habits. Another was a support program called SMART Work and Life, or SWAL. The third was the same support plus a height-adjustable desk.",
+        "The program used steps such as education, goals and reminders to help people sit less.",
+        "Researchers compared daily sitting time after 12 months, including time at work and outside work. Nobody received a desk without the support program."
       ],
       "sourceChecked": true,
       "clinicallyReviewed": false,
@@ -173,19 +173,19 @@
           "svg": "svg/standing-desk-trial--desktop.svg",
           "webp": "webp/standing-desk-trial--desktop.webp",
           "width": 1200,
-          "height": 920
+          "height": 980
         },
         "mobile": {
           "svg": "svg/standing-desk-trial--mobile.svg",
           "webp": "webp/standing-desk-trial--mobile.webp",
           "width": 600,
-          "height": 1270
+          "height": 1320
         }
       }
     },
     {
       "id": "standing-desk-results",
-      "title": "Daily sitting at 12 months",
+      "title": "How much less did people sit?",
       "postSlug": "are-standing-desks-worth-it",
       "placement": {
         "afterHeading": "A bigger trial, a year long",
@@ -194,37 +194,38 @@
       "sourceIds": [
         "edwardson-2022"
       ],
-      "alt": "Compared with usual practice, adjusted daily sitting was 22.2 minutes lower with the programme and 63.7 minutes lower with the programme plus a desk.",
-      "caption": "Adjusted between-group differences in total daily sitting at 12 months, shown as minutes less than usual practice. Whiskers represent 95% confidence intervals.",
+      "alt": "After 12 months, people receiving support sat an estimated 22.2 minutes less per day than those with usual work habits. Support plus a desk: 63.7 minutes less.",
+      "caption": "About 22 minutes less sitting per day with support, or 64 minutes with support plus a desk, compared with usual work habits after 12 months. These are estimates for groups, not a promised result for each person.",
       "longDescription": [
-        "The programme-alone estimate was 22.2 fewer minutes per day than usual practice, with a 95% confidence interval from 5.7 to 38.8 fewer minutes.",
-        "The programme-plus-desk estimate was 63.7 fewer minutes per day, with a 95% confidence interval from 47.4 to 80.1 fewer minutes.",
-        "These are adjusted between-group differences, not raw before-and-after changes. The measure included sitting during and outside working hours.",
-        "The trial had no desk-only group. These estimates do not establish a long-term health benefit or a result for DeskBreak."
+        "Support to sit less: the estimate was 22.2 fewer minutes per day than usual work habits. Its 95% confidence interval was 5.7 to 38.8 fewer minutes.",
+        "Support plus a desk: the estimate was 63.7 fewer minutes per day. Its 95% confidence interval was 47.4 to 80.1 fewer minutes.",
+        "Each dot shows the estimate. Each bar shows the uncertainty around it, using a statistical range called a 95% confidence interval. The bars do not show the range of individual results.",
+        "Researchers adjusted these group comparisons for factors such as starting sitting time. The numbers compare groups after 12 months; they are not changes from the start for each person.",
+        "Daily sitting includes work and time outside work. The trial did not test a desk on its own, and these sitting-time results do not establish a long-term health benefit or a result for DeskBreak."
       ],
       "dataTable": {
-        "caption": "Adjusted daily sitting differences versus usual practice at 12 months",
+        "caption": "Daily sitting compared with usual work habits after 12 months",
         "columns": [
           "Group",
-          "Difference (min/day)",
-          "95% CI lower",
-          "95% CI upper"
+          "Difference (minutes/day)",
+          "95% confidence interval: lower",
+          "95% confidence interval: upper"
         ],
         "rows": [
           [
-            "SWAL programme",
+            "Support to sit less (SWAL)",
             -22.2,
             -38.8,
             -5.7
           ],
           [
-            "SWAL programme + desk",
+            "Support + desk (SWAL)",
             -63.7,
             -80.1,
             -47.4
           ]
         ],
-        "note": "Negative values mean less total daily sitting than usual practice. Published adjusted between-group estimates from Table 2; daily sitting includes work and non-work time."
+        "note": "A minus sign means less sitting. These are the adjusted group differences published in Table 2. SWAL means SMART Work and Life, the support program. Daily sitting includes time at work and outside work."
       },
       "sourceChecked": true,
       "clinicallyReviewed": false,
@@ -233,13 +234,13 @@
           "svg": "svg/standing-desk-results--desktop.svg",
           "webp": "webp/standing-desk-results--desktop.webp",
           "width": 1200,
-          "height": 950
+          "height": 1020
         },
         "mobile": {
           "svg": "svg/standing-desk-results--mobile.svg",
           "webp": "webp/standing-desk-results--mobile.webp",
           "width": 600,
-          "height": 1110
+          "height": 1240
         }
       }
     }

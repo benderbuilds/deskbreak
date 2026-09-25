@@ -2,6 +2,8 @@
 
 This package adds six explanatory figures to three existing articles. The figures explain study protocols and interpretation; they do not establish that DeskBreak reproduces a study intervention or result. `asset-manifest.json` is the source of truth for each figure's final text, alternative text, transcript, caption, study identifiers and numerical data. `SOURCES.md` and `source/study-data.json` record the supporting paper locations, checked values and limits of verification. Do not retype numbers from a screenshot.
 
+Version 1.1 adds a plain-language pass. Use `PILOT-COPY.md` for exact replacement passages implementing the corrections below, and `COPY-STANDARD.md` for future articles. The technical summary below explains editorial intent; its wording does not need to appear verbatim in reader-facing copy.
+
 There are twelve responsive layouts across those six figures, each exported as SVG and WebP. Live-text SVG masters are in `source/editable/`, alongside the generator and data files. A Canva working copy was imported with owner approval; independent text-layer editing remains unverified. See README.md for its link and QA.md for the complete verification record.
 
 ## Responsibility and publication readiness

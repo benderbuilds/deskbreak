@@ -1,6 +1,6 @@
 # DeskBreak blog visuals: developer handoff
 
-Version 1.0.0, September 25, 2026.
+Version 1.1.0, September 25, 2026. Plain-language revision.
 
 This package contains six original research figures for three existing blog articles. It is an asset and implementation handoff, not a deployed website change. No article routes, application code, production data, or analytics settings have been changed.
 
@@ -12,10 +12,11 @@ This package contains six original research figures for three existing blog arti
 4. Use [asset-manifest.json](asset-manifest.json) as the source of filenames, dimensions, article placements, alt text, captions, source IDs and text equivalents.
 5. Consult [SOURCES.md](SOURCES.md) and [source/study-data.json](source/study-data.json) for the evidence checks. Source checking is not clinical approval.
 6. Read [QA.md](QA.md) for completed checks and remaining implementation checks.
+7. Apply [PILOT-COPY.md](PILOT-COPY.md) for the three articles' replacement passages. Use [COPY-STANDARD.md](COPY-STANDARD.md) for the catalog's writing and reader-testing standard.
 
 ## Canva working copy
 
-[Open the six-page Canva copy](https://www.canva.com/d/BTsTT8CBJNJe2Uk). It was imported with the owner's explicit approval. All six desktop pages and their dimensions were confirmed. Canva's text-content reader returned no text, so independent text-layer editing is not verified. Use `source/editable/` SVG masters and the builder for reliable edits; the developer delivery files are the checked local exports.
+[Open the current six-page Canva copy, version 1.1](https://www.canva.com/d/UjXQzx5Mr87e9B1). It includes the plain-language revision and supersedes the earlier version 1.0 working copy. The existing approval covers uploading these six figure layouts and their research text. All six desktop pages and their updated dimensions were confirmed. The import uses SVG artwork, and independent Canva text-layer editing is not verified. Use `source/editable/` SVG masters and the builder for reliable edits; the developer delivery files are the checked local exports.
 
 ## What is included
 
@@ -25,7 +26,7 @@ This package contains six original research figures for three existing blog arti
 | Does the 20-20-20 rule work? | Mnemonic; complete five-week study timeline |
 | Are standing desks worth it? | Three trial groups; adjusted sitting differences with confidence intervals |
 
-Every figure has a wide desktop composition and a separately arranged mobile composition, each as SVG and compressed WebP. The mobile layout is not a shrunken desktop image.
+Every figure has a wide desktop composition and a separately arranged mobile composition, each as SVG and compressed WebP. Version 1.1 simplifies headings, labels, captions and text explanations. It also removes decoration that could be mistaken for data, explains chart uncertainty, and keeps source links visible in the gallery. Study values and the full five-week eye-study sequence are preserved.
 
 - `webp/`: delivery-ready raster exports. Use these by default in the proposed `<picture>` component.
 - `svg/`: vector exports with outlined Archivo lettering, so rendering does not depend on installed fonts. The embedded title and description identify the image, but still use the manifest's HTML text equivalents.
