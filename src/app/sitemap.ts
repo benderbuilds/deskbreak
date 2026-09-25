@@ -18,7 +18,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/blog`, lastModified: now, priority: 0.7 },
     ...BLOG_POSTS.map((post) => ({
       url: `${BASE}/blog/${post.slug}`,
-      lastModified: new Date(post.published),
+      // A revision date when there is a real one, never the build clock.
+      lastModified: new Date(post.updatedAt ?? post.published),
       priority: 0.7,
     })),
     ...AREA_PAGES.map((page) => ({

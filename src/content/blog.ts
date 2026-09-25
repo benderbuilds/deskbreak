@@ -1,4 +1,5 @@
 import { getProgram } from "@/lib/content";
+import { getBlogFigure, type BlogFigureId } from "@/content/blog-figures";
 import { getSource, startRoutineName, type LandingNeed } from "@/lib/seo-content";
 import type { DurationMinutes } from "@/lib/types";
 
@@ -17,7 +18,9 @@ export type BlogBlock =
   | { type: "p"; text: string }
   | { type: "h2"; text: string }
   | { type: "list"; items: string[] }
-  | { type: "quote"; sourceId: string };
+  | { type: "quote"; sourceId: string }
+  /** A research figure from design/blog-visuals/v1. Its text lives in the manifest, not here. */
+  | { type: "figure"; figureId: BlogFigureId };
 
 export type BlogCta =
   | { program: string; body: string }
@@ -31,6 +34,8 @@ export type BlogPost = {
   /** The long-tail search this post answers. */
   query: string;
   published: string;
+  /** Set when a published post is substantively revised. Never overwrites `published`. */
+  updatedAt?: string;
   /** What the post must not claim. For editors; not rendered. */
   guardrail: string;
   /** Sources cited, in reference-list order. */
@@ -49,6 +54,7 @@ export const BLOG_POSTS: BlogPost[] = [
       "No official guideline sets a break interval. Here's what studies of desk workers actually tested, from 2-minute walks every 20 minutes to microbreaks, and how to pick a rhythm you'll keep.",
     query: "how often should you take a break from sitting at work",
     published: "2026-09-18",
+    updatedAt: "2026-09-25",
     guardrail: "Studies tested every 20-30 min. No official guideline sets an interval.",
     sources: ["who-2020", "dunstan-2012", "mclean-2001", "shrestha-2018"],
     cta: {
@@ -59,7 +65,7 @@ export const BLOG_POSTS: BlogPost[] = [
     blocks: [
       {
         type: "p",
-        text: "Search for how often you should get up from your desk and you'll find confident numbers: every 30 minutes, every hour, every 20 minutes on the dot. Most are presented as if someone official settled the question. Nobody has. What we do have is a handful of studies that each picked an interval and tested it. That's more useful than a made-up rule, as long as you know what each one measured.",
+        text: "There is no single proven break schedule for everyone. Some studies tested short walks every 20 minutes; others tested different activities and timings. The useful question is what each study found, and how that fits your workday.",
       },
       { type: "h2", text: "There's no official number" },
       {
@@ -74,16 +80,18 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "Every 20 minutes: the lab study" },
       {
         type: "p",
-        text: "One of the most cited studies on breaking up sitting brought 19 overweight or obese adults, aged 45 to 65, into a lab and had them sit for five hours on three separate days {cite:dunstan-2012}. On one day they sat without a break. On the others they got up every 20 minutes for a two-minute walk, at either a light or a moderate pace.",
+        text: "In one small lab study, the same 19 adults tried three sitting schedules on separate days {cite:dunstan-2012}. They were aged 45 to 65 and had overweight or obesity. Each visit began with two hours of sitting and a test drink. Over the next five hours, they either stayed seated or took a two-minute walk every 20 minutes, at a light or moderate pace.",
+      },
+      { type: "figure", figureId: "break-frequency-protocol" },
+      {
+        type: "p",
+        text: "Blood sugar and insulin rose less on the walking days than on the day without breaks {cite:dunstan-2012}. These were blood test results over a few hours. The study did not compare different break intervals.",
       },
       {
         type: "p",
-        text: "After a standard test drink, blood sugar and insulin rose less on the walking days than on the day without breaks. Light walking worked nearly as well as moderate walking.",
+        text: "This study tested walking, not desk stretches. It also did not follow people for months or measure long-term health. Its results help explain what short walks can change during a day in a lab, but they do not identify the best break schedule for everyone.",
       },
-      {
-        type: "p",
-        text: "Keep the limits in view. It was 19 people on single days in a lab. The breaks were walks, not stretches. And the outcome was a blood marker over a few hours, not long-term health. It tells you that frequent short walks can change something measurable within a day. It doesn't tell you that every 20 minutes is the one right number.",
-      },
+      { type: "figure", figureId: "break-frequency-interpretation" },
       { type: "h2", text: "Every 20 minutes again: computer workers and discomfort" },
       {
         type: "p",
@@ -470,10 +478,11 @@ export const BLOG_POSTS: BlogPost[] = [
     title: "Does the 20-20-20 rule work? A small study put it to the test",
     metaTitle: "Does the 20-20-20 rule actually work for eye strain?",
     metaDescription:
-      "In a small 2023 study, screen users reminded to follow the 20-20-20 rule reported less eye strain, but only while the reminders ran. Here's what it found and what it means.",
+      "A small study found less reported eye strain during 20-20-20 reminders. Learn what it tested, what remains uncertain, and how the reminder works.",
     query: "does the 20-20-20 rule actually work for eye strain",
     published: "2026-09-18",
-    guardrail: "Symptoms improved while reminders ran and faded after. No claims about vision or dry-eye treatment.",
+    updatedAt: "2026-09-25",
+    guardrail: "Reported improvement during reminders; persistence afterwards unclear. Uncontrolled single-group design. No claims about vision or dry-eye treatment.",
     sources: ["talens-estarelles-2023", "stephenson-2017"],
     cta: {
       program: "eye-break-1min",
@@ -482,26 +491,28 @@ export const BLOG_POSTS: BlogPost[] = [
     blocks: [
       {
         type: "p",
-        text: "The 20-20-20 rule is simple: every 20 minutes, look at something 20 feet (about 6 metres) away for 20 seconds. It's widely recommended to people who spend long hours at screens. What's surprising is how little it had been directly tested, until a small study in 2023.",
+        text: "The 20-20-20 rule is a reminder to look away from your screen: every 20 minutes, look at something about 20 feet away for 20 seconds. In one small study, people reported less eye strain while reminders were on {cite:talens-estarelles-2023}. The study did not prove that the reminders caused the change or that these numbers are the best ones to use.",
       },
+      { type: "figure", figureId: "eye-break-mnemonic" },
       { type: "h2", text: "The study" },
       {
         type: "p",
-        text: "Researchers recruited 29 computer users who already had symptoms of digital eye strain {cite:talens-estarelles-2023}. For two weeks, software on their computers reminded them to follow the rule. Then the reminders stopped for a week. The team measured eye strain and dry eye symptoms with questionnaires, and also measured the eyes themselves: the tear film, the surface of the eye, and how well the two eyes worked together.",
+        text: "Researchers followed 29 computer users who already had eye strain {cite:talens-estarelles-2023}. First came two weeks without reminders. Next came two weeks of software reminders to follow the rule, then one week after reminders stopped. The same people completed every stage. They answered questions about their symptoms and had eye tests.",
       },
+      { type: "figure", figureId: "eye-break-study" },
       {
         type: "p",
-        text: "While the reminders were running, participants took more breaks, and their eye strain and dry eye symptoms went down. One week after the reminders stopped, the improvement was gone.",
+        text: "People reported fewer eye strain and dry eye symptoms during reminders. It was unclear whether that improvement lasted after reminders stopped.",
       },
       { type: "quote", sourceId: "talens-estarelles-2023" },
       {
         type: "p",
-        text: "The objective measurements didn't change: not the tear film, not the eye's surface. People felt better, but their eyes didn't measurably change in two weeks.",
+        text: "Tests for signs of dry eye did not improve. Most other eye tests did not change either, but one focusing test did improve {cite:talens-estarelles-2023}. That test measured accommodative facility: how readily the eyes change focus. Feeling better and changes on an eye test are different findings.",
       },
       { type: "h2", text: "What it tells us, and what it doesn't" },
       {
         type: "p",
-        text: "This is a small study with no control group, over a short period. Without a control group, some of the improvement could come from simply paying more attention to your eyes. So it's a promising early result rather than proof.",
+        text: "Everyone followed the same sequence. There was no separate group to show what would have happened without the reminders. That makes it hard to separate the effect of reminders from other changes, such as people paying more attention to their eyes. The study was also small and short.",
       },
       {
         type: "p",
@@ -510,7 +521,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "The part about reminders" },
       {
         type: "p",
-        text: "The most interesting result for anyone trying to build a habit is the last one. Symptoms improved while reminders ran and came back once they stopped. The rule helped, in the sense that people felt better, only as long as something prompted them to follow it.",
+        text: "The symptom improvement happened during the reminder period. After the reminders stopped, the results were less clear. That raises a useful question about keeping up a habit, but it does not prove that switching off reminders caused symptoms to return.",
       },
       {
         type: "p",
@@ -519,12 +530,12 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "quote", sourceId: "stephenson-2017" },
       {
         type: "p",
-        text: "Reminders work while they're working. The lesson isn't that reminders are pointless. It's that the behaviour tends to lapse without them, so a reminder you're happy to keep getting beats one you'll mute in a week.",
+        text: "These studies leave questions about how long changes last. If you use a reminder, choose one that fits your day and adjust it when you start ignoring it. That is a practical suggestion, not a result tested by this eye study.",
       },
       { type: "h2", text: "Why the numbers are 20, 20 and 20" },
       {
         type: "p",
-        text: "The rule's appeal is that it's easy to remember, not that each number was worked out precisely. The 2023 study tested the rule as usually stated, so that's what we know about. Nobody has shown that 25 minutes, 15 feet or 30 seconds would be better or worse.",
+        text: "The three 20s are easy to remember. This study tested them together; it did not compare different timings or distances. It cannot tell us whether, for example, looking away every 25 minutes would work better or worse.",
       },
       {
         type: "p",
@@ -536,7 +547,7 @@ export const BLOG_POSTS: BlogPost[] = [
         items: [
           "Every 20 minutes or so, look at something far away: out of a window, down a corridor. Around 6 metres is enough.",
           "Hold it for about 20 seconds, and let yourself blink.",
-          "Use a reminder. The study suggests the rule helps while you're prompted to follow it.",
+          "If reminders help you remember, choose one you can comfortably fit into your day.",
           "Pair it with a movement break when you can. Standing up and walking away from the screen changes where you're looking anyway.",
         ],
       },
@@ -546,7 +557,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        text: "If you try the rule, give it the same test the researchers did: notice how your eyes feel at the end of the day for a couple of weeks with reminders, then without. It's a small experiment, and yours is the result that counts for you.",
+        text: "If you try it, notice whether the reminder fits your day and how your eyes feel. Your experience can guide your routine, but it is not a diagnosis or a test of whether a treatment works.",
       },
     ],
   },
@@ -555,9 +566,10 @@ export const BLOG_POSTS: BlogPost[] = [
     title: "Are standing desks worth it? What trials say about sitting less at work",
     metaTitle: "Are standing desks worth it? What trials say about sitting less",
     metaDescription:
-      "Trials show sit-stand desks help office workers sit about an hour a day less. Whether that improves health is unproven. Here's the evidence and how to use a standing desk well.",
+      "Standing-desk studies measured how much people sat. See what a trial of desks plus support found, and why sitting less does not prove a health benefit.",
     query: "do standing desks actually reduce sitting time",
     published: "2026-09-18",
+    updatedAt: "2026-09-25",
     guardrail: "Desks reduce sitting by about 1 h/day. Health benefits unproven. Moving still matters.",
     sources: ["shrestha-2018", "edwardson-2022", "buckley-2015"],
     cta: {
@@ -569,7 +581,7 @@ export const BLOG_POSTS: BlogPost[] = [
     blocks: [
       {
         type: "p",
-        text: "Standing desks went from novelty to office standard in about a decade, and they're usually sold on health grounds. So what do trials actually show? The short version: standing desks reliably help people sit less. Whether that leads to better health is a separate, and much less settled, question.",
+        text: "A standing desk can be part of a plan to sit less. In a large trial, people who received a desk and support to change their habits sat less than those who continued their usual work habits {cite:edwardson-2022}. The trial did not test a desk alone or show that sitting less guarantees better health.",
       },
       { type: "h2", text: "Do they reduce sitting? Yes" },
       {
@@ -584,12 +596,14 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "A bigger trial, a year long" },
       {
         type: "p",
-        text: "A 2022 trial published in the BMJ gave firmer numbers {cite:edwardson-2022}. It followed 756 desk-based local government employees in the UK for twelve months, in three groups: a workplace programme to sit less plus a height-adjustable desk, the programme alone, or no change.",
+        text: "A 2022 study followed 756 UK office workers for a year {cite:edwardson-2022}. Researchers assigned 78 workplace groups to one of three options: usual work habits, support to sit less, or the same support plus an adjustable desk. The support included education, goals and reminders.",
       },
+      { type: "figure", figureId: "standing-desk-trial" },
       {
         type: "p",
-        text: "At twelve months, the group with the desk sat about an hour a day less than the control group. The programme without a desk cut about 22 minutes a day.",
+        text: "After 12 months, the group receiving support sat about 22 minutes less per day than the group with usual work habits. The group receiving support plus a desk sat about 64 minutes less {cite:edwardson-2022}. These estimates account for factors such as starting sitting time. They include sitting at work and outside work, and they do not predict each person's result.",
       },
+      { type: "figure", figureId: "standing-desk-results" },
       { type: "quote", sourceId: "edwardson-2022" },
       {
         type: "p",
@@ -730,12 +744,22 @@ const CITE = /\{cite:([a-z0-9,-]+)\}/g;
 // a post's reference list, or a reference list entry that is never used.
 for (const post of BLOG_POSTS) {
   const cited = new Set<string>();
+  const figures = new Set<string>();
   for (const block of post.blocks) {
-    const texts = block.type === "list" ? block.items : block.type === "quote" ? [] : [block.text];
+    const texts = blockText(block);
     for (const text of texts) for (const match of text.matchAll(CITE)) match[1].split(",").forEach((id) => cited.add(id));
     if (block.type === "quote") {
       cited.add(block.sourceId);
       if (!getSource(block.sourceId).quote) throw new Error(`${post.slug}: ${block.sourceId} has no verified quote`);
+    }
+    if (block.type === "figure") {
+      // A figure's sources are cited by the figure, so they belong in the
+      // post's reference list like any other citation.
+      const figure = getBlogFigure(block.figureId);
+      if (figure.postSlug !== post.slug) throw new Error(`${post.slug}: figure ${figure.id} belongs to ${figure.postSlug}`);
+      if (figures.has(figure.id)) throw new Error(`${post.slug}: figure ${figure.id} appears more than once`);
+      figures.add(figure.id);
+      figure.sourceIds.forEach((id) => cited.add(id));
     }
   }
   for (const id of cited) {
@@ -747,6 +771,10 @@ for (const post of BLOG_POSTS) {
     if (!getSource(id).verified) throw new Error(`${post.slug}: ${id} is not a verified library source`);
   }
   if ("program" in post.cta && !getProgram(post.cta.program)) throw new Error(`${post.slug}: unknown program ${post.cta.program}`);
+  if (post.updatedAt !== undefined) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(post.updatedAt)) throw new Error(`${post.slug}: updatedAt must be YYYY-MM-DD`);
+    if (post.updatedAt < post.published) throw new Error(`${post.slug}: updatedAt is earlier than published`);
+  }
 }
 
 export function findBlogPost(slug: string): BlogPost | undefined {
@@ -759,11 +787,30 @@ export function blogCtaRoutine(cta: BlogCta): string {
   return startRoutineName(cta.need, cta.minutes, cta.setup);
 }
 
+/**
+ * The readable text of one block, for citation checks and reading time.
+ *
+ * A figure contributes the words a reader actually reads: its caption and text
+ * equivalent. Not the alt text, which repeats the same finding for people who
+ * cannot see the image, and not file paths or source ids.
+ */
+function blockText(block: BlogBlock): string[] {
+  switch (block.type) {
+    case "list":
+      return block.items;
+    case "quote":
+      return [getSource(block.sourceId).quote ?? ""];
+    case "figure": {
+      const figure = getBlogFigure(block.figureId);
+      return [figure.caption, ...figure.longDescription];
+    }
+    default:
+      return [block.text];
+  }
+}
+
 /** Words in a post, for reading time. */
 export function blogWordCount(post: BlogPost): number {
-  const text = post.blocks
-    .map((block) => (block.type === "list" ? block.items.join(" ") : block.type === "quote" ? getSource(block.sourceId).quote ?? "" : block.text))
-    .join(" ")
-    .replace(CITE, "");
+  const text = post.blocks.flatMap(blockText).join(" ").replace(CITE, "");
   return text.split(/\s+/).filter(Boolean).length;
 }
