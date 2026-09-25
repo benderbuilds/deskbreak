@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-09-25",
+  "purpose": "Source facts for six original explanatory graphics. No clinical sign-off.",
+  "sources": [
+    {
+      "id": "dunstan-2012",
+      "title": "Breaking Up Prolonged Sitting Reduces Postprandial Glucose and Insulin Responses",
+      "doi": "10.2337/dc11-1931",
+      "primaryUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3329818/",
+      "locator": "Abstract; Research Design and Methods, experimental conditions",
+      "verification": {
+        "doiIdentity": "PASS",
+        "doiHttpStatus": 302,
+        "doiRedirectTo": "https://diabetesjournals.org/care/article/35/5/976/38374/Breaking-Up-Prolonged-Sitting-Reduces-Postprandial",
+        "publisherContentHttpStatus": 403,
+        "crossrefTitleMatch": "PASS",
+        "primaryFullTextHttpStatus": 200,
+        "methodsAndResults": "PASS"
+      },
+      "design": "Randomized acute crossover laboratory trial",
+      "participants": 19,
+      "population": "Adults aged 45–65 with overweight or obesity",
+      "samePeopleInAllConditions": true,
+      "initialSittingHours": 2,
+      "postTestDrinkObservationHours": 5,
+      "conditions": [
+        "Uninterrupted sitting",
+        "Light walking breaks",
+        "Moderate walking breaks"
+      ],
+      "walkingBoutMinutes": 2,
+      "walkingIntervalMinutes": 20,
+      "walkingBoutsPerActiveCondition": 14,
+      "totalWalkingMinutesPerActiveCondition": 28,
+      "outcomes": [
+        "Post-drink glucose response",
+        "Post-drink insulin response"
+      ],
+      "interpretation": "Walking days produced lower responses than uninterrupted sitting under this protocol.",
+      "limitations": [
+        "Acute biomarkers, not long-term outcomes",
+        "No comparison of alternative break intervals",
+        "No DeskBreak or stretching intervention"
+      ]
+    },
+    {
+      "id": "talens-estarelles-2023",
+      "title": "The effects of breaks on digital eye strain, dry eye and binocular vision: Testing the 20-20-20 rule",
+      "doi": "10.1016/j.clae.2022.101744",
+      "primaryUrl": "https://doi.org/10.1016/j.clae.2022.101744",
+      "alternatePrimaryUrl": "https://www.sciencedirect.com/science/article/pii/S1367048422001990",
+      "locator": "Sections 2.2 and 2.4; Results; Discussion",
+      "verification": {
+        "doiIdentity": "PASS",
+        "doiHttpStatus": 302,
+        "doiRedirectTo": "https://linkinghub.elsevier.com/retrieve/pii/S1367048422001990",
+        "doiDestinationHttpStatus": 200,
+        "doiDestinationContent": "Publisher article locator with matching PII, not full article",
+        "crossrefTitleMatch": "PASS",
+        "directPublisherFullTextFetch": "FAIL",
+        "indexedPublisherMethodsAndResults": "PASS"
+      },
+      "design": "Same-participant before/after study; no separate parallel control group",
+      "participants": 29,
+      "population": "Symptomatic regular computer users",
+      "mnemonic": {
+        "screenMinutes": 20,
+        "distanceFeetMinimum": 20,
+        "distanceMetersApproximate": 6,
+        "lookAwaySecondsMinimum": 20
+      },
+      "timeline": [
+        {
+          "phase": "Baseline monitoring without reminders",
+          "weeks": 2
+        },
+        {
+          "phase": "Reminders enabled",
+          "weeks": 2
+        },
+        {
+          "phase": "After reminders stopped",
+          "weeks": 1
+        }
+      ],
+      "results": {
+        "symptoms": "Reported symptoms improved during reminders; persistence afterward was uncertain.",
+        "clinicalMeasures": "Most clinical measures did not improve; accommodative facility improved."
+      },
+      "limitations": [
+        "Small sample",
+        "No separate control group",
+        "Does not establish an optimal interval"
+      ],
+      "editorialNote": "Prefer 'not clearly sustained' over 'all benefits disappeared'; follow-up findings differ by symptom measure."
+    },
+    {
+      "id": "edwardson-2022",
+      "title": "Effectiveness of an intervention for reducing sitting time and improving health in office workers: three arm cluster randomised controlled trial",
+      "doi": "10.1136/bmj-2021-069288",
+      "primaryUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9382450/",
+      "locator": "Abstract; Methods; Results; Table 2, primary outcome",
+      "verification": {
+        "doiIdentity": "PASS",
+        "doiHttpStatus": 302,
+        "doiRedirectTo": "https://www.bmj.com/lookup/doi/10.1136/bmj-2021-069288",
+        "publisherContentHttpStatus": 403,
+        "crossrefTitleMatch": "PASS",
+        "primaryFullTextHttpStatus": 200,
+        "table2Values": "PASS"
+      },
+      "design": "Three-arm cluster randomized trial",
+      "participants": 756,
+      "clusters": 78,
+      "population": "UK local-government desk workers",
+      "followUpMonths": 12,
+      "arms": [
+        "Usual practice",
+        "SMART Work and Life (SWAL)",
+        "SWAL plus height-adjustable desk"
+      ],
+      "outcome": "Daily sitting, including during and outside work",
+      "unit": "minutes/day",
+      "estimator": "Adjusted between-group difference at 12 months versus usual practice",
+      "analysis": "Primary complete-case analysis",
+      "differences": [
+        {
+          "arm": "SWAL",
+          "estimate": -22.2,
+          "ci95Lower": -38.8,
+          "ci95Upper": -5.7
+        },
+        {
+          "arm": "SWAL plus desk",
+          "estimate": -63.7,
+          "ci95Lower": -80.1,
+          "ci95Upper": -47.4
+        }
+      ],
+      "limitations": [
+        "Combined behavior program and desk, not desk alone",
+        "Sitting time is not a clinical benefit",
+        "Not each individual's before/after change"
+      ],
+      "chartNote": "Use negative differences, or convert all estimates and confidence limits consistently to fewer minutes. Zero means no adjusted difference."
+    }
+  ],
+  "figures": [
+    {
+      "id": "break-frequency-protocol",
+      "sourceId": "dunstan-2012",
+      "kind": "protocol",
+      "numericBenefit": false
+    },
+    {
+      "id": "break-frequency-interpretation",
+      "sourceId": "dunstan-2012",
+      "kind": "interpretation",
+      "numericBenefit": false
+    },
+    {
+      "id": "eye-break-mnemonic",
+      "sourceId": "talens-estarelles-2023",
+      "kind": "mnemonic",
+      "universalGuideline": false
+    },
+    {
+      "id": "eye-break-study",
+      "sourceId": "talens-estarelles-2023",
+      "kind": "study-timeline",
+      "totalStudyWeeks": 5
+    },
+    {
+      "id": "standing-desk-trial",
+      "sourceId": "edwardson-2022",
+      "kind": "trial-arms"
+    },
+    {
+      "id": "standing-desk-results",
+      "sourceId": "edwardson-2022",
+      "kind": "effect-chart",
+      "includeConfidenceIntervals": true
+    }
+  ],
+  "checks": {
+    "sourceIdsExistInRegistry": "PASS",
+    "clinicalReview": "NOT RUN",
+    "currentLiteratureSystematicReview": "NOT RUN",
+    "figureArtworkRights": "Original explanatory graphics required; do not reproduce or trace publisher figures."
+  }
+}

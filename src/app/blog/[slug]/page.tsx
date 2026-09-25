@@ -3,8 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker, StartResetButton } from "@/components/marketing/LandingCta";
+import { BlogFigure } from "@/components/marketing/BlogFigure";
 import { PainNote, RichText } from "@/components/marketing/RichText";
 import { BLOG_POSTS, blogCtaRoutine, blogWordCount, findBlogPost, type BlogBlock } from "@/content/blog";
+import { getBlogFigure } from "@/content/blog-figures";
 import { getSource, shortCitation } from "@/lib/seo-content";
 
 const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co").replace(/\/$/, "");
@@ -28,6 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: post.metaDescription,
       type: "article",
       publishedTime: post.published,
+      ...(post.updatedAt ? { modifiedTime: post.updatedAt } : {}),
     },
   };
 }
@@ -48,6 +51,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     headline: post.title,
     description: post.metaDescription,
     datePublished: post.published,
+    ...(post.updatedAt ? { dateModified: post.updatedAt } : {}),
     url: `${BASE}/blog/${post.slug}`,
     author: { "@type": "Organization", name: "DeskBreak" },
     publisher: { "@type": "Organization", name: "DeskBreak", url: BASE },
@@ -68,8 +72,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           {post.title}
         </h1>
         <p className="mt-3 text-sm text-muted">
-          <time dateTime={post.published}>{formatDate(post.published)}</time> · {minutesToRead} min read ·{" "}
-          {sources.length} studies cited
+          <time dateTime={post.published}>{formatDate(post.published)}</time>
+          {post.updatedAt ? (
+            <> · Updated <time dateTime={post.updatedAt}>{formatDate(post.updatedAt)}</time></>
+          ) : null}{" "}
+          · {minutesToRead} min read · {sources.length} studies cited
         </p>
 
         {post.painNote ? <PainNote className="mt-6" /> : null}
@@ -148,6 +155,8 @@ function Block({ block }: { block: BlogBlock }) {
           ))}
         </ul>
       );
+    case "figure":
+      return <BlogFigure figure={getBlogFigure(block.figureId)} />;
     case "quote": {
       const source = getSource(block.sourceId);
       return (
