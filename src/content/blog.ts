@@ -525,7 +525,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        text: "That matches research on sitting. A 2017 review of 17 trials looked at apps, prompting software and wearables designed to reduce sitting {cite:stephenson-2017}. On average they cut sitting by about 40 minutes a day in the short term. Beyond six months, the effect had nearly vanished.",
+        text: "The same question comes up in research on sitting. A 2017 review of 17 trials looked at apps, prompting software and wearables designed to reduce sitting {cite:stephenson-2017}. On average they cut sitting by about 40 minutes a day in the short term. Beyond six months, the effect had nearly vanished.",
       },
       { type: "quote", sourceId: "stephenson-2017" },
       {
@@ -570,7 +570,8 @@ export const BLOG_POSTS: BlogPost[] = [
     query: "do standing desks actually reduce sitting time",
     published: "2026-09-18",
     updatedAt: "2026-09-25",
-    guardrail: "Desks reduce sitting by about 1 h/day. Health benefits unproven. Moving still matters.",
+    guardrail:
+      "Programme plus desk ~64 min/day less sitting; programme alone ~22 min. Combined intervention, never desk alone. Adjusted total daily sitting vs usual practice at 12 months. Health benefits unproven.",
     sources: ["shrestha-2018", "edwardson-2022", "buckley-2015"],
     cta: {
       need: "general",
@@ -586,7 +587,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "Do they reduce sitting? Yes" },
       {
         type: "p",
-        text: "A 2018 Cochrane review looked at 34 studies of workplace interventions for sitting less, with about 3,400 participants {cite:shrestha-2018}. Sit-stand desks cut workplace sitting by around 100 minutes a day in the short term and by about an hour a day at medium-term follow-up. The authors rated the evidence as low quality, largely because the studies were small or had design limitations.",
+        text: "A 2018 Cochrane review looked at 34 studies of workplace interventions for sitting less, with about 3,400 participants {cite:shrestha-2018}. Sit-stand desks cut workplace sitting by around 100 minutes a day in the short term and by about an hour a day at medium-term follow-up. The authors rated the evidence as low quality, largely because the studies were small or had design limitations. Those figures count sitting at work only.",
       },
       { type: "quote", sourceId: "shrestha-2018" },
       {
