@@ -324,7 +324,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "The review: strengthening has the stronger case" },
       {
         type: "p",
-        text: "A 2017 systematic review gathered eight randomised trials of exercise for office workers with neck pain {cite:louw-2017}. Pooling the results, strengthening exercise reduced pain compared with no exercise, by an amount the authors judged large enough to matter. Only one trial tested stretching, so the review couldn't say much about it either way; the authors called for more research on stretching and endurance exercise.",
+        text: "A 2017 systematic review gathered eight randomized trials of exercise for office workers with neck pain {cite:louw-2017}. Pooling the results, strengthening exercise reduced pain compared with no exercise, by an amount the authors judged large enough to matter. Only one trial tested stretching, so the review couldn't say much about it either way; the authors called for more research on stretching and endurance exercise. Their conclusion uses QoL for quality of life:",
       },
       { type: "quote", sourceId: "louw-2017" },
       {
@@ -348,16 +348,16 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "Stretching helped too, in one trial" },
       {
         type: "p",
-        text: "Stretching isn't off the table. A 2018 trial in Malaysia followed 142 office workers who already had neck, shoulder or low back discomfort, comparing a stretching programme and workstation changes in a four-group design {cite:shariat-2018}. Over six months, pain scores for the neck, shoulders and low back fell more with stretching than in the control group, and only the exercise group kept improving between months four and six.",
+        text: "Stretching isn't off the table. A 2018 trial in Malaysia followed 142 office workers who already had neck, shoulder or low back discomfort, comparing a stretching program and workstation changes in a four-group design {cite:shariat-2018}. Over six months, pain scores for the neck, shoulders and low back fell more with stretching than in the control group, and only the exercise group kept improving between months four and six.",
       },
       {
         type: "p",
-        text: "The authors concluded that therapists should include stretching rather than rely on workstation changes alone. It's one trial, in people who already had symptoms, with a supervised programme. That makes it evidence that stretching can help, not that it beats everything else.",
+        text: "The authors concluded that therapists should include stretching rather than rely on workstation changes alone. It's one trial, in people who already had symptoms, with a supervised program. That makes it evidence that stretching can help, not that it beats everything else.",
       },
       { type: "h2", text: "What the trials have in common" },
       {
         type: "p",
-        text: "Look past the headlines and these three studies share a few features. The people in them already had neck or shoulder symptoms. The exercise was regular, most days of the week, for weeks or months. And it was structured: a set programme, often with someone checking in, rather than a stretch whenever people remembered.",
+        text: "Look past the headlines and these three studies share a few features. The people in them already had neck or shoulder symptoms. The exercise was regular, most days of the week, for weeks or months. And it was structured: a set program, often with someone checking in, rather than a stretch whenever people remembered.",
       },
       {
         type: "p",
@@ -407,7 +407,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "Micro-breaks and energy" },
       {
         type: "p",
-        text: "A 2022 meta-analysis gathered 22 samples covering 2,335 people, workers and students, and asked what breaks of ten minutes or less actually do {cite:albulescu-2022}. Across studies, micro-breaks gave a small boost to vigour, the feeling of having energy, and a small reduction in fatigue. Small is a statistical term here: the effects were real but modest. The kind of thing you'd notice, not the kind that transforms your day.",
+        text: "A 2022 meta-analysis gathered 22 samples covering 2,335 people, workers and students, and asked what breaks of ten minutes or less actually do {cite:albulescu-2022}. Across studies, micro-breaks gave a small lift in energy, which the research calls vigor, and a small drop in fatigue. Small is a statistical term here: the effects were real but modest. The kind of thing you'd notice, not the kind that transforms your day.",
       },
       { type: "quote", sourceId: "albulescu-2022" },
       {
@@ -427,7 +427,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "Where breathing fits" },
       {
         type: "p",
-        text: "Some breaks are about slowing down rather than moving. A 2023 meta-analysis of randomised trials looked at breathwork, meaning structured practices like slow or paced breathing, and self-reported stress {cite:fincham-2023}. Breathwork was linked to modestly lower stress than control conditions, with similar effects for anxiety and low mood.",
+        text: "Some breaks are about slowing down rather than moving. A 2023 meta-analysis of randomized trials looked at breathwork, meaning structured practices like slow or paced breathing, and self-reported stress {cite:fincham-2023}. Breathwork was linked to modestly lower stress than control conditions, with similar effects for anxiety and low mood.",
       },
       { type: "quote", sourceId: "fincham-2023" },
       {
@@ -672,7 +672,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "The short-term effect is real" },
       {
         type: "p",
-        text: "A 2017 review looked at 17 randomised trials of technology designed to reduce sitting, pooling 15 of them: apps, prompting software on computers, and wearables {cite:stephenson-2017}. On average, people using them sat about 41 minutes a day less than comparison groups. Prompts and cues, reminders in plain English, were among the most common techniques used.",
+        text: "A 2017 review looked at 17 randomized trials of technology designed to reduce sitting, pooling 15 of them: apps, prompting software on computers, and wearables {cite:stephenson-2017}. On average, people using them sat about 41 minutes a day less than comparison groups. Prompts and cues, reminders in plain English, were among the most common techniques used.",
       },
       { type: "h2", text: "Then it fades" },
       {
