@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${BASE}/`, lastModified: now, priority: 1 },
     { url: `${BASE}/science`, lastModified: now, priority: 0.8 },
+    { url: `${BASE}/desk-break-timer`, lastModified: now, priority: 0.9 },
     ...LANDING_PAGES.map((page) => ({
       url: `${BASE}/${page.slug}`,
       lastModified: now,
