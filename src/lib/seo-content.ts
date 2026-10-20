@@ -1,6 +1,6 @@
 import evidenceJson from "../../data/evidence.json";
-import { getPrograms } from "./content";
-import type { BodyArea, DurationMinutes, PrimaryNeed } from "./types";
+import { getExercises, getPrograms, isFloorMove } from "./content";
+import type { BodyArea, DurationMinutes, Exercise, PrimaryNeed } from "./types";
 
 /**
  * Content for the public, indexable pages.
@@ -634,4 +634,41 @@ export function findAreaPage(slug: string): AreaPage | undefined {
 
 export function findGuidePage(slug: string): GuidePage | undefined {
   return GUIDE_PAGES.find((page) => page.slug === slug);
+}
+
+/* ---------------------------------------------------------------- *
+ * Links between pages. A move page that links nowhere is a dead end
+ * for readers and for crawlers alike.
+ * ---------------------------------------------------------------- */
+
+export type PageLink = { href: string; title: string };
+
+/** Public routine pages that walk through this move, landing pages first. */
+export function pagesFeaturingMove(exerciseId: string): PageLink[] {
+  return [
+    ...LANDING_PAGES.filter((page) => page.moves.includes(exerciseId)).map((page) => ({
+      href: `/${page.slug}`,
+      title: page.title,
+    })),
+    ...AREA_PAGES.filter((page) => page.moves.includes(exerciseId)).map((page) => ({
+      href: `/desk-exercises/${page.slug}`,
+      title: page.title,
+    })),
+  ];
+}
+
+/**
+ * Other moves for the same part of the body, in catalog order. Floor moves
+ * only ever link to floor moves, so a desk move never points at one.
+ */
+export function relatedMoves(exercise: Exercise, limit = 4): Exercise[] {
+  const floor = isFloorMove(exercise);
+  const candidates = getExercises().filter(
+    (other) => other.id !== exercise.id && isFloorMove(other) === floor,
+  );
+  const samePrimary = candidates.filter((other) => other.bodyArea === exercise.bodyArea);
+  const overlapping = candidates.filter(
+    (other) => other.bodyArea !== exercise.bodyArea && other.bodyAreas.some((area) => exercise.bodyAreas.includes(area)),
+  );
+  return [...samePrimary, ...overlapping].slice(0, limit);
 }
