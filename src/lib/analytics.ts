@@ -81,6 +81,9 @@ export type AnalyticsEvent =
   | "return_prompt_dismissed"
   | "share_reset_clicked"
   | "share_reset_result"
+  // The public desk break timer.
+  | "timer_started"
+  | "timer_finished"
   // Older names, still emitted for existing dashboards.
   | "reset_started"
   | "reset_completed"
