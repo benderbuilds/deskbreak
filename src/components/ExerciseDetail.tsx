@@ -4,7 +4,7 @@ import { ExerciseActions } from "@/components/ExerciseActions";
 import { BODY_AREA_LABELS, MOVEMENT_TYPE_LABELS } from "@/lib/body-areas";
 import { SAFETY_LINE } from "@/lib/constants";
 import { formatDose } from "@/lib/format";
-import { MOVE_STUDIES, getSource, shortCitation } from "@/lib/seo-content";
+import { MOVE_STUDIES, getSource, pagesFeaturingMove, relatedMoves, shortCitation } from "@/lib/seo-content";
 import type { Exercise, MovementType } from "@/lib/types";
 
 const SETUP_LABELS: Record<Exercise["setup"], string> = {
@@ -103,7 +103,54 @@ export function ExerciseDetail({
           </Link>
         </p>
       </section>
+
+      {inApp ? null : <MoveLinks exercise={exercise} />}
     </article>
+  );
+}
+
+/** Public page only: routines that use this move, and moves like it. */
+function MoveLinks({ exercise }: { exercise: Exercise }) {
+  const routines = pagesFeaturingMove(exercise.id);
+  const related = relatedMoves(exercise);
+  return (
+    <>
+      {routines.length ? (
+        <section className="mt-7" aria-labelledby="routines-with-this-move">
+          <h2 id="routines-with-this-move" className="font-display text-xl font-extrabold text-ink">
+            Routines with this move
+          </h2>
+          <ul className="mt-2 grid gap-1.5">
+            {routines.map((page) => (
+              <li key={page.href}>
+                <Link href={page.href} className="font-semibold text-pen">
+                  {page.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {related.length ? (
+        <section className="mt-7" aria-labelledby="related-moves">
+          <h2 id="related-moves" className="font-display text-xl font-extrabold text-ink">
+            Related moves
+          </h2>
+          <ul className="mt-2 grid gap-1.5">
+            {related.map((other) => (
+              <li key={other.id}>
+                <Link href={`/moves/${other.id}`} className="font-semibold text-pen">
+                  {other.name}
+                </Link>{" "}
+                <span className="text-sm text-muted">
+                  · {SETUP_LABELS[other.setup]}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+    </>
   );
 }
 

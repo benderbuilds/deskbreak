@@ -100,7 +100,33 @@ type PostHogLike = {
 declare global {
   interface Window {
     posthog?: PostHogLike;
+    gtag?: (command: "event", event: string, params?: Record<string, unknown>) => void;
   }
+}
+
+/**
+ * The few events GA4 also receives, so acquisition reports there can show
+ * whether a channel brought people who finished a reset. One event per
+ * outcome: `recommendation_completed` fires with `reset_completed` and is
+ * deliberately left out, or GA would count every completion twice.
+ */
+const GA_EVENTS: ReadonlySet<AnalyticsEvent> = new Set([
+  "reset_started",
+  "reset_completed",
+  "share_reset_clicked",
+  "checkout_completed",
+]);
+
+/** Plain, non-identifying properties only. GA never sees ids or emails. */
+const GA_PROPERTIES = ["program_id", "duration", "setup", "body_need", "need", "source", "plan", "total_resets"] as const;
+
+function sendToGoogleAnalytics(event: AnalyticsEvent, payload: Record<string, unknown>): void {
+  if (!GA_EVENTS.has(event) || typeof window.gtag !== "function") return;
+  const params: Record<string, unknown> = {};
+  for (const key of GA_PROPERTIES) {
+    if (payload[key] !== undefined && payload[key] !== null) params[key] = payload[key];
+  }
+  window.gtag("event", event, params);
 }
 
 const QUEUE_LIMIT = 40;
@@ -145,6 +171,7 @@ function baseProperties(): Record<string, unknown> {
 export function track(event: AnalyticsEvent, properties: EventProperties = {}): void {
   if (typeof window === "undefined") return;
   const payload = { ...baseProperties(), ...properties };
+  sendToGoogleAnalytics(event, payload);
   const ph = client();
   if (ph) {
     ready = true;
