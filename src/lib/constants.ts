@@ -32,7 +32,7 @@ export const HERO_SUBHEAD =
  * routine would be handed one by a button that just said "free".
  */
 export const FREE_RESET_MINUTES: DurationMinutes = 3;
-export const HERO_HEADLINE = "Sit all day? Take three minutes.";
+export const HERO_HEADLINE = "Sit all day? Do a three-minute reset to feel better.";
 export const HERO_SUPPORT =
   "A free, guided movement break you can do right at your desk. Follow along, then get back to your day.";
 export const FREE_CTA_LABEL = "Start my free reset";
