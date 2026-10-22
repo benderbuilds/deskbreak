@@ -6,7 +6,7 @@ test.describe("free entry", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { name: /sit all day\? take three minutes/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /sit all day\? do a three minute reset to feel better/i })).toBeVisible();
     await expect(page.getByText(/3 minutes\. no signup\. no equipment\./i).first()).toBeVisible();
 
     const cta = page.getByRole("link", { name: /^start my free reset$/i }).first();
@@ -101,7 +101,7 @@ test.describe("first visit", () => {
     await clearAppState(page, { firstRun: true });
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { name: /sit all day\? take three minutes/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /sit all day\? do a three minute reset to feel better/i })).toBeVisible();
     await expect(page.getByText("3-minute Desk Reset").first()).toBeVisible();
 
     // One button, no account. The first time only, one safety screen whose
@@ -151,7 +151,7 @@ test.describe("first visit", () => {
   test("the marketing page renders without client state", async ({ page }) => {
     const response = await page.request.get("/");
     const html = await response.text();
-    expect(html).toContain("Sit all day? Take three minutes.");
+    expect(html).toContain("Sit all day? Do a three minute reset to feel better.");
     expect(html).toContain("3-minute Desk Reset");
     expect(html).toContain("/app/start?minutes=3&amp;source=landing");
   });

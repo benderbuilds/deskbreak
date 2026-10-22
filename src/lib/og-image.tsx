@@ -41,10 +41,11 @@ async function fonts() {
 
 /**
  * The renderer drops the space after a hyphenated run, so "20-20-20 rule"
- * comes out as "20-20-20rule". A non-breaking space survives it.
+ * comes out as "20-20-20rule". A non-breaking space survives it. It also
+ * breaks lines at hyphens ("three-" / "minute"), so they become non-breaking.
  */
 function spaceAfterHyphens(title: string): string {
-  return title.replace(/(\S*-\S*) /g, "$1\u00A0");
+  return title.replace(/(\S*-\S*) /g, "$1\u00A0").replace(/(?<=\S)-(?=\S)/g, "\u2011");
 }
 
 /** Longer headlines step down so they still fill the frame without wrapping past it. */
