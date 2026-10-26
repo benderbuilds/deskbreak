@@ -1,4 +1,4 @@
-import type { BodyArea, MovementType } from "./types";
+import type { BodyArea, ExerciseSetup, MovementType } from "./types";
 
 export const BODY_AREA_LABELS: Record<BodyArea, string> = {
   neck: "Neck",
@@ -50,3 +50,10 @@ export function areaLine(areas: string[], limit = 6): string {
     .slice(0, limit)
     .join(", ");
 }
+
+export const SETUP_LABELS: Record<ExerciseSetup, string> = {
+  either: "Seated or standing",
+  seated: "Seated",
+  standing: "Standing",
+  floor: "On the floor",
+};

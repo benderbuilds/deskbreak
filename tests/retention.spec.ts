@@ -1,4 +1,6 @@
 import { expect, test } from "@playwright/test";
+import { getExercises, isFloorMove } from "../src/lib/content";
+import { GUIDE_PAGES, relatedMoves } from "../src/lib/seo-content";
 import { appAlert, clearAppState, completeReset, finishDoneFlow, grantPro } from "./helpers";
 
 test.describe("workday plan", () => {
@@ -217,6 +219,31 @@ test.describe("seo pages hand off into the product", () => {
     expect(sitemap).toContain("/science");
     expect(sitemap).toContain("/moves/chin-tuck");
     expect(sitemap).not.toContain("/app/");
+    expect(sitemap).toContain("/moves</loc>");
+    expect(sitemap).toContain("/guides</loc>");
+  });
+
+  test("every move and guide is linked from a hub, not only the sitemap", async ({ page }) => {
+    const moves = await (await page.request.get("/moves")).text();
+    for (const exercise of getExercises()) expect(moves, exercise.id).toContain(`href="/moves/${exercise.id}"`);
+    const guides = await (await page.request.get("/guides")).text();
+    for (const guide of GUIDE_PAGES) expect(guides, guide.slug).toContain(`href="/guides/${guide.slug}"`);
+    // Every public page reaches both hubs through the footer.
+    expect(moves).toContain('href="/guides"');
+    expect(guides).toContain('href="/moves"');
+  });
+
+  test("related moves spread links across the catalog and never mix in floor moves", () => {
+    const linked = new Set<string>();
+    for (const exercise of getExercises()) {
+      for (const other of relatedMoves(exercise)) {
+        expect(isFloorMove(other), `${exercise.id} -> ${other.id}`).toBe(isFloorMove(exercise));
+        linked.add(other.id);
+      }
+    }
+    // A desk move with any same-area or overlapping neighbour gets linked back.
+    const unlinked = getExercises().filter((exercise) => !isFloorMove(exercise) && !linked.has(exercise.id));
+    expect(unlinked.map((exercise) => exercise.id)).toEqual([]);
   });
 
   test("renamed app routes redirect", async ({ page }) => {
