@@ -41,6 +41,12 @@ export function MarketingShell({ children }: { children: ReactNode }) {
             <Link href="/desk-exercises" className="hover:text-ink">
               Desk exercises
             </Link>
+            <Link href="/moves" className="hover:text-ink">
+              All moves
+            </Link>
+            <Link href="/guides" className="hover:text-ink">
+              Guides
+            </Link>
             <Link href="/office-workout" className="hover:text-ink">
               Office workout
             </Link>

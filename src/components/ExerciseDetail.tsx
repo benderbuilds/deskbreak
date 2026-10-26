@@ -1,18 +1,11 @@
 import Link from "next/link";
 import { CharacterArt } from "@/components/CharacterArt";
 import { ExerciseActions } from "@/components/ExerciseActions";
-import { BODY_AREA_LABELS, MOVEMENT_TYPE_LABELS } from "@/lib/body-areas";
+import { BODY_AREA_LABELS, MOVEMENT_TYPE_LABELS, SETUP_LABELS } from "@/lib/body-areas";
 import { SAFETY_LINE } from "@/lib/constants";
 import { formatDose } from "@/lib/format";
 import { MOVE_STUDIES, getSource, pagesFeaturingMove, relatedMoves, shortCitation } from "@/lib/seo-content";
 import type { Exercise, MovementType } from "@/lib/types";
-
-const SETUP_LABELS: Record<Exercise["setup"], string> = {
-  either: "Seated or standing",
-  seated: "Seated",
-  standing: "Standing",
-  floor: "On the floor",
-};
 
 /** Used when a move has no rationale of its own. Never a claim about the move. */
 const WHY_BY_TYPE: Record<MovementType, string> = {

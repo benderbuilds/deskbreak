@@ -8,7 +8,7 @@ import { StickyStartBar } from "@/components/marketing/StickyStartBar";
 import { startHref } from "@/lib/start-link";
 import { PainNote, RichText } from "@/components/marketing/RichText";
 import { getExercise } from "@/lib/content";
-import { LANDING_PAGES, findLandingPage, startMinutes, startRoutineName } from "@/lib/seo-content";
+import { GUIDE_PAGES, LANDING_PAGES, findLandingPage, startMinutes, startRoutineName } from "@/lib/seo-content";
 
 const BASE = (process.env.NEXT_PUBLIC_APP_URL || "https://deskbreak.co").replace(/\/$/, "");
 
@@ -158,9 +158,15 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
         <nav className="mt-12 text-sm text-muted" aria-label="More desk exercise guides">
           <p className="font-semibold text-ink/70">More guides</p>
           <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
-            {LANDING_PAGES.filter((entry) => entry.slug !== page.slug).map((entry) => (
-              <li key={entry.slug}>
-                <Link href={`/${entry.slug}`} className="font-semibold text-pen underline underline-offset-4">
+            {[
+              ...LANDING_PAGES.filter((entry) => entry.slug !== page.slug).map((entry) => ({
+                href: `/${entry.slug}`,
+                title: entry.title,
+              })),
+              ...GUIDE_PAGES.map((entry) => ({ href: `/guides/${entry.slug}`, title: entry.title })),
+            ].map((entry) => (
+              <li key={entry.href}>
+                <Link href={entry.href} className="font-semibold text-pen underline underline-offset-4">
                   {entry.title}
                 </Link>
               </li>

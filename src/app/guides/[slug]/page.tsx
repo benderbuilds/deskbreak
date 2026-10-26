@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker, StartResetButton } from "@/components/marketing/LandingCta";
@@ -56,6 +57,26 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             </StartResetButton>
           </div>
         </div>
+
+        <nav className="mt-12 text-sm text-muted" aria-label="More guides">
+          <p className="font-semibold text-ink/70">More guides</p>
+          <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
+            {[
+              ...GUIDE_PAGES.filter((entry) => entry.slug !== page.slug).map((entry) => ({
+                href: `/guides/${entry.slug}`,
+                title: entry.title,
+              })),
+              { href: "/guides", title: "All guides" },
+              { href: "/moves", title: "Every move, by body area" },
+            ].map((entry) => (
+              <li key={entry.href}>
+                <Link href={entry.href} className="font-semibold text-pen underline underline-offset-4">
+                  {entry.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </article>
     </MarketingShell>
   );

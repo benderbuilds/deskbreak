@@ -658,15 +658,18 @@ export function pagesFeaturingMove(exerciseId: string): PageLink[] {
 }
 
 /**
- * Other moves for the same part of the body, in catalog order. Floor moves
- * only ever link to floor moves, so a desk move never points at one.
+ * Other moves for the same part of the body. Same-area moves start from the
+ * one after this move in catalog order and wrap around, so every move is
+ * linked from its neighbours rather than the first few hogging every link.
+ * Floor moves only ever link to floor moves, so a desk move never points at one.
  */
 export function relatedMoves(exercise: Exercise, limit = 4): Exercise[] {
   const floor = isFloorMove(exercise);
-  const candidates = getExercises().filter(
-    (other) => other.id !== exercise.id && isFloorMove(other) === floor,
-  );
-  const samePrimary = candidates.filter((other) => other.bodyArea === exercise.bodyArea);
+  const all = getExercises();
+  const candidates = all.filter((other) => other.id !== exercise.id && isFloorMove(other) === floor);
+  const sameArea = all.filter((other) => other.bodyArea === exercise.bodyArea && isFloorMove(other) === floor);
+  const at = sameArea.findIndex((other) => other.id === exercise.id);
+  const samePrimary = [...sameArea.slice(at + 1), ...sameArea.slice(0, at)];
   const overlapping = candidates.filter(
     (other) => other.bodyArea !== exercise.bodyArea && other.bodyAreas.some((area) => exercise.bodyAreas.includes(area)),
   );
