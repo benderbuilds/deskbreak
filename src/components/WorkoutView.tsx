@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ButtonLink } from "@/components/Button";
 import { CharacterArt } from "@/components/CharacterArt";
+import { demonstrationAlt, resolveExerciseArt } from "@/lib/character-art";
 import { ErrorState } from "@/components/StatusStates";
 import { SwapSheet, type SwapMode } from "@/components/SwapSheet";
 import { track, recommendationProperties } from "@/lib/analytics";
@@ -423,6 +424,8 @@ export function WorkoutView({
   }
 
   const stepSetup = effectiveSetup(current.exercise, setup);
+  // A photo fills a rounded square; Stretch sits inside the paper circle.
+  const stageIsPhoto = resolveExerciseArt(current.exercise.id, stepSetup).isPhoto;
   const cue = cueForSetup(current.exercise, setup);
   const totalSec = engine.steps.reduce((sum, step) => sum + step.durationSec, 0);
   const sessionRemaining = Math.max(0, totalSec * (1 - engine.progress));
@@ -539,7 +542,11 @@ export function WorkoutView({
           key={`${current.exercise.id}-${engine.stepIndex}`}
           className="animate-step-in mt-4 flex w-full justify-center lg:mt-0"
         >
-          <div className="grid aspect-square h-[25vh] max-h-[300px] min-h-[170px] place-items-center rounded-full bg-paper lg:h-[54vh] lg:max-h-[480px]">
+          <div
+            className={`grid aspect-square h-[25vh] max-h-[300px] min-h-[170px] place-items-center bg-paper lg:h-[54vh] lg:max-h-[480px] ${
+              stageIsPhoto ? "overflow-hidden rounded-[18%]" : "rounded-full"
+            }`}
+          >
             <CharacterArt
               pose="exercise"
               exerciseId={current.exercise.id}
@@ -547,8 +554,8 @@ export function WorkoutView({
               animate={engine.status === "running"}
               mirror={current.side === "right"}
               size={280}
-              alt={`Stretch demonstrating ${current.exercise.name}${current.side ? `, ${current.side} side` : ""}`}
-              className="h-[84%] w-auto"
+              alt={`${demonstrationAlt(current.exercise.id, current.exercise.name, stepSetup)}${current.side ? `, ${current.side} side` : ""}`}
+              className={stageIsPhoto ? "h-full w-full" : "h-[84%] w-auto"}
             />
           </div>
         </div>

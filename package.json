@@ -15,7 +15,9 @@
     "test:security": "playwright test tests/api-security.spec.ts --project=mobile",
     "push:keys": "node scripts/generate-vapid.mjs",
     "art:manifest": "node scripts/build-art-manifest.mjs",
-    "art:audit": "node scripts/audit-art.mjs"
+    "art:audit": "node scripts/audit-art.mjs",
+    "art:import": "node scripts/import-art-frames.mjs",
+    "art:shots": "node scripts/art-shot-list.mjs"
   },
   "dependencies": {
     "next": "16.3.4",

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CharacterArt } from "@/components/CharacterArt";
+import { demonstrationAlt } from "@/lib/character-art";
 import { ExerciseActions } from "@/components/ExerciseActions";
 import { BODY_AREA_LABELS, MOVEMENT_TYPE_LABELS, SETUP_LABELS } from "@/lib/body-areas";
 import { SAFETY_LINE } from "@/lib/constants";
@@ -45,7 +46,7 @@ export function ExerciseDetail({
           exerciseId={exercise.id}
           animate
           size={240}
-          alt={`Stretch demonstrating ${exercise.name}`}
+          alt={demonstrationAlt(exercise.id, exercise.name)}
         />
       </div>
       <p className="mt-4 text-sm font-semibold text-muted">
