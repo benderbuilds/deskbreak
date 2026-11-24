@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CharacterArt } from "@/components/CharacterArt";
+import { demonstrationAlt } from "@/lib/character-art";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker, StartResetButton } from "@/components/marketing/LandingCta";
 import { PainNote } from "@/components/marketing/RichText";
@@ -56,7 +57,7 @@ export default async function AreaPage({ params }: { params: Promise<{ area: str
         <ol className="mt-10 grid gap-4">
           {moves.map((exercise, index) => (
             <li key={exercise.id} className="surface flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center">
-              <CharacterArt pose="exercise" exerciseId={exercise.id} size={110} alt={`Stretch demonstrating ${exercise.name}`} />
+              <CharacterArt pose="exercise" exerciseId={exercise.id} size={110} alt={demonstrationAlt(exercise.id, exercise.name)} />
               <div className="min-w-0">
                 <h2 className="font-display font-extrabold text-lg text-ink">
                   {index + 1}.{" "}

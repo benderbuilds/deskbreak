@@ -1,0 +1,24 @@
+{
+  "note": "Recipes for scripts/import-art-frames.mjs. Each pair shares one crop box so the camera, instructor and props stay fixed between the start and end frame. Paths are relative to the repo root.",
+  "frames": [
+    {
+      "stem": "seated-cat-cow",
+      "source": "design/instructor/reference-seated-sheet.png",
+      "crop": { "left": 180, "top": 6, "size": 480 },
+      "patches": [
+        {
+          "why": "Covers the sheet's 'Seated cat-cow' label with the same patch of wall from the matching cow panel (same camera, no label).",
+          "from": { "left": 945, "top": 14 },
+          "to": { "left": 176, "top": 14 },
+          "width": 100,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "stem": "seated-cat-cow-b",
+      "source": "design/instructor/reference-seated-sheet.png",
+      "crop": { "left": 949, "top": 6, "size": 480 }
+    }
+  ]
+}

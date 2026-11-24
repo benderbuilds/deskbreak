@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CharacterArt } from "@/components/CharacterArt";
+import { resolveExerciseArt } from "@/lib/character-art";
 
 /** One step of the demo. `next` is the real routine's next move, not the loop's. */
 export type DemoMove = { id: string; name: string; seconds: number; next: string };
@@ -12,7 +13,7 @@ const TICK_MS = 100;
 
 /**
  * A compact preview of the workout screen for the landing page: the move,
- * Stretch demonstrating it, a countdown, and what's next. Built from the real
+ * the move's artwork, a countdown, and what's next. Built from the real
  * routine so it can't drift from what "Start" does.
  *
  * It is a picture of the product, never the product: it starts no session,
@@ -63,6 +64,7 @@ export function WorkoutDemo({ moves, totalSteps }: { moves: DemoMove[]; totalSte
   if (!moves.length) return null;
 
   const move = moves[index];
+  const photo = resolveExerciseArt(move.id).isPhoto;
   const progress = playing ? elapsed / MOVE_MS : 0;
   const remaining = Math.max(1, Math.ceil(move.seconds * (1 - progress)));
 
@@ -91,7 +93,11 @@ export function WorkoutDemo({ moves, totalSteps }: { moves: DemoMove[]; totalSte
             }}
           />
 
-          <div className="relative grid aspect-square w-[6.5rem] shrink-0 place-items-center rounded-full bg-paper sm:w-[7.5rem]">
+          <div
+            className={`relative grid aspect-square w-[6.5rem] shrink-0 place-items-center bg-paper sm:w-[7.5rem] ${
+              photo ? "overflow-hidden rounded-[18%]" : "rounded-full"
+            }`}
+          >
             <CharacterArt
               key={move.id}
               pose="exercise"
@@ -99,7 +105,7 @@ export function WorkoutDemo({ moves, totalSteps }: { moves: DemoMove[]; totalSte
               animate={playing}
               size={120}
               alt=""
-              className="h-[84%] w-auto"
+              className={photo ? "h-full w-full" : "h-[84%] w-auto"}
             />
           </div>
 

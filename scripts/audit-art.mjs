@@ -20,7 +20,9 @@ import { join } from "node:path";
 const root = process.cwd();
 const { exercises } = JSON.parse(readFileSync(join(root, "data", "exercises.json"), "utf8"));
 const { programs } = JSON.parse(readFileSync(join(root, "data", "programs.json"), "utf8"));
-const stems = new Set(JSON.parse(readFileSync(join(root, "data", "art-manifest.json"), "utf8")).files);
+const manifest = JSON.parse(readFileSync(join(root, "data", "art-manifest.json"), "utf8"));
+const stems = new Set(manifest.files);
+const photos = new Set(manifest.webp ?? []);
 
 /**
  * Specific-pose Pro moves known to need art, in the PT review's priority
@@ -75,6 +77,8 @@ const missingCount = (access) => missing.filter((exercise) => exercise.access ==
 console.log(`art coverage: ${exercises.length - missing.length}/${exercises.length} moves have dedicated art`);
 console.log(`  free: ${count("free") - missingCount("free")}/${count("free")}`);
 console.log(`  pro:  ${count("pro") - missingCount("pro")}/${count("pro")}`);
+const photographed = exercises.filter((exercise) => photos.has(exercise.id) || photos.has(`${exercise.id}-standing`));
+console.log(`  instructor photos: ${photographed.length}/${exercises.length}${photographed.length ? ` (${photographed.map((exercise) => exercise.id).join(", ")})` : ""}`);
 
 const failures = [];
 if (missing.length) {

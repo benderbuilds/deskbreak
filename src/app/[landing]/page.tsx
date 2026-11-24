@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CharacterArt } from "@/components/CharacterArt";
+import { demonstrationAlt } from "@/lib/character-art";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { LandingViewTracker, StartResetButton } from "@/components/marketing/LandingCta";
 import { StickyStartBar } from "@/components/marketing/StickyStartBar";
@@ -106,7 +107,7 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ lan
         <ol className="mt-5 max-w-[46rem] border-b border-line">
           {moves.map((exercise, index) => (
             <li key={exercise.id} className="grid grid-cols-[76px_1fr] items-start gap-4 border-t border-line py-5 sm:grid-cols-[120px_1fr] sm:gap-6">
-              <CharacterArt pose="exercise" exerciseId={exercise.id} size={120} alt={`Stretch demonstrating ${exercise.name}`} className="h-auto w-full" />
+              <CharacterArt pose="exercise" exerciseId={exercise.id} size={120} alt={demonstrationAlt(exercise.id, exercise.name)} className="h-auto w-full" />
               <div className="min-w-0">
                 <h3 className="font-display font-extrabold text-lg text-ink">
                   {index + 1}.{" "}
